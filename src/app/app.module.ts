@@ -42,7 +42,6 @@ import { XmvCompanyComponent } from './xmv-company/xmv-company.component';
 import { XMVCompanyContactComponent } from './xmv-company/xmvcompany-contact/xmvcompany-contact.component';
 import { XMVCompanyOfferComponent } from './xmv-company/xmvcompany-offer/xmvcompany-offer.component';
 import { XMVCompanyProfileComponent } from './xmv-company/xmvcompany-profile/xmvcompany-profile.component';
-import { XMVCompanyBioComponent } from './xmv-company/xmvcompany-bio/xmvcompany-bio.component';
 import { ManageUrlTopicComponent } from './routing-app/manage-url-topic/manage-url-topic.component';
 import { ConfigComponent } from './config/config.component';
 import { HttpErrorHandler } from './http-error-handler.service';
@@ -69,7 +68,6 @@ import { AuthService } from './auth.service';
     XMVCompanyContactComponent,
     XMVCompanyOfferComponent,
     XMVCompanyProfileComponent,
-    XMVCompanyBioComponent,
     ManageUrlTopicComponent,
     ConfigComponent,
     
