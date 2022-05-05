@@ -47,13 +47,13 @@ export class KEHomePageComponent {
        MydialogConfig.panelClass = 'MypanelClass';                                                                                                                                                                      
          
        MydialogConfig.backdropClass = 'MybackdropClass';
-       MydialogConfig.width = '760px';
+       MydialogConfig.width = '80%';
        MydialogConfig.height = '300px';
                            
         // position --> defines a starting absolute position for the dialog
         // bottom, left, right, top
       MydialogConfig.position = {
-        top: '230px',
+        top: '10px',
         left: '30px',            
       };
 
