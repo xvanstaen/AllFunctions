@@ -1,0 +1,380 @@
+@import "./MyLogo.css";
+
+div {
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    /*
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    */
+
+}
+body{
+    max-width:1250px;
+}
+    
+    .header{
+    margin-top:0px;
+    margin-left: 2%;
+    max-width:98%;
+    height:19%;
+    max-height:20%;
+    background-color: 0.65;
+    border: 0px solid blue;
+    }
+    
+    
+    
+    .myfooter{
+    /* margin-top:5px; */
+    background-color:cyan;
+    border: 0px solid blue;
+    margin-left: 2%;
+    width: 90%;
+    height:13%; 
+    float:left;
+    border: solid 0px black;
+    }
+    
+    .text-footer{
+    /*** not used ***/
+    background-color:cyan;
+    margin-left:20px;
+    font-size:12px;
+    
+    }
+    
+    .copyright{
+    background-color:cyan;
+    font-size:10px; 
+    color:rgb(51, 117, 192); 
+    text-align:center;
+    }
+    
+    .pos_icons{
+    display:block;
+    width:80%;
+    height:35px;
+    border: solid 0px black;
+    float:right;
+    margin-right:15%;
+    }
+    
+    .div_icons{
+    margin-top:5px;
+    height:30px; 
+    width:290px;
+    display: flex; 
+    border: solid 0px blue;
+    float:right;
+    margin-right:10%;
+    }
+
+    .icons {
+    color:red; 
+    font-size:20px;
+    margin-left:13px;
+    }
+
+    .icons_data{
+    font-size:13px;
+    }
+
+    .icons-email {
+        color:red; 
+        font-size:20px;
+        margin-left:13px;
+        }
+    
+    .icons_data-email{
+        font-size:13px;
+        }
+
+    .icons-email:hover {
+        color:rgb(52, 21, 174); 
+        background-color: aqua;
+            }
+        
+    .icons_data-email:hover{
+        color:rgb(52, 21, 174); 
+        background-color: aqua;
+        }
+    
+    .pos_options{
+    width:600px;
+    height:70px;
+    margin-top:0px;
+    border: solid 0px rgb(211, 127, 30);
+    display:block;
+    float:right;
+    margin-right:15%;
+    }
+    
+    .options {
+    width:115px;
+    height: 65px;
+    display:table;
+    cursor: pointer;
+    margin-left:10px;
+    color:blue;
+    float:left;
+    text-align:center;
+    }
+    
+    .firstOption{
+    margin-left:24px; 
+    }
+    
+    .otherOptions{
+    margin-left:10px; 
+    }
+    
+    .options-text {
+    font-size: 16px;
+    color: rgb(89, 89, 105);
+    font-weight: bold;
+    }
+    
+    .options:hover {
+    color: rgb(68, 51, 238);
+    border-bottom: solid 4px red;
+    }
+    
+    .option_background{
+    font-weight: bolder;
+    color: rgb(68, 51, 238);
+    border-bottom: solid 4px red;
+    } 
+    
+    .sizeMap{
+    margin-left:2%;
+    margin-top:20px;
+    width: 90%;
+    
+    height:620px;
+    }
+    
+    .Main_Page_Size{
+    /* POSITION OF THE TEXT WITHIN THE MAIN_PAGE_SIZE BOX*/
+    padding-left:20px;
+    padding-right:10px;
+    /* POSITION OF THE THE MAIN_PAGE_SIZE BOX WITHIN sizeMap*/
+    margin-top:-600px;
+    margin-left:6%;
+    width:82%;
+    height:580px;
+    
+    opacity: 0.65;
+    background-color:rgb(46, 78, 221);
+    color:bold;
+    text-align: left;
+    /*
+    background-color:rgb(74, 173, 91);
+    */
+    }
+    
+    .Main_Page_Title{
+    font-size:42px;
+    margin-left:0%;
+    font-weight:bolder;
+    color:white;
+    /*
+    background-color:rgb(202, 231, 156);
+    */
+    }
+    
+    .Main_Page_Text{
+    font-size:20px; 
+    margin-left:0px;
+    font-weight:bolder;
+    color:white;
+    /*
+    background-color:rgb(108, 161, 185);
+    */
+    }
+    
+    
+    .LearnOffer{
+    font-style: italic; 
+    font-weight:bold;
+    font-size:22px;
+    }
+    
+    .LearnOffer:hover{
+    font-style: italic; 
+    font-weight:bold;
+    color:red;
+    }
+    
+    
+    
+    /*** ====================================== ***/
+    /*** ============== @media 1000 ================ ***/
+    /*** ====================================== ***/
+    @media only screen and (max-width: 1000px) {
+    
+    .pos_icons{
+    margin-right:0%;
+    }
+    .pos_options{
+    width:560px;
+    height:60px;
+    margin-right:0%;
+    }
+    .firstOption{
+    margin-left:46px; 
+    }
+    .options {
+    width:100px;
+    height: 60px;
+    }
+    
+    
+    .options-text {
+    font-size: 14px;
+    }
+    .sizeMap{
+    margin-top:35px;
+    }
+    
+    .Main_Page_Title{
+    font-size:36px;
+    }
+    .Main_Page_Text{
+    font-size:18px; 
+    }
+    }
+    
+    /*** ====================================== ***/
+    /*** ============== @media 768 ================ ***/
+    /*** ====================================== ***/
+    @media only screen and (max-width: 768px) {
+    
+    
+    .pos_options{
+    width:390px;
+    height:50px;
+    margin-right:5%;
+    }
+
+    .options {
+    width:78px;
+    height: 50px;
+    }
+    
+    .firstOption{
+    margin-left:10px; 
+    }
+    
+    .options-text {
+    font-size: 14px;
+    }
+    
+    
+    .Main_Page_Title{
+    font-size:28px;
+    }
+    .Main_Page_Text{
+    font-size:16px; 
+    }
+    
+    }
+    
+    
+    /*** ====================================== ***/
+    /*** ============== @media 650 ================ ***/
+    /*** ====================================== ***/
+    @media only screen and (max-width:650px) {
+    
+    .icons {
+    font-size:12px;
+    margin-left:42px;
+    }
+
+    .icons_data{
+    font-size:10px;
+    }
+    
+    .pos_options{
+    width:340px;
+    height:60px;
+    margin-right:2%;
+    margin-top:-5px;
+    }
+
+    .options {
+    width:70px;
+    height: 55px;
+    margin-top:-15px;
+    }
+    
+    .firstOption{
+    margin-left:20px; 
+    }
+    
+    .otherOptions{
+    margin-left:8px; 
+    }
+    
+    .options-text {
+    font-size: 12px;
+    }
+
+    .sizeMap{
+    margin-top:20px;
+    height:690px;
+    }
+
+    .Main_Page_Size{
+    margin-left:2%;
+    margin-top:-690px;
+    height:690px;
+    width:90%;
+    }
+    
+    .Main_Page_Title{
+    font-size:22px;
+    }
+
+    .Main_Page_Text{
+    font-size:18px; 
+    }
+    }
+    
+    /*** ====================================== ***/
+    /*** ============== @media 510 ================ ***/
+    /*** ====================================== ***/
+    @media only screen and (max-width: 510px) {
+    
+    .sizeMap{
+    margin-top:10px;
+    height:790px;
+    }
+
+    .Main_Page_Size{
+    margin-top:-790px;
+    height:790px;
+    }
+
+    .Main_Page_Text{
+    font-size:16px;
+    }
+
+
+    }
+
+    /*** ====================================== ***/
+    /*** ============== @media 420 ================ ***/
+    /*** ====================================== ***/
+    @media only screen and (max-width: 420px) {
+        .Main_Page_Text{
+            font-size:14px;
+            }
+
+         .firstOption{
+                margin-left:30px; 
+                }
+        
+        .options-text {
+        font-size: 10px;
+        }
+    }

@@ -1,0 +1,41 @@
+/* define header */
+
+
+div {
+    margin: 5px;
+    width: 310px;
+    height: 3px;
+    margin-top: 20px;
+}
+
+
+.options {
+    font-size: 18px;
+    color: black;
+    font-weight: bold;
+    float:left;
+    width: 100px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.icons {
+    max-width: 50px;
+    float:right;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.logo {
+    margin: 10px;
+    float:left;
+}
+
+
+
+/*
+
+
+}
+
+*/

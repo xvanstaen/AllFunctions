@@ -1,0 +1,70 @@
+<!--  display the banner first */
+-->
+<head>
+
+</head>
+
+<body>
+
+  <section>
+    <div class='logo'>
+        <img src="./assets/KoreanAir-Logo/KoreanAir-Logo_2.png" width=210px height=50px>
+    </div>
+
+    <div class='options'>
+     BOOK
+    </div>
+    <div class='options'>
+      AIRPORT
+    </div>
+    <div class='options'>
+      IN-FLIGHT
+    </div>
+    <div class='options'>
+      SKYPASS
+    </div>
+   
+    <div class='icons'> 
+      <button (click) = "OpenSearchGeneralDialog()"> <mat-icon class='material-icons-outlined'>
+        search
+      </mat-icon>
+    </button>
+
+    <!-- 
+      <a mat-icon-button routerLink="."></a>
+      -->
+    </div>
+
+    <div class='icons'> 
+      <button routerLink="/myRouting"> <mat-icon class='material-icons-outlined'>  
+        shopping_cart
+    </mat-icon> </button> 
+  </div>
+
+  <div class='icons'>
+    <button (click) = "ReturnOther()">
+    <mat-icon class='material-icons-rounded'>
+      info
+    </mat-icon></button>
+  </div>
+
+    <div class='icons'> 
+      <mat-icon class='material-icons-rounded'>
+        login 
+      </mat-icon>
+    </div>
+    <!--  on return of the search -->
+    <!-- 
+    <span *ngIf="searchstring"> <h3>My search is related to:</h3> <h2>{{searchstring}} </h2></span>
+      -->
+  </section>
+
+
+
+<BookingFormComponent></BookingFormComponent>
+
+</body>
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+
+
+

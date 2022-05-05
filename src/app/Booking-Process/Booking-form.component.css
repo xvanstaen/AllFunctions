@@ -1,0 +1,154 @@
+
+.image-section {
+    position: absolute; 
+    top: 50px;
+    left:-25px;
+    box-sizing: border-box;
+    border: 0.5px solid lightblue ; 
+    margin: 29px;
+    width: 98%;
+    height: 475px;
+    float: left;
+}
+
+.bluebox{
+    position: absolute; 
+    background: rgb(38, 38, 139);
+    top: 0px;
+    right: 0px;
+    width: 36%;
+    height: 477px;
+    float: right;
+}
+
+.textinbluebox {
+    font-size:18px;
+    color: white;
+    font-weight: bold;
+    float: left;
+    margin-left: 25px;
+    margin-top: 5px;
+}
+.book-box{
+    box-sizing: border-box;
+    border-bottom: 8px solid rgb(202, 19, 19) ; 
+    width: 100px;
+    height: 45px;
+    float: left;
+    margin-left:20px;
+    margin-top: 5px;
+ 
+}
+
+.award-box{
+    box-sizing: border-box;
+    border: 0px; 
+    margin-top: 1px;
+    max-width: 100px;
+    height: 40px;
+    float: left;
+    margin-left:60px;
+    margin-top: 5px;
+  
+}
+
+.dotsinbluebox {
+    font-size:30px;
+    color: white;
+    font-weight: bold;
+    float: left;
+    width: 30px;
+    margin-top: 0px;
+    vertical-align: middle;
+    margin-left:50px;
+}
+
+.select-booking-box {
+    box-sizing: border-box;
+    background: rgb(252, 251, 251);
+    float: left;
+    width: 412px;
+    height: 427px;
+    margin-left: -1px;
+    margin-top: -5px;
+}
+
+.from-to-apt-box {
+    position: absolute;
+    margin-top: 70px;
+}
+
+.apt-box  {
+    margin-left: 20px; 
+}
+
+.to-apt-box {
+    margin-left: 250px;
+}
+
+.code-name {
+    color: rgb(10, 9, 9);
+    font-weight: bold;
+    margin-left: 5px;
+    min-width: 90px;
+    min-height: 30px;  
+}
+
+.apt-code {
+    font-size:22px;
+    margin-top: 5px;
+}
+
+.apt-name {
+    font-size:15px;
+    margin-top: 10px;  
+}
+
+.middle-icons {
+    max-width: 100px;
+    margin-top: 10px;
+    position: absolute;
+    margin-top: 95px;
+    margin-left: 175px;
+    float: left;
+}
+
+.left-float {
+    float: left;
+}
+
+.right-float {
+    float: right;
+}
+
+.thefourboxes{
+    position:absolute;
+    background: white;
+    float:left;
+    margin-top: 160px;
+    margin-left: 20px;
+    max-width: 360px;
+    /* transition: all 5s;   reaction time for mouse action*/ 
+}
+
+.buttonsize {
+    min-width: 360px;
+    min-height:70px;
+    box-sizing: boarder-box;
+    margin-top:5px;
+    background-color: white;
+    border: 0px;
+    border-bottom: solid 1px black;
+    text-align:left;
+}
+
+.icons{
+    float: right;
+    font-size:20px;
+}
+
+.mouseh :hover {
+    display: line;
+    border: solid 3px blue ;
+    background-color: white;
+}

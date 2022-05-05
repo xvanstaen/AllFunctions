@@ -1,0 +1,45 @@
+<p>CALENDAR FUNCTION</p>
+
+
+<!-- DATEPICKER
+        https://material.angularjs.org/latest/demo/datepicker
+        https://stackblitz.com/run?file=src%2Fapp%2Fdatepicker-range.ts
+        https://www.angularjswiki.com/material/datepicker/
+        https://ng-bootstrap.github.io/#/components/datepicker/examples
+        https://material.angular.io/components/datepicker/overview
+-->
+
+<div [formGroup]="TheCalendarform">
+    <button class="cancelbutton" (click)="OnCancel()">
+        X
+    </button>
+
+
+        <input  class = "form-control inputsize" formControlName="oneway_boarding_date"
+                 placeholder="{{oneway_date | date: 'yyyy-MM-dd'}}" type="date" required> 
+                {{oneway_date | date: 'yyyy-MM-dd'}}
+        <div class="errormsg" *ngIf="type_error===1 || type_error===4" >
+                        {{error_msg}}  
+        </div>
+        
+        
+        <input  class = "form-control inputsize" formControlName="return_boarding_date"
+                placeholder= "{{return_date}} | date: 'yyyy-MM-dd'" type="date"  >   
+                {{return_date | date: 'yyyy-MM-dd'}}
+
+        <span class="errormsg" *ngIf="type_error===2 || type_error===6 || type_error===5" >
+                {{error_msg}}  
+        </span>
+
+        <div class = "form-control inputsize">
+                <input   type="radio" formControlName="travel_type" value="O"> one-way 
+                <input   type="radio" formControlName="travel_type" value="R"> return
+               <input type="submit" value="Click" (click)="OnSubmit()">
+        </div>  
+         <div class="errormsg" *ngIf="type_error===3"  >
+                {{error_msg}}
+         </div>
+
+         
+        
+</div>

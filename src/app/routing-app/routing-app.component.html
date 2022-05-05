@@ -1,0 +1,310 @@
+<head>
+
+</head>
+
+<body>
+<section>
+
+    <div class='mylogo smcirclesize example_one'>
+        <div class='smwhitecircle'>
+            <span class='smXMV'>XMV</span >
+            <span  class='smITConsulting'>IT Consulting</span >
+        </div>
+    </div>
+
+    <div class='mylogo smcirclesize example_two'>
+        <div class='smwhitecircle'>
+            <span class='smXMV'>XMV</span >
+            <span  class='smITConsulting'>IT Consulting</span >
+        </div>
+    </div>
+
+    <div class='mylogo smcirclesize example_three'>
+        <div class='smwhitecircle'>
+            <span class='smXMV'>XMV</span >
+            <span  class='smITConsulting'>IT Consulting</span >
+        </div>
+    </div>
+        <!-- ========== xl logo =========== -->
+    <br><br>
+            <div class='mylogo xlcirclesize example_one'>
+                <div class='xlwhitecircle'>
+                    <span class='xlXMV'>XMV</span >
+                    <span  class='xlITConsulting'>IT Consulting</span >
+                </div>
+            </div>
+
+            <div class='mylogo xlcirclesize example_two'>
+                <div class='xlwhitecircle'>
+                    <span class='xlXMV'>XMV</span >
+                    <span  class='xlITConsulting'>IT Consulting</span >
+                </div>
+            </div>
+
+            <div class='mylogo xlcirclesize example_three'>
+                <div class='xlwhitecircle'>
+                    <span class='xlXMV'>XMV</span >
+                    <span  class='xlITConsulting'>IT Consulting</span >
+                </div>
+            </div>
+    <span> <br><br>Arrow-> Picker;   <br><br>Search -> Palette;  <br><br>login -> Slider;  <br><br>Shopping-> KEHP  <br><br></span>
+        <div class='icons' style='margin-right: 50px;'> 
+            <button  (click) = "ClearDiv()"> <mat-icon class='material-icons-outlined'>  
+            shopping_cart
+            </mat-icon> </button> 
+        </div>
+        <div class='icons'> 
+            <button [routerLink]="['/myColorSlider']"> <mat-icon class='material-icons-outlined'>  
+            login
+            </mat-icon> </button> 
+        </div>
+        <div class='icons'> 
+            <button [routerLink]="['/myColorPalette']"> <mat-icon class='material-icons-outlined'>  
+                search
+            </mat-icon> </button> 
+        </div>
+        <div class='icons'> 
+            <button (click) = "ToColorPicker()"> <mat-icon class='material-icons-outlined'>  
+                arrow_forward_ios
+            </mat-icon> </button> 
+        </div>
+        <div class='icons'> 
+            <button [routerLink]="['/myXMVcompany']"> <mat-icon class='material-icons-outlined'> 
+                arrow_back_ios
+            </mat-icon> </button> 
+        </div>
+        <div class='icons'> 
+            <button [routerLink]="['/IntlPhoneNb']"> <mat-icon class='material-icons-outlined'> 
+                <span class="material-icons">
+                    phone_iphone
+            </span>
+            </mat-icon> </button> 
+        </div>
+        <div class='icons'> 
+            <button [routerLink]="['/TopicURL']"> <mat-icon class='material-icons-outlined'> 
+                <span class="material-icons">
+                    article
+            </span>
+            </mat-icon> </button> 
+        </div>
+
+<!-- ================== SLIDER ================== -->
+
+    <div class='sliderposition'>
+        <p style='margin-left:30px;'> Default range slider:</p>
+        <input  class='sliderdefault' type="range" min="1" max="100" value="50">
+    </div>
+    <div class='sliderposition'>
+        <input class="slider" type="range" min="1" max="100" value="50"  id="myRange"  (input)='returnValue($event)'  >
+        <p style='margin-left:30px;'> Value: {{otherValue}} & myValue = {{myValue}}</p>
+    </div> 
+
+
+  
+<!-- ==== Test @Input and @Output  ======= -->
+
+<div style='margin-left:30px; color:red; font-size: 20px;' *ngIf='Error_Access_Server!==""'>{{Error_Access_Server}}</div>
+
+    <div class='color-wrapper'>
+        <app-first-child  [my_input1]="my_input_child1" (my_output1)='Testdata1($event)'>
+        </app-first-child>
+        <app-second-child [my_input2]="my_input_child2" (my_output2)='Testdata2($event)' (my_output1)='Testdata1($event)'>
+        </app-second-child>
+    </div>
+
+    <div class='input-wrapper'>
+        <span class="text"> slider: {{my_input_child2}} </span>
+        <div class="color-div" [ngStyle]="{'background-color': my_input_child2 || 'white'}"></div>
+        
+    </div>
+    <div class='input-wrapper'>
+        <span class="text">  palette {{selected_color}} </span>
+        <div class="color-div" [ngStyle]="{'background-color': selected_color || 'white'}"></div>
+        
+    </div>
+ 
+    <!-- 
+========= TEST ENCRYPTION 
+-->
+<div style='margin-top:30px; margin-left:40px;'><p>ENCRYPTION</p>
+<label style='margin-top:20px; margin-left:40px; color:blue;'>Decrypt is </label>
+<input style='margin-top:20px; margin-left:40px; width:200px; height:40px;'type='text' [(ngModel)]="Decrypt" placeholder={{Decrypt}} >
+<label style='margin-top:20px; margin-left:40px; color:blue;'>Encrypt is </label>
+<input style='margin-top:20px; margin-left:40px; width:200px; height:40px;'placeholder={{Encrypt}} type='text'[(ngModel)]="Encrypt">
+<label style='margin-top:20px; margin-left:40px; color:rgb(224, 14, 60);'>Crypto record </label>
+<input style='margin-top:20px; margin-left:40px; width:30px; height:20px;'placeholder={{Crypto_Record}} type='number'[(ngModel)]="Crypto_Record">
+<label style='margin-top:20px; margin-left:40px; color:rgb(224, 14, 60);'>Encrypt key is </label>
+<input style='margin-top:20px; margin-left:40px; width:30px; height:20px;'placeholder={{Crypto_Key}} type='number'[(ngModel)]="Crypto_Key">
+    <div style='margin-top:20px;'>
+    <input style='margin-top:20px; margin-left:20px; width:50px; height:10px;' type='radio' [(ngModel)]="Crypto_Method" value='AES'>
+    <label> AES</label>
+    <input style='margin-top:20px; margin-left:20px; width:50px; height:10px;' type='radio' [(ngModel)]="Crypto_Method" value='DES'>
+    <label> DES</label>
+    </div>
+</div>
+{{Crypto_Error}}
+<div style='margin-top:20px; margin-left:80px;'>
+    <button id='1' type="button" (click)="onCrypt('Encrypt')">Encrypt</button>
+    <button id='2' style='margin-left:20px;'  type="button" (click)="onCrypt('Decrypt')">Decrypt</button>
+    <button id='3' style='margin-left:20px;' type="button" (click)="onSave('Encrypt')">Save Encrypt</button>
+    <button id='3' style='margin-left:20px;' type="button" (click)="onRead()">Read record</button>
+   
+</div>
+
+ <!--   === display websites to learn specific Angular features using TABLE-->
+
+        <div class='BlockTable'> 
+            <span style='margin-left:40px;'>Use CSS TABLE</span>
+            <table class="myWebSites"  *ngFor = "let theList of AngularWebSite; let i=index">
+                    <tr *ngIf = "i===0 else header">
+                    <!-- don't display anything -->
+                    </tr>
+                    <ng-template  #header>
+                        <tr *ngIf = "i===1 else OddRow">
+                            <th > {{theList.topic}}</th>
+                            <th > {{theList.url}}</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template  #OddRow>
+                        <tr *ngIf = "i % 2 ===0; else EvenRow">
+                        <td > <a  class='TableText BlockSizeSubject' href='{{theList.url}}' target='_blank'>  {{theList.topic}}</a></td>
+                        <td > <span class='TableText BlockSizeURL'>{{theList.url}}</span></td>
+                        </tr>
+                    </ng-template>
+                    <ng-template  #EvenRow>
+                        <tr class='even'>
+                        <td > <a  class='TableText BlockSizeSubject' href='{{theList.url}}' target='_blank'>  {{theList.topic}}</a></td>
+                        <td > <span class='TableText BlockSizeURL'>{{theList.url}}</span></td>
+                        </tr>
+                    </ng-template>
+            </table>
+        </div>
+
+<!--   === display websites to learn specific Angular features using GRID-->
+ 
+    
+    <div class='BlockTable'>
+        <span style='margin-left:40px;'>Use CSS GRID</span>
+        <ul  *ngFor = "let theList of AngularWebSite; let i=index">
+            <span class='tableTopicURL' *ngIf = "i===0; else header">
+            </span>
+            <ng-template  #header>
+                <li class='tableTopicURL' *ngIf = "i===1; else test">
+                    <span class='boxTopic'> {{theList.topic}}</span>
+                    <span class='boxURL'> {{theList.url}}</span>
+                </li>
+            </ng-template>  
+            <ng-template  #test>
+                <li class='tableTopicURL'>
+                    <span class='boxTopic'><a href='{{theList.url}}' target='_blank'>  {{theList.topic}}</a></span>
+                    <span class='boxURL'> {{theList.url}}</span>
+                </li>
+                </ng-template>
+        </ul>
+            
+    </div>
+
+<!--   === UPLOAD and SAVE file(s)-->
+
+
+<!--   
+
+ <input #fileUpload [accept]="'.json'" type="file" class="file-input" 
+    (change)="onFileSelected($event)">
+
+--> 
+    <div class='division'>      
+    <h1> UPLOAD FILE</h1>
+    </div>
+
+    <input #fileUpload type="file" class="file-input " 
+    (change)="onFileSelected($event)">
+    
+    <button mat-mini-fab color="primary" class='PPP ' style='margin-top:20px;'
+    (click)="fileUpload.click()"> Import file <mat-icon>attach_file</mat-icon>
+    </button> 
+    
+    <p style='margin-left:40px; margin-top:20px; color: blue;'> File name: {{uploadFileName}}</p>
+    
+   
+    <div class='division'> 
+        
+    </div>
+    <!--
+    <p>Open a text file:</p>
+    <input type="file" (change)="open($event)">
+    <p *ngIf="readFileContent">Contents:</p>
+    <pre>{{readFileContent}}</pre>
+    <hr>
+    -->
+    <div class='division'> 
+    <h1>SAVE FILE & DOWNLOAD</h1>
+    </div>
+    
+    <div class='NameFile'>
+    <label>File name</label> <input type="text" style='margin-left:40px;' [(ngModel)]="saveFileName"/> <br/><br/>
+    <label>File content:</label> <input style='margin-left:22px;' type="text" [(ngModel)]="saveFileContent" /> <br/> <br/> 
+    <label>File extension:</label> <input style='margin-left:10px;' type="text" [(ngModel)]="saveFileExtension" /> <br/> <br/>  
+    
+    <button 
+    (click)="onSaveFile()"> Save file
+    </button> 
+    
+    </div>
+
+    
+    <div class='divisiontwo'> 
+    <h1>UPLOAD with http method using fake json server or file.io </h1>
+    </div>
+
+    <form [formGroup]="myForm"  (ngSubmit)="submit($event)">
+      <!-- 
+          *ngIf="myForm.controls['file'].touched && myForm.controls['file'].invalid" 
+          *ngIf="myForm.controls['name'].touched && myForm.controls['file'].invalid" 
+      -->
+        <div>
+            <label class='NameFile' for="name"> Name</label>
+            <input 
+                formControlName="name"
+                id="name" 
+                type="text" 
+                class=" Name_input">
+
+            <div *ngIf=" ((myForm.controls['name'].touched || myForm.controls['name'].dirty) && myForm.controls['name'].invalid)"  class="alert alert-danger">
+                <div *ngIf="myForm.controls['name'].errors?.['required']">Name is required on formControls errors.</div>
+                <div *ngIf="myForm.controls['name'].errors?.['minlength']">Name should be 3 characters.</div>
+            </div>
+        </div>
+
+        <div >
+            <label style='float:left; margin-left:2px; margin-top:40px; color:green'> File </label>
+            <input 
+                formControlName="file"
+                id="file" 
+                type="file" 
+                
+                (change)="onFileChange($event)">
+
+
+            <div *ngIf=" ((myForm.controls['name'].touched || myForm.controls['name'].dirty) && myForm.controls['file'].invalid)" class="alert alert-danger">
+                <div *ngIf="myForm.controls['file'].errors?.['required']">File is required.</div>
+            </div>
+        
+              
+        <div><button class=" button_position" type="submit">Submit</button></div>
+    </div>
+    </form>
+
+    
+<div style='margin-top:100px; margin-left:40px;'><p>File content:</p>
+    <span class='BlockTable'>
+     {{uploadFileContent}}</span>
+</div>
+<div style='margin-top:450px;'><br/> <br/> ================== </div>
+
+
+
+</section>
+</body>
+
+

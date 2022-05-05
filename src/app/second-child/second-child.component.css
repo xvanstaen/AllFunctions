@@ -1,0 +1,15 @@
+
+
+.color-palette:hover {
+    cursor: pointer;
+  }
+
+.position{
+
+    color:black;
+    margin-top: 0px;
+    margin-left: 50px;
+    position:absolute;
+    border:solid 2px rgb(209, 17, 17);
+     
+  }

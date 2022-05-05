@@ -1,0 +1,101 @@
+.closeicons {
+    max-width: 30px;
+    float:right;
+    margin-top: 5px;
+    position: relative;
+    top: -45px;
+    right: 0;
+}
+
+.blockregion{
+    box-sizing: boarder-box;
+    width: 260px;
+    height: 350px;
+    border: solid 3px black(0, 255, 42);
+    background-color: rgb(196, 189, 189);
+    position: absolute;
+    top: 160px;
+    left: 170px;
+    overflow: scroll;
+}
+
+.blockcity{
+    border: solid 3px black(0, 255, 42);
+    position: absolute;
+    top: 160px;
+    left: 420px;
+    width: 450px;
+    height: 350px;
+    overflow: scroll;
+}
+.selected {
+    background-color: white !important;
+    border: solid 2px black(0, 255, 42);
+    color: black;
+  }
+.mainstyle {
+    margin: 0 0 2em 0;
+    list-style-type: none;
+    padding: 0;
+    /*
+    width: 15em;
+    */
+}
+
+.LiHeightRegion {
+    margin-top:5px;
+    height: 5.6em;
+    background-color: rgb(196, 189, 189);
+}
+
+.LiHeightCity {
+    height: 1.6em;
+    background-color: white;
+}
+
+.mainstyle li {
+    cursor: pointer;
+    position: relative;
+    margin-left: 10px;
+    border-radius: 4px;
+    width: 220px;
+    list-style-type: none;
+    display: bloc;
+  }
+  .mainstyle li.selected:hover {
+    background-color: #BBD8DC !important;
+    border: solid 2px blue(0, 255, 42);
+  }
+  .mainstyle li:hover {
+    color: #607D8B;
+    background-color: rgb(30, 216, 200);
+    left: .1em;
+    border: solid 2px blue(0, 255, 42);
+  }
+  
+  .mainstyle .region {
+    display: inline-block;
+    font-size: medium;
+    color: black;
+    position: relative;
+    margin-left: 10px;
+    margin-top: 25px;
+    height: 30px;
+    
+    /*
+    margin-right: .8em;
+    border-radius: 4px 0 0 4px;
+    background-color: rgb(196, 189, 189);
+    */
+  }
+
+.mainstyle .citycode {
+    font-size: 20px;
+    font: bolder color=black;
+    max-width: 40px;
+  }
+
+.mainstyle .cityname {
+    font-size: 15px;
+    font:  color=black;
+}
