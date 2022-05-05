@@ -53,8 +53,8 @@ export class KEHomePageComponent {
         // position --> defines a starting absolute position for the dialog
         // bottom, left, right, top
       MydialogConfig.position = {
-        top: '10px',
-        left: '30px',            
+        top: '0px',
+        left: '0px',            
       };
 
       // direction --> frines if the elements inside the dialog are right or left justified

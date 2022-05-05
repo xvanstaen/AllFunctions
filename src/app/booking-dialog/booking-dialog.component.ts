@@ -123,8 +123,8 @@ export class BookingDialogComponent implements OnInit {
         RegiondialogConfig.width = '70%';
         RegiondialogConfig.height = '300px';
         RegiondialogConfig.position = {
-            top: '10px',
-            left: '20px',             
+            top: '0px',
+            left: '0px',             
           };
         
         RegiondialogConfig.data = {

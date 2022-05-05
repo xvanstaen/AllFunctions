@@ -89,8 +89,8 @@ device_type:string='';
       dialogConfig.width = '80%';
       dialogConfig.height = '350px';
       dialogConfig.position = {
-          top: '280px',
-          left: '10px',             
+          top: '0px',
+          left: '0px',             
       };
     
     dialogConfig.data={
@@ -132,8 +132,8 @@ OnAction2(){
       dialogConfig.width = '80%';
       dialogConfig.height = '300px';
       dialogConfig.position = {
-          top: '20px',
-          left: '10px',             
+          top: '0px',
+          left: '0px',             
       };
     
     dialogConfig.data={
@@ -185,8 +185,8 @@ OpenSearchAptDialog(typebox: string) {
       dialogConfig.width = '80%';
       dialogConfig.height = '300px';
       dialogConfig.position = {
-          top: '10px',
-          left: '10px',             
+          top: '0px',
+          left: '0px',             
       };
 
     dialogConfig.data={
