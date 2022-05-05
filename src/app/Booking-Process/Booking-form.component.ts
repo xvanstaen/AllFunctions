@@ -1,4 +1,4 @@
-import { Component, OnInit,Inject, LOCALE_ID } from '@angular/core';
+import { Component, OnInit,Inject, LOCALE_ID, HostListener,} from '@angular/core';
 import { formatDate } from '@angular/common'; 
 import { MatDialogConfig, MatDialog} from '@angular/material/dialog';
 
@@ -27,6 +27,11 @@ export class BookingFormComponent {
 
 //OurDate = new DateTime;
 //tomorrow = new DateTime;
+
+getScreenWidth: any;
+getScreenHeight: any;
+device_type:string='';
+
 
  departure_city_code: string = GlobalVariables.departure_apt_code;
  departure_city_name: string = GlobalVariables.departure_apt_name;
@@ -63,6 +68,11 @@ export class BookingFormComponent {
   }
 
 
+  @HostListener('window:resize', ['$event'])
+  onWindowResize() {
+    this.getScreenWidth = window.innerWidth;
+    this.getScreenHeight = window.innerHeight;
+  }
 
  OnAction1(){
   // triger the calendar component that will return type of trip [one-way or return]

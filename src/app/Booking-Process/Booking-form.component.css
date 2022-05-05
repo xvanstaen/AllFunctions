@@ -156,45 +156,56 @@
  /*** ====================================== ***/
     /*** ============== @media 1000 ================ ***/
     /*** ====================================== ***/
-    @media only screen and (max-width: 1000px) {
+@media only screen and (max-width: 1000px) {
   
+    .image-section {
+        position: relative; 
+        top: 0px;
+        left:-10px;
+        box-sizing: border-box;
+        border: 5px solid lightblue ; 
 
+        width: 94%;
+        height: 510px;
+
+    }
 .bluebox{
-    margin-right:0%;
-    width: 60%;
-    height: 475px;
+    margin-left:0px;
+    width: 100%;
+    height: 510px;
+    float:left;
 
 }
 
 .textinbluebox {
-    font-size:12px;
+    font-size:14px;
     margin-left: 5%;
 }
 
 .book-box{
-    width: 30%;
+    width: 25%;
     height: 45px;
-    margin-left:10px;
-    border: solid 2px red;
+    margin-left:30px;
+    border: solid 0px red;
 }
 
 .award-box{
-    width: 30%;
+    width: 35%;
     height: 45px;
     margin-left:5%;
-    border: solid 2px red;
+    border: solid 0px red;
 }
 
 .dotsinbluebox {
     font-size:20px;
-
-    width: 30%;
-    border: solid 2px red;
+    height: 45px;
+    width: 20%;
+    border: solid 0px red;
     margin-left:5%;
 }
 
 .select-booking-box {
-    border: solid 6px blue;
+    border: solid 0px blue;
     width: 100%;
     height: 427px;
     margin-left: 0px;
@@ -210,23 +221,25 @@
 
 .from-to-apt-box {
     position: absolute;
-    margin-top: 70px;
-    border: solid 7px red;
-    margin-left:2%;
+    margin-top: 15px;
+    border: solid 0px red;
+    margin-left: 10%;
 }
 .middle-icons {
     width: 5%;
-    margin-left: 47%;
+    margin-left: 43%;
+    margin-top: 35px;
+ 
 }
 .to-apt-box {
     margin-left: 57%;
-    border: solid 7px red;
+    border: solid 0px red;
 }
 
 
 
 .code-name {
-    border: solid 3px rgb(0, 255, 13);
+    border: solid 0px rgb(0, 255, 13);
     margin-left: 5px;
     width: 30%;
     height: 30px;  
@@ -234,12 +247,10 @@
 
 .apt-code {
     font-size:14px;
-
 }
 
 .apt-name {
     font-size:14px;
-
 }
 
 
@@ -253,35 +264,23 @@
 }
 
 .thefourboxes{
-    position:absolute;
-    background: white;
-    float:left;
-    margin-top: 160px;
-    margin-left: 20px;
-    max-width: 360px;
+
+    margin-top: 100px;
+
+    max-width: 100%;
     /* transition: all 5s;   reaction time for mouse action*/ 
 }
 
 .buttonsize {
-    min-width: 360px;
-    min-height:70px;
-    box-sizing: boarder-box;
-    margin-top:5px;
-    background-color: white;
-    border: 0px;
-    border-bottom: solid 1px black;
-    text-align:left;
+    width: 90%;
+    height:70px;
 }
 
 .icons{
     float: right;
-    font-size:20px;
+    font-size:25px;
 }
 
-.mouseh :hover {
-    display: line;
-    border: solid 3px blue ;
-    background-color: white;
-}
+
 
     }

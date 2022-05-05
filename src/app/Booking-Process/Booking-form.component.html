@@ -1,91 +1,95 @@
-
-<div class="image-section">
-
-    <img src="./assets/Sainte Croix.JPG" width=100% height=100%>
-
-  <div class="bluebox">
-      <div class="book-box">
-        <div class="textinbluebox"> 
-          Book
+<body>
+      <!--
+    <br> Device type is {{device_type}}
+    <br> Screen width = {{getScreenWidth}}
+    <br> Screen height = {{getScreenHeight}}
+    <br><br>
+    </div>
+    -->
+  <div class="image-section">
+    <div *ngIf = "getScreenWidth>800">
+          <img src="./assets/Sainte Croix.JPG" width=100% height=100%>
+    </div>
+    <div class="bluebox">
+        <div class="book-box">
+            <div class="textinbluebox"> 
+              Book
+            </div>
         </div>
-      </div>
-      <div class="award-box">
-        <div class="textinbluebox">
-          Award 
+        <div class="award-box">
+            <div class="textinbluebox">
+              Award 
+            </div>
         </div>
-      </div>
-      <div class="dotsinbluebox">
-        ...
-      </div>
-      
-      <div class="select-booking-box ">
+        <div class="dotsinbluebox">
+          ...
+        </div>
         
-      </div>
-
-          <div class="apt-box from-to-apt-box">
-            <button md-button (click) = "OpenSearchAptDialog('Origin')" > 
-                <div class="apt-code code-name">
-                  {{departure_city_code}}
-                </div>
-                <div class="apt-name code-name ">
-                   {{departure_city_name}}
-                </div>
-              </button>
-          </div>
-
-          <div class="middle-icons">
-            <mat-icon class="material-icons-outlined">
-              cached
-            </mat-icon>
-          </div>
-        
-          <div class="to-apt-box from-to-apt-box ">
-              <button (click) = "OpenSearchAptDialog('Arrival')"> 
-                <div class="apt-code code-name">
-                  {{arrival_city_code}}
-                </div>
-                <div class="apt-name code-name">
-                  {{arrival_city_name}}
-                </div>
-              </button>
-          </div>
-          <!-- requet user to enter Boarding date, number of pax and class type (eco, biz, premium, first)
-                and whether it's flexible class using radio button
-              each of these items is a box, the first 3 elemets have same box design-->
-        <div >
-            
-              <div class='thefourboxes mouseh'>
-                    <button class= "buttonsize" (click) = "OnAction1()" > 
-                      {{MyBoardingDate}}
-
-                        <mat-icon class='material-icons-rounded icons'>
-                          login 
-                        </mat-icon>
+        <div class="select-booking-box ">
+              <div class="apt-box from-to-apt-box">
+                <button md-button (click) = "OpenSearchAptDialog('Origin')" > 
+                    <div class="apt-code code-name">
+                      {{departure_city_code}}
+                    </div>
+                    <div class="apt-name code-name ">
+                      {{departure_city_name}}
+                    </div>
                   </button>
-       
-              
-                   <button class= "buttonsize" (click) = "OnAction2()"> 
-                     1 Adult 
-                       <mat-icon class='material-icons-rounded icons'>
-                        person 
-                     </mat-icon>
-                    </button>
-                
-                    <button class= "buttonsize" (click) = "OnAction3()"> 
-                      Economy
-                      <mat-icon class='material-icons-rounded icons'>
-                        done
-                      </mat-icon>
-                    </button>
-                 
-                    <button class= "buttonsize" (click) = "OnAction4()"> 
-                      Flexible date
-                      <mat-icon class='material-icons-rounded icons'>
-                        flight-take-off
-                      </mat-icon>
-                      
-                    </button>
               </div>
-      <div>
-  </div>  
-</div>
+  
+              <div class="middle-icons">
+                <mat-icon class="material-icons-outlined">
+                  cached
+                </mat-icon>
+              </div>
+          
+              <div class="to-apt-box from-to-apt-box ">
+                <button (click) = "OpenSearchAptDialog('Arrival')"> 
+                  <div class="apt-code code-name">
+                    {{arrival_city_code}}
+                  </div>
+                  <div class="apt-name code-name">
+                    {{arrival_city_name}}
+                  </div>
+                </button>
+              </div>
+  
+              <div >
+              
+                  <div class='thefourboxes mouseh'>
+                      <button class= "buttonsize" (click) = "OnAction1()" > 
+                        {{MyBoardingDate}}
+  
+                          <mat-icon class='material-icons-rounded icons'>
+                            login 
+                          </mat-icon>
+                      </button>
+         
+                
+                     <button class= "buttonsize" (click) = "OnAction2()"> 
+                       1 Adult 
+                         <mat-icon class='material-icons-rounded icons'>
+                          person 
+                       </mat-icon>
+                      </button>
+                  
+                      <button class= "buttonsize" (click) = "OnAction3()"> 
+                        Economy
+                        <mat-icon class='material-icons-rounded icons'>
+                          done
+                        </mat-icon>
+                      </button>
+                   
+                      <button class= "buttonsize" (click) = "OnAction4()"> 
+                        Flexible date
+                        <mat-icon class='material-icons-rounded icons'>
+                          flight-take-off
+                        </mat-icon>
+                      </button>
+                  </div> <!-- END OF <div class='thefourboxes mouseh'> -->
+                  </div> <!-- END OF empty <div> -->
+        </div>  <!-- END OF <div class="select-booking-box ">-->
+      </div>
+  </div> <!-- end image -->
+
+</body>
