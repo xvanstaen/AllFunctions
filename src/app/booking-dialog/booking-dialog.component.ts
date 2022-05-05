@@ -120,11 +120,11 @@ export class BookingDialogComponent implements OnInit {
         RegiondialogConfig.autoFocus = true;
         RegiondialogConfig.panelClass = 'MypanelClass';                                                                                                                                                                    
         RegiondialogConfig.backdropClass = 'MybackdropClass';
-        RegiondialogConfig.width = '900px';
-        RegiondialogConfig.height = '500px';
+        RegiondialogConfig.width = '70%';
+        RegiondialogConfig.height = '300px';
         RegiondialogConfig.position = {
-            top: '80px',
-            left: '100px',             
+            top: '10px',
+            left: '20px',             
           };
         
         RegiondialogConfig.data = {
