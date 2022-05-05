@@ -24,7 +24,7 @@ RUN  npm run build -prod
 FROM nginx:alpine
 
 #RUN rm /etc/nginx/nginx.conf  /etc/nginx/conf.d/default.conf
-COPY --from=my-app-build /usr/src/app/dist/xmvweb-site/ /usr/share/nginx/html/
+COPY --from=my-app-build /usr/src/app/dist/AllFunctions/ /usr/share/nginx/html/
 COPY ConfNGINX /etc/nginx
 
 # must be used when test on Docker and in Docker must select 8080/TCP and enter port 80xx
@@ -34,7 +34,7 @@ EXPOSE 8080
 #VOLUME /etc/nginx
 
 ### Docker build command  
-###            docker build -t image_website:latest .
+###            docker build -t AllFunctions:latest .
 
 ### Docker run command
-###            docker run -it --rm  --name cont_website -p 8082:8080 image_website:latest
+###            docker run -it --rm  --name cont_AllFunctions -p 8082:8080 image_website:latest

@@ -99,9 +99,9 @@ export class AppComponent {
   ngOnInit(){
     //console.log('ngOnInit app.component');
     
-  
+    // convert to [5] to display XMV Company 
     if (!this.myTypeRoute){
-      this.router.navigateByUrl(this.myRoutingTable[5].Route);
+      this.router.navigateByUrl(this.myRoutingTable[1].Route);
   
     }
     else{

@@ -152,3 +152,136 @@
     border: solid 3px blue ;
     background-color: white;
 }
+
+ /*** ====================================== ***/
+    /*** ============== @media 1000 ================ ***/
+    /*** ====================================== ***/
+    @media only screen and (max-width: 1000px) {
+  
+
+.bluebox{
+    margin-right:0%;
+    width: 60%;
+    height: 475px;
+
+}
+
+.textinbluebox {
+    font-size:12px;
+    margin-left: 5%;
+}
+
+.book-box{
+    width: 30%;
+    height: 45px;
+    margin-left:10px;
+    border: solid 2px red;
+}
+
+.award-box{
+    width: 30%;
+    height: 45px;
+    margin-left:5%;
+    border: solid 2px red;
+}
+
+.dotsinbluebox {
+    font-size:20px;
+
+    width: 30%;
+    border: solid 2px red;
+    margin-left:5%;
+}
+
+.select-booking-box {
+    border: solid 6px blue;
+    width: 100%;
+    height: 427px;
+    margin-left: 0px;
+    margin-top: 0px;
+}
+
+
+
+.apt-box  {
+    margin-left: 2%; 
+}
+
+
+.from-to-apt-box {
+    position: absolute;
+    margin-top: 70px;
+    border: solid 7px red;
+    margin-left:2%;
+}
+.middle-icons {
+    width: 5%;
+    margin-left: 47%;
+}
+.to-apt-box {
+    margin-left: 57%;
+    border: solid 7px red;
+}
+
+
+
+.code-name {
+    border: solid 3px rgb(0, 255, 13);
+    margin-left: 5px;
+    width: 30%;
+    height: 30px;  
+}
+
+.apt-code {
+    font-size:14px;
+
+}
+
+.apt-name {
+    font-size:14px;
+
+}
+
+
+
+.left-float {
+    float: left;
+}
+
+.right-float {
+    float: right;
+}
+
+.thefourboxes{
+    position:absolute;
+    background: white;
+    float:left;
+    margin-top: 160px;
+    margin-left: 20px;
+    max-width: 360px;
+    /* transition: all 5s;   reaction time for mouse action*/ 
+}
+
+.buttonsize {
+    min-width: 360px;
+    min-height:70px;
+    box-sizing: boarder-box;
+    margin-top:5px;
+    background-color: white;
+    border: 0px;
+    border-bottom: solid 1px black;
+    text-align:left;
+}
+
+.icons{
+    float: right;
+    font-size:20px;
+}
+
+.mouseh :hover {
+    display: line;
+    border: solid 3px blue ;
+    background-color: white;
+}
+
+    }
