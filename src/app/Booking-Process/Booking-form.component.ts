@@ -86,11 +86,11 @@ device_type:string='';
       dialogConfig.autoFocus = true;
       dialogConfig.panelClass = 'MypanelClass';                                                                                                                                                                      
       dialogConfig.backdropClass = 'MybackdropClass';
-      dialogConfig.width = '600px';
-      dialogConfig.height = '450px';
+      dialogConfig.width = '80%';
+      dialogConfig.height = '350px';
       dialogConfig.position = {
-          top: '80px',
-          left: '100px',             
+          top: '280px',
+          left: '10px',             
       };
     
     dialogConfig.data={
@@ -129,11 +129,11 @@ OnAction2(){
       dialogConfig.autoFocus = true;
       dialogConfig.panelClass = 'MypanelClass';                                                                                                                                                                      
       dialogConfig.backdropClass = 'MybackdropClass';
-      dialogConfig.width = '800px';
-      dialogConfig.height = '600px';
+      dialogConfig.width = '80%';
+      dialogConfig.height = '300px';
       dialogConfig.position = {
           top: '20px',
-          left: '100px',             
+          left: '10px',             
       };
     
     dialogConfig.data={
@@ -182,11 +182,11 @@ OpenSearchAptDialog(typebox: string) {
       dialogConfig.autoFocus = true;
       dialogConfig.panelClass = 'MypanelClass';                                                                                                                                                                      
       dialogConfig.backdropClass = 'MybackdropClass';
-      dialogConfig.width = '600px';
-      dialogConfig.height = '400px';
+      dialogConfig.width = '80%';
+      dialogConfig.height = '300px';
       dialogConfig.position = {
-          top: '120px',
-          left: '100px',             
+          top: '10px',
+          left: '10px',             
       };
 
     dialogConfig.data={
