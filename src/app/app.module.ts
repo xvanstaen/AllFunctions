@@ -86,7 +86,6 @@ import { AuthService } from './auth.service';
     MatDatepickerModule,
     MatNativeDateModule,
     MatAutocompleteModule,
-    AppRoutingModule,
     ColorPickerModule,
     FileSaverModule,
     HttpClientModule,

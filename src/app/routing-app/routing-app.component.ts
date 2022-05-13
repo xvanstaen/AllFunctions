@@ -26,21 +26,36 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 })
 export class RoutingAppComponent implements OnInit {
 
+
+  Google_Bucket_Access_Root:string='https://storage.googleapis.com/storage/v1/b/';
+  Google_Bucket_Access_RootPOST:string='https://storage.googleapis.com/upload/storage/v1/b/';
   Error_Access_Server:string='';
   Encrypt:string='';
-  Decrypt:string='';
-  Crypto_Method:string='';
+  Decrypt:string='LIM!12monica#Chin';
+  Crypto_Method:string='AES';
   Crypto_Error:string='';
-  Crypto_Key:number=0;
+  Crypto_Key:number=2;
   Crypto_Record:number=0;
+  Server_Type:string='Google';
+  Bucket_Name:string='manage-login';
+  Object_Name:string='XMVIT-Admin';
   Encrypt_Data={
-    id: '',
+    id: 3,
     encrypted:'',
     decrypted:'',
-    key:'',
+    key:0,
     method:''
   }
 
+  UserId_Data:any={
+    id: 0,
+    key:0,
+    method:'',
+    UserId:'',
+    psw:'',
+    phone:''
+  }
+  
   mystring: string='';
   myDiv:any;  
   mySlider:any;
@@ -151,7 +166,7 @@ onCrypt(event:any){
   */
   this.Crypto_Error='';
   if (this.Crypto_Key<1 || this.Crypto_Key>3){
-    this.Crypto_Error='Crpto key must be 1, 2 or 3';
+    this.Crypto_Error='Crypto key must be 1, 2 or 3';
   } else if (event==='Encrypt'){
       // ==== DES native
       //this.Encrypt = CryptoJS.TripleDES.encrypt(this.Decrypt, keyHex, { iv, mode }).toString();
@@ -161,12 +176,15 @@ onCrypt(event:any){
       //this.Encrypt=CryptoJS.AES.encrypt(this.Decrypt, key).toString();
       // ==== AES function
       //this.Encrypt=encrypt(this.Decrypt,key,'AES');
+      if (this.Decrypt===''){
+        this.Crypto_Error="Decrypt field is empty";
+      } else
       if (this.Crypto_Method==='AES' || this.Crypto_Method==='DES'){
         this.Encrypt=encrypt(this.Decrypt,this.Crypto_Key,this.Crypto_Method);
-        } else { this.Crypto_Error="Wrong method for crypto. Must be either 'AES' or 'DES'"
-
+        } else { this.Crypto_Error="Wrong method for crypto. Must be either 'AES' or 'DES'" 
       } 
-  } else { // event=Decrypt
+      console.log(this.Decrypt, " , ", this.Encrypt);
+  } else { // event=Decrypt   
       // ==== DES function
       //this.Decrypt=decrypt(this.Encrypt,key,'DES');
       // ==== AES function
@@ -175,28 +193,62 @@ onCrypt(event:any){
       //this.Decrypt=CryptoJS.AES.decrypt(this.Encrypt, key).toString(CryptoJS.enc.Utf8);
       //AES native
       //this.Decrypt = CryptoJS.TripleDES.decrypt(this.Encrypt, keyHex, { iv, mode }).toString(CryptoJS.enc.Utf8);
+      if (this.Encrypt===''){
+        this.Crypto_Error="Encrypt field is empty";
+      } else
       if (this.Crypto_Method==='AES' || this.Crypto_Method==='DES'){
         this.Decrypt=decrypt(this.Encrypt,this.Crypto_Key,this.Crypto_Method);
         } else { this.Crypto_Error="Wrong method for crypto. Must be either 'AES' or 'DES'"
-
       } 
+      console.log(this.Decrypt, " , ", this.Encrypt);
     }
 
 
 }
+onClear(){
+  this.Decrypt='';
+  this.Encrypt='';
+}
+
 
 onSave(event:any){
   this.Error_Access_Server='';
-  this.HTTPstring='http://localhost:3000/myEncryption/';
-  this.Encrypt_Data.encrypted=this.Encrypt;
-  this.Encrypt_Data.decrypted=this.Decrypt;
-  this.Encrypt_Data.method=this.Crypto_Method;
-  this.Encrypt_Data.key=this.Crypto_Key.toString();
-  this.http.post(this.HTTPstring,this.Encrypt_Data )
-        .subscribe(res => {
-              alert('Uploaded Successfully='+this.Decrypt);
-    })
-
+  
+  
+  if (this.Server_Type==="Google"){
+    this.HTTPstring=this.Google_Bucket_Access_RootPOST + this.Bucket_Name + "/o?name=" + this.Object_Name  + '.json&uploadType=media';
+    this.UserId_Data.id=0;
+    // this.UserId_Data.key=this.Crypto_Key.toString();
+    this.UserId_Data.key=this.Crypto_Key;
+    this.UserId_Data.method=this.Crypto_Method;
+    this.UserId_Data.psw=this.Encrypt;
+    this.UserId_Data.UserId=this.Object_Name;
+    this.UserId_Data.phone='+6582680480';
+    console.log("Before HTTP ", this.Decrypt, " , ", this.Encrypt);
+    this.http.post(this.HTTPstring,this.UserId_Data )
+    .subscribe(res => {
+          alert('Uploaded Successfully='+this.Decrypt);
+        },
+        error_handler => {
+          alert(error_handler.message + '  '+ error_handler.statusText)
+          })
+    }
+  else{
+    this.Encrypt_Data.id=0;
+    this.Encrypt_Data.encrypted=this.Encrypt;
+    this.Encrypt_Data.decrypted=this.Decrypt;
+    this.Encrypt_Data.method=this.Crypto_Method;
+    this.Encrypt_Data.key=this.Crypto_Key;
+    this.HTTPstring='http://localhost:3000/myEncryption/';
+    this.http.post(this.HTTPstring,this.Encrypt_Data )
+    .subscribe(res => {
+          alert('Uploaded Successfully='+this.Decrypt);
+        },
+        error_handler => {
+          alert(error_handler.message + '  '+ error_handler.statusText)
+          })
+  }
+ 
 }
 
 onRead(){

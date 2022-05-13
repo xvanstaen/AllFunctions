@@ -1,14 +1,15 @@
 <div [formGroup]="viewregionsform">
-    <div > 
-        <h2 mat-dialog-title> Select region and city for {{origin_arrival}}</h2>
+    <div  > <!-- style="max-width:420px;"-->
+        <h3 mat-dialog-title> Select region and city for {{origin_arrival}}</h3>
         <button  class = "closeicons" (click) = OnCancel()> 
           X
         </button> 
     </div>
-    <div class="mainstyle">
+    <div   > <!-- style="max-width:420px;"-->
         <!-- 
           [class.selected]="listregion === selectedRegion"
         -->
+        <mat-form-field> 
         <div class="blockregion">
             <li  class="li LiHeightRegion" *ngFor = "let listregion of arrayregion"
               [class.selected]="listregion.RegionId === MyVar"
@@ -20,13 +21,13 @@
           <div class="blockcity">
             <ul *ngFor = "let listcity of arraycity; let i= index; " 
                 (click)="onSelect(listcity)">
-              <li  class="li LiHeightCity" *ngIf="listcity.RegionId === MyVar">
+              <li  class="LiHeightCity" *ngIf="listcity.RegionId === MyVar">
                 <span class="citycode">{{listcity.citycode}} </span> 
                 <span class="cityname">{{listcity.cityname}} </span> 
                 
               </li>
             </ul>
           </div>
-                
+        </mat-form-field>  
     </div>
 </div>

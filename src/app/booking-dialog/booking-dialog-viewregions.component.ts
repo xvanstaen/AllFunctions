@@ -1,6 +1,6 @@
 
 
-import { Component, Inject, OnInit, Input } from '@angular/core';
+import { Component, Inject, OnInit, Input, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogConfig, MatDialog} from '@angular/material/dialog';
 
@@ -31,6 +31,9 @@ export class ViewRegionsDialogComponent  {
     arrayregion = ArrayRegion;
     arraycity = ArrayCity;
 
+    getScreenWidth: any;
+    getScreenHeight: any;
+    device_type:string='';  
 
     viewregionsform: FormGroup = new FormGroup({ 
       origin_arrival: new FormControl(),
@@ -54,25 +57,40 @@ export class ViewRegionsDialogComponent  {
         // this MyVar will be updated when new region is selected 
         // initial value is 0 which corresponds to region Korea 
         @Input() MyVar: number = 0;
-        selectedCity?: citycodename;
+        selectedCity: citycodename={
+          RegionId:0,
+          citycode:'',
+          cityname:''
+
+        };
+
         selectedRegion?: AllRegions;
         
+        ngOnInit() {
+          this.getScreenWidth = window.innerWidth;
+          this.getScreenHeight = window.innerHeight;
+          this.device_type = navigator.userAgent;
+          this.device_type = this.device_type.substring(10, 48);
+          }
+          
+        @HostListener('window:resize', ['$event'])
+        onWindowResize() {
+              this.getScreenWidth = window.innerWidth;
+              this.getScreenHeight = window.innerHeight;
+            }
+      
+
         OnCancel() {
-            this.selectedCity = ArrayCity[0];
             this.selectedCity.citycode = "";
             this.selectedCity.cityname = "";
             this.dialogRef.close(this.selectedCity);
-    }
+            }
         
         onSelect(arraycity: citycodename) {
             this.selectedCity = arraycity;
             this.returnstring=this.selectedCity.citycode +";" + this.selectedCity.cityname;
             this.dialogRef.close(this.selectedCity);
     }
-
-   
-      
-     
 
         onSelectRegion(arrayregion: AllRegions) {
             this.selectedRegion = arrayregion;

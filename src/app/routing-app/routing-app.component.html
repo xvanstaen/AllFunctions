@@ -127,27 +127,38 @@
 ========= TEST ENCRYPTION 
 -->
 <div style='margin-top:30px; margin-left:40px;'><p>ENCRYPTION</p>
-<label style='margin-top:20px; margin-left:40px; color:blue;'>Decrypt is </label>
-<input style='margin-top:20px; margin-left:40px; width:200px; height:40px;'type='text' [(ngModel)]="Decrypt" placeholder={{Decrypt}} >
-<label style='margin-top:20px; margin-left:40px; color:blue;'>Encrypt is </label>
-<input style='margin-top:20px; margin-left:40px; width:200px; height:40px;'placeholder={{Encrypt}} type='text'[(ngModel)]="Encrypt">
-<label style='margin-top:20px; margin-left:40px; color:rgb(224, 14, 60);'>Crypto record </label>
-<input style='margin-top:20px; margin-left:40px; width:30px; height:20px;'placeholder={{Crypto_Record}} type='number'[(ngModel)]="Crypto_Record">
-<label style='margin-top:20px; margin-left:40px; color:rgb(224, 14, 60);'>Encrypt key is </label>
-<input style='margin-top:20px; margin-left:40px; width:30px; height:20px;'placeholder={{Crypto_Key}} type='number'[(ngModel)]="Crypto_Key">
+    <div style="color:red; font-size:14px;height:30px; max-height:30px; max-width:180px;">{{Crypto_Error}}</div>
+    <label style='margin-top:20px; margin-left:40px; color:blue;'>Decrypt is </label>
+    <input style='margin-top:20px; margin-left:40px; width:200px; height:40px;'type='text' [(ngModel)]="Decrypt" placeholder={{Decrypt}} >
+    <label style='margin-top:20px; margin-left:40px; color:blue;'>Encrypt is </label>
+    <input style='margin-top:20px; margin-left:40px; width:200px; height:40px;'placeholder={{Encrypt}} type='text'[(ngModel)]="Encrypt">
+    <label style='margin-top:20px; margin-left:40px; color:rgb(224, 14, 60);'>Crypto record </label>
+    <input style='margin-top:20px; margin-left:40px; width:30px; height:20px;'placeholder={{Crypto_Record}} type='number'[(ngModel)]="Crypto_Record">
+    <label style='margin-top:20px; margin-left:40px; color:rgb(224, 14, 60);'>Encrypt key is </label>
+    <input style='margin-top:20px; margin-left:40px; width:30px; height:20px;'placeholder={{Crypto_Key}} type='number'[(ngModel)]="Crypto_Key">
     <div style='margin-top:20px;'>
-    <input style='margin-top:20px; margin-left:20px; width:50px; height:10px;' type='radio' [(ngModel)]="Crypto_Method" value='AES'>
-    <label> AES</label>
-    <input style='margin-top:20px; margin-left:20px; width:50px; height:10px;' type='radio' [(ngModel)]="Crypto_Method" value='DES'>
-    <label> DES</label>
+        <input style='margin-top:20px; margin-left:20px; width:60px; height:20px; accent-color:red;' name='crypto' type='radio' [(ngModel)]="Crypto_Method" value='AES'>
+        <label style="color:red; font-size:16px;"> AES</label>
+        <input style='margin-top:20px; margin-left:20px; width:60px; height:20px; accent-color:red;' name='crypto'type='radio' [(ngModel)]="Crypto_Method" value='DES'>
+        <label style="color:red; font-size:16px;"> DES</label>
     </div>
-</div>
-{{Crypto_Error}}
+    
+    <div style='margin-top:20px;'>
+        <input style='margin-top:20px; margin-left:20px; width:60px; height:20px; accent-color:blue;' name='server' type='radio' [(ngModel)]="Server_Type" value='Json'>
+        <label style="color:blue; font-size:16px;"> Json db</label>
+        <input style='margin-top:20px; margin-left:20px; width:60px; height:20px;accent-color:blue;' name='server'type='radio' [(ngModel)]="Server_Type" value='Google'>
+        <label style="color:blue; font-size:16px;"> Google Storage</label>
+    </div>
+    Bucket name <input style='margin-top:20px; margin-left:40px; width:190px; height:30px;'placeholder={{Bucket_Name}} type='text'[(ngModel)]="Bucket_Name">
+    User Id<input style='margin-top:20px; margin-left:20px; width:190px; height:30px;'placeholder={{Object_Name}} type='text'[(ngModel)]="Object_Name">
+    </div>
+
 <div style='margin-top:20px; margin-left:80px;'>
     <button id='1' type="button" (click)="onCrypt('Encrypt')">Encrypt</button>
     <button id='2' style='margin-left:20px;'  type="button" (click)="onCrypt('Decrypt')">Decrypt</button>
     <button id='3' style='margin-left:20px;' type="button" (click)="onSave('Encrypt')">Save Encrypt</button>
-    <button id='3' style='margin-left:20px;' type="button" (click)="onRead()">Read record</button>
+    <button id='4' style='margin-left:20px;' type="button" (click)="onRead()">Read record</button>
+    <button id='5' style='margin-left:20px;' type="button" (click)="onClear()">Clear</button>
    
 </div>
 

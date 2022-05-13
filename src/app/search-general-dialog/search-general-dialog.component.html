@@ -1,19 +1,25 @@
-<!-- 
-class='boxsection'
+<head>
+
+</head>
+
+
+<body>
+ 
+<div class='boxsection'>
+               
+        <md-dialog-container   [formGroup]="searchgeneralform" >
+                
+                <mat-dialog-title class="mat-dialog-title"> Search
+                </mat-dialog-title >
+
+                <button class="cancelbutton" (click)="onCancel()">X</button>
         
--->
-
-<div  class='boxsection' [formGroup]="searchgeneralform" >
-        <button class="cancelbutton" (click)="onCancel()">X</button>
-        <mat-dialog-title class="mat-dialog-title"> Search
-        </mat-dialog-title >
-    
-
-
-
-        <input  class = "form-control inputsize" formControlName="Mysearchstring" type="text" > 
-
-        <button mat-button   class="okbutton"     
-                (click)="onConfirmClick()" >OK</button>
-
+                <input  class = "form-control inputsize" formControlName="Mysearchstring" type="text" > 
+      
+                <button mat-button   class="okbutton"     
+                        (click)="onConfirmClick()" >OK</button>
+        
+        </md-dialog-container> 
 </div>
+
+</body>

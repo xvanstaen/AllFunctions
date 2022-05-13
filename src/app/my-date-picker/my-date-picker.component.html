@@ -1,5 +1,5 @@
 
-<div [formGroup]="TheCalendarform"  >
+<div [formGroup]="TheCalendarform" >
         <div class="cancelbutton ">
                 <button  (click)="OnCancel()">
                 X
@@ -12,7 +12,7 @@
         
 
         <div class='placeh'> departure ({{placeholderOW}}) </div>
-        <div class='placeh'> return ({{placeholderR}})</div>
+        <div class='placeh placeh_r'> return ({{placeholderR}})</div>
 
         <div  class=' maininput'>
                 <input    *ngIf='initObj.valid_input_OW!=="Y"; else inputOW'
@@ -55,7 +55,7 @@
         <span class='arrowtext arrowtextleft'>{{initObj.monthname_c}} {{initObj.display_yearnb}}</span>
                 
             <!-- =================== 1st CALENDAR ====================================== -->
-        <div class=" testblock testblockLeft ">  
+        <div class=" testblock  ">  
                 <div  class="daydiv" *ngFor = "let listdays of StringOfDays;  let i=index">
                                 <span>{{listdays.DoW}} </span>
                 </div>
@@ -149,10 +149,10 @@
         <!--button arrow_forward_ios or chevron_right-->
                 
         </div>
-        <div class=" testblock testblockright">  
-        <div  class="daydiv" *ngFor = "let listdays of StringOfDays;  let i=index">
-                <span>{{listdays.DoW}} </span>
-        </div>
+        <div class=" testblock ">  
+                <div  class="daydiv" *ngFor = "let listdays of StringOfDays;  let i=index">
+                        <span>{{listdays.DoW}} </span>
+                </div>
 
         <div  class="daydiv"  *ngFor = "let daysofmonths of initObj.dayspermonth2 | slice:2;  let i=index"
         [class.selected]="daysofmonths.DoMonth"
@@ -214,20 +214,19 @@
         </div>
    
 </div>
-          
+<div class="errorbox">
+        <span  *ngIf="type_error===3"  >
+                {{error_msg}}
+        </span>
+</div>
         <div class="radioposition">
                 <input   type="radio" formControlName="travel_type" value="X"> select again 
                 <input   type="radio" formControlName="travel_type" value="O"> one-way 
                 <input   type="radio" formControlName="travel_type" value="R"> return
                <input type="submit" value="Click" (click)="OnSubmit()">
+               <br><br><br><br>
         </div>  
-         <span class="errorbox" *ngIf="type_error===3"  >
-                {{error_msg}}
-         </span>
-
-
-
-
+       
 </div>
 
 

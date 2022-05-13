@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener, TemplateRef, ViewChild } from '@angular/core';
 
 import { MatDialogConfig, MatDialog} from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -14,15 +14,35 @@ import { SearchGeneralDialogComponent } from '../search-general-dialog/search-ge
 
 
 export class KEHomePageComponent {
-
+  
+  @ViewChild('dialogRef')
+  dialogRef!: TemplateRef<any>;
+  
   searchstring: string="";
+
+  getScreenWidth: any;
+  getScreenHeight: any;
+  device_type:string='';  
+
+  Thebottom:number=0;
+  TheHeight:number=0;
   
   constructor(public matDialog: MatDialog,
       private router:Router) {}
   
-  ngOnInit(){
+      ngOnInit() {
+        this.getScreenWidth = window.innerWidth;
+        this.getScreenHeight = window.innerHeight;
+        this.device_type = navigator.userAgent;
+        this.device_type = this.device_type.substring(10, 48);
+        }
+        
+    @HostListener('window:resize', ['$event'])
+    onWindowResize() {
+            this.getScreenWidth = window.innerWidth;
+            this.getScreenHeight = window.innerHeight;
+          }
     
-  }
 
   ReturnOther(){
     console.log("ReturnOther function");
@@ -45,21 +65,21 @@ export class KEHomePageComponent {
  
          // panelClass --> adds a list of custom CSS classes
        MydialogConfig.panelClass = 'MypanelClass';                                                                                                                                                                      
-         
        MydialogConfig.backdropClass = 'MybackdropClass';
-       MydialogConfig.width = '80%';
-       MydialogConfig.height = '300px';
+       MydialogConfig.width = '100%';
+       MydialogConfig.height = '150px';
+       MydialogConfig.maxWidth = '92%';
                            
-        // position --> defines a starting absolute position for the dialog
-        // bottom, left, right, top
-      MydialogConfig.position = {
-        top: '0px',
-        left: '0px',            
-      };
+      // position --> defines a starting absolute position for the dialog
+      // bottom, left, right, top
+      MydialogConfig.position = {          
+            left: '4%',            
+          };
+     
 
       // direction --> frines if the elements inside the dialog are right or left justified
       // default is left-to-right (ltr) otherwise can specify right-to-left (rtl)
-      //closeon navigation --> deault is true. Dialog automatically closes when we navigate to another route in our sigle page application
+      //closeon navigation --> default is true. Dialog automatically closes when we navigate to another route in our sigle page application
 
       
       

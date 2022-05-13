@@ -1,5 +1,5 @@
 
-import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA,MatDialogConfig, MatDialog} from '@angular/material/dialog';
 import {ViewRegionsDialogComponent} from './booking-dialog-viewregions.component'
@@ -30,6 +30,15 @@ export class BookingDialogComponent implements OnInit {
     aptcodefound: new FormControl()
   });
 
+  getScreenWidth: any;
+  getScreenHeight: any;
+  device_type:string='';  
+
+  values="";
+  Myvalues="";
+  SingleItem="";
+  arraycity=ArrayCity;
+
   constructor(
     public matDialog: MatDialog,
     private fb: FormBuilder,
@@ -46,6 +55,13 @@ export class BookingDialogComponent implements OnInit {
     }
    
     ngOnInit() {
+
+
+    this.getScreenWidth = window.innerWidth;
+    this.getScreenHeight = window.innerHeight;
+    this.device_type = navigator.userAgent;
+    this.device_type = this.device_type.substring(10, 48);
+
       this.searchcitycodeform= this.fb.group({
         origin_arrival: this.origin_arrival, 
         aptcode: this.aptcode,
@@ -54,11 +70,11 @@ export class BookingDialogComponent implements OnInit {
       });
     }
     
-    
-    values="";
-    Myvalues="";
-    SingleItem="";
-    arraycity=ArrayCity;
+    @HostListener('window:resize', ['$event'])
+    onWindowResize() {
+        this.getScreenWidth = window.innerWidth;
+        this.getScreenHeight = window.innerHeight;
+      }
 
     // (keyup) triggers event onKey
     onKey(event:any){
@@ -120,12 +136,24 @@ export class BookingDialogComponent implements OnInit {
         RegiondialogConfig.autoFocus = true;
         RegiondialogConfig.panelClass = 'MypanelClass';                                                                                                                                                                    
         RegiondialogConfig.backdropClass = 'MybackdropClass';
-        RegiondialogConfig.width = '70%';
-        RegiondialogConfig.height = '300px';
+        RegiondialogConfig.width = '100%';
+        RegiondialogConfig.height = '500px';
+        RegiondialogConfig.maxWidth='95%';
+        
+      if (this.getScreenHeight<520){
+        RegiondialogConfig.height = (window.innerHeight-40)+'px'; 
         RegiondialogConfig.position = {
-            top: '0px',
-            left: '0px',             
-          };
+          bottom:'10px',
+          left: '4%',   
+                  
+        };
+      }
+      else {
+        RegiondialogConfig.position = {
+          bottom:'80px',
+          left: '25px',           
+        };
+      }
         
         RegiondialogConfig.data = {
             origin_dest: this.origin_arrival,
@@ -138,11 +166,13 @@ export class BookingDialogComponent implements OnInit {
       
         dialogRef.afterClosed().subscribe((result: citycodename) => {
             this.MySelection = result;
-            this.searchcitycodeform.controls['origin_arrival'].setValue(this.origin_arrival);
-            this.searchcitycodeform.controls['aptcode'].setValue(this.MySelection.citycode);
-            this.searchcitycodeform.controls['aptname'].setValue(this.MySelection.cityname);
-            this.searchcitycodeform.controls['aptcodefound'].setValue(true);
-            this.dialogRef.close( this.searchcitycodeform.value);
+            if (this.MySelection.citycode!=='') {
+                this.searchcitycodeform.controls['origin_arrival'].setValue(this.origin_arrival);
+                this.searchcitycodeform.controls['aptcode'].setValue(this.MySelection.citycode);
+                this.searchcitycodeform.controls['aptname'].setValue(this.MySelection.cityname);
+                this.searchcitycodeform.controls['aptcodefound'].setValue(true);
+                this.dialogRef.close( this.searchcitycodeform.value);
+            }
           })
       } // OpenViewRegionsDialog()
 

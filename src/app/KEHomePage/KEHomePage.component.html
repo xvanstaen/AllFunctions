@@ -1,4 +1,8 @@
-<!--  display the banner first */
+<!--  
+
+      {{device_type}}
+    <br> height=  {{getScreenHeight}}
+    <br> width =  {{getScreenWidth}}
 -->
 <head>
 
@@ -6,7 +10,8 @@
 
 <body>
 
-  <section>
+  <section >
+
     <div class='logo'>
         <img src="./assets/KoreanAir-Logo/KoreanAir-Logo_2.png" class="size_logo" >
     </div>
@@ -24,39 +29,30 @@
       SKYPASS
     </div>
    
-    <div class='icons'> 
-      <button (click) = "OpenSearchGeneralDialog()"> <mat-icon class='material-icons-outlined'>
-        search
-      </mat-icon>
-    </button>
+    <div class="first_icon">
+      <button class='icons' (click) = "OpenSearchGeneralDialog()" > 
+          <mat-icon class="butt" >
+            search
+          </mat-icon>
+      </button>
 
-    <!-- 
-      <a mat-icon-button routerLink="."></a>
-      -->
-    </div>
+  
 
-    <div class='icons'> 
-      <button routerLink="/myRouting"> <mat-icon class='material-icons-outlined'>  
+      <button class='icons' routerLink="/myRouting"> <mat-icon class="butt"> 
         shopping_cart
     </mat-icon> </button> 
-  </div>
 
-  <div class='icons'>
-    <button (click) = "ReturnOther()">
-    <mat-icon class='material-icons-rounded'>
+    <button class='icons' (click) = "ReturnOther()">
+   <mat-icon class="butt">
       info
     </mat-icon></button>
-  </div>
 
-    <div class='icons'> 
-      <mat-icon class='material-icons-rounded'>
+    <button class='icons'>
+      <mat-icon  class="butt">
         login 
       </mat-icon>
-    </div>
-    <!--  on return of the search -->
-    <!-- 
-    <span *ngIf="searchstring"> <h3>My search is related to:</h3> <h2>{{searchstring}} </h2></span>
-      -->
+    </button>
+  </div>
   </section>
 
 

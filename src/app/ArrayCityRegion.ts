@@ -31,7 +31,7 @@
         {RegionName: "Republic of Korea", RegionId: 0},
         {RegionName: "NorthEast Asia", RegionId: 1},
         {RegionName: "Europe", RegionId: 2},
-        {RegionName: "Southeast/Southwest Asia", RegionId: 3}
+        {RegionName: "South East / South West Asia", RegionId: 3}
     ];
 
     export const WeekDays: DaysOfWeek[] = [

@@ -15,7 +15,7 @@ export class CryptKey {theKey:string=''};
   
 export const TableCryptKey: CryptKey[] = [
   {theKey:'MTIzNDU2Nzg5MEFCQ0RFRkdISUpLTE1O'},
-  {theKey:'MTIz45U2Nzg5MEFCQ0RJDFNkdISUpLTE1O'},
+  {theKey:'siles moiss;ons1289%^&ne SONT!#[]%$pas bonnes89%^0#(!ALLEZ<>??:a lamaison'},
   {theKey:'LePrince23deGalles89isnot90the=person-wethink3"hecould3be'}
 ];
 export function encrypt(Decrypt:string, key:number, method:string) {
@@ -25,16 +25,14 @@ export function encrypt(Decrypt:string, key:number, method:string) {
   const iv = CryptoJS.enc.Utf8.parse(IV);
   const mode = CryptoJS.mode.CBC;
   var Encrypt='';
-  if (method='DES'){
+  if (method==='DES'){
       // ==== DES
     Encrypt = CryptoJS.TripleDES.encrypt(Decrypt, keyHex, { iv, mode }).toString();
-    } else if (method='AES'){
+    } else if (method==='AES'){
           // ==== AES
           Encrypt=CryptoJS.AES.encrypt(Decrypt, myKey).toString();
-          } else {
-            Encrypt='';
-          }
-          // console.log('Encrypt function: decrypt ', Decrypt, 'Method  ', method, 'encrypt', Encrypt);
+          } 
+         console.log('Encrypt function: decrypt ', Decrypt, 'Method  ', method, 'encrypt', Encrypt);
     return(Encrypt);
   }
 
@@ -45,16 +43,14 @@ export function encrypt(Decrypt:string, key:number, method:string) {
     const iv = CryptoJS.enc.Utf8.parse(IV);
     const mode = CryptoJS.mode.CBC;
     var Decrypt='';
-    if (method='DES'){
+    if (method==='DES'){
       // ==== DES
       Decrypt = CryptoJS.TripleDES.decrypt(Encrypt, keyHex, { iv, mode }).toString(CryptoJS.enc.Utf8);
-    } else if (method='AES'){
+    } else if (method==='AES'){
           // ==== AES
           Decrypt=CryptoJS.AES.decrypt(Encrypt, myKey).toString(CryptoJS.enc.Utf8);
-          } else {
-            Encrypt='';
-          }
-          // console.log('Decrypt function: decrypt ', Decrypt, 'Method  ', method, 'encrypt', Encrypt);
+          } 
+          console.log('Decrypt function: decrypt ', Decrypt, 'Method  ', method, 'encrypt', Encrypt);
     return(Decrypt);
   }
 
