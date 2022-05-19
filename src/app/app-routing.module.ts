@@ -15,7 +15,8 @@ import { ColorSliderComponent } from './color-picker/color-slider/color-slider.c
 import { XmvCompanyComponent } from './xmv-company/xmv-company.component';
 import { NgxIntlTelInputComponent } from './ngx-intl-tel-input/ngx-intl-tel-input.component';
 import { ManageUrlTopicComponent } from './routing-app/manage-url-topic/manage-url-topic.component';
-import {XMVCompanyContactComponent} from './xmv-company/xmvcompany-contact/xmvcompany-contact.component';
+import { XMVCompanyContactComponent } from './xmv-company/xmvcompany-contact/xmvcompany-contact.component';
+import { MyCanvasComponent } from './my-canvas/my-canvas.component';
 
 const routes: Routes = [
   { path: './Booking-Process/Booking-form.component', component: BookingFormComponent },
@@ -33,6 +34,7 @@ const routes: Routes = [
   { path: './the-calendar/the-calendar.component', component:TheCalendarComponent },
   { path: './my-date-picker/my-date-picker.component', component:MyDatePickerComponent},
   { path: 'Contact', component: XMVCompanyContactComponent},
+  { path: 'MyCanvas', component: MyCanvasComponent},
   { path: '**', redirectTo: '' }
 ];
 

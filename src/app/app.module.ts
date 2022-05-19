@@ -46,6 +46,11 @@ import { ManageUrlTopicComponent } from './routing-app/manage-url-topic/manage-u
 import { ConfigComponent } from './config/config.component';
 import { HttpErrorHandler } from './http-error-handler.service';
 import { AuthService } from './auth.service';
+import { MyCanvasComponent } from './my-canvas/my-canvas.component';
+import { RespondContactComponent } from './Special-Services/Respond-Contact.component';
+import { LoginComponent } from './Login/login.component';
+import { Event27AugComponent}  from './Special-Services/Event-27AUG2022.component';
+import { Event02JULComponent}  from './Special-Services/Event-02JUL2022.component';
 
 @NgModule({
   declarations: [
@@ -70,6 +75,11 @@ import { AuthService } from './auth.service';
     XMVCompanyProfileComponent,
     ManageUrlTopicComponent,
     ConfigComponent,
+    MyCanvasComponent,
+    RespondContactComponent,
+    LoginComponent,
+    Event27AugComponent,
+    Event02JULComponent
     
   ],
   imports: [

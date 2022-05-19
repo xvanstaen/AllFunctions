@@ -1,8 +1,10 @@
 
 import { Component, HostListener, OnInit, OnChanges, ChangeDetectorRef, AfterViewChecked } from '@angular/core';
-
-
+import { Router, RouterModule } from '@angular/router';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+
+
 
 @Component({
   selector: 'app-xmv-company',
@@ -14,6 +16,7 @@ export class XmvCompanyComponent implements OnInit, OnChanges, AfterViewChecked 
   constructor(
 
     private http: HttpClient, 
+    private router:Router,
     private cdref: ChangeDetectorRef
     ) {}
   
@@ -25,23 +28,38 @@ export class XmvCompanyComponent implements OnInit, OnChanges, AfterViewChecked 
   getScreenHeight: any;
   device_type:string='';
 
-  
+  /***  to keep identification and psw of the user */
+  identif={
+    id: 0,
+    key:0,
+    method:'',
+    UserId:'',
+    psw:'',
+    phone:''
+  };
+
+  Events_nb:string='';
+
   i_Profile:number=0;
   i_Offer:number=1;
   i_Contact:number=2;
   i_HomePage:number=3;
-  i_Others:number=4;
+  i_Login:number=4;
+  i_Event:number=5;
   Profile:string="Profile";
   Offer:string="Offer";
   Contact:string="Contact";
   HomePage:string="HomePage";
-  Others:string="Others";
+  AdmLogin:string="Login";
+  MyEvents:string="Events";
   i_table:number=0;
   Display_Table:Array<any>=[
     {type:'', display:false}, 
     {type:'', display:false}, 
     {type:'', display:false}, 
     {type:'', display:false},
+    {type:'', display:false}, 
+    {type:'', display:false}, 
     {type:'', display:false}, 
 
   ];
@@ -53,12 +71,20 @@ export class XmvCompanyComponent implements OnInit, OnChanges, AfterViewChecked 
     this.Display_Table[this.i_Offer].type=this.Offer;
     this.Display_Table[this.i_Contact].type=this.Contact;
     this.Display_Table[this.i_HomePage].type=this.HomePage;
-    this.Display_Table[this.i_Others].type=this.Others;
+    this.Display_Table[this.i_Login].type=this.AdmLogin;
+    this.Display_Table[this.i_Event].type=this.MyEvents;
     
     this.getScreenWidth = window.innerWidth;
     this.getScreenHeight = window.innerHeight;
     this.device_type = navigator.userAgent;
     this.device_type = this.device_type.substring(10, 48);
+
+    this.identif.id=0;
+    this.identif.key=2;
+    this.identif.method="AES";
+    this.identif.UserId="";
+    this.identif.psw="";
+    this.identif.phone="";
   }
 
   @HostListener('window:resize', ['$event'])
@@ -79,38 +105,58 @@ export class XmvCompanyComponent implements OnInit, OnChanges, AfterViewChecked 
   }
 
   Display_Contact(){
-     this.Display_Table[this.i_table].display=false;
+    this.Display_Table[this.i_table].display=false;
     this.i_table=this.i_Contact;
-     this.Display_Table[this.i_table].display=true;
+    this.Display_Table[this.i_table].display=true;
   }
 
   Display_Offer(){
-     this.Display_Table[this.i_table].display=false;
+    this.Display_Table[this.i_table].display=false;
     this.i_table=this.i_Offer;
-     this.Display_Table[this.i_table].display=true;
-  }
-
-  Display_Others(){
-     this.Display_Table[this.i_table].display=false;
-    this.i_table=this.i_Others;
-     this.Display_Table[this.i_table].display=true;
+    this.Display_Table[this.i_table].display=true;
   }
 
   Display_HomePage(){
-     this.Display_Table[this.i_table].display=false;
+    this.Display_Table[this.i_table].display=false;
     this.i_table=this.i_HomePage;
-     this.Display_Table[this.i_table].display=true;
+    this.Display_Table[this.i_table].display=true;
+  }
+
+
+  Display_Events(){
+    this.Display_Table[this.i_table].display=false;
+    this.i_table=this.i_Event;
+    this.Display_Table[this.i_table].display=true;
+ }
+  RouteTo(theAction:string){
+    if (theAction==='login'){
+      this.Display_Table[this.i_table].display=false;
+      this.i_table=this.i_Login;
+      this.Display_Table[this.i_table].display=true;
+       //this.router.navigateByUrl('TheLogin');
+    }
   }
   
+
+
+  TheIdentifObject(event:any){
+    this.identif=event;
+    // console.log(this.identif);
+  }
+
+  TheLoginRoute(event:any){
+    this.Events_nb = event;
+  }
+
   BackTo(event:any){
- 
+   
   }
 
   TopicURL(){
 
   }
   ngOnChanges(){
-    console.log('on changes');
+   // console.log('on changes');
   }
 
   ngAfterViewChecked(){

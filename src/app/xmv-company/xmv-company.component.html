@@ -1,11 +1,29 @@
 
+
+
 <head>
+  <link href="https://emoji-css.afeld.me/emoji.css" rel="stylesheet">
+<!-- web site: https://emoji-css.afeld.me/ 
+
+  other sites:
+  https://www.kirupa.com/html5/emoji.htm
+
+-->
+
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+
 </head>
 
 <body>  
 
     <!--
+
+  <br> <p style="font-family:'Segoe UI Emoji';">&#x1F525;&#65;&#128512;</p>
+
+  <p>&#x1F354;</p>
+  <i class="em em-champagne" aria-role="presentation" aria-label="BOTTLE WITH POPPING CORK"></i>
     <br> Device type is {{device_type}}
     <br> Screen width = {{getScreenWidth}}
     <br> Screen height = {{getScreenHeight}}
@@ -14,15 +32,20 @@
     -->
       <div class="pos_icons">
         <span class=' div_icons'>
-            <mat-icon  class=' icons'> phone</mat-icon> 
-            <span class=" icons_data" [routerLink]="['/myKEHP']">  +65 8268 0480 </span>
+         <!--
+            <mat-icon  (click)='RouteTo("login")' class="icon-login"> login</mat-icon> 
+          -->
+            <mat-icon  class='icons'> smartphone</mat-icon> 
+            <span class="icons_data">  +65 8268 0480</span>
             <mat-icon   class=' icons-email' (click) = "Display_Contact()"> email</mat-icon>   
             <span class=" icons_data-email" (click) = "Display_Contact()">xvanstaen@xmv-it.com</span>
         </span>
+
+
+       
       </div>
 
     <div class="pos_options">
-
           <div   *ngIf="Display_Table[i_table].display===true && Display_Table[i_table].type===Offer; else NoOffer">
             <div class='options firstOption options-text option_background' (click) = "Display_Offer()"><br>Offer</div>
           </div>      
@@ -34,8 +57,11 @@
                   <div class=' options otherOptions options-text option_background' (click) = "Display_HomePage()"> <br>Home</div>
             </div>
           <div *ngIf="Display_Table[i_table].display===true && Display_Table[i_table].type===Contact; else NoContact" > 
-                  <div class=' options otherOptions options-text option_background' (click) = "Display_Contact()"><br>Contact Us</div>
+                  <div class=' options otherOptions options-text option_background' (click) = "Display_Contact()"><br>Contact</div>
           </div>
+          <div *ngIf="Display_Table[i_table].display===true && Display_Table[i_table].type===MyEvents; else Events" > 
+            <div class=' options otherOptions options-text option_background' (click) = "Display_Events()"><br>Events</div>
+    </div>
 
     </div>
 
@@ -47,7 +73,7 @@
         </div>
     </div>
   </div>
- 
+
 
 
 
@@ -60,11 +86,14 @@
         <div class=' options othertOption options-text' (click) = "Display_Profile()"><br>Profile</div>
     </ng-template>
     <ng-template #NoContact>
-        <div class=' options othertOption options-text' (click) = "Display_Contact()"><br>Contact Us</div>
+        <div class=' options othertOption options-text' (click) = "Display_Contact()"><br>Contact</div>
     </ng-template>
     <ng-template #NoHomePage>
         <div class=' options othertOption options-text' (click) = "Display_HomePage()"><br>Home</div>
     </ng-template>
+    <ng-template #Events>
+      <div class=' options othertOption options-text' (click) = "Display_Events()"><br>Events</div>
+  </ng-template>
    
   <!-- ======== END HEADER ======== -->
 
@@ -95,7 +124,7 @@
 
           <!-- HOME PAGE -->
           <ng-template #GHomePage>
-              <div *ngIf="Display_Table[i_table].display===true && Display_Table[i_table].type===HomePage; else Others">  
+              <div *ngIf="Display_Table[i_table].display===true && Display_Table[i_table].type===HomePage; else TheEvents">  
                   <div >
                         <img class='sizeMap' src="./assets/Airplane 4.jpg" >
                   </div>
@@ -140,15 +169,24 @@
                 </div> <!-- *ngIf--> 
           </ng-template>
 
-            <!-- NOT AVAILABLE -->
-          <ng-template #Others>   <span class='mainbody'>  
-              <br><br><br><br> NOT AVAILABLE
-  
-              <br><br>
-          </span>  </ng-template>
+
+
+      <ng-template #TheEvents>   
+            <span class='mainbody'>  
+              <app-login  [identification]="identif" 
+                (my_output1)='TheIdentifObject($event)' (my_output2)='TheLoginRoute($event)'>             
+            </app-login>
+          </span>  
+        </ng-template>
 
 
 
+            <!-- NOT AVAILABLE replaced by Events 
+            <ng-template #AdmLogin>   <span class='mainbody'>  
+              <app-login></app-login>
+            </span>  </ng-template>
+
+            -->
 
 
 

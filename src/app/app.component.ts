@@ -28,6 +28,7 @@ export class AppComponent {
     {Route:'IntlPhoneNb'},
     {Route:'TopicURL'},
     {Route:'Contact'},
+    {Route:'MyCanvas'},
     ];
 
 
@@ -56,7 +57,7 @@ export class AppComponent {
           
          if (event.id>1 && event.url!=='/myKEHP' && event.url!=='/myRouting' && event.url!=='/myColorPicker'
          && event.url!=='/myColorSlider' && event.url!=='/myColorPalette' && event.url!=='/myXMVcompany'
-         && event.url!=='/IntlPhoneNb' && event.url!=='/TopicURL' && event.url!=='/Contact'
+         && event.url!=='/IntlPhoneNb' && event.url!=='/TopicURL' && event.url!=='/Contact'  && event.url!=='/MyCanvas'
          ) {
            
            this.myTypeRoute=1;
@@ -84,6 +85,8 @@ export class AppComponent {
                     this.myTypeRoute=7;
                   } else if (event.url==='/Contact'){  
                     this.myTypeRoute=8;
+                  } else if (event.url==='/MyCanvas'){  
+                    this.myTypeRoute=9;
                     // this.Route_ColotPicker(); 
                     } else  {
                         this.myTypeRoute=0;
@@ -101,22 +104,13 @@ export class AppComponent {
     
     // convert to [5] to display XMV Company 
     if (!this.myTypeRoute){
-      this.router.navigateByUrl(this.myRoutingTable[1].Route);
+      this.router.navigateByUrl(this.myRoutingTable[9].Route);
   
     }
     else{
       this.router.navigateByUrl(this.myRoutingTable[this.myTypeRoute].Route);
     }
-    /*
-    if (this.myTypeRoute===2) {
-      this.Route_KEHP(); 
-    }
-    else if (this.myTypeRoute===3) {
-      this.Route_ColorPicker(); 
-      } else { 
-      this.Route_Other();
-      } 
-    */
+
   }
  
   Route_KEHP(){

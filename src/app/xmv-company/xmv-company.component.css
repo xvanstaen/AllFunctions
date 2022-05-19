@@ -1,5 +1,11 @@
 @import "./MyLogo.css";
-
+/*
+@font-face {
+    font-family: 'emoji';
+    src: url('emojione-svg.woff2')
+    format('woff2');
+  }
+*/
 div {
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
     /*
@@ -10,21 +16,22 @@ div {
 }
 body{
     max-width:1250px;
+    
 }
     
-    .header{
+.header{
     margin-top:0px;
     margin-left: 2%;
     max-width:98%;
     height:19%;
     max-height:20%;
     background-color: 0.65;
-    border: 0px solid blue;
-    }
+    border: 1px solid blue;
+}
     
     
     
-    .myfooter{
+.myfooter{
     /* margin-top:5px; */
     background-color:cyan;
     border: 0px solid blue;
@@ -43,14 +50,14 @@ body{
     
     }
     
-    .copyright{
+.copyright{
     background-color:cyan;
     font-size:10px; 
     color:rgb(51, 117, 192); 
     text-align:center;
     }
     
-    .pos_icons{
+.pos_icons{
     display:block;
     width:80%;
     height:35px;
@@ -59,34 +66,46 @@ body{
     margin-right:15%;
     }
     
-    .div_icons{
-    margin-top:5px;
+.div_icons{
+    margin-top:10px;
     height:30px; 
-    width:290px;
+    width:330px;
     display: flex; 
     border: solid 0px blue;
     float:right;
     margin-right:10%;
     }
 
+.icon-login{
+        font-size:18px;  
+        margin-top:3px; 
+        color:red ;
+        margin-left:-45px;
+    }
+
     .icons {
     color:red; 
-    font-size:20px;
-    margin-left:13px;
+    font-size:14px;
+    padding-top:3px;
+    margin-left:25px;
     }
 
     .icons_data{
-    font-size:13px;
+    font-size:12px;
+    margin-left:-10px;
+    padding-top:1px;
     }
 
     .icons-email {
         color:red; 
-        font-size:20px;
-        margin-left:13px;
+        font-size:14px;
+        margin-left:20px;
+        padding-top:3px;
         }
     
     .icons_data-email{
-        font-size:13px;
+        font-size:12px;
+        margin-left:-5px;
         }
 
     .icons-email:hover {
@@ -102,7 +121,7 @@ body{
     .pos_options{
     width:600px;
     height:70px;
-    margin-top:0px;
+    margin-top:20px;
     border: solid 0px rgb(211, 127, 30);
     display:block;
     float:right;
@@ -110,11 +129,11 @@ body{
     }
     
     .options {
-    width:115px;
-    height: 65px;
+    width:80px;
+    height: 35px;
     display:table;
     cursor: pointer;
-    margin-left:10px;
+    margin-left:30px;
     color:blue;
     float:left;
     text-align:center;
@@ -125,7 +144,7 @@ body{
     }
     
     .otherOptions{
-    margin-left:10px; 
+    margin-left:30px; 
     }
     
     .options-text {
@@ -142,7 +161,7 @@ body{
     .option_background{
     font-weight: bolder;
     color: rgb(68, 51, 238);
-    border-bottom: solid 4px red;
+    border-bottom: solid 4px blue;
     } 
     
     .sizeMap{
@@ -224,10 +243,21 @@ body{
     margin-left:46px; 
     }
     .options {
-    width:100px;
-    height: 60px;
+    width:50px;
+    height: 50px;
+    margin-top:0px;
+    margin-left:30px;
     }
-    
+         
+    .firstOption{
+        margin-left:50px; 
+        }
+        
+    .otherOptions{
+        margin-left:50px; 
+        }
+
+
     
     .options-text {
     font-size: 14px;
@@ -257,17 +287,19 @@ body{
     }
 
     .options {
-    width:78px;
-    height: 50px;
-    }
-    
+        width:40px;
+        height: 40px;
+        margin-top:0px;
+        margin-left:20px;
+        }
+        
     .firstOption{
-    margin-left:10px; 
-    }
-    
-    .options-text {
-    font-size: 14px;
-    }
+        margin-left:30px; 
+        }
+        
+    .otherOptions{
+        margin-left:20px; 
+        }
     
     
     .Main_Page_Title{
@@ -285,36 +317,36 @@ body{
     /*** ====================================== ***/
     @media only screen and (max-width:650px) {
     
+    .icon-login{
+        font-size:14px;  
+        margin-left:0px;
+        }
+
     .icons {
-    font-size:12px;
-    margin-left:42px;
+        font-size:12px;
+        margin-left:18%;
+        padding-top:3px;
     }
 
     .icons_data{
-    font-size:10px;
+        font-size:10px;
+        padding-top:3px;
     }
+
     
+    .icons-email {
+        padding-top:3px;
+        }
+        
+
     .pos_options{
     width:340px;
     height:60px;
-    margin-right:2%;
-    margin-top:-5px;
+    margin-right:5%;
+    margin-top:20px;
     }
 
-    .options {
-    width:70px;
-    height: 55px;
-    margin-top:-15px;
-    }
-    
-    .firstOption{
-    margin-left:20px; 
-    }
-    
-    .otherOptions{
-    margin-left:8px; 
-    }
-    
+
     .options-text {
     font-size: 12px;
     }
@@ -358,6 +390,12 @@ body{
     .Main_Page_Text{
     font-size:16px;
     }
+
+    .options {
+        width:30px;
+
+    }
+
 
 
     }
