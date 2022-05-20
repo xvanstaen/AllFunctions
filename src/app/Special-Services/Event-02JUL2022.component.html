@@ -17,10 +17,13 @@
 
         
     --> 
-    <div *ngIf="getScreenWidth>9; else smallscreen">ç
+    
+
+    <div *ngIf="getScreenWidth>9; else smallscreen">
         <div >
-            <img  class='sizeMap '  src="./assets/TimberX.png" >
+            <img   class='sizeMap'  src="./assets/TimberX.png" >
         </div>
+        
         <span class="emoji  anim-name-slidedown" style="margin-left:2%; animation-duration: 18s;">🥂</span>
         <span class="emoji  anim-name-slidedown" style="margin-left:12%; animation-direction: alternate;animation-duration: 10s;">🍾</span>
         <span class="emoji  anim-name-slidedown" style="margin-left:15%; animation-duration: 8s;animation-delay:3s;">🥂</span>
@@ -57,8 +60,11 @@
         <span class="emoji  anim-name-slidedown" style="margin-left:78%; animation-duration: 16s;">🥂</span>
         <span class="emoji  anim-name-slidedown" style="margin-left:88%; animation-duration: 8s;">🥂</span>
         <span class="emoji  anim-name-slidedown" style="margin-left:92%; animation-duration: 12s;">🥂</span>
+        
         <div class="overlap_image">
-          
+          <div class="dropdown-options" (click)="goDown('targetRules')"><span class="dropdown-text"  >Guidelines</span></div>
+          <div class="dropdown-options" (click)="goDown('targetDirection')"><span class="dropdown-text"  >Address</span></div>
+          <br> 
           <div class="main_box">
            
            
@@ -69,17 +75,18 @@
             <i class="em em-champagne animicon dir-alternate anim-name-normal" aria-role="presentation" aria-label="BOTTLE WITH POPPING CORK"></i>
             <i class="em em-champagne animicon alternate-reverse anim-name-slidein" aria-role="presentation" aria-label="Clinking Glasses"></i>
            -->
+          
             <h1> Monica & Xavier </h1> <h1>are delighted</h1>  <h1>to welcome you </h1>
             
             
               <!--
               <i class="em em-champagne" style="font-size:32px;" aria-role="presentation" aria-label="BOTTLE WITH POPPING CORK"></i>
               -->
-              <h2 >on 2 JUL 2022 </h2>
+              <h2 >on 2 Jul 2022 </h2>
               
-               <h2 >from 7:00pm to 1:00am </h2>
+               <h2 >from 6:30pm to 1:00am </h2>
                <!-- <span style='font-size:40px;'>🍾  🥂 </span> -->
-              <h1>at </h1><h1>Timbre X S.E.A </h1>
+              <h2>at </h2><h1>Timbre X S.E.A </h1>
               
              
 
@@ -97,10 +104,33 @@
         </div>
    
       </div>
+     
+
+
+
+
     </ng-template>
 
 
     <div class="myText">
+      <span id='targetRules'></span>
+      
+      <span style='font-weight:bold;'><br>Guidelines</span>
+      <br><br>
+      Dress code by the restaurant : no singlet, no slippers, and no shorts for men (Bermudas are allowed); we include another request - <span style="font-weight:bold">no plain white attire please</span>.
+        <br><br>
+        Free flow of all food and drinks.
+        <br><br>
+        Please prepare your favourite list of songs that you would like to hear or dedicate. On the day of the event, you can send them to the live Band via WhatsApp or SMS at 85873409 (Timbre X SEA). The Band will play until midnight, while the restaurant is open until 1:00am.
+        <br><br>
+        We hope that you are as excited as us both, to have a lot of fun during our celebration 🍾 🎉 🎊 on 2 Jul.
+        <br><br>
+        <h2>See you very soon!</h2>
+        <br><br>
+
+      <span id='targetDirection'></span>
+      <span style='font-weight:bold;'>Address</span>
+      <br>
         <br>  1 Old Parliament Lane, #01-04 The Arts House, 179429
 
         <br><br>

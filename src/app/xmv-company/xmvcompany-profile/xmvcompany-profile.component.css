@@ -82,9 +82,7 @@ div {
     /*** ============== @media 1200 ================ ***/
     /*** ====================================== ***/
     @media only screen and (max-width: 1200px) {
-    .sizeMap{
-    margin-top:35px;
-    }
+  
     
     .perso-intro-text{ 
     margin-left:230px;
@@ -104,7 +102,7 @@ div {
     @media only screen and (max-width: 768px) {
     .sizeMap{
     height:220px;
-    margin-top:25px;
+    margin-top:30px;
     }
     .size_myPicture{
     width:90px; 

@@ -5,7 +5,6 @@ import { Router} from '@angular/router';
 import { FormGroup, FormControl, Validators} from '@angular/forms';
 import { encrypt, decrypt} from '../EncryptDecryptServices';
 
-
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -105,6 +104,9 @@ export class LoginComponent {
       // ================ TO BE DELETED AFTER TESTING
       // this.myForm.controls['password'].setValue("SIN!02#JUL");
       // this.myForm.controls['userId'].setValue("Event-02JUL2022");
+
+      this.myForm.controls['password'].setValue("OPIO!27#AUG");
+      this.myForm.controls['userId'].setValue("Event-27AUG2022");
 
       if (this.identification.UserId!=='' && this.identification.psw!=='') {
        // go through login panel again to allow the change of user id if needed SIN!02#JUL

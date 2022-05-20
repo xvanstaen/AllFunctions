@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { HttpHeaders } from '@angular/common/http';
 import { Router} from '@angular/router';
 import { FormGroup, FormControl, Validators} from '@angular/forms';
+import { ViewportScroller } from "@angular/common";
 
 @Component({
   selector: 'app-Event-27AUG2022',
@@ -15,6 +16,7 @@ export class Event27AugComponent {
   constructor(
     private router:Router,
     private http: HttpClient,
+    private scroller: ViewportScroller,
     ) {}
   
 
@@ -22,22 +24,24 @@ export class Event27AugComponent {
     getScreenHeight: any;
     device_type:string='';
 
+    text_error:string=''
  
 
 
-    @HostListener('window:resize', ['$event'])
-    onWindowResize() {
+@HostListener('window:resize', ['$event'])
+onWindowResize() {
       this.getScreenWidth = window.innerWidth;
       this.getScreenHeight = window.innerHeight;
     }
 
 
-    ngOnInit(){
+  ngOnInit(){
       this.getScreenWidth = window.innerWidth;
       this.getScreenHeight = window.innerHeight;
- 
-    }
+  }
 
-
+  goDown(event:string){
+    this.scroller.scrollToAnchor(event);
+  }
 
 }

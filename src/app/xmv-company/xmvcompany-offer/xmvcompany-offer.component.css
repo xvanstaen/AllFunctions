@@ -3,8 +3,8 @@
 
 .sizeMap{
     margin-left: 2%;
-    margin-top:20px;
-    width: 90%;
+    margin-top:45px;
+    width: 96%;
     height:560px;
     float:left;
     }
@@ -13,7 +13,7 @@
     float:left; 
     margin-left:7%; 
     margin-top:-530px;
-    width:80%;
+    width:92%;
     height:500px;
     opacity: 0.65;
     padding-left:10px;
@@ -31,16 +31,33 @@
     }
     
     
-    .selectOffer{
-    margin-left:7px; 
-    background:black;
+.selectOffer{
+    margin-left:2%; 
+    background-color:black;
     color:white;
-    font-size:18px;
+    display:block;
+
+    height:25px;
+    background-color: #f1f1f1;
+    color:black;
+    border:solid 0px red;
+    font-size:14px;
+    float:left;
     }
-    
-    .selectOffer:hover{
+
+.selectFieldOne{
+    width:30%;
+    max-width:35%;
+    }
+.selectFieldTwo{
+    width:22%;
+    max-width:26%;
+    }
+            
+.selectOffer:hover{
     background:yellow;
-    color:red;
+    background-color: rgb(198, 196, 196);
+    
     border-bottom: solid 3px red;;
     }
     
@@ -55,12 +72,18 @@
     font-size:22;
     }
     
-    .el_contact{
+.el_contact{
     font-style:italic;
     cursor:pointer;
+    /*
     color:rgb(0, 255, 94);
-    font-size: 18px;
-    font-weight: bolder;
+    */
+    color:rgb(7, 6, 6);
+    background-color: white;
+    font-family: 'Tangerine', 'cursive';
+    border: 24px;
+    font-size: 24px;
+    font-weight: bold;
     }
     
     .el_contact:hover{
@@ -84,7 +107,7 @@
     .myOffer{
     width: 90%;
     margin-left: 2%;
-    margin-top:-15px;
+    margin-top:0px;
     
     color:rgb(94, 77, 77);
     font-size: 18px;
@@ -123,9 +146,7 @@
     /*** ============== @media 1200 ================ ***/
     /*** ====================================== ***/
     @media only screen and (max-width: 1200px) {
-    .sizeMap{
-    margin-top:25px;
-    }
+
     .el_offer{
     font-size:18px;
     }
@@ -140,12 +161,17 @@
     /*** ============== @media 768 ================ ***/
     /*** ====================================== ***/
     @media only screen and (max-width: 768px) {
+
+    .Main_Page_Size{
+        width:96%;
+    }
+
     .el_offer{
     font-size:14px;
     }
 
     .sizeMap{
-        margin-top:20px;
+        margin-top: 35px;
         }
 
     .Main_Page_Text{
@@ -157,15 +183,24 @@
     /*** ============== @media 650 ================ ***/
     /*** ====================================== ***/
     @media only screen and (max-width: 650px) {
+
+   
+    .selectOffer{
+        height:22px;
+        font-size:11px;
+            }
+        
+
     .sizeMap{
-    height:500px;
-    margin-top:40px;
+    height:560px;
+    margin-top:50px;
     }
     
     .Main_Page_Size{
     margin-left:2%;
     line-height:25px;
-    width:90%; 
+    height:560px;
+    margin-top:-560px;
     }
     
     .Main_Page_Text{
@@ -178,13 +213,13 @@
     /*** ====================================== ***/
     @media only screen and (max-width: 420px) {
     .sizeMap{
-    height:690px;
-    margin-top:18px;
+    height:730px;
+    margin-top:30px;
     } 
     
     .Main_Page_Size{ 
-    margin-top:-690px;
-    height:690px;
+    margin-top:-730px;
+    height:730px;
     }
 
 

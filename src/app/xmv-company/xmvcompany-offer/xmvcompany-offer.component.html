@@ -2,7 +2,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
 <div>
-    <div id='targetTop'>
+    <div id='targetTop' >
         <img class='sizeMap' src="./assets/Airplane 3.jpg" >
     </div>
     <div class="Main_Page_Size">
@@ -17,13 +17,17 @@
              <br>Discover below a high level description of some of the solutions and services we offer.
             <br>
            
-            <span class="el_contact" (click) = 'Display_Contact()'>Contact </span> us to describe your needs and get more information on our offer 
+            <span class="el_contact" (click) = 'Display_Contact()'>Contact </span> <span style='margin-left:5px;'> us </span>to describe your needs and get more information on our offer 
             </span>
             <br><br>
-            <span class='selectOffer' style=' margin-left:0px;' (click)="goDown1('targetFinance')">Finance</span>
-            <span class='selectOffer' (click)="goDown1('targetCoaching')">Coaching</span>
-            <span class='selectOffer' (click)="goDown1('targetTechnical')">Techn. Expert</span>
-            <span class='selectOffer' (click)="goDown1('targetPgm')">Projects</span>
+            <span class='selectOffer selectFieldOne' style=' margin-left:14%;' (click)="goDown1('targetDigital')">Digital] Transf.</span>
+            <span class='selectOffer selectFieldOne' (click)="goDown1('targetTechnical')">Techn. Expert</span>
+            <div>
+                <br><br>
+            <span class='selectOffer selectFieldTwo' style=' margin-left:12%;' (click)="goDown1('targetFinance')">Finance</span>
+            <span class='selectOffer selectFieldTwo' (click)="goDown1('targetCoaching')">Coaching</span>
+            <span class='selectOffer selectFieldTwo' (click)="goDown1('targetPgm')">Projects</span>
+            </div>
             <br>
            
    
@@ -31,7 +35,8 @@
     <div class='myOffer'>
         <div class="text_myOffer ">
            
-            <br>
+            <span id='targetDigital'></span>
+            <br> 
             <h1 > Digital Transformation</h1>
             Digital transformation is first driven by your business needs and issues. Some of the key questions to address are:
             <li>What does your business need to prosper in the long-term? </li>
@@ -98,6 +103,7 @@
             </span>
             <br><button class="button-size" (click)="goDown1('targetTop')"><span class='Top_class'>Top</span></button>
             <br>
+            
              <span id="targetFinance"></span>
             
              <br>

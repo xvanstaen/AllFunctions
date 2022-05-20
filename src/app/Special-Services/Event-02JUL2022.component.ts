@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { HttpHeaders } from '@angular/common/http';
 import { Router} from '@angular/router';
 import { FormGroup, FormControl, Validators} from '@angular/forms';
+import { ViewportScroller } from "@angular/common";
 
 @Component({
   selector: 'app-Event-02JUL2022',
@@ -15,6 +16,7 @@ export class Event02JULComponent {
   constructor(
     private router:Router,
     private http: HttpClient,
+    private scroller: ViewportScroller,
     ) {}
   
 
@@ -38,6 +40,8 @@ onWindowResize() {
       this.getScreenHeight = window.innerHeight;
   }
 
-
+  goDown(event:string){
+    this.scroller.scrollToAnchor(event);
+  }
 
 }

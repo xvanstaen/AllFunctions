@@ -28,6 +28,8 @@ export class XmvCompanyComponent implements OnInit, OnChanges, AfterViewChecked 
   getScreenHeight: any;
   device_type:string='';
 
+  selected_offer:string='';
+
   /***  to keep identification and psw of the user */
   identif={
     id: 0,
@@ -114,6 +116,7 @@ export class XmvCompanyComponent implements OnInit, OnChanges, AfterViewChecked 
     this.Display_Table[this.i_table].display=false;
     this.i_table=this.i_Offer;
     this.Display_Table[this.i_table].display=true;
+    this.selected_offer='';
   }
 
   Display_HomePage(){
@@ -137,7 +140,12 @@ export class XmvCompanyComponent implements OnInit, OnChanges, AfterViewChecked 
     }
   }
   
-
+  goDown1(action:string){
+    this.Display_Table[this.i_table].display=false;
+    this.i_table=this.i_Offer;
+    this.Display_Table[this.i_table].display=true;
+    this.selected_offer = action;
+  }
 
   TheIdentifObject(event:any){
     this.identif=event;

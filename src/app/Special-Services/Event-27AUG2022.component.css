@@ -1,18 +1,1 @@
-
-.main_box{
-  float:left; 
-  border:solid 0px red;
-  width:90%;
-  max-width:800px;
-  margin-left:5px;
-  margin-top:10px;
-}
-
-  h1{
-    color:blue;
-    font-weight: bold;
-  }
-
-  h2{
-    color:blue;
-  }
+@import "./Event-02JUL2022.component.css";

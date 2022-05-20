@@ -17,12 +17,11 @@
     <div class="main_box">
     
     
-      <h2 class="title "> Welcome  </h2>
+      <h2 class="title "> Welcome!  </h2>
  
-      <h3 style="margin-top:20px; margin-left:15%; width:80%; text-align:center; color:blue">
-        One more step to get all the information  
-        <br>
-        about the event you've been invited to
+      <h3 >
+        One more step for <br>event's details  
+
       </h3>
 
     <form class="form_box" [formGroup]="myForm" >
@@ -51,6 +50,16 @@
   </div>
 </div>
 
+        <!-- ======== FOOTER ======== -->
+        <div class='myfooter' >
+          <div class='copyright' ><br>Copyright © 2022 XMV IT Consulting PTE LTD  - All Rights Reserved.
+              <br> Disclaimer : All copy rights of non-XMV brands or companies belong to respective brands or companies any mention on this website is for reference purposes only. 
+              <br> 
+              <div class='copyright' >No rights intended or owned in them 
+              </div>
+              <br>
+          </div>
+  </div>
 <ng-template #RespondContact>
 <div  *ngIf="routing_code===1; else firstevent">
   <app-Respond-Contact ></app-Respond-Contact>

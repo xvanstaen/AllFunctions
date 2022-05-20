@@ -3,25 +3,30 @@
 
 <head>
   <link href="https://emoji-css.afeld.me/emoji.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 <!-- web site: https://emoji-css.afeld.me/ 
-
   other sites:
   https://www.kirupa.com/html5/emoji.htm
-
 -->
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta charset="UTF-8">
-
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 48
+    }
+    </style>
 </head>
 
 <body>  
 
     <!--
-
   <br> <p style="font-family:'Segoe UI Emoji';">&#x1F525;&#65;&#128512;</p>
-
   <p>&#x1F354;</p>
   <i class="em em-champagne" aria-role="presentation" aria-label="BOTTLE WITH POPPING CORK"></i>
     <br> Device type is {{device_type}}
@@ -31,23 +36,41 @@
     </div>
     -->
       <div class="pos_icons">
-        <span class=' div_icons'>
+        <span class=' div_icons' (click) = "Display_Contact()">
          <!--
             <mat-icon  (click)='RouteTo("login")' class="icon-login"> login</mat-icon> 
           -->
             <mat-icon  class='icons'> smartphone</mat-icon> 
             <span class="icons_data">  +65 8268 0480</span>
-            <mat-icon   class=' icons-email' (click) = "Display_Contact()"> email</mat-icon>   
-            <span class=" icons_data-email" (click) = "Display_Contact()">xvanstaen@xmv-it.com</span>
+            <mat-icon   class=' icons-email' > email</mat-icon>   
+            <span class=" icons_data-email" >xvanstaen@xmv-it.com</span>
         </span>
-
+       
 
        
       </div>
 
     <div class="pos_options">
           <div   *ngIf="Display_Table[i_table].display===true && Display_Table[i_table].type===Offer; else NoOffer">
-            <div class='options firstOption options-text option_background' (click) = "Display_Offer()"><br>Offer</div>
+            <div class=' options firstOption options-text ' (click) = "Display_Offer()"><br>
+              Offer
+            </div>
+       <div class="  dropdown arrow_down">
+        <span class="material-symbols-outlined arrow_down_size"  >
+          arrow_drop_down
+         
+            <div class="dropdown-content" >
+              <span >
+              <div class="dropdown-options dropdown-options-even" (click)="goDown1('targetDigital') ">Digital Transf.</div>
+              <div class="dropdown-options dropdown-options-odd" (click)="goDown1('targetFinance')">Finance</div>
+              <div class="dropdown-options dropdown-options-even" (click)="goDown1('targetCoaching')">Coaching</div>
+              <div class="dropdown-options dropdown-options-odd" (click)="goDown1('targetTechnical')">Techn. Expert</div>
+              <div class="dropdown-options dropdown-options-even" (click)="goDown1('targetPgm')" >Projects</div>
+            </span>
+
+            </div>
+          </span>
+      </div>
           </div>      
 
           <div *ngIf="Display_Table[i_table].display===true && Display_Table[i_table].type===Profile; else NoProfile">
@@ -72,6 +95,7 @@
             <span  class='smITConsulting'>IT Consulting</span >
         </div>
     </div>
+ 
   </div>
 
 
@@ -80,7 +104,26 @@
     
 
     <ng-template #NoOffer>
-        <div class=' options firstOption options-text' (click) = "Display_Offer()"><br>Offer</div>
+        <div class=' options firstOption options-text ' (click) = "Display_Offer()"><br>
+          Offer
+        </div>
+        <div class="  dropdown arrow_down ">
+        <span class="material-symbols-outlined arrow_down_size"  >
+          arrow_drop_down
+         
+           
+          <div class="dropdown-content" >
+            <span >
+            <div class="dropdown-options dropdown-options-even" (click)="goDown1('targetDigital') ">Digital Transf.</div>
+            <div class="dropdown-options dropdown-options-odd" (click)="goDown1('targetFinance')">Finance</div>
+            <div class="dropdown-options dropdown-options-even" (click)="goDown1('targetCoaching')">Coaching</div>
+            <div class="dropdown-options dropdown-options-odd" (click)="goDown1('targetTechnical')">Techn. Expert</div>
+            <div class="dropdown-options dropdown-options-even" (click)="goDown1('targetPgm')" >Projects</div>
+          </span>
+
+          </div>
+          </span>
+      </div>
     </ng-template>
     <ng-template #NoProfile>
         <div class=' options othertOption options-text' (click) = "Display_Profile()"><br>Profile</div>
@@ -100,7 +143,11 @@
           <!-- ======== OFFER ======== -->
           
           <div  *ngIf="Display_Table[i_table].display===true && Display_Table[i_table].type===Offer; else profile">
-            <app-xmvcompany-offer [redisplay_child]="display_GoToContact" (my_output1)='Display_Contact()'></app-xmvcompany-offer>
+            <app-xmvcompany-offer [redisplay_child]="display_GoToContact" (my_output1)='Display_Contact()'
+            [selectedoffer]="selected_offer"
+            >
+
+            </app-xmvcompany-offer>
               
           </div> 
 
@@ -185,11 +232,6 @@
             <ng-template #AdmLogin>   <span class='mainbody'>  
               <app-login></app-login>
             </span>  </ng-template>
-
             -->
 
-
-
 </body>
-
- 
