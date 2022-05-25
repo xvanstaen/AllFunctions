@@ -17,12 +17,31 @@
 
       
   --> 
-  
+  <div *ngIf="Error_Access_Server!==''">
+      <span style='margin-top:20px; color:red; font-size:16px;' Error access to the server : {{Error_Access_Server}}>
+      </span>
+  </div>
 
-  <div >
-      <div >
-          <img   class='sizeMap'  src="./assets/Sainte Croix.JPG" >
+  <div class="flag flagone" (click)="goDown('FR')"> <span><img   style="width:20px; height:20px;"  src="./assets/FlagFrance.png" ></span></div>
+  <div class="flag flagtwo" (click)="goDown('UK')"> <span><img   style="width:20px; height:20px;"  src="./assets/FlagUK.png" ></span></div>
+  <div *ngIf="invite===true; else manageInvite" >
+    <div  style="position:relative; margin-top:10px; margin-left:18%; float:left;"  >
+              <div *ngIf="yourLanguage==='FR'">
+                 <span  (click)="goDown('targetRules')" class="dropdown-options dropdown-text">Information</span>
+                 <span  (click)="goDown('targetDirection')" class="dropdown-options dropdown-text">Adresse</span>
+              </div>
+              <span *ngIf="yourLanguage==='UK'">
+                <span  (click)="goDown('targetRules')" class="dropdown-options dropdown-text">Guidelines</span>
+                <span  (click)="goDown('targetDirection')" class="dropdown-options dropdown-text">Address</span>
+            </span>
+    </div>
+    <div>
+      <div *ngIf="getScreenWidth<800">
+          <img   class='sizeMap'  src="./assets/ChateauBegude3.PNG" >
       </div>
+      <div *ngIf="getScreenWidth>799">
+        <img   class='sizeMap'  src="./assets/ChateauBegude1.PNG" >
+    </div>
       
       <span class="emoji  anim-name-slidedown" style="margin-left:2%; animation-duration: 18s;">🥂</span>
       <span class="emoji  anim-name-slidedown" style="margin-left:12%; animation-direction: alternate;animation-duration: 10s;">🍾</span>
@@ -62,12 +81,10 @@
       <span class="emoji  anim-name-slidedown" style="margin-left:92%; animation-duration: 12s;">🥂</span>
       
       <div class="overlap_image">
-        <div class="dropdown-options" (click)="goDown('targetRules')"><span class="dropdown-text"  >Guidelines</span></div>
-        <div class="dropdown-options" (click)="goDown('targetDirection')"><span class="dropdown-text"  >Address</span></div>
+        
         <br> 
         <div class="main_box">
-         
-         
+            
           <!--
              <span class="em em-champagne animicon  anim-name-normal">🥂</span>
           <span class="em em-champagne animicon  anim-name-normal">🍾</span>
@@ -75,19 +92,20 @@
           <i class="em em-champagne animicon dir-alternate anim-name-normal" aria-role="presentation" aria-label="BOTTLE WITH POPPING CORK"></i>
           <i class="em em-champagne animicon alternate-reverse anim-name-slidein" aria-role="presentation" aria-label="Clinking Glasses"></i>
          -->
-        
+        <span *ngIf="yourLanguage==='FR'">
+          <h1> Monica & Xavier </h1> <h1>ont le grand plaisir</h1>  <h1>de vous accueillir </h1>
+
+            <h2 >le 27 aout 2022 </h2>
+            
+            <h2>au </h2><h1>Château de la Bégude </h1>
+        </span>
+        <span *ngIf="yourLanguage==='UK'">
           <h1> Monica & Xavier </h1> <h1>are delighted</h1>  <h1>to welcome you </h1>
-          
-          
-            <!--
-            <i class="em em-champagne" style="font-size:32px;" aria-role="presentation" aria-label="BOTTLE WITH POPPING CORK"></i>
-            -->
+
             <h2 >on 27 Aug 2022 </h2>
             
-  
-             <!-- <span style='font-size:40px;'>🍾  🥂 </span> -->
-            <h2>at </h2><h1>Chateau de la Begude </h1>
-            
+            <h2>at </h2><h1>Château de la Bégude </h1>
+        </span>
            
 
         </div>
@@ -97,21 +115,143 @@
 
   <div class="myText">
     <span id='targetRules'></span>
-    
-    <span style='font-weight:bold;'><br>Guidelines</span>
-    <br><br>
    
+    <span style='font-weight:bold;'><br> 
+        <span *ngIf="yourLanguage==='UK'">Guidelines</span>
+        <span *ngIf="yourLanguage==='FR'">Information</span>
+    </span>
+    <br><br>
+    <span *ngIf="yourLanguage==='UK'">
+    Dear {{identification.UserId}}, please confirm or amend the following information:
+    </span>
+    <span *ngIf="yourLanguage==='FR'">
+      Chers {{identification.UserId}}, merci de confirmer ou de modifier les informations suivantes:
+    </span>
+    <form  [formGroup]="myForm">
+      <div>
+        <label class="field-name" >Number of people</label>
+        <input  class="input_fieldTwo first-label" formControlName="nbInvitees" id="nbInvitees" type="number"  >
+        <span *ngIf="Table_User_Data[identification.id].night!=='na'">
+            <label class="field-name">Spend the night at the hotel (y/n) </label>
+            <input  class="input_fieldTwo first-label" formControlName="night" id="night" type="text"  >
+            <label class="field-name">Participate in the brunch (y/n)</label>
+            <input  class="input_fieldTwo first-label" formControlName="brunch" id="brunch" type="text"  >
+            <div *ngIf="Table_User_Data[identification.id].myComment!=='' && Table_User_Data[identification.id].myComment!==undefined">
+              <label class="field-name">My comments</label>
+              <input  class="input_field first-label" style="overflow-x:scroll;  width:200px;" formControlName="myComment" id="text" type="text"  >
+            </div>
+            <div >
+              <label class="field-name">Your feedback</label>
+              <input  class="input_field first-label" style="overflow-x:scroll; width:200px;" formControlName="yourComment" id="text" type="text"  >
+            </div>
+        </span>
+      </div>
+      <button id='but_1' class="sizeButtons" (click)="ConfirmData()">Confirm</button>
+    </form>
+
+    <span *ngIf="yourLanguage==='UK'">
+      Dressing code: casual
       <br><br>
-      We hope that you are as excited as us both, to have a lot of fun during our celebration 🍾 🎉 🎊 on 2 Jul.
+
+      We hope that you are as excited as us both, to have a lot of fun during our celebration 🍾 🎉 🎊 on 27-28Aug.
       <br><br>
       <h2>See you very soon!</h2>
       <br><br>
-
+    </span>
+    <span *ngIf="yourLanguage==='FR'">
+      Tenue decontractée
+      <br><br>
+      Nous espérons que vous êtes aussi impatient que nous deux, pour faire la fête en l'honneur de notre union   🍾 🎉 🎊 le week-end du 27-28Aug.
+      <br><br>
+      <h2>A très bientôt!</h2>
+      <br><br>
+    </span>
     <span id='targetDirection'></span>
-    <span style='font-weight:bold;'>Address</span>
+    <span style='font-weight:bold;'>
+        <span *ngIf="yourLanguage==='UK'">Address</span>
+        <span *ngIf="yourLanguage==='FR'">Adresse</span>
+    </span>
     <br>
-      <br>  Opio
+      <br>  Route de Roquefort les Pins - 06650 OPIO
 
       
   </div>
+</div>
+<ng-template #manageInvite>
+<div>
+  <h1>Manage the invitees</h1>
+  <h2 style="margin-top:20px;"><br></h2>
+  <div *ngIf="Error_Access_Server!==''">
+    <span style='margin-top:20px; color:red; font-size:16px;' >Error access to the server  ==> {{Error_Access_Server}}>
+    </span>
+</div>
+  <form  [formGroup]="myForm">
+      <span style="color:red; font-size:16px; height:30px; margin-left:30px;">{{error_message}}</span>
+      <div>
+      <label class="field-name">Firstname</label>
+      <input  class="input_field first-label" formControlName="firstname" id="firstname" type="text"  >
+      </div><div>
+      <label class="field-name">Surname</label>
+      <input  class="input_field first-label" formControlName="surname" id="surname" type="text"  >
+      </div><div>
+      <label class="field-name">User-id</label>
+      <input  class="input_field first-label" formControlName="userId" id="UserId" type="text"  >
+      </div><div>
+      <label class="field-name">Password</label>
+      <input  class="input_field first-label" formControlName="psw" id="psw" type="text"  >
+      </div><div>
+      <label class="field-name">Nb invitees</label>
+      <input  class="input_fieldTwo first-label" formControlName="nbInvitees" id="nbInvitees" type="number"  >
+      <label class="field-name">Night (y/n)</label>
+      <input  class="input_fieldTwo first-label" formControlName="night" id="night" type="text"  >
+      <label class="field-name">Brunch(y/n)</label>
+      <input  class="input_fieldTwo first-label" formControlName="brunch" id="brunch" type="text"  >
+      <label class="field-name">Read record)</label>
+      <input  class="input_fieldTwo first-label" formControlName="readRecord" id="record" type="number"  >
+      </div><div>
+        <label class="field-name">My comments</label>
+      <input  class="input_field first-label" style="overflow:scroll;  width:200px;" formControlName="myComment" id="text" type="text"  >
+      </div><div>
+        <label class="field-name">Your feedback</label>
+      <input  class="input_field first-label" style="overflow:scroll;  width:200px;" formControlName="yourComment" id="text" type="text"  >
+      </div><div>
+      <button id='but_1' class="sizeButtons" (click)="ValidateRecord()">Send</button>
+      <button id='but_2' class="sizeButtons" (click)="clear()">Clear</button>
+      </div>
+  </form>
+  <br><br>
+  <h2 style="margin-top:30px;"> List of participants:<br></h2>
+  <div>
+  <label class="field-colTwo">Rec</label> 
+  <label class="field-col">Firstname</label> 
+  <label class="field-col">Surname</label>
+  <label class="field-col">User-id</label>
+  <label class="field-colTwo">Nb </label>
+  <label class="field-colTwo">Night</label>
+  <label class="field-colTwo">Brunch</label>
+  <label class="field-col">Password</label>
+  <label class="field-col">My comment</label>
+  <label class="field-col">Your comment</label>
+  </div>
+
+  <div *ngFor="let theList of Table_User_Data; let i=index" style="margin-left:20px; ">
+    <div style="max-width:1000px; display:table; background-color:green; border:solid 1px black; ">
+    <span class="field-rowTwo"> {{i+1}}</span> 
+    <span class="field-row">{{theList.firstname}} </span> 
+    <span class="field-row"> {{theList.surname}}</span>  
+    <span class="field-row">{{theList.UserId}}</span> 
+    <span class="field-rowTwo">{{theList.nbinvitees}}</span> 
+    <span class="field-rowTwo"> {{theList.night}}</span> 
+    <span class="field-rowTwo"> {{theList.brunch}} </span> 
+    <span class="field-row">{{Table_DecryptPSW[i]}}</span> 
+    <span *ngIf="theList.myComment!=='' && theList.myComment!==undefined" class="field-rowTwo">x </span> 
+    <span *ngIf="theList.yourComment!=='' && theList.yourComment!==undefined" class="field-rowTwo">y</span> 
+    <br>
+  </div>
+  </div>
+
+  <h2 style="margin-top:30px;"><br> Total number of invitees: {{total_invitee}}</h2>
+</div>
+</ng-template>
+
 </body>

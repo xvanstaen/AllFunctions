@@ -29,6 +29,7 @@ export class AppComponent {
     {Route:'TopicURL'},
     {Route:'Contact'},
     {Route:'MyCanvas'},
+    {Route:'MyLogin'},
     ];
 
 
@@ -58,6 +59,7 @@ export class AppComponent {
          if (event.id>1 && event.url!=='/myKEHP' && event.url!=='/myRouting' && event.url!=='/myColorPicker'
          && event.url!=='/myColorSlider' && event.url!=='/myColorPalette' && event.url!=='/myXMVcompany'
          && event.url!=='/IntlPhoneNb' && event.url!=='/TopicURL' && event.url!=='/Contact'  && event.url!=='/MyCanvas'
+         && event.url!=='/MyLogin'
          ) {
            
            this.myTypeRoute=1;
@@ -87,6 +89,8 @@ export class AppComponent {
                     this.myTypeRoute=8;
                   } else if (event.url==='/MyCanvas'){  
                     this.myTypeRoute=9;
+                  } else if (event.url==='/MyLogin'){  
+                    this.myTypeRoute=10;
                     // this.Route_ColotPicker(); 
                     } else  {
                         this.myTypeRoute=0;
@@ -104,7 +108,7 @@ export class AppComponent {
     
     // convert to [5] to display XMV Company 
     if (!this.myTypeRoute){
-      this.router.navigateByUrl(this.myRoutingTable[9].Route);
+      this.router.navigateByUrl(this.myRoutingTable[10].Route);
   
     }
     else{

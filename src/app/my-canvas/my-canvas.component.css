@@ -3,7 +3,7 @@
     position:relative;
     border: solid 2px red;
     margin-left:10px;
-    margin-top:10px;
+    margin-top:20px;
     display:block;
 }
 
@@ -75,21 +75,21 @@
     display: inline-block;  
     position: absolute;
     margin-left:0px;
-    margin-top:19px; 
+    margin-top:69px; 
 }  
 
 .param_one_down {  
     display: block;  
     position: absolute;
     margin-left:475px;
-    margin-top:50px; 
+    margin-top:120px; 
 }  
 
 .param_two_down {  
     display: inline-block;  
     position: absolute;
     margin-left:10px;
-    margin-top:130px; 
+    margin-top:210px; 
    
 }  
 

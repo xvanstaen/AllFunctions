@@ -18,3 +18,19 @@ export class BioData{
     topic:string='';
     url:string='';
     };
+
+  export class EventAug {
+    id: number=0;
+      key:number=0;
+      method:string='';
+      UserId:string='';
+      psw:string='';
+      phone:string='';
+      firstname:string='';
+      surname:string='';
+      night:string='';
+      brunch:string='';
+      nbinvitees:number=0;
+      myComment:string='';
+      yourComment:string='';
+    };

@@ -4,6 +4,7 @@ import { HttpHeaders } from '@angular/common/http';
 import { Router} from '@angular/router';
 import { FormGroup, FormControl, Validators} from '@angular/forms';
 import { encrypt, decrypt} from '../EncryptDecryptServices';
+import { EventAug } from '../JsonServerClass';
 
 @Component({
   selector: 'app-login',
@@ -35,11 +36,13 @@ export class LoginComponent {
     getScreenHeight: any;
     device_type:string='';
     routing_code:number=0;
-    text_error:string=''
+    text_error:string='';
+    i:number=0;
 
     myForm = new FormGroup({
       userId: new FormControl(''),
       password: new FormControl(''),
+      action: new  FormControl(''),
     });
 
     Encrypt:string='';
@@ -53,8 +56,14 @@ export class LoginComponent {
       method:'',
       UserId:'',
       psw:'',
-      phone:''
+      phone:'',
     }
+
+    Table_User_Data:Array<EventAug>=[];
+    Table_DecryptPSW:Array<string>=[];
+    Individual_User_Data= new EventAug;
+    bucket_data:string='';
+
     HTTP_Address:string='';
     Server_Name:string='Google'; // "Google" or "MyJson"
     Google_Bucket_Access_Root:string='https://storage.googleapis.com/storage/v1/b/';
@@ -100,12 +109,19 @@ export class LoginComponent {
       this.device_type = this.device_type.substring(10, 48);
      
       this.routing_code=0;
+      this.getEventAug();
 
       // ================ TO BE DELETED AFTER TESTING
       // this.myForm.controls['password'].setValue("SIN!02#JUL");
       // this.myForm.controls['userId'].setValue("Event-02JUL2022");
 
-      this.myForm.controls['password'].setValue("OPIO!27#AUG");
+
+      // ================ TO BE DELETED AFTER TESTING
+      //this.myForm.controls['password'].setValue("LIM!12monica#Chin");
+      //this.myForm.controls['userId'].setValue("XMVIT-Admin");
+      
+      // ================ TO BE DELETED AFTER TESTING
+      this.myForm.controls['password'].setValue("LIM!12monica#Chin");
       this.myForm.controls['userId'].setValue("Event-27AUG2022");
 
       if (this.identification.UserId!=='' && this.identification.psw!=='') {
@@ -117,12 +133,13 @@ export class LoginComponent {
             
           this.onCrypt("Decrypt");
           this.myForm.controls['password'].setValue(this.Decrypt);
-      }
+      } else {this.myForm.controls['action'].setValue("");}
     }
 
   GetObject(){
 // ****** get content of object *******
       this.HTTP_Address=this.Google_Bucket_Access_Root + this.Google_Bucket_Name + "/o/" + this.Google_Object_Name   + "?alt=media"; 
+    
       this.http.get(this.HTTP_Address )
             .subscribe(data => {
             this.Encrypt_Data = data;
@@ -138,14 +155,25 @@ export class LoginComponent {
 
                 this.my_output1.emit(this.Encrypt_Data);
                 
-                if (this.Encrypt_Data.UserId==='XMVIT-Admin' || this.Encrypt_Data.UserId==='xvanstaen@XMV') {
-                  this.routing_code=1; // go to Respond_Contact
+                if (this.Encrypt_Data.UserId==='XMVIT-Admin' || this.Encrypt_Data.UserId==='xvanstaen@XMV' ) {
+                  
+                      if (this.myForm.controls['action'].value===''){ 
+                        this.routing_code=4;
+                        // TO BE DELETED AFTER TESTING PERIOD
+                        this.myForm.controls['action'].setValue("Event-27AUG2022");
+                      } else if (this.myForm.controls['action'].value==='Manage Contact'){
+                          this.routing_code=1; // go to Respond_Contact
+                      } else if (this.myForm.controls['action'].value==='Event-27AUG2022'){
+                        this.routing_code=3; // go to Respond_Contact
+                      }
                     }
                   else if (this.Encrypt_Data.UserId==='Event-02JUL2022'){
                     this.routing_code=2;
                   }
                   else if (this.Encrypt_Data.UserId==='Event-27AUG2022'){
                     this.routing_code=3;
+                  } else {
+                    this.ValidateEventAug();
                   }
                   this.my_output2.emit(this.routing_code.toString());
                   }
@@ -155,16 +183,31 @@ export class LoginComponent {
             },
             error_handler => {
               console.log(error_handler);
-              if (error_handler.error.substring(0, 14)==='No such object'){
-                this.text_error='identification failed; retry';
-              } else {
+              //if (error_handler.error.substring(0, 14)==='No such object'){
+              //  this.text_error='identification failed; retry';
+              //} else {
                 this.text_error='server failure; error code ==> ' + error_handler.status ;
-              }
+              //}
               
                 // alert(this.message  + ' -- http get = ' + this.HTTP_Address);
             } 
         )
     }
+
+ValidateEventAug(){
+  this.text_error='';
+  for (this.i=0; this.i<this.Table_User_Data.length && (this.Table_User_Data[this.i].UserId!==this.myForm.controls['userId'].value && 
+    this.Table_DecryptPSW[this.i]!==this.myForm.controls['password'].value ); this.i++ ){
+    }
+
+  if (this.i>=this.Table_User_Data.length){
+    // user id not found
+    this.text_error='identification failed; retry';
+    this.routing_code=0;
+  } 
+
+
+}
 
 ValidateData(){
   this.Google_Object_Name = this.myForm.controls['userId'].value;
@@ -178,9 +221,59 @@ ValidateData(){
   }
   else
   {
-    this.Google_Object_Name=this.Google_Object_Name+this.Google_Object_Name_Extension;
-    this.GetObject();
+    // check first if it's related to Event of 27Aug2022
+    this.ValidateEventAug();
+    if (this.text_error!== ''){
+        // user id not found so go through through next validation step
+        this.Google_Object_Name=this.Google_Object_Name+this.Google_Object_Name_Extension;
+        this.text_error='';
+        this.GetObject();
+    } else {
+      this.routing_code=3;
+      this.Encrypt_Data.UserId=this.Table_User_Data[this.i].UserId;
+      this.Encrypt_Data.id=this.Table_User_Data[this.i].id;
+      this.Encrypt_Data.invitees=this.Table_User_Data[this.i].nbinvitees;
+      this.Encrypt_Data.night=this.Table_User_Data[this.i].night;
+      this.Encrypt_Data.brunch=this.Table_User_Data[this.i].brunch;
+    }
   }
+}
+
+getEventAug(){
+
+  this.Google_Object_Name="Event-27AUG2022.json";
+   
+  this.HTTP_Address=this.Google_Bucket_Access_Root + this.Google_Bucket_Name + "/o/" + this.Google_Object_Name   + "?alt=media"; 
+  this.http.get<any>(this.HTTP_Address )
+        .subscribe((data ) => {
+             
+
+              this.bucket_data=JSON.stringify(data);
+              var obj = JSON.parse(this.bucket_data);
+        
+              for (this.i=0; this.i<obj.length; this.i++){
+                  this.Individual_User_Data= new EventAug;
+                  this.Table_User_Data.push(this.Individual_User_Data);
+                  this.Table_User_Data[this.i] =obj[this.i];
+
+                  this.Table_DecryptPSW.push(' ');
+
+                  this.Crypto_Key=this.Table_User_Data[this.i].key;
+                  this.Crypto_Method=this.Table_User_Data[this.i].method;
+                  this.Encrypt=this.Table_User_Data[this.i].psw;
+                  this.onCrypt("Decrypt");
+                  this.Table_DecryptPSW[this.i]= this.Decrypt;
+              }
+
+              },
+              error_handler => {
+                this.text_error='INIT - error message==> ' + error_handler.message + ' error status==> '+ error_handler.statusText+'   name=> '+ error_handler.name + '   Error url==>  '+ error_handler.url;
+              } 
+        )
+  }
+
+GetUpdatedTable(event:any){
+  this.Table_User_Data[this.Encrypt_Data.id]=event;
 }
 
 onClear(){
@@ -198,8 +291,8 @@ onCrypt(type_crypto:string){
           } 
   }
 
-  ngOnChanges(changes: SimpleChanges) {   
-      console.log('onChanges login.ts');
+ngOnChanges(changes: SimpleChanges) {   
+      //console.log('onChanges login.ts');
   }
 
 

@@ -476,5 +476,64 @@ SelectedDay?:DaysOfMonths;
    */
 
 }
+/*
+ Sun_Earth(){
+    const sun = new Image();
+    const moon = new Image();
+    const earth = new Image();
+    const x=150;
+    const y=400;
+    const w_size_image=300;
+    const h_size_image=300;
 
+      sun.src = 'https://mdn.mozillademos.org/files/1456/Canvas_sun.png';
+      moon.src = 'https://mdn.mozillademos.org/files/1443/Canvas_moon.png';
+      earth.src = 'https://mdn.mozillademos.org/files/1429/Canvas_earth.png';
+
+      this.i_loop=0;
+
+      //const width = this.theCanvas.width;
+      //const height = this.theCanvas.height;
+
+      this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
+      this.i_loop++;   
+      this.ctx.globalCompositeOperation = 'destination-over';
+      // this.ctx.clearRect(0, 0,  width, height); // clear canvas
+      this.ctx.clearRect(x, y,  x+10, y+10);
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+      this.ctx.strokeStyle = 'rgba(0, 153, 255, 0.4)';
+
+      this.ctx.save();
+      this.ctx.translate(x+w_size_image/2,y+h_size_image);
+        
+      // Earth
+      const time = new Date();
+      this.ctx.rotate(((2 * Math.PI) / 60) * time.getSeconds() + ((2 * Math.PI) / 60000) * time.getMilliseconds());
+      this.ctx.translate(105, 0);
+      this.ctx.fillRect(0, -12, 30, 24); // Shadow
+      this.ctx.drawImage(earth, -12, -12);
+        
+      // Moon
+      //this.ctx.save();
+      this.ctx.rotate(((2 * Math.PI) / 6) * time.getSeconds() + ((2 * Math.PI) / 6000) * time.getMilliseconds());
+      this.ctx.translate(0, 28.5);
+      this.ctx.drawImage(moon, -3.5, -3.5);
+      // this.ctx.restore();
+        
+      this.ctx.restore();
+          
+      this.ctx.beginPath();
+      this.ctx.arc(x+w_size_image/2,y+h_size_image, 105, 0, Math.PI * 2, false); // Earth orbit
+      this.ctx.stroke();
+
+      // Sun
+      this.ctx.drawImage(sun,x,y,w_size_image, h_size_image);
+
+      this.id_Animation_two=window.requestAnimationFrame(() => this.Sun_Earth());
+      if (this.j_loop>30000){
+        window.cancelAnimationFrame(this.id_Animation_two);
+        } 
+
+  }
+*/
 

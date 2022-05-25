@@ -16,8 +16,14 @@ export class MyCanvasComponent implements OnInit {
   
   @ViewChild('TestCanvas', { static: true })
 
+
+  var_i:number=0;
+  var_j:number=0;
+  var_k:number=0;
+
   theCanvas:any;
   ctx:any;
+
   startangle:number=0;
   endangle:number=0;
   x_coordinate:number=0;
@@ -25,7 +31,9 @@ export class MyCanvasComponent implements OnInit {
   theRadius:number=0;
   theRadiusBis:number=0;
   DirectionClock:boolean=true;
+
   radioValue:string='';
+
   x_From:number=0;
   y_From:number=0;
   x_To:number=0;
@@ -35,22 +43,29 @@ export class MyCanvasComponent implements OnInit {
   i_loop:number=0;
   j_loop:number=0;
   k_loop:number=0;
-  max_loop:number=10000;
-  x_interval:number=0;
+
+  max_loop:number=10000; // just for security
+
   theta_v:number=0;
   theta_pas_v:number=0;
-  id_interval:number=0;
-  x_translate:number=0;
-  y_translate:number=0;
+
+
   angle_moon:number=0;
   angle_moonBis:number=0;
   moon_x_prev:number=0;
   moon_y_prev:number=0;
 
+  // used to stop the animation
+  id_Animation:number=0;
+  id_Animation_two:number=0;
+  id_Animation_three:number=0;
+
   new_x:number=0;
   new_y:number=0;
   prev_x:number=0;
   prev_y:number=0;
+
+  app_to_display:string='';
 
   TheCanvasForm: FormGroup = new FormGroup({ 
     ReturnToPage: new FormControl(),
@@ -75,10 +90,20 @@ export class MyCanvasComponent implements OnInit {
 
   });
 
+  moon = new Image();
+  earth = new Image();
+  sun = new Image();
+  champagne:string='';
+  
+  max_i_loop:number=10000;
+  max_j_loop:number=10000;
+  max_k_loop:number=10000;
+
   ngOnInit() {
     this.radioValue='';
-    this.TheCanvasForm.controls['xPos'].setValue(200);
-    this.TheCanvasForm.controls['yPos'].setValue(200);
+    this.app_to_display='';
+    this.TheCanvasForm.controls['xPos'].setValue(160);
+    this.TheCanvasForm.controls['yPos'].setValue(160);
     this.TheCanvasForm.controls['radius'].setValue(100);
     this.TheCanvasForm.controls['sAngle'].setValue(0);
     this.TheCanvasForm.controls['eAngle'].setValue(2);
@@ -86,13 +111,23 @@ export class MyCanvasComponent implements OnInit {
     this.TheCanvasForm.controls['theta'].setValue(0);
     this.TheCanvasForm.controls['theta_pas'].setValue(15);
 
-    this.MoveCanvasForm.controls['xFrom'].setValue(30);
-    this.MoveCanvasForm.controls['xTo'].setValue(90);
-    this.MoveCanvasForm.controls['yFrom'].setValue(30);
-    this.MoveCanvasForm.controls['yTo'].setValue(90);
+    this.MoveCanvasForm.controls['xFrom'].setValue(230);
+    this.MoveCanvasForm.controls['xTo'].setValue(290);
+    this.MoveCanvasForm.controls['yFrom'].setValue(230);
+    this.MoveCanvasForm.controls['yTo'].setValue(290);
     this.MoveCanvasForm.controls['radius'].setValue(5);
     this.MoveCanvasForm.controls['xPas'].setValue(10);
     this.MoveCanvasForm.controls['yPas'].setValue(10);
+    this.champagne=' 🍾';
+  this.sun.src = 'https://mdn.mozillademos.org/files/1456/Canvas_sun.png';
+  this.moon.src = 'https://mdn.mozillademos.org/files/1443/Canvas_moon.png';
+  this.earth.src = 'https://mdn.mozillademos.org/files/1429/Canvas_earth.png';
+  //this.moon.src = '../assets/MoonNew.png';
+
+
+  this.var_j=45 * Math.PI / 180;
+  this.var_j=this.var_j/10;
+ 
   }
 
   ngAfterViewInit() { 
@@ -105,13 +140,10 @@ export class MyCanvasComponent implements OnInit {
     }
 
   drawCanvas(){
-      const width = this.theCanvas.width;
-      const height = this.theCanvas.height;
+
       // DRAW a circle
       this.ctx.beginPath(); //	Begins a path, or resets the current path
       
-     
-
       // context.arc(x,y,r,sAngle,eAngle,counterclockwise);
       // The x-coordinate of the center of the circle
       // The y-coordinate of the center of the circle
@@ -125,11 +157,10 @@ export class MyCanvasComponent implements OnInit {
       
       this.ctx.arc(this.x_coordinate, this.y_coordinate, this.theRadius, this.startangle, this.endangle * Math.PI,this.DirectionClock); //Creates an arc/curve (used to create circles, or parts of circles)
       this.ctx.stroke(); // Actually draws the path you have defined
-      // this.y_coordinate=this.y_coordinate + 50;
-      //}
+    
     }
 
-  drawCircleParam(){
+  GetParam(){
       this.x_coordinate=this.TheCanvasForm.controls['xPos'].value;
       this.y_coordinate=this.TheCanvasForm.controls['yPos'].value;
       this.theRadius= this.TheCanvasForm.controls['radius'].value;
@@ -147,13 +178,14 @@ export class MyCanvasComponent implements OnInit {
 
 
     RadioActions(event:any){
+      this.app_to_display='';
       if (event!==''){
         this.radioValue=event;
       } else  {this.radioValue= this.TheCanvasForm.controls['ReturnToPage'].value};
       if (this.radioValue==='Circle') {
-        this.drawCircleParam();
+        this.GetParam();
         this.drawCanvas();
-        // indicate the center of the circle
+        // at the center of the circle insert character 'A' and also draw a line 
         this.ctx.beginPath();
         this.ctx.font = 'bold 18px serif';
         this.ctx.strokeText('A', this.x_coordinate, this.y_coordinate);
@@ -165,18 +197,43 @@ export class MyCanvasComponent implements OnInit {
       else if (this.radioValue==='MoveCircle') {
         this.MoveCanvas('Create');
       }
-      else if (this.radioValue==='CircleByPoint') {
-          this.draw_circle_byPoint();
+      else if (this.radioValue==='DrawAnimation') {
+          this.i_loop=0;
+          this.draw_animation();
       }
       else if (this.radioValue==='Clear') {
-        
         this.MoveCanvas('Clear');
         this.TheCanvasForm.controls['ReturnToPage'].setValue('');
         this.ngOnInit();
       }
+      else if (this.radioValue==='Sun_Earth') {
+          this.j_loop=0;
+          this.Sun_Earth();
+      }  
+      else if (this.radioValue==='CircleRotate') {
+        this.k_loop=0;
+        this.circle_rotation();
+    }  
+    else if (this.radioValue==='StopAnim') {
+      this.stopAnimation();
+      
+  }  
+      else {    this.app_to_display='other'};
+    }
+
+
+    AllAnimationsn(){
+
+      this.k_loop=0;
+      this.i_loop=0;
+      this.j_loop=0;
+      this.draw_animation();
+      this.Sun_Earth();
+      this.circle_rotation();
     }
 
     ClearCanvas(){
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
         this.ctx.beginPath();
         //this.ctx.clearRect(this.x_coordinate - this.theRadius - 1, this.y_coordinate - this.theRadius - 1, this.theRadius * 2 + 2, this.theRadius * 2 + 2);
         this.ctx.clearRect(0,0,this.theCanvas.width,this.theCanvas.height);
@@ -187,14 +244,11 @@ export class MyCanvasComponent implements OnInit {
     MoveCanvas(type_action:string){
 
 
-      this.drawCircleParam();
+      this.GetParam();
       for (this.x_From=this.MoveCanvasForm.controls['xFrom'].value;  this.x_From<this.x_To; this.i_loop<this.max_loop)
       {
-       
-
         for (this.y_From=this.MoveCanvasForm.controls['yFrom'].value;  this.y_From<=this.y_To; this.i_loop<this.max_loop)
         {
-          
           this.x_coordinate=this.x_From;
           this.y_coordinate=this.y_From;
           this.i_loop=this.i_loop+1;
@@ -204,287 +258,249 @@ export class MyCanvasComponent implements OnInit {
           else if (type_action==='Clear'){
             this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
             this.ClearCanvas();
-            this.moon_cycle()
-            this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
-            this.ClearCanvas();
           }
           this.y_From=this.y_From+this.y_Pas;
-          
         }
         this.x_From=this.x_From+this.x_Pas;
       }
-
     }
     
 
-    draw_circle_byPoint(){
-      this. drawCircleParam();
-      const moon = new Image();
-      const earth = new Image();
-      const sun = new Image();
-      sun.src = 'https://mdn.mozillademos.org/files/1456/Canvas_sun.png';
-      // moon.src = 'https://mdn.mozillademos.org/files/1443/Canvas_moon.png';
-      earth.src = 'https://mdn.mozillademos.org/files/1429/Canvas_earth.png';
-      moon.src = '../assets/MoonNew.png';
-      const champagne=new Image();
-      champagne.src=' 🍾';
-      
+    draw_animation(){
+      this.GetParam();      
       const pas= 2 * Math.PI / this.theta_pas_v;
-      this.x_interval=0;
-      this.i_loop=0;
-
-      this.x_translate=20;
-      this.y_translate=20;
+      const w_size_image=300;
+      const h_size_image=300;
+      const distEarthMoon=35;
+      const radiusMoon=5;
 
       this.prev_x= this.x_coordinate;
       this.prev_y= this.y_coordinate;
       
-       //To be analyzed https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame
-        const i= setInterval(() => {
-              this.theta_v+=pas
-              this.new_x = this.x_coordinate + this.theRadius * Math.cos(this.theta_v);
-              this.new_y = this.y_coordinate + this.theRadius * Math.sin(this.theta_v);
-              if (this.i_loop!==0){
-                this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
-                this.ctx.beginPath();
-                //this.ctx.clearRect(this.prev_x -(this.x_translate/2) - 1, this.prev_y -(this.y_translate/2) - 1, this.theRadiusBis  + this.x_translate+ 2, this.theRadiusBis  + this.y_translate+2);
-                //this.ctx.clearRect(this.x_coordinate - this.theRadius*2 - this.theRadiusBis- 1, this.y_coordinate - this.theRadiusBis- this.theRadius*2 - 1, this.theRadius *3   + this.theRadiusBis*4+ 2, this.theRadius *32   + this.theRadiusBis*4+2);
-             
-               this.ClearCanvas();
-               this.ctx.stroke();
+      this.ctx.globalCompositeOperation = 'source-over';
 
-                //this.ctx.closePath();
+      //To be analyzed https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame
+    
+      //this.theta_v+=pas
+      //this.new_x = this.x_coordinate + this.theRadius * Math.cos(this.theta_v);
+      //this.new_y = this.y_coordinate + this.theRadius * Math.sin(this.theta_v);
+      this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
+      // delete the max size of the rectangle which is the image 'sun'
+      this.ctx.beginPath();
+      //this.ctx.clearRect(this.prev_x -(this.x_translate/2) - 1, this.prev_y -(this.y_translate/2) - 1, this.theRadiusBis  + this.x_translate+ 2, this.theRadiusBis  + this.y_translate+2);
+      //this.ctx.clearRect(this.x_coordinate - this.theRadius*2 - this.theRadiusBis- 1, this.y_coordinate - this.theRadiusBis- this.theRadius*2 - 1, this.theRadius *4  + this.theRadiusBis*4+ 2, this.theRadius *4   + this.theRadiusBis*4+2);
+      this.ctx.clearRect(this.x_coordinate-w_size_image/2,this.y_coordinate-h_size_image/2, w_size_image, h_size_image);  
+      this.ctx.stroke();
+      //this.ctx.fillStyle = 'lightblue'; // color inside circle
+      //this.ctx.fill();
+      //this.ctx.fillRect(this.x_coordinate-w_size_image/2,this.y_coordinate-h_size_image/2, w_size_image, h_size_image);  
+      //this.ctx.stroke();
+      // prev may not be needed
+      //this.prev_x=this.new_x;
+      //this.prev_y=this.new_y;
 
-              }
-             
-              this.prev_x=this.new_x;
-              this.prev_y=this.new_y;
+      this.i_loop++;   
 
-              this.i_loop++;   
+      //
+      // This is equivalent to earth moving around the sun
+      //
+      this.ctx.beginPath(); // critical
+      //this.ctx.setTransform(1, 0, 0, 1, 0, 0); // not needed as there has been no change of the position
+      this.ctx.drawImage(this.sun,this.x_coordinate-w_size_image/2,this.y_coordinate-h_size_image/2, w_size_image, h_size_image);               
+      this.ctx.arc( this.x_coordinate, this.y_coordinate, this.theRadius, 0, 2 * Math.PI);
+      //this.ctx.fillStyle = 'lightblue'; // color inside circle
+      //this.ctx.fill();
 
-              this.ctx.fillStyle = 'white'; // color inside circle
-              this.ctx.strokeStyle= 'red'; // color line cycle
-              this.ctx.lineWidth = 3; // weight of the line
-                    
-              //
-              // This is equivalent to earth moving around the sun
-              //
-                this.ctx.beginPath(); // critical
-                this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
-                // draw a circle only
+      this.ctx.strokeStyle= 'lightblue'; // color line cycle
+      this.ctx.lineWidth = 3; // weight of the line
+      this.ctx.closePath();
+      this.ctx.stroke();  // MAY NOT BE NEEDED AS PATH HAS BEEN CLOSED
+
+      const time = new Date();
+      this.ctx.translate( this.x_coordinate, this.y_coordinate);
+      this.ctx.rotate(((2 * Math.PI) / 60) * time.getSeconds() + ((2 * Math.PI) / 60000) * time.getMilliseconds());
                 
-                this.ctx.arc( this.x_coordinate, this.y_coordinate, this.theRadius, 0, 2 * Math.PI);
-                this.ctx.fillStyle = 'lightblue'; // color inside circle
-                this.ctx.strokeStyle= 'red'; // color line cycle
-                this.ctx.lineWidth = 3; // weight of the line
-                this.ctx.fill();
-                this.ctx.stroke();
+      this.ctx.beginPath(); // if omitted then circle crosses the moon 
+      this.ctx.translate( this.theRadius-this.theRadiusBis*2-20, this.theRadius-this.theRadiusBis*2-20);
+      this.ctx.drawImage(this.earth,-11.5,-11.5);
 
-        this.ctx.drawImage(sun,this.x_coordinate-150, this.y_coordinate-150, 300, 300);
-
-                this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
-                const time = new Date();
-                this.ctx.translate( this.x_coordinate, this.y_coordinate);
-                this.ctx.rotate(((2 * Math.PI) / 60) * time.getSeconds() + ((2 * Math.PI) / 60000) * time.getMilliseconds());
+      // draw a small circle at the center of the earth - FOR THE FUN
+      this.ctx.translate( 0,0);
+      this.ctx.beginPath();
                 
-                this.ctx.beginPath(); // if omitted then circle crosses the moon 
-                //this.ctx.drawImage(earth,this.new_x-1-(this.x_translate/2), this.new_y-(this.y_translate/2), this.x_translate,this.y_translate );
-                //this.ctx.drawImage(earth,this.theRadius/2+this.x_translate/2-5,this.theRadius/2+this.y_translate/2-5);
-                this.ctx.translate( this.theRadius-this.x_translate-this.theRadiusBis*2, this.theRadius-this.x_translate-this.theRadiusBis*2);
-                this.ctx.drawImage(earth,-11.5,-11.5);
-                this.ctx.stroke();
+      // this.ctx.arc(this.new_x, this.new_y, 3, 0, 2 * Math.PI); 
+      this.ctx.arc(0.2, 0.2, 0, 0, 2 * Math.PI); // if radius is 0 then nothing is drawn
+      this.ctx.strokeStyle= 'white'; // color line cycle
+      this.ctx.lineWidth = 1; // weight of the line
+      this.ctx.fillStyle = "green";
+      this.ctx.fill();
 
+      this.ctx.beginPath(); 
+      this.ctx.rotate(((2 * Math.PI) / 6) * time.getSeconds() + ((2 * Math.PI) / 6000) * time.getMilliseconds());
 
-                // draw a small circle at the center of the earth - FOR THE FUN
-                this.ctx.translate( 0,0);
-                this.ctx.beginPath();
-                
-                //this.ctx.beginPath(); 
-                // this.ctx.arc(this.new_x, this.new_y, 3, 0, 2 * Math.PI); 
-                this.ctx.arc(0.2, 0.2, 0, 0, 2 * Math.PI); 
-                this.ctx.strokeStyle= 'white'; // color line cycle
-                this.ctx.lineWidth = 1; // weight of the line
-                this.ctx.fillStyle = "green";
-                this.ctx.fill();
-                this.ctx.stroke();
+      this.ctx.arc(0, distEarthMoon, radiusMoon, 0, 2 * Math.PI); 
+      this.ctx.strokeStyle= 'black'; // color line cycle
+      this.ctx.lineWidth = 1; // weight of the line
+      this.ctx.fillStyle = "red";
+      this.ctx.fill();
+      this.ctx.font = '30px FontAwesome'; 
+      this.ctx.fillText(this.champagne,0,0);
+      this.ctx.stroke();
 
-                // ==================================
-                // draw the moon moving around earth
-                //this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
+      this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
+          
+              this.id_Animation_three=window.requestAnimationFrame(() => this.draw_animation());
+              if (this.i_loop>this.max_i_loop){
+                window.cancelAnimationFrame(this.id_Animation_three);
+                this.ClearCanvas();
+                } 
+    } // draw_animation()
 
-                //this.ctx.translate(100, 380);
+   draw_with_interval(){
 
-                
-                  
-                  // clear previous circle
-                 // this.ctx.beginPath();
-                  //this.ctx.clearRect(-5,-5, 30 ,80);
-                 // this.ctx.stroke();
-
-                  // =========== process of the moon ============
-                  
-                  //this.angle_moon=this.angle_moon+(1/360); // pas = 5
-                  //if (this.angle_moon>360){ 
-                  //  this.angle_moon=0;
-                  //}
-                  // this.ctx.rotate(this.angle_moon * Math.PI / 180);
-
-                  this.ctx.beginPath(); 
-                  this.ctx.rotate(((2 * Math.PI) / 6) * time.getSeconds() + ((2 * Math.PI) / 6000) * time.getMilliseconds());
-                  //this.ctx.fillStyle = "purple";
-                  //this.ctx.fillRect(0, 0, 2, 30); // Shadow
-                  //this.ctx.stroke();
-      
-                  // this.ctx.arc(-this.theRadius-this.theRadiusBis, -this.theRadius-this.theRadiusBis+40, 5, 0, 2 * Math.PI); 
-                  this.ctx.arc(0, 35, 5, 0, 2 * Math.PI); 
-                  this.ctx.strokeStyle= 'black'; // color line cycle
-                  this.ctx.lineWidth = 1; // weight of the line
-                  this.ctx.fillStyle = "red";
-                  this.ctx.fill();
-                  this.ctx.stroke();
-
-                  this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
-                 
-                  
-
-                if (this.i_loop===1500){
-                  clearInterval(i);
-                }
-                /*
-                if (this.theta_v >= 2 * Math.PI){
-                  clearInterval(i);
-                }
-                */
-              }, 80); // setInterval(()
-
-    } // draw_circle_byPoint()
-
-   
-
-    Sun_Earth(){
-    const sun = new Image();
-    const moon = new Image();
-    const earth = new Image();
-
-      //sun.src = 'https://mdn.mozillademos.org/files/1456/Canvas_sun.png';
-      moon.src = 'https://mdn.mozillademos.org/files/1443/Canvas_moon.png';
-      earth.src = 'https://mdn.mozillademos.org/files/1429/Canvas_earth.png';
-      // window.requestAnimationFrame(draw);
-
-      this.i_loop=0;
-
-      const width = this.theCanvas.width;
-      const height = this.theCanvas.height;
     const i= setInterval(() => {
 
-          this.i_loop++;   
-          this.ctx.globalCompositeOperation = 'destination-over';
-          this.ctx.clearRect(0, 0,  width, height); // clear canvas
-        
-          this.ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-          this.ctx.strokeStyle = 'rgba(0, 153, 255, 0.4)';
+      //this.angle_moon=this.angle_moon+(0.1/360); // pas = 0.1
+      //if (this.angle_moon>360){ 
+      //  this.angle_moon=0;
+      //}
+      // this.ctx.rotate(this.angle_moon * Math.PI / 180);
 
-          this.ctx.save();
-          this.ctx.translate(150, 150);
-        
-          // Earth
-          const time = new Date();
-          this.ctx.rotate(((2 * Math.PI) / 60) * time.getSeconds() + ((2 * Math.PI) / 60000) * time.getMilliseconds());
-          this.ctx.translate(105, 0);
-          this.ctx.fillRect(0, -12, 30, 24); // Shadow
-          this.ctx.drawImage(earth, -12, -12);
-        
-          // Moon
-          //this.ctx.save();
-          this.ctx.rotate(((2 * Math.PI) / 6) * time.getSeconds() + ((2 * Math.PI) / 6000) * time.getMilliseconds());
-          this.ctx.translate(0, 28.5);
-          this.ctx.drawImage(moon, -3.5, -3.5);
-          // this.ctx.restore();
-        
-          this.ctx.restore();
-          
-          this.ctx.beginPath();
-          this.ctx.arc(150, 150, 105, 0, Math.PI * 2, false); // Earth orbit
-          this.ctx.stroke();
-
-            // Sun
-          this.ctx.drawImage(sun, 0, 0, 300, 300);
-          if (this.i_loop===1500){
+      if (this.i_loop===1500){
             clearInterval(i);
           }
-    }, 10); // setInterval(()
-      // window.requestAnimationFrame(draw);
+      //if (this.theta_v >= 2 * Math.PI){
+      //            clearInterval(i);
+      //          }
+
+      }, 80); // setInterval(()
+
+
+//======= OTHER SOLUTION
+       const j= () => {
+          this.id_Animation_two=window.requestAnimationFrame(j) ;
+           if (this.j_loop>30000){
+                   window.cancelAnimationFrame(this.id_Animation_two);
+          } 
+         } 
+        j();
+
+   }
+
+    Sun_Earth(){
+
+    const x=290;
+    const y=640;
+    const w_size_image=300;
+    const h_size_image=300;
+    const distEarthMoon=29;
+    const distEarthSun=105;
+    const radiusMoon=5;
+    const radiusEarth=12;
+
+      this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
+      this.j_loop++;   
+      this.ctx.globalCompositeOperation = 'destination-over';
+      this.ctx.clearRect(x-w_size_image/2, y-h_size_image/2, w_size_image, h_size_image);
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+      this.ctx.strokeStyle = 'rgba(0, 153, 255, 0.4)';
+      this.ctx.save();
+      this.ctx.translate(x,y);
+
+      // Earth
+      const time = new Date();
+      
+      const angle=((2 * Math.PI) / 60) * time.getSeconds() + ((2 * Math.PI) / 60000) * time.getMilliseconds();
+      this.ctx.rotate(angle);
+      this.ctx.translate(distEarthSun, 0);
+
+      //this.ctx.fillRect(0, -radiusEarth, distEarthMoon, 2*radiusEarth); // Shadow)
+      this.ctx.drawImage(this.earth, -radiusEarth, -radiusEarth);
+        
+      // Moon
+      //this.ctx.save();
+      this.ctx.rotate(angle*10);
+      this.ctx.translate(0, distEarthMoon);
+      this.ctx.drawImage(this.moon,-radiusMoon, -radiusMoon, 15, 15);
+      //this.ctx.restore();
+        
+      this.ctx.restore();
+          
+      this.ctx.beginPath();
+      this.ctx.arc(x,y, distEarthSun, 0, Math.PI * 2, false); // Earth orbit
+      this.ctx.stroke();
+
+      // Sun
+      this.ctx.drawImage(this.sun,x-w_size_image/2, y-h_size_image/2, w_size_image,h_size_image);
+
+      this.id_Animation_two=window.requestAnimationFrame(() => this.Sun_Earth());
+      if (this.j_loop>this.max_j_loop){
+        window.cancelAnimationFrame(this.id_Animation_two);
+        this.ClearCanvas();
+        } 
 
   }
+    
+stopAnimation(){
+  this.i_loop=this.max_i_loop+1;
+  this.j_loop=this.max_j_loop+1;
+  this.k_loop=this.max_k_loop+1;
 
 
-  moon_cycle(){
-      
-    this.k_loop=0;
+}
+
+  circle_rotation(){
+    const x=90;
+    const y=400;
+    const radius=18;
+    const lenRect=60;
+    const wLine=1;
+    const time = new Date();
+    this.k_loop++
+
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
    
-    
-    const j= setInterval(() => {
-        const time = new Date();
-        this.k_loop++
-        // reposition 
-        if (this.k_loop===1){
-            if (this.moon_x_prev===0){
-              this.moon_x_prev=this.new_x;
-              this.moon_y_prev=this.new_y;
-            }
-            this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
-           // this.ctx.translate(this.moon_x_prev, this.moon_y_prev);
-            this.ctx.translate(150, 400);
-            // clear previous position
-            this.ctx.rotate(this.angle_moonBis * Math.PI / 180);
-            this.ctx.beginPath();
-            this.ctx.clearRect(0-8-2, 30-8-2, 8*2+8,8*2+8);
-            this.ctx.stroke();
+    this.ctx.translate(x, y); 
+    // clear previous picture
+    this.ctx.beginPath();
+    //this.ctx.clearRect(-50, -50, 100 ,100);
+    // clear the drawing area
+    this.ctx.clearRect(-(lenRect + radius+wLine), -(lenRect + radius + wLine), (lenRect + radius+ wLine)*2,(lenRect + radius+wLine)*2);
+  
 
-            this.moon_x_prev=this.new_x;
-            this.moon_y_prev=this.new_y;
-            this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
-            this.ctx.translate(150, 400);
-            // this.ctx.translate(this.new_x, this.new_y);
-        }
-        
-        // clear previous picture
-        this.ctx.beginPath();
-        this.ctx.clearRect(0-8-2, 30-8-2, 8*2+8 ,8*2+8);
+// MAY NOT BE NEEDED - TO BE TESTED
+//      this.ctx.stroke();
 
 
-        this.ctx.stroke();
+ //     this.ctx.beginPath();
+       // this.ctx.rotate(this.angle_moonBis * Math.PI / 180);
+      this.ctx.rotate(((2 * Math.PI) / 6) * time.getSeconds() + ((2 * Math.PI) / 6000) * time.getMilliseconds());
 
-        //using time would be an issue between two calls of this function
-        // this.ctx.rotate(((2 * Math.PI) / 60) * time.getSeconds() + ((2 * Math.PI) / 60000) * time.getMilliseconds());
-       
-        this.angle_moonBis=this.angle_moonBis+(0.01/360); // pas 
-        if (this.angle_moonBis>360){ 
-          this.angle_moonBis=0;
-        }
-        this.ctx.rotate(this.angle_moonBis * Math.PI / 180);
-        // draw a small rectangle
-        //this.ctx.beginPath(); 
-        //this.ctx.fillStyle = "lightblue";
-        //this.ctx.fillRect(0, 0, 2, 40); // Shadow
-        //this.ctx.stroke();
-        // draw a circle at the top of the small rectangle
-        this.ctx.arc(0, 30, 8, 0, 2 * Math.PI); 
-        this.ctx.strokeStyle= 'dark'; // color line cycle
-        this.ctx.lineWidth = 1; // weight of the line
-        this.ctx.fillStyle = "pink";
-        this.ctx.fill();
-        this.ctx.stroke();
-    
-        if (this.k_loop>15000){
-          clearInterval(j);
-        }
-      }, 75); // setInterval(()
-     
+      // draw a small rectangle from the centre
+      //this.ctx.beginPath(); 
+      this.ctx.fillStyle = "lightblue";
+      this.ctx.fillRect(0, 0, 4, lenRect); // Shadow
+      //this.ctx.stroke();
+
+      // draw a circle at the top of the small rectangle which length is lenRect
+      this.ctx.arc(0, lenRect, radius, 0, 2 * Math.PI); 
+      this.ctx.strokeStyle= 'dark'; // color line cycle
+      this.ctx.lineWidth = wLine; // weight of the line
+      this.ctx.fillStyle = "pink";
+      this.ctx.fill();
+      this.ctx.stroke();
+
+   
+    this.id_Animation=window.requestAnimationFrame(() => this.circle_rotation());
+    if (this.k_loop>this.max_k_loop){
+      window.cancelAnimationFrame(this.id_Animation);
+      this.ClearCanvas();
+      } 
   }
 
 save_text(){
-  /*
+  /* THESE ARE JUST COMMENTS
+  ==========================
                 this.ctx.beginPath(); 
                 this.ctx.moveTo(0, 0);
                 this.ctx.lineTo(0, 0+30);

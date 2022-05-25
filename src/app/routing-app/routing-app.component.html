@@ -4,27 +4,28 @@
 
 <body>
 <section>
-
+<div>
     <div class='mylogo smcirclesize example_one'>
         <div class='smwhitecircle'>
             <span class='smXMV'>XMV</span >
             <span  class='smITConsulting'>IT Consulting</span >
         </div>
     </div>
-
+</div><div>
     <div class='mylogo smcirclesize example_two'>
         <div class='smwhitecircle'>
             <span class='smXMV'>XMV</span >
             <span  class='smITConsulting'>IT Consulting</span >
         </div>
     </div>
-
+</div><div>
     <div class='mylogo smcirclesize example_three'>
         <div class='smwhitecircle'>
             <span class='smXMV'>XMV</span >
             <span  class='smITConsulting'>IT Consulting</span >
         </div>
     </div>
+</div><div>
         <!-- ========== xl logo =========== -->
     <br><br>
             <div class='mylogo xlcirclesize example_one'>
@@ -33,20 +34,23 @@
                     <span  class='xlITConsulting'>IT Consulting</span >
                 </div>
             </div>
-
+</div><div>
             <div class='mylogo xlcirclesize example_two'>
                 <div class='xlwhitecircle'>
                     <span class='xlXMV'>XMV</span >
                     <span  class='xlITConsulting'>IT Consulting</span >
                 </div>
             </div>
-
+ </div><div>
             <div class='mylogo xlcirclesize example_three'>
                 <div class='xlwhitecircle'>
                     <span class='xlXMV'>XMV</span >
                     <span  class='xlITConsulting'>IT Consulting</span >
                 </div>
             </div>
+</div>
+
+<div>
     <span> <br><br>Arrow-> Picker;   <br><br>Search -> Palette;  <br><br>login -> Slider;  <br><br>Shopping-> KEHP  <br><br></span>
         <div class='icons' style='margin-right: 50px;'> 
             <button  (click) = "ClearDiv()"> <mat-icon class='material-icons-outlined'>  
@@ -69,9 +73,7 @@
             </mat-icon> </button> 
         </div>
         <div class='icons'> 
-            <button [routerLink]="['/myXMVcompany']"> <mat-icon class='material-icons-outlined'> 
-                arrow_back_ios
-            </mat-icon> </button> 
+            <button [routerLink]="['/myXMVcompany']"> XMV IT </button> 
         </div>
         <div class='icons'> 
             <button [routerLink]="['/IntlPhoneNb']"> <mat-icon class='material-icons-outlined'> 
@@ -87,9 +89,14 @@
             </span>
             </mat-icon> </button> 
         </div>
-
+        <div class='icons'> 
+            <button [routerLink]="['/MyCanvas']"> 
+                Canvas
+            </button> 
+        </div>
+    </div>
 <!-- ================== SLIDER ================== -->
-
+<div>
     <div class='sliderposition'>
         <p style='margin-left:30px;'> Default range slider:</p>
         <input  class='sliderdefault' type="range" min="1" max="100" value="50">
@@ -98,7 +105,7 @@
         <input class="slider" type="range" min="1" max="100" value="50"  id="myRange"  (input)='returnValue($event)'  >
         <p style='margin-left:30px;'> Value: {{otherValue}} & myValue = {{myValue}}</p>
     </div> 
-
+</div>
 
   
 <!-- ==== Test @Input and @Output  ======= -->

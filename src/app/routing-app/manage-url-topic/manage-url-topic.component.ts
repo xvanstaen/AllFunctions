@@ -6,7 +6,7 @@
   import { Subscription, Observable } from 'rxjs';
   import { FileSaverModule } from 'ngx-filesaver';
   import { FormGroup, FormControl, Validators } from '@angular/forms';
-  import { TopicURL } from '../../JsonServerClass'
+  import { TopicURL } from '../../JsonServerClass';
 
 @Component({
   selector: 'app-manage-url-topic',

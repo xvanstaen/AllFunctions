@@ -17,6 +17,7 @@ import { NgxIntlTelInputComponent } from './ngx-intl-tel-input/ngx-intl-tel-inpu
 import { ManageUrlTopicComponent } from './routing-app/manage-url-topic/manage-url-topic.component';
 import { XMVCompanyContactComponent } from './xmv-company/xmvcompany-contact/xmvcompany-contact.component';
 import { MyCanvasComponent } from './my-canvas/my-canvas.component';
+import { LoginComponent } from './Login/login.component';
 
 const routes: Routes = [
   { path: './Booking-Process/Booking-form.component', component: BookingFormComponent },
@@ -35,6 +36,7 @@ const routes: Routes = [
   { path: './my-date-picker/my-date-picker.component', component:MyDatePickerComponent},
   { path: 'Contact', component: XMVCompanyContactComponent},
   { path: 'MyCanvas', component: MyCanvasComponent},
+  { path: 'MyLogin', component: LoginComponent},
   { path: '**', redirectTo: '' }
 ];
 
