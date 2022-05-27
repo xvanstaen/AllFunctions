@@ -32,5 +32,5 @@ export class BioData{
       brunch:string='';
       nbinvitees:number=0;
       myComment:string='';
-      yourComment:string='';
+      yourComment:any;
     };

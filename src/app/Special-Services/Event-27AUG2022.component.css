@@ -29,13 +29,13 @@ div{
     margin-left:2%;
   }
   
-  .dropdown-options:hover{
+.dropdown-options:hover{
     background-color:rgb(68, 115, 189);
     font-weight:bold;
   
   }
   
-  .dropdown-text{
+.dropdown-text{
     margin-top:0px; 
     font-size:14px;
     color:black;
@@ -47,30 +47,41 @@ div{
 .field-name{
     font-size:18px;
     color:blue;
-    margin-left:10px;
-    width:160px;
+    margin-left:20px;
+    width:150px;
+    max-width:300px;
     margin-top:10px;
-    height:60px;
+    height:40px;
+
 }
 
 .input_field{
     font-size:16px;
     background-color:rgb(162, 158, 158);
     padding-left:5px;
-    width:250px;
-    height:60px;
+    max-width:55px;
+    height:40px;
     color:black;
     
 }
 
 .input_fieldTwo{
     font-size:16px;
-    background-color:grey;
+    background-color:rgb(185, 183, 183);
     padding-left:5px;
-    width:100px;
+    max-width:55px;
     color:black;
-    
 }
+
+.input_select{
+    font-size:16px;
+    background-color:rgb(185, 183, 183);
+    padding-left:5px;
+    width:90px;
+    margin-left:0px;
+
+}
+
 .input_field:hover{
     background-color:rgb(68, 115, 189);
 }

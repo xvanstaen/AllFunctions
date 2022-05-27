@@ -38,11 +38,24 @@ export class Event27AugComponent {
       phone:'',
     };
 
+    FrenchLabels=['Formulaire', 'Nombre de personnes','Plat principal','Boeuf', 'Poisson', 'Reste nuit a l"hotel', 'Oui', 'Non',
+          'Si vous voulez jouer au gold merci d"indiquer','Quel jour?','Samedi', 'Dimanche', 'nombre de joueurs', 'nombre de trous','trous',
+          'Nos commentaires','Vos commentaires (i.e. restriction nourriture, autres)','Valider', 'Adresse'];
+    EnglishLabels=['Form', 'Number of people','Main dish','Beef', 'Fish', 'Spend the night at the hotel', 'Yes', 'No',
+          'If you want to play golf please indicate','Which day?','Saturday', 'Sunday', 'number of people', 'number of holes','holes',
+          'Our comments','Your feedback (e.g. food requirements, others)','Validate', 'Address'];
+    LanguageLabels=['', '','','', '', '', 'Yes', 'No',
+          'If you want to play golf please indicate','','Saturday', 'Sunday', 'number of people', 'number of holes','holes',
+          '','Your feedback (e.g. food requirements, others)','Validate', 'Address'];
+
     @Output() returnDATA= new EventEmitter<any>();
 
     Admin_UserId:string="XMVIT-Admin";
     invite:boolean=true;
     total_invitee:number=0;
+
+    MrName:string='';
+    MrsName:string='';
 
     myForm = new FormGroup({
       userId: new FormControl(''),
@@ -52,10 +65,24 @@ export class Event27AugComponent {
       nbInvitees: new  FormControl(''),
       night: new  FormControl(''),
       brunch: new  FormControl(''),
+      day: new  FormControl(''),
+      golf: new  FormControl(''),
+      golfHoles: new  FormControl(''),
+      dishMr: new  FormControl(''),
+      dishMrs: new  FormControl(''),
       readRecord: new  FormControl(''),
       myComment: new  FormControl(''),
       yourComment: new  FormControl(''),
     });
+
+    CommentStructure={
+      dishMr:'B',
+      dishMrs:'F',
+      day:'',
+      golf:0,
+      holes:0,
+      theComments:''
+    }
 
     Encrypt:string='';
     Decrypt:string='';
@@ -142,15 +169,36 @@ onWindowResize() {
           this.myForm.controls['nbInvitees'].setValue(this.Table_User_Data[this.identification.id].nbinvitees);
           this.myForm.controls['myComment'].setValue(this.Table_User_Data[this.identification.id].myComment);
           this.myForm.controls['yourComment'].setValue(this.Table_User_Data[this.identification.id].yourComment);
+          this.CommentStructure=JSON.parse(this.Table_User_Data[this.identification.id].yourComment);
+          this.myForm.controls['dishMr'].setValue(this.CommentStructure.dishMr);
+          this.myForm.controls['dishMrs'].setValue(this.CommentStructure.dishMrs);
+          this.myForm.controls['golf'].setValue(this.CommentStructure.golf);
+          this.myForm.controls['golfHoles'].setValue(this.CommentStructure.holes);
+          this.myForm.controls['yourComment'].setValue(this.CommentStructure.theComments);
+          this.myForm.controls['day'].setValue(this.CommentStructure.day);
+          this.i=this.Table_User_Data[this.identification.id].firstname.indexOf('&');
+          this.MrName=this.Table_User_Data[this.identification.id].firstname.substring(0,this.i-1);
+          this.MrsName=this.Table_User_Data[this.identification.id].firstname.substring(this.i+1,this.Table_User_Data[this.identification.id].firstname.length);
+          if (this.MrsName===''){
+              if (this.yourLanguage==='FR'){
+                this.MrsName='Madame';
+
+              } else{
+                this.MrsName='Mrs'
+              }
+            }
+            this.LanguageLabels=this.FrenchLabels;
           }
       
-  }
+  }    
 
   goDown(event:string){
     if (event==='FR'){
       this.yourLanguage='FR'
+      this.LanguageLabels=this.FrenchLabels;
     } if (event==='UK'){
       this.yourLanguage='UK'
+      this.LanguageLabels=this.EnglishLabels;
     } else {
     this.scroller.scrollToAnchor(event);
     }
@@ -232,7 +280,19 @@ onWindowResize() {
       this.Table_User_Data[i].nbinvitees=this.myForm.controls['nbInvitees'].value;
       this.Table_User_Data[i].night=this.myForm.controls['night'].value;
       this.Table_User_Data[i].brunch=this.myForm.controls['brunch'].value;
-      this.Table_User_Data[i].yourComment=this.myForm.controls['yourComment'].value;
+      // this.Table_User_Data[i].yourComment=this.myForm.controls['yourComment'].value;
+      //this.Table_User_Data[this.i].yourComment="Main dish Mr = "+this.myForm.controls['dishMr'].value +
+      //" Main dish Mrs = "+this.myForm.controls['dishMrs'].value +
+      //" Player Golf = "+this.myForm.controls['golf'].value +
+      //"  Holes = "+this.myForm.controls['golfHoles'].value +this.myForm.controls['yourComment'].value;
+
+      this.CommentStructure.dishMr=this.myForm.controls['dishMr'].value;
+      this.CommentStructure.dishMrs=this.myForm.controls['dishMrs'].value;
+      this.CommentStructure.golf=this.myForm.controls['golf'].value;
+      this.CommentStructure.holes=this.myForm.controls['golfHoles'].value;
+      this.CommentStructure.day=this.myForm.controls['day'].value;
+      this.CommentStructure.theComments=this.myForm.controls['yourComment'].value;
+      this.Table_User_Data[i].yourComment=JSON.stringify(this.CommentStructure);
 
       this.SaveRecord();
     }
@@ -300,7 +360,14 @@ onWindowResize() {
           this.Table_User_Data[this.i].brunch=this.myForm.controls['brunch'].value;
           this.Table_User_Data[this.i].night=this.myForm.controls['night'].value;
           this.Table_User_Data[this.i].myComment=this.myForm.controls['myComment'].value;
-          this.Table_User_Data[this.i].yourComment=this.myForm.controls['yourComment'].value;
+          this.CommentStructure.dishMr=this.myForm.controls['dishMr'].value;
+          this.CommentStructure.dishMrs=this.myForm.controls['dishMrs'].value;
+          this.CommentStructure.day=this.myForm.controls['day'].value;
+          this.CommentStructure.golf=this.myForm.controls['golf'].value;
+          this.CommentStructure.holes=this.myForm.controls['golfHoles'].value;
+          this.CommentStructure.theComments=this.myForm.controls['yourComment'].value;
+          this.Table_User_Data[this.i].yourComment=JSON.stringify(this.CommentStructure);
+          // this.Table_User_Data[this.i].yourComment=this.myForm.controls['yourComment'].value;
           this.Table_User_Data[this.i].id=this.i;
           this.Table_User_Data[this.i].key=2;
           this.Table_User_Data[this.i].method='AES';
@@ -325,7 +392,7 @@ count_invitees(){
   this.total_invitee=0;
   for (this.i=0; this.i<this.Table_User_Data.length; this.i ++){
     this.total_invitee=this.total_invitee+this.Table_User_Data[this.i].nbinvitees;
-   
+
   }
 }
 
