@@ -174,71 +174,73 @@
 </div>
 
 
-<div style='color:black; font-size:14px;'>
-<br>
-<span id='targetForm'></span>
-<h1>{{LanguageLabels[0]}}</h1>
+<div style='color:black; font-size:14px; max-width:900px;'>
+  <br>
+  <span id='targetForm'></span>
+  <h1>{{LanguageLabels[0]}}</h1> 
 
-  <form  [formGroup]="myForm">
-     <div>
-        <label class="field-name" >{{LanguageLabels[1]}}</label>
-        <input  class="input_fieldTwo " formControlName="nbInvitees" id="nbInvitees" type="number" >
-  
-        <label class="field-name">{{LanguageLabels[2]}} {{MrName}}</label> 
-          <select id="dish1"  class=" input_select" formControlName="dishMr">
+    <form  [formGroup]="myForm" >
+      <div>
+          <label class="field-name" >{{LanguageLabels[1]}}</label>
+          <input  class="input_fieldTwo " formControlName="nbInvitees" id="nbInvitees" type="number" >
+    
+          <label class="field-name">{{LanguageLabels[2]}} {{MrName}}</label> 
+            <select id="dish1"  class=" input_select" formControlName="dishMr">
+              <option value="B">{{LanguageLabels[3]}}</option>
+              <option value="F">{{LanguageLabels[4]}}</option>
+            </select>
+
+
+          <span *ngIf="Table_User_Data[identification.id].nbinvitees===2">
+          <label class="field-name">{{LanguageLabels[2]}} {{MrsName}}</label>
+          <select id="dish2"  class="input_select" formControlName="dishMr">
             <option value="B">{{LanguageLabels[3]}}</option>
             <option value="F">{{LanguageLabels[4]}}</option>
           </select>
-
-
-        <span *ngIf="Table_User_Data[identification.id].nbinvitees===2">
-        <label class="field-name">{{LanguageLabels[2]}} {{MrsName}}</label>
-        <select id="dish2"  class="input_select" formControlName="dishMr">
-          <option value="B">{{LanguageLabels[3]}}</option>
-          <option value="F">{{LanguageLabels[4]}}</option>
-        </select>
-      </span>
-        <span *ngIf="Table_User_Data[identification.id].night!=='na'">
-              <label class="field-name">{{LanguageLabels[5]}}  </label>
-              <select id="night"  class="input_select "  formControlName="night">
-                <option value="y">{{LanguageLabels[6]}}</option>
-                <option value="n">{{LanguageLabels[7]}}</option>
-              </select>  
         </span>
-        <label class="field-name">Brunch </label>
-        <select id="brunch"  class="input_select "  formControlName="brunch">
-          <option value="y">{{LanguageLabels[6]}}</option>
-          <option value="n">{{LanguageLabels[7]}}</option>
-        </select>  
-       <div>
-            <label class="field-name">{{LanguageLabels[8]}}</label>
+          <span *ngIf="Table_User_Data[identification.id].night!=='na'">
+                <label class="field-name">{{LanguageLabels[5]}}  </label>
+                <select id="night"  class="input_select "  formControlName="night">
+                  <option value="y">{{LanguageLabels[6]}}</option>
+                  <option value="n">{{LanguageLabels[7]}}</option>
+                </select>  
+          </span>
+          <label class="field-name">Brunch </label>
+          <select id="brunch"  class="input_select "  formControlName="brunch">
+            <option value="y">{{LanguageLabels[6]}}</option>
+            <option value="n">{{LanguageLabels[7]}}</option>
+          </select>  
+        <div>
+              <label class="field-name" style="width:90%;">{{LanguageLabels[8]}}</label>
 
-            <label class="field-name" style="margin-left:40px;  max-width:280px;  ">1) {{LanguageLabels[9]}}</label>
-            <select id="day"  class="input_select "  formControlName="day">
-              <option value="Sat">{{LanguageLabels[10]}}</option>
-              <option value="Sun">{{LanguageLabels[11]}}</option>
-            </select>  
-            <label class="field-name" style="margin-left:40px;  max-width:280px;  ">2) {{LanguageLabels[12]}}</label>
-            <input  class="input_select " formControlName="golf" id="golf" type="number"  >
-            <div>
-              <label class="field-name" style="margin-left:40px;  max-width:280px;  ">3) {{LanguageLabels[13]}}</label>
-            <select id="holes"  class="input_select "  formControlName="golfHoles">
-              <option value="9">9 {{LanguageLabels[14]}}</option>
-              <option value="18">18 {{LanguageLabels[14]}}</option>
-            </select>  
+              <label class="field-name" style="margin-left:40px;  max-width:280px;  ">1) {{LanguageLabels[9]}}</label>
+              <select id="day"  class="input_select "  formControlName="day">
+                <option value="Sat">{{LanguageLabels[10]}}</option>
+                <option value="Sun">{{LanguageLabels[11]}}</option>
+              </select>  
+              <div>
+                  <label class="field-name" style="margin-left:40px;  max-width:280px;  ">2) {{LanguageLabels[12]}}</label>
+                  <input  class="input_select " formControlName="golf" id="golf" type="number"  >
+              </div>
+              <div>
+                <label class="field-name" style="margin-left:40px;  max-width:280px;  ">3) {{LanguageLabels[13]}}</label>
+              <select id="holes"  class="input_select "  formControlName="golfHoles">
+                <option value="9">9 {{LanguageLabels[14]}}</option>
+                <option value="18">18 {{LanguageLabels[14]}}</option>
+              </select>  
+            </div>
+          </div>
+          <div *ngIf="Table_User_Data[identification.id].myComment!=='' && Table_User_Data[identification.id].myComment!==undefined">
+                <label class="field-name">{{LanguageLabels[15]}}</label>
+                <input  class="input_field " style=" display: block; overflow-x:scroll;  width:200px;" formControlName="myComment" id="text" type="text"  >
+          </div>
+          <div >
+                <label class="field-name"  style="width:90%;">{{LanguageLabels[16]}}</label>
+                <textarea   style=" display: block; overflow-x:scroll; margin-left:20px; width:80%; height:180px;" formControlName="yourComment" id="text" type="text"  ></textarea>
           </div>
         </div>
-        <div *ngIf="Table_User_Data[identification.id].myComment!=='' && Table_User_Data[identification.id].myComment!==undefined">
-              <label class="field-name">{{LanguageLabels[15]}}</label>
-              <input  class="input_field " style=" display: block; overflow-x:scroll;  width:200px;" formControlName="myComment" id="text" type="text"  >
-        </div>
-        <div >
-              <label class="field-name"  style="max-width:380px;">{{LanguageLabels[16]}}</label>
-              <textarea   style=" display: block; overflow-x:scroll; margin-left:20px; width:80%; height:180px;" formControlName="yourComment" id="text" type="text"  ></textarea>
-        </div>
-      </div>
-      <button id='but_1' class="sizeButtons" (click)="ConfirmData()"> {{LanguageLabels[17]}}</button>
-    </form>
+        <button id='but_1' class="sizeButtons" (click)="ConfirmData()"> {{LanguageLabels[17]}}</button>
+      </form>
 </div>
 
 <div class="myText">
