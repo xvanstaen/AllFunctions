@@ -150,14 +150,14 @@ export class LoginComponent {
             
             this.onCrypt("Decrypt");
                 
-            if (this.Encrypt_Data.UserId===this.myForm.controls['userId'].value && this.Decrypt===this.myForm.controls['password'].value){
+              if (this.Encrypt_Data.UserId===this.myForm.controls['userId'].value && this.Decrypt===this.myForm.controls['password'].value){
               // identification is correct
 
                 this.my_output1.emit(this.Encrypt_Data);
                 
                 if (this.Encrypt_Data.UserId==='XMVIT-Admin' || this.Encrypt_Data.UserId==='xvanstaen@XMV' ) {
                   
-                      if (this.myForm.controls['action'].value===''){ 
+                      if (this.myForm.controls['action'].value==='' || this.myForm.controls['action'].value===null){ 
                         this.routing_code=4;
                         // TO BE DELETED AFTER TESTING PERIOD
                         this.myForm.controls['action'].setValue("Event-27AUG2022");

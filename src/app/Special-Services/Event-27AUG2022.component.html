@@ -197,7 +197,7 @@
             <option value="B">{{LanguageLabels[3]}}</option>
             <option value="F">{{LanguageLabels[4]}}</option>
           </select>
-        </span>
+         </span>
           <span *ngIf="Table_User_Data[identification.id].night!=='na'">
                 <label class="field-name">{{LanguageLabels[5]}}  </label>
                 <select id="night"  class="input_select "  formControlName="night">
@@ -232,11 +232,11 @@
           </div>
           <div *ngIf="Table_User_Data[identification.id].myComment!=='' && Table_User_Data[identification.id].myComment!==undefined">
                 <label class="field-name">{{LanguageLabels[15]}}</label>
-                <input  class="input_field " style=" display: block; overflow-x:scroll;  width:200px;" formControlName="myComment" id="text" type="text"  >
+                <input  class="input_field " style=" display: block; overflow-y:scroll;  width:80%; height:100px;" formControlName="myComment" id="text" type="text"  >
           </div>
           <div >
                 <label class="field-name"  style="width:90%;">{{LanguageLabels[16]}}</label>
-                <textarea   style=" display: block; overflow-x:scroll; margin-left:20px; width:80%; height:180px;" formControlName="yourComment" id="text" type="text"  ></textarea>
+                <textarea   style=" display: block; overflow-y:scroll; margin-left:20px; width:80%; height:100px;" formControlName="yourComment" id="text" type="text"  ></textarea>
           </div>
         </div>
         <button id='but_1' class="sizeButtons" (click)="ConfirmData()"> {{LanguageLabels[17]}}</button>
@@ -281,20 +281,128 @@
       </div><div>
       <label class="field-name">Nb invitees</label>
       <input  class="input_fieldTwo first-label" formControlName="nbInvitees" id="nbInvitees" type="number"  >
+
+<!---->
+
+
+      <label class="field-name">{{LanguageLabels[2]}} {{MrName}}</label> 
+      <select id="dish1"  class=" input_select" formControlName="dishMr">
+        <option value="B">{{LanguageLabels[3]}}</option>
+        <option value="F">{{LanguageLabels[4]}}</option>
+      </select>
+
+
+      <label class="field-name">{{LanguageLabels[2]}} {{MrsName}}</label>
+      <select id="dish2"  class="input_select" formControlName="dishMrs">
+      <option value="B">{{LanguageLabels[3]}}</option>
+      <option value="F">{{LanguageLabels[4]}}</option>
+      </select>
+
+
+      <label class="field-name">{{LanguageLabels[5]}}  </label> 
+     
+       <span *ngIf="Table_User_Data[identification.id].night==='na'">
+        <select id="night"  class="input_select "  formControlName="night">
+            <option value="na" selected>not appl.</option>
+            <option value="y" >{{LanguageLabels[6]}}</option>
+            <option value="n" >{{LanguageLabels[7]}}</option>
+          </select>  
+      </span>
+
+      <span *ngIf="Table_User_Data[identification.id].night==='y'">
+        <select id="night"  class="input_select "  formControlName="night">
+            <option value="na" >not appl.</option>
+            <option value="y" selected>{{LanguageLabels[6]}}</option>
+            <option value="n" >{{LanguageLabels[7]}}</option>
+          </select>  
+      </span>
+
+      <span *ngIf="Table_User_Data[identification.id].night==='n'">
+        <select id="night"  class="input_select "  formControlName="night">
+            <option value="na" >not appl.</option>
+            <option value="y" >{{LanguageLabels[6]}}</option>
+            <option value="n" selected>{{LanguageLabels[7]}}</option>
+          </select>  
+      </span>
+
+
+ 
+
+      <label class="field-name">Brunch </label>
+     
+        <span *ngIf="Table_User_Data[identification.id].brunch==='na'">
+          <select id="brunch"  class="input_select "  formControlName="brunch">
+            <option value="na" selected>not appl.</option>
+            <option value="y" >{{LanguageLabels[6]}}</option>
+            <option value="n" >{{LanguageLabels[7]}}</option>
+          </select>
+        </span>
+
+        <span *ngIf="Table_User_Data[identification.id].brunch==='y'">
+          <select id="brunch"  class="input_select "  formControlName="brunch">
+          <option value="na" >not appl.</option>
+          <option value="y" selected>{{LanguageLabels[6]}}</option>
+          <option value="n" >{{LanguageLabels[7]}}</option>
+        </select>
+        </span>
+
+        <span *ngIf="Table_User_Data[identification.id].brunch==='n'">
+          <select id="brunch"  class="input_select "  formControlName="brunch">
+          <option value="na" >not appl.</option>
+          <option value="y" >{{LanguageLabels[6]}}</option>
+          <option value="n" selected>{{LanguageLabels[7]}}</option>
+        </select>
+        </span>
+
+
+
+      <div>
+            <label class="field-name" style="width:90%;">{{LanguageLabels[8]}}</label>
+
+            <label class="field-name" style="margin-left:40px;  max-width:280px;  ">1) {{LanguageLabels[9]}}</label>
+            <select id="day"  class="input_select "  formControlName="day">
+              <option value="Sat">{{LanguageLabels[10]}}</option>
+              <option value="Sun">{{LanguageLabels[11]}}</option>
+            </select>  
+            <div>
+                <label class="field-name" style="margin-left:40px;  max-width:280px;  ">2) {{LanguageLabels[12]}}</label>
+                <input  class="input_select " formControlName="golf" id="golf" type="number"  >
+            </div>
+            <div>
+              <label class="field-name" style="margin-left:40px;  max-width:280px;  ">3) {{LanguageLabels[13]}}</label>
+              <select id="holes"  class="input_select "  formControlName="golfHoles">
+              <option value="9">9 {{LanguageLabels[14]}}</option>
+              <option value="18">18 {{LanguageLabels[14]}}</option>
+               </select>  
+            </div>
+      </div>
+
+
+<!--
+
       <label class="field-name">Night (y/n)</label>
       <input  class="input_fieldTwo first-label" formControlName="night" id="night" type="text"  >
       <label class="field-name">Brunch(y/n)</label>
       <input  class="input_fieldTwo first-label" formControlName="brunch" id="brunch" type="text"  >
+-->
+
       <label class="field-name">Read record)</label>
       <input  class="input_fieldTwo first-label" formControlName="readRecord" id="record" type="number"  >
-      </div><div>
-        <label class="field-name">My comments</label>
-      <input  class="input_field first-label" style="overflow:scroll;  width:200px;" formControlName="myComment" id="text" type="text"  >
-      </div><div>
-        <label class="field-name">Your feedback</label>
-      <input  class="input_field first-label" style="overflow:scroll;  width:200px;" formControlName="yourComment" id="text" type="text"  >
-      </div><div>
-      <button id='but_1' class="sizeButtons" (click)="ValidateRecord()">Send</button>
+      <button id='but_0' class="sizeButtons" (click)="ReadRecord()">Read</button>
+      </div>
+      
+      <div >
+        <label class="field-name">{{LanguageLabels[15]}}</label>
+        <textarea style=" display: block; margin-left:20px; overflow-y:scroll;  width:80%;height:100px;" formControlName="myComment" id="text" type="text"  ></textarea>
+      </div>
+      <div >
+        <label class="field-name"  style="width:90%;">{{LanguageLabels[16]}}</label>
+        <textarea   style=" display: block; overflow-y:scroll; margin-left:20px; width:80%; height:100px;" formControlName="yourComment" id="text" type="text"  ></textarea>
+       </div>
+      
+      
+      <div>
+      <button id='but_1' class="sizeButtons" (click)="ValidateRecord()">Validate</button>
       <button id='but_2' class="sizeButtons" (click)="clear()">Clear</button>
       </div>
   </form>

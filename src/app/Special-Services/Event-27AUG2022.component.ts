@@ -38,8 +38,8 @@ export class Event27AugComponent {
       phone:'',
     };
 
-    FrenchLabels=['Formulaire', 'Nombre de personnes','Plat principal','Boeuf', 'Poisson', 'Reste nuit a l"hotel', 'Oui', 'Non',
-          'Si vous voulez jouer au gold merci d"indiquer','Quel jour?','Samedi', 'Dimanche', 'nombre de joueurs', 'nombre de trous','trous',
+    FrenchLabels=['Formulaire', 'Nombre de personnes','Plat principal','Boeuf', 'Poisson', "Reste nuit a l'hotel", 'Oui', 'Non',
+          "Si vous voulez jouer au golf merci d'indiquer",'Quel jour?','Samedi', 'Dimanche', 'nombre de joueurs', 'nombre de trous','trous',
           'Nos commentaires','Vos commentaires (i.e. restriction nourriture, autres)','Valider', 'Adresse'];
     EnglishLabels=['Form', 'Number of people','Main dish','Beef', 'Fish', 'Spend the night at the hotel', 'Yes', 'No',
           'If you want to play golf please indicate','Which day?','Saturday', 'Sunday', 'number of people', 'number of holes','holes',
@@ -148,7 +148,9 @@ onWindowResize() {
 
       this.Table_User_Data = this.LoginTable_User_Data;
       this.Table_DecryptPSW= this.LoginTable_DecryptPSW;
-      this.count_invitees();
+      this.count_invitees('Y');
+      this.LanguageLabels=this.FrenchLabels;
+      this.yourLanguage='FR';
       if (this.identification.UserId===this.Admin_UserId) {
         // administrator is connected
         this.invite=false;
@@ -162,42 +164,26 @@ onWindowResize() {
 
 
       } else {
+        this.invite=true;
           //this.manageInvitees(); // retrieve the object
           // a user is connected
           this.myForm.controls['brunch'].setValue(this.Table_User_Data[this.identification.id].brunch);
           this.myForm.controls['night'].setValue(this.Table_User_Data[this.identification.id].night);
           this.myForm.controls['nbInvitees'].setValue(this.Table_User_Data[this.identification.id].nbinvitees);
           this.myForm.controls['myComment'].setValue(this.Table_User_Data[this.identification.id].myComment);
-          this.myForm.controls['yourComment'].setValue(this.Table_User_Data[this.identification.id].yourComment);
-          this.CommentStructure=JSON.parse(this.Table_User_Data[this.identification.id].yourComment);
-          this.myForm.controls['dishMr'].setValue(this.CommentStructure.dishMr);
-          this.myForm.controls['dishMrs'].setValue(this.CommentStructure.dishMrs);
-          this.myForm.controls['golf'].setValue(this.CommentStructure.golf);
-          this.myForm.controls['golfHoles'].setValue(this.CommentStructure.holes);
-          this.myForm.controls['yourComment'].setValue(this.CommentStructure.theComments);
-          this.myForm.controls['day'].setValue(this.CommentStructure.day);
-          this.i=this.Table_User_Data[this.identification.id].firstname.indexOf('&');
-          this.MrName=this.Table_User_Data[this.identification.id].firstname.substring(0,this.i-1);
-          this.MrsName=this.Table_User_Data[this.identification.id].firstname.substring(this.i+1,this.Table_User_Data[this.identification.id].firstname.length);
-          if (this.MrsName===''){
-              if (this.yourLanguage==='FR'){
-                this.MrsName='Madame';
+          //this.myForm.controls['yourComment'].setValue(this.Table_User_Data[this.identification.id].yourComment);
+          this.ConvertComment();
 
-              } else{
-                this.MrsName='Mrs'
-              }
-            }
-            this.LanguageLabels=this.FrenchLabels;
           }
       
   }    
 
   goDown(event:string){
     if (event==='FR'){
-      this.yourLanguage='FR'
+      this.yourLanguage='FR';
       this.LanguageLabels=this.FrenchLabels;
     } if (event==='UK'){
-      this.yourLanguage='UK'
+      this.yourLanguage='UK';
       this.LanguageLabels=this.EnglishLabels;
     } else {
     this.scroller.scrollToAnchor(event);
@@ -299,25 +285,7 @@ onWindowResize() {
   }
 
   ValidateRecord(){
-    if (this.myForm.controls['readRecord'].value!==0){
-        // read the item
-        this.i=this.myForm.controls['readRecord'].value;
-        if (this.i<=this.Table_User_Data.length) {
-            this.i--
-            this.myForm.controls['userId'].setValue(this.Table_User_Data[this.i].UserId);
-            this.myForm.controls['firstname'].setValue(this.Table_User_Data[this.i].firstname);
-            this.myForm.controls['surname'].setValue(this.Table_User_Data[this.i].surname);
-            this.myForm.controls['nbInvitees'].setValue(this.Table_User_Data[this.i].nbinvitees);
-            this.myForm.controls['brunch'].setValue(this.Table_User_Data[this.i].brunch);
-            this.myForm.controls['night'].setValue(this.Table_User_Data[this.i].night);
-            this.myForm.controls['psw'].setValue(this.Table_DecryptPSW[this.i]);
-            this.myForm.controls['myComment'].setValue(this.Table_User_Data[this.i].myComment);
-            this.myForm.controls['yourComment'].setValue(this.Table_User_Data[this.i].yourComment);
-            this.myForm.controls['readRecord'].setValue(0);
-            this.recordToUpdate=this.i;
-      } else { this.error_message='wrong record to access';}
 
-    } else {
           if (this.myForm.controls['night'].value.toLowerCase() !== "y" 
           && this.myForm.controls['night'].value.toLowerCase() !=='n'
           && this.myForm.controls['night'].value.toLowerCase() !=='na'){
@@ -382,18 +350,67 @@ onWindowResize() {
           this.Individual_User_Data=this.Table_User_Data[this.i];
           
           this.SaveRecord();
-          this.count_invitees()
+          this.count_invitees('N')
         }
-      }
+
 
   }  
 
-count_invitees(){
+ReadRecord(){
+  if (this.myForm.controls['readRecord'].value<=this.Table_User_Data.length){
+    // read the item
+        this.i=this.myForm.controls['readRecord'].value-1;
+        this.identification.id=this.i;
+        this.myForm.controls['userId'].setValue(this.Table_User_Data[this.i].UserId);
+        this.myForm.controls['firstname'].setValue(this.Table_User_Data[this.i].firstname);
+        this.myForm.controls['surname'].setValue(this.Table_User_Data[this.i].surname);
+        this.myForm.controls['nbInvitees'].setValue(this.Table_User_Data[this.i].nbinvitees);
+        this.myForm.controls['brunch'].setValue(this.Table_User_Data[this.i].brunch);
+        this.myForm.controls['night'].setValue(this.Table_User_Data[this.i].night);
+        this.myForm.controls['psw'].setValue(this.Table_DecryptPSW[this.i]);
+        //this.myForm.controls['myComment'].setValue(this.Table_User_Data[this.i].myComment);
+        this.ConvertComment();
+        //this.myForm.controls['yourComment'].setValue(this.Table_User_Data[this.i].yourComment);
+        this.myForm.controls['readRecord'].setValue(0);
+        this.recordToUpdate=this.i;
+  } else { this.error_message='wrong record to access';}
+}
+
+
+count_invitees(ConvertComment:string){
   this.total_invitee=0;
   for (this.i=0; this.i<this.Table_User_Data.length; this.i ++){
     this.total_invitee=this.total_invitee+this.Table_User_Data[this.i].nbinvitees;
-
+    
+    if (ConvertComment==='Y'){
+        this.identification.id=this.i;
+        this.ConvertComment();
+    }
   }
+}
+
+ConvertComment(){
+  this.CommentStructure=JSON.parse(this.Table_User_Data[this.identification.id].yourComment);
+  if (this.CommentStructure.dishMr==='M'){
+    this.CommentStructure.dishMr='B';
+  }
+  this.myForm.controls['dishMr'].setValue(this.CommentStructure.dishMr);
+  this.myForm.controls['dishMrs'].setValue(this.CommentStructure.dishMrs);
+  this.myForm.controls['golf'].setValue(this.CommentStructure.golf);
+  this.myForm.controls['golfHoles'].setValue(this.CommentStructure.holes);
+  this.myForm.controls['yourComment'].setValue(this.CommentStructure.theComments);
+  this.myForm.controls['day'].setValue(this.CommentStructure.day);
+  const i=this.Table_User_Data[this.identification.id].firstname.indexOf('&');
+  this.MrName=this.Table_User_Data[this.identification.id].firstname.substring(0,i-1);
+  this.MrsName=this.Table_User_Data[this.identification.id].firstname.substring(i+1,this.Table_User_Data[this.identification.id].firstname.length);
+  if (this.MrsName===''){
+      if (this.yourLanguage==='FR'){
+        this.MrsName='Madame';
+
+      } else{
+        this.MrsName='Mrs'
+      }
+    }
 }
 
   SaveRecord(){

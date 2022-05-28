@@ -32,7 +32,7 @@ export function encrypt(Decrypt:string, key:number, method:string) {
           // ==== AES
           Encrypt=CryptoJS.AES.encrypt(Decrypt, myKey).toString();
           } 
-         console.log('Encrypt function: decrypt ', Decrypt, 'Method  ', method, 'encrypt', Encrypt);
+         //console.log('Encrypt function: decrypt ', Decrypt, 'Method  ', method, 'encrypt', Encrypt);
     return(Encrypt);
   }
 
@@ -50,7 +50,7 @@ export function encrypt(Decrypt:string, key:number, method:string) {
           // ==== AES
           Decrypt=CryptoJS.AES.decrypt(Encrypt, myKey).toString(CryptoJS.enc.Utf8);
           } 
-          console.log('Decrypt function: decrypt ', Decrypt, 'Method  ', method, 'encrypt', Encrypt);
+          //console.log('Decrypt function: decrypt ', Decrypt, 'Method  ', method, 'encrypt', Encrypt);
     return(Decrypt);
   }
 
