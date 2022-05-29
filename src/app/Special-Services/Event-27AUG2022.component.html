@@ -165,14 +165,22 @@
 
  <br><br>Cet événement commencera le samedi aux alentours de 17:00 avec une séance de photos qui sera suivie d'un apéritif (pas de photo pas d'apéritif 🤣 et oui JP il y aura egalement ton Ricard) puis ce sera dîner et danse; 
  N'oubliez pas de préparer une liste de chansons sur lesquelles vous aimeriez danser. 
- <br> <br>Pour le dîner, vous devez nous indiquer dans le formulaire ci-dessous si vous voulez de la viande (bœuf) ou du poisson pour votre plat principal. 
+ <br> <br>Pour le dîner,  
+ <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>vous devez</span> 
+ <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>tu dois</span>
+ nous indiquer dans le formulaire ci-dessous si vous voulez de la viande (bœuf) ou du poisson pour votre plat principal. 
 
- <br> <br>Pour ceux qui sont intéressés, il y aura la possibilité de faire un parcours de golf le samedi matin ou le dimanche matin, soit 9 ou 18 trous. On a besoin de connaître le nombre exact de joueurs afin de réserver au plus tôt. 
+ <br> <br> <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>Si vous etes</span> 
+ <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>Si tu es</span>
+  intéressés, il y aura la possibilité de faire un parcours de golf le samedi matin ou le dimanche matin, soit 9 ou 18 trous. On a besoin de connaître le nombre exact de joueurs afin de réserver au plus tôt. 
  <br><br>
  <img   class="images" src="./assets/Begude Practice.JPG" >
  <br>
  <br> Dimanche à partir de 11:00 nous aurons un brunch qui sera suivi par l'une des activités les plus importantes du week-end, la compétition de pétanque! 
- <br> En fait, s'il y a des gens intéressés, il sera également possible de faire une partie de pétanque le samedi après-midi. 
+ <br> En fait, 
+ <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>Si vous êtes interessés</span> 
+ <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>Si tu es interessé</span>
+ , il sera également possible de faire une partie de pétanque le samedi après-midi. 
  <br><br>
  <img   class="images"  src="./assets/Begude  Boule.JPG" >
  <br>
@@ -194,11 +202,21 @@
 <img   class="smallimages" src="./assets/Begude Room2.PNG" >
 </span>
 <br>
- <br><br> Comme précisé plus haut, le plus important maintenant est que vous remplissiez et validiez le formulaire <span style='color:blue; font-size:16px;'>AUSSI VITE QUE POSSIBLE</span>
+ <br><br> Comme précisé plus haut, le plus important maintenant est de remplir et valider  le formulaire <span style='color:blue; font-size:16px;'>AUSSI VITE QUE POSSIBLE</span>
     <br><br>
-    Nous espérons que vous êtes aussi impatient que nous deux, pour faire la fête en l'honneur de notre union   🍾 🎉 🎊 le week-end du 27-28Aug.
+    Nous espérons que 
+    <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'> vous êtes </span> 
+    <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>tu es </span>
+    vous êtes 
+    aussi impatient que nous deux, pour faire la fête en l'honneur de notre union   🍾 🎉 🎊 le week-end du 27-28Aug.
     <br><br>
-    Tout est préparé pour vous et vous est offert. Les seules choses que vous devez apporter sont joie et dynamisme. Facile, non?
+    Tout est préparé et offert pour 
+    <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'> votre  </span> 
+    <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>ton </span>
+    plaisir. Les seules choses que 
+    <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'> vous devez  </span> 
+    <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>tu dois </span>
+     apporter sont joie et dynamisme. Facile, non?
     <br><br><h2>A très bientôt! <br><br> Monica et Xavier</h2>
 
     </span>
