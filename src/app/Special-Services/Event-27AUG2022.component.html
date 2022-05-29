@@ -105,8 +105,8 @@
     <br>The event will start on Saturday afternoon around 5:00 pm with photo shots followed by apetizers (no picture no drink 🤣) and then diner and dancing until 2:00am. 
     Don't forget to prepare a list of songs you would  like to dance on.
     <br> For diner, you must tell us throug the form below if you want meat (beef) or fish for the main dish.
-    <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude Practice.JPG" >
     <br>On Saturday morning or Sunday morning , if some of you are interested you could play golf either 9 or 18 holes. We need to know the exact number of players in order to book the slot well in advance.
+    <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude Practice.JPG" >
     <br> 
     On Sunday, from 11:00am onwards we'll have a brunch followed by the most important activity of the week-end, the competition of petanque!. Indeed, if we have some candidates we could have a first competition on Saturday afternoon! 
     <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude  Boule.JPG" >
@@ -157,12 +157,15 @@
  <br><br>Cet événement commencera le samedi aux alentours de 17:00 avec une séance de photos qui sera suivie d'un apéritif (pas de photo pas d'apéritif 🤣 et oui JP il y aura egalement ton Ricard) puis ce sera dîner et danse; 
  N'oubliez pas de préparer une liste de chansons sur lesquelles vous aimeriez danser. 
  <br> <br>Pour le dîner, vous devez nous indiquer dans le formulaire ci-dessous si vous voulez de la viande (bœuf) ou du poisson pour votre plat principal. 
+
+ <br> <br>Pour ceux qui sont intéressés, il y aura la possibilité de faire un parcours de golf le samedi matin ou le dimanche matin, soit 9 ou 18 trous. On a besoin de connaître le nombre exact de joueurs afin de réserver au plus tôt. 
  <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude Practice.JPG" >
- <br> <br>Pour ceux qui sont intéressés, il y aura la possibilité de faire un parcours de golf le le samedi matin ou le dimanche matin, soit 9 ou 18 trous. On a besoin de connaître le nombre exact de joueurs afin de réserver au plus tôt. 
  <br> Dimanche à partir de 11:00 nous aurons un brunch qui sera suivi par l'une des activités les plus importantes du week-end, la compétition de pétanque! 
- En fait, s'il y a des gens intéressés, il sera également possible de faire une partie de pétanque le samedi après-midi également. 
+ En fait, s'il y a des gens intéressés, il sera également possible de faire une partie de pétanque le samedi après-midi. 
  <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude  Boule.JPG" >
- <br> Bien que l'hôtel fournisse des boules, il est préférable que les professionnels que vous êtes apportent leur propre jeu de boules. S'il n'a pas les siennes JP aura une excuse toute faite pour les 'carreaux' qu'il aura manqué! 
+ <br> Bien que l'hôtel fournisse des boules, il est préférable que les professionnels que vous êtes apportent leur propre jeu de boules. 
+ <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude Boule2.PNG" >
+ <br>S'il n'a pas les siennes JP aura une excuse toute faite pour les 'carreaux' qu'il aura manqué! 
  <br><br> Pour s'assurer que tout est bien organisé et que nous répondons à vos besoins du mieux possible, remplissez le formulaire ci-dessous et n'hésitez pas à nous préciser dans la rubrique 'Vos commentaires' si vous avez des restrictions au niveau nourriture ou de faire d'autres demandes 
  (nous ne pouvons garantir que toutes les demandes seront satisfaites car avec certaines personnes on sait à quel type de commentaires/demandes on peut s'attendre 🤣🤣🤣) 
  <br><br> <span style='color:blue;'>Pour la soirée, tenue vestimentaire décontractée, bien sûr pas de short ni de sandales. </span>
@@ -416,6 +419,7 @@
       <div>
       <button id='but_1' class="sizeButtons" (click)="ValidateRecord()">Validate</button>
       <button id='but_2' class="sizeButtons" (click)="clear()">Clear</button>
+      <button id='but_3' class="sizeButtons" (click)="SaveRecord()">UpdateAll</button>
       </div>
   </form>
   <br><br>
@@ -445,6 +449,8 @@
     <span class="field-row">{{Table_DecryptPSW[i]}}</span> 
     <span *ngIf="theList.myComment!=='' && theList.myComment!==undefined" class="field-rowTwo">x </span> 
     <span *ngIf="theList.yourComment!=='' && theList.yourComment!==undefined" class="field-rowTwo">y</span> 
+   
+    <button id='but_4'  (click)="AccessRecord(i)">Other</button>
     <br>
   </div>
   </div>

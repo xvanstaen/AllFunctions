@@ -254,34 +254,27 @@ onWindowResize() {
   }
 
   ConfirmData(){
-    const i=this.identification.id;
-    if (this.myForm.controls['nbInvitees'].value!==this.Table_User_Data[i].nbinvitees ||
-    this.myForm.controls['brunch'].value!==this.Table_User_Data[i].brunch ||
-    this.myForm.controls['night'].value!==this.Table_User_Data[i].night ||
-    this.myForm.controls['yourComment'].value!==this.Table_User_Data[i].yourComment)
-   {
-      // data has been modified - update the record 
-      
       const i=this.identification.id;
+
+      // always update the record 
       this.Table_User_Data[i].nbinvitees=this.myForm.controls['nbInvitees'].value;
       this.Table_User_Data[i].night=this.myForm.controls['night'].value;
       this.Table_User_Data[i].brunch=this.myForm.controls['brunch'].value;
-      // this.Table_User_Data[i].yourComment=this.myForm.controls['yourComment'].value;
-      //this.Table_User_Data[this.i].yourComment="Main dish Mr = "+this.myForm.controls['dishMr'].value +
-      //" Main dish Mrs = "+this.myForm.controls['dishMrs'].value +
-      //" Player Golf = "+this.myForm.controls['golf'].value +
-      //"  Holes = "+this.myForm.controls['golfHoles'].value +this.myForm.controls['yourComment'].value;
 
       this.CommentStructure.dishMr=this.myForm.controls['dishMr'].value;
       this.CommentStructure.dishMrs=this.myForm.controls['dishMrs'].value;
       this.CommentStructure.golf=this.myForm.controls['golf'].value;
+      if (this.myForm.controls['golf'].value===0){
+        this.myForm.controls['golfHoles'].setValue(0);
+        this.myForm.controls['day'].setValue('');
+      }
       this.CommentStructure.holes=this.myForm.controls['golfHoles'].value;
       this.CommentStructure.day=this.myForm.controls['day'].value;
       this.CommentStructure.theComments=this.myForm.controls['yourComment'].value;
       this.Table_User_Data[i].yourComment=JSON.stringify(this.CommentStructure);
 
       this.SaveRecord();
-    }
+
   }
 
   ValidateRecord(){
@@ -330,9 +323,13 @@ onWindowResize() {
           this.Table_User_Data[this.i].myComment=this.myForm.controls['myComment'].value;
           this.CommentStructure.dishMr=this.myForm.controls['dishMr'].value;
           this.CommentStructure.dishMrs=this.myForm.controls['dishMrs'].value;
-          this.CommentStructure.day=this.myForm.controls['day'].value;
+          if (this.myForm.controls['golf'].value===0){
+            this.myForm.controls['golfHoles'].setValue(0);
+            this.myForm.controls['day'].setValue('');
+          }
           this.CommentStructure.golf=this.myForm.controls['golf'].value;
           this.CommentStructure.holes=this.myForm.controls['golfHoles'].value;
+          this.CommentStructure.day=this.myForm.controls['day'].value;
           this.CommentStructure.theComments=this.myForm.controls['yourComment'].value;
           this.Table_User_Data[this.i].yourComment=JSON.stringify(this.CommentStructure);
           // this.Table_User_Data[this.i].yourComment=this.myForm.controls['yourComment'].value;
@@ -345,8 +342,7 @@ onWindowResize() {
           this.Decrypt=this.Table_DecryptPSW[this.i];
           this.onCrypt("Encrypt");
           this.Table_User_Data[this.i].psw= this.Encrypt;
-          
-              
+
           this.Individual_User_Data=this.Table_User_Data[this.i];
           
           this.SaveRecord();
@@ -437,6 +433,15 @@ ConvertComment(){
       } else { // event=Decrypt
             this.Decrypt=decrypt(this.Encrypt,this.Crypto_Key,this.Crypto_Method);
           } 
+  }
+
+  updateAllRecords(){
+
+  }
+
+  AccessRecord(id:number){
+    this.identification.id=id;
+    this.ReadRecord();
   }
 
 }
