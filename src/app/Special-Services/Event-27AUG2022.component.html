@@ -91,25 +91,31 @@
   <div class="myText">
     <span id='targetRules'></span>
    
-    <span style='font-weight:bold;'><br> 
+    <span style='font-weight:bold; margin-left:40%;'><br> 
         <span *ngIf="yourLanguage==='UK'">Guidelines</span>
-        <span *ngIf="yourLanguage==='FR'">Information</span>
+        <span *ngIf="yourLanguage==='FR'">Informations </span>
     </span>
     <br><br>
     <span *ngIf="yourLanguage==='UK'">
     Dear {{Table_User_Data[identification.id].firstname}}, 
     <br>
+    <br>
     It's a great pleasure to welcome you on 27Aug to celebrate our mariage that will have taken place in Singapore on 22Jun . 
     <br>There will be no ceremony in France but a party that will allow us all to get together and share a wonderful moment in a green,relaxing and warm environment. 
-    <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude  Manoir.JPG" >
+    <br><br>
+    <img   class="images"  src="./assets/Begude  Manoir.JPG" >
+    <br>
     <br>The event will start on Saturday afternoon around 5:00 pm with photo shots followed by apetizers (no picture no drink 🤣) and then diner and dancing until 2:00am. 
     Don't forget to prepare a list of songs you would  like to dance on.
     <br> For diner, you must tell us throug the form below if you want meat (beef) or fish for the main dish.
     <br>On Saturday morning or Sunday morning , if some of you are interested you could play golf either 9 or 18 holes. We need to know the exact number of players in order to book the slot well in advance.
-    <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude Practice.JPG" >
-    <br> 
+    <br><br>
+    <img   class="images"   src="./assets/Begude Practice.JPG" >
+    <br><br> 
     On Sunday, from 11:00am onwards we'll have a brunch followed by the most important activity of the week-end, the competition of petanque!. Indeed, if we have some candidates we could have a first competition on Saturday afternoon! 
-    <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude  Boule.JPG" >
+    <br><br>
+    <img   class="images"   src="./assets/Begude  Boule.JPG" >
+    <br>
     Though the hotel can provide boules, it would be better if the professionals you are bring their own set!
     <br>   
     To ensure that everything is well organized and we meet as much as possible your requirements, please fill-in the form below, and don't hesitate to provide additional information 
@@ -120,9 +126,10 @@
     <br><br>
     <span *ngIf="Table_User_Data[identification.id].night!=='na'">
       We booked a room for you and check-in will be from 4:00pm on Saturday (check-out Sunday noon latest). 
-     </span>
-     <img   style="width:40%; margin-left:20px; height:100px;"  src="./assets/Begude Room1.PNG" >
-    <img   style="width:40%; margin-left:20px; height:100px;"  src="./assets/Begude Room2.PNG" >
+      <br> <br>
+    </span>
+     <img   class="smallimages"  src="./assets/Begude Room1.PNG" >
+     <img   class="smallimages" src="./assets/Begude Room2.PNG" >
     <br><br>
     <br> As said above, the most important thing to do at this stage is to fill-in the form below 
     <span style='color:blue; font-size:16px;'>AS SOON AS POSSIBLE</span>
@@ -130,7 +137,7 @@
     We hope that you are as excited as us both, to have a lot of fun during our celebration 🍾 🎉 🎊 on 27-28Aug.
     Everything is prepared for you and offered to you. The only things you need to bring are joyce and energy. Easy, no?
      <br><br>
-    <h2>See you very soon! <br> Monica & Xavier</h2>
+    <h2>See you very soon!</h2> <br> <h2>Monica & Xavier</h2>
     <br><br>
     
     </span>
@@ -142,29 +149,37 @@
     <span *ngIf='Table_User_Data[identification.id].nbinvitees===1'>
       Cher {{Table_User_Data[identification.id].firstname}},
     </span>
-      <br>
+      <br> <br>
       C'est avec un grand plaisir que nous 
       <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>
-        vous
+        vous accueillerons
       </span>
       <span *ngIf='Table_User_Data[identification.id].nbinvitees===1'>
-        t'
+        t'accueillerons
       </span>
- accueillerons le 27 août pour célébrer notre mariage qui aura eu lieu à Singapour le 22 juin. 
+  le 27 août pour célébrer notre mariage qui aura eu lieu à Singapour le 22 juin. 
  <br>Il n'y aura pas de cérémonie en France mais une fête qui va nous permettre à tous de nous retrouver et de partager ensemble un merveilleux moment dans un endroit verdoyant et chaleureux. 
-  <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude  Manoir.JPG" >
+ <br><br>
+  <img   class="images"   src="./assets/Begude  Manoir.JPG" >
+  <br>
 
  <br><br>Cet événement commencera le samedi aux alentours de 17:00 avec une séance de photos qui sera suivie d'un apéritif (pas de photo pas d'apéritif 🤣 et oui JP il y aura egalement ton Ricard) puis ce sera dîner et danse; 
  N'oubliez pas de préparer une liste de chansons sur lesquelles vous aimeriez danser. 
  <br> <br>Pour le dîner, vous devez nous indiquer dans le formulaire ci-dessous si vous voulez de la viande (bœuf) ou du poisson pour votre plat principal. 
 
  <br> <br>Pour ceux qui sont intéressés, il y aura la possibilité de faire un parcours de golf le samedi matin ou le dimanche matin, soit 9 ou 18 trous. On a besoin de connaître le nombre exact de joueurs afin de réserver au plus tôt. 
- <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude Practice.JPG" >
+ <br><br>
+ <img   class="images" src="./assets/Begude Practice.JPG" >
+ <br>
  <br> Dimanche à partir de 11:00 nous aurons un brunch qui sera suivi par l'une des activités les plus importantes du week-end, la compétition de pétanque! 
- En fait, s'il y a des gens intéressés, il sera également possible de faire une partie de pétanque le samedi après-midi. 
- <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude  Boule.JPG" >
+ <br> En fait, s'il y a des gens intéressés, il sera également possible de faire une partie de pétanque le samedi après-midi. 
+ <br><br>
+ <img   class="images"  src="./assets/Begude  Boule.JPG" >
+ <br>
  <br> Bien que l'hôtel fournisse des boules, il est préférable que les professionnels que vous êtes apportent leur propre jeu de boules. 
- <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude Boule2.PNG" >
+ <br><br>
+ <img   class="images" src="./assets/Begude Boule2.PNG" >
+ <br>
  <br>S'il n'a pas les siennes JP aura une excuse toute faite pour les 'carreaux' qu'il aura manqué! 
  <br><br> Pour s'assurer que tout est bien organisé et que nous répondons à vos besoins du mieux possible, remplissez le formulaire ci-dessous et n'hésitez pas à nous préciser dans la rubrique 'Vos commentaires' si vous avez des restrictions au niveau nourriture ou de faire d'autres demandes 
  (nous ne pouvons garantir que toutes les demandes seront satisfaites car avec certaines personnes on sait à quel type de commentaires/demandes on peut s'attendre 🤣🤣🤣) 
@@ -173,9 +188,12 @@
  <br><br>
  <span *ngIf="Table_User_Data[identification.id].night!=='na'">
  Nous vous avons réservé une chambre qui sera disponible à partir de 16:00 le samedi (check-out dimance midi au plus tard). 
+
+<br><br>
+<img   class="smallimages"  src="./assets/Begude Room1.PNG" >
+<img   class="smallimages" src="./assets/Begude Room2.PNG" >
 </span>
-<img   style="width:40%; margin-left:20px; height:100px;"  src="./assets/Begude Room1.PNG" >
-<img   style="width:40%; margin-left:20px; height:100px;"  src="./assets/Begude Room2.PNG" >
+<br>
  <br><br> Comme précisé plus haut, le plus important maintenant est que vous remplissiez et validiez le formulaire <span style='color:blue; font-size:16px;'>AUSSI VITE QUE POSSIBLE</span>
     <br><br>
     Nous espérons que vous êtes aussi impatient que nous deux, pour faire la fête en l'honneur de notre union   🍾 🎉 🎊 le week-end du 27-28Aug.
@@ -207,11 +225,11 @@
 
 
           <span *ngIf="Table_User_Data[identification.id].nbinvitees===2">
-          <label class="field-name">{{LanguageLabels[2]}} {{MrsName}}</label>
-          <select id="dish2"  class="input_select" formControlName="dishMr">
-            <option value="B">{{LanguageLabels[3]}}</option>
-            <option value="F">{{LanguageLabels[4]}}</option>
-          </select>
+            <label class="field-name">{{LanguageLabels[2]}} {{MrsName}}</label>
+             <select id="dish2"  class="input_select" formControlName="dishMr">
+                 <option value="B">{{LanguageLabels[3]}}</option>
+                 <option value="F">{{LanguageLabels[4]}}</option>
+             </select>
          </span>
           <span *ngIf="Table_User_Data[identification.id].night!=='na'">
                 <label class="field-name">{{LanguageLabels[5]}}  </label>
@@ -221,10 +239,30 @@
                 </select>  
           </span>
           <label class="field-name">Brunch </label>
-          <select id="brunch"  class="input_select "  formControlName="brunch">
-            <option value="y">{{LanguageLabels[6]}}</option>
-            <option value="n">{{LanguageLabels[7]}}</option>
-          </select>  
+   
+          <span *ngIf="Table_User_Data[identification.id].brunch==='na'">
+            <select id="brunch"  class="input_select "  formControlName="brunch">
+              <option value="na" selected>not appl.</option>
+              <option value="y" >{{LanguageLabels[6]}}</option>
+              <option value="n" >{{LanguageLabels[7]}}</option>
+            </select>
+          </span>
+  
+          <span *ngIf="Table_User_Data[identification.id].brunch==='y'">
+            <select id="brunch"  class="input_select "  formControlName="brunch">
+            <option value="na" >not appl.</option>
+            <option value="y" selected>{{LanguageLabels[6]}}</option>
+            <option value="n" >{{LanguageLabels[7]}}</option>
+          </select>
+          </span>
+  
+          <span *ngIf="Table_User_Data[identification.id].brunch==='n'">
+            <select id="brunch"  class="input_select "  formControlName="brunch">
+            <option value="na" >not appl.</option>
+            <option value="y" >{{LanguageLabels[6]}}</option>
+            <option value="n" selected>{{LanguageLabels[7]}}</option>
+          </select>
+          </span>
         <div>
               <label class="field-name" style="width:90%;">{{LanguageLabels[8]}}</label>
 
@@ -273,6 +311,7 @@
 
 <ng-template #manageInvite>
 <div>
+  <span id='targetInvitees'></span>
   <h1>Manage the invitees</h1>
   <h2 style="margin-top:20px;"><br></h2>
   <div *ngIf="Error_Access_Server!==''">
@@ -306,13 +345,13 @@
         <option value="F">{{LanguageLabels[4]}}</option>
       </select>
 
-
-      <label class="field-name">{{LanguageLabels[2]}} {{MrsName}}</label>
-      <select id="dish2"  class="input_select" formControlName="dishMrs">
-      <option value="B">{{LanguageLabels[3]}}</option>
-      <option value="F">{{LanguageLabels[4]}}</option>
-      </select>
-
+      <span *ngIf="Table_User_Data[identification.id].nbinvitees===2">
+          <label class="field-name">{{LanguageLabels[2]}} {{MrsName}}</label>
+          <select id="dish2"  class="input_select" formControlName="dishMrs">
+          <option value="B">{{LanguageLabels[3]}}</option>
+          <option value="F">{{LanguageLabels[4]}}</option>
+          </select>
+      </span>
 
       <label class="field-name">{{LanguageLabels[5]}}  </label> 
      

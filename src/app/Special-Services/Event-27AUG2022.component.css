@@ -82,6 +82,16 @@ div{
     margin-left:0px;
 
 }
+.images{
+    width:80%;
+    margin-left:20px; 
+    height:400px;
+}
+.smallimages{
+    width:40%;
+    margin-left:20px; 
+    height:200px;
+}
 
 .input_field:hover{
     background-color:rgb(68, 115, 189);
@@ -170,13 +180,18 @@ img:hover{
 .field-name{
     font-size:16px;
     width:60%;
-
-
 }
 
 .input_fieldTwo{
     font-size:16px;
     width:37px; 
+}
+.images{
+    height:200px;
+}
+
+.smallimages{
+    height:100px;
 }
 
 }

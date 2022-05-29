@@ -148,7 +148,7 @@ onWindowResize() {
 
       this.Table_User_Data = this.LoginTable_User_Data;
       this.Table_DecryptPSW= this.LoginTable_DecryptPSW;
-      this.count_invitees('Y');
+      
       this.LanguageLabels=this.FrenchLabels;
       this.yourLanguage='FR';
       if (this.identification.UserId===this.Admin_UserId) {
@@ -161,7 +161,7 @@ onWindowResize() {
         this.myForm.controls['readRecord'].setValue(0);
         this.Error_Access_Server='';    
         // this.manageInvitees();
-
+        this.count_invitees('Y');
 
       } else {
         this.invite=true;
@@ -345,7 +345,7 @@ onWindowResize() {
 
           this.Individual_User_Data=this.Table_User_Data[this.i];
           
-          this.SaveRecord();
+         // this.SaveRecord();
           this.count_invitees('N')
         }
 
@@ -440,8 +440,9 @@ ConvertComment(){
   }
 
   AccessRecord(id:number){
-    this.identification.id=id;
+    this.myForm.controls['readRecord'].setValue(id+1);
     this.ReadRecord();
+    this.scroller.scrollToAnchor('targetInvitees');
   }
 
 }
