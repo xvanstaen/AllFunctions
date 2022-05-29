@@ -17,6 +17,7 @@
 
       
   --> 
+  <span id='targetTOP'></span>
   <div *ngIf="Error_Access_Server!==''">
       <span style='margin-top:20px; color:red; font-size:16px;' Error access to the server : {{Error_Access_Server}}>
       </span>
@@ -99,13 +100,16 @@
     Dear {{Table_User_Data[identification.id].firstname}}, 
     <br>
     It's a great pleasure to welcome you on 27Aug to celebrate our mariage that will have taken place in Singapore on 22Jun . 
-    <br>There will be no ceremony in France but a party that will allow us all to get together and share a wonderful moment. 
+    <br>There will be no ceremony in France but a party that will allow us all to get together and share a wonderful moment in a green,relaxing and warm environment. 
+    <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude  Manoir.JPG" >
     <br>The event will start on Saturday afternoon around 5:00 pm with photo shots followed by apetizers (no picture no drink 🤣) and then diner and dancing until 2:00am. 
     Don't forget to prepare a list of songs you would  like to dance on.
     <br> For diner, you must tell us throug the form below if you want meat (beef) or fish for the main dish.
+    <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude Practice.JPG" >
     <br>On Saturday morning or Sunday morning , if some of you are interested you could play golf either 9 or 18 holes. We need to know the exact number of players in order to book the slot well in advance.
     <br> 
-    From 10:30am onwards we'll have a brunch followed by the most important activity of the week-end, the competition of petanque!. Indeed, if we have some candidates we could have a first competition on Saturday afternoon! 
+    On Sunday, from 11:00am onwards we'll have a brunch followed by the most important activity of the week-end, the competition of petanque!. Indeed, if we have some candidates we could have a first competition on Saturday afternoon! 
+    <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude  Boule.JPG" >
     Though the hotel can provide boules, it would be better if the professionals you are bring their own set!
     <br>   
     To ensure that everything is well organized and we meet as much as possible your requirements, please fill-in the form below, and don't hesitate to provide additional information 
@@ -117,6 +121,8 @@
     <span *ngIf="Table_User_Data[identification.id].night!=='na'">
       We booked a room for you and check-in will be from 4:00pm on Saturday (check-out Sunday noon latest). 
      </span>
+     <img   style="width:40%; margin-left:20px; height:100px;"  src="./assets/Begude Room1.PNG" >
+    <img   style="width:40%; margin-left:20px; height:100px;"  src="./assets/Begude Room2.PNG" >
     <br><br>
     <br> As said above, the most important thing to do at this stage is to fill-in the form below 
     <span style='color:blue; font-size:16px;'>AS SOON AS POSSIBLE</span>
@@ -124,9 +130,9 @@
     We hope that you are as excited as us both, to have a lot of fun during our celebration 🍾 🎉 🎊 on 27-28Aug.
     Everything is prepared for you and offered to you. The only things you need to bring are joyce and energy. Easy, no?
      <br><br>
-    <h2>See you very soon!</h2>
+    <h2>See you very soon! <br> Monica & Xavier</h2>
     <br><br>
-    Monica & Xavier
+    
     </span>
     
     <span *ngIf="yourLanguage==='FR'">
@@ -145,40 +151,46 @@
         t'
       </span>
  accueillerons le 27 août pour célébrer notre mariage qui aura eu lieu à Singapour le 22 juin. 
- <br>Il n'y aura pas de cérémonie en France mais une fete qui va nous permettre a tous de nous retrouver et de partager ensemble un merveilleux moment. 
- <br><br>Cet événement commencera le samedi aux alentours de 17:00 avec une séance de photos qui sera suivie d'un apéritif (pas de photo pas d'apéritif 🤣 et oui JP il y aura egalement ton Ricard) puis ce sera diner et danse; 
+ <br>Il n'y aura pas de cérémonie en France mais une fête qui va nous permettre à tous de nous retrouver et de partager ensemble un merveilleux moment dans un endroit verdoyant et chaleureux. 
+  <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude  Manoir.JPG" >
+
+ <br><br>Cet événement commencera le samedi aux alentours de 17:00 avec une séance de photos qui sera suivie d'un apéritif (pas de photo pas d'apéritif 🤣 et oui JP il y aura egalement ton Ricard) puis ce sera dîner et danse; 
  N'oubliez pas de préparer une liste de chansons sur lesquelles vous aimeriez danser. 
  <br> <br>Pour le dîner, vous devez nous indiquer dans le formulaire ci-dessous si vous voulez de la viande (bœuf) ou du poisson pour votre plat principal. 
- <br> <br>Pour ceux qui sont intéressés, il y aura la possibilité de faire un parcours de golf le dimanche matin ou le samedi matin, soit 9 ou 18 trous. On a besoin de connaître le nombre exact de joueurs afin de réserver au plus tot. 
- <br> A partir de 10:30 nous aurons un brunch qui sera suivi par l'une des activités les plus importantes du week-end, la compétition de pétanque! 
- En fait s'il y a des gens intéressés, nous pourrons faire une partie de pétanque le samedi après-midi également. 
+ <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude Practice.JPG" >
+ <br> <br>Pour ceux qui sont intéressés, il y aura la possibilité de faire un parcours de golf le le samedi matin ou le dimanche matin, soit 9 ou 18 trous. On a besoin de connaître le nombre exact de joueurs afin de réserver au plus tôt. 
+ <br> Dimanche à partir de 11:00 nous aurons un brunch qui sera suivi par l'une des activités les plus importantes du week-end, la compétition de pétanque! 
+ En fait, s'il y a des gens intéressés, il sera également possible de faire une partie de pétanque le samedi après-midi également. 
+ <img   style="width:80%; margin-left:20px; height:200px;"  src="./assets/Begude  Boule.JPG" >
  <br> Bien que l'hôtel fournisse des boules, il est préférable que les professionnels que vous êtes apportent leur propre jeu de boules. S'il n'a pas les siennes JP aura une excuse toute faite pour les 'carreaux' qu'il aura manqué! 
  <br><br> Pour s'assurer que tout est bien organisé et que nous répondons à vos besoins du mieux possible, remplissez le formulaire ci-dessous et n'hésitez pas à nous préciser dans la rubrique 'Vos commentaires' si vous avez des restrictions au niveau nourriture ou de faire d'autres demandes 
- (nous ne pouvons garantir que toutes les demandes seront satisfaites car avec certaines personnes on sait à quel type de commentaires/demandes on peut s'attendre 🤣) 
+ (nous ne pouvons garantir que toutes les demandes seront satisfaites car avec certaines personnes on sait à quel type de commentaires/demandes on peut s'attendre 🤣🤣🤣) 
  <br><br> <span style='color:blue;'>Pour la soirée, tenue vestimentaire décontractée, bien sûr pas de short ni de sandales. </span>
  <br> Pour ceux qui viendront plus tôt (pour profiter du bel environnement et/ou jouer à la pétanque ou jouer au golf), il y aura la possibilité de prendre une douche et de se changer.
  <br><br>
  <span *ngIf="Table_User_Data[identification.id].night!=='na'">
  Nous vous avons réservé une chambre qui sera disponible à partir de 16:00 le samedi (check-out dimance midi au plus tard). 
 </span>
- <br><br> Comme précisé plus haut, le plus important maintenant est que vous remplissiez le formulaire <span style='color:blue; font-size:16px;'>AUSSI VITE QUE POSSIBLE</span>
+<img   style="width:40%; margin-left:20px; height:100px;"  src="./assets/Begude Room1.PNG" >
+<img   style="width:40%; margin-left:20px; height:100px;"  src="./assets/Begude Room2.PNG" >
+ <br><br> Comme précisé plus haut, le plus important maintenant est que vous remplissiez et validiez le formulaire <span style='color:blue; font-size:16px;'>AUSSI VITE QUE POSSIBLE</span>
     <br><br>
     Nous espérons que vous êtes aussi impatient que nous deux, pour faire la fête en l'honneur de notre union   🍾 🎉 🎊 le week-end du 27-28Aug.
     <br><br>
     Tout est préparé pour vous et vous est offert. Les seules choses que vous devez apporter sont joie et dynamisme. Facile, non?
     <br><br><h2>A très bientôt! <br><br> Monica et Xavier</h2>
-    <br><br>
-    </span>
-<br><br>
 
+    </span>
+
+<span id='targetForm'></span>
+<br><br>
 </div>
 
 
 <div style='color:black; font-size:14px; max-width:900px;'>
-  <br>
-  <span id='targetForm'></span>
-  <h1>{{LanguageLabels[0]}}</h1> 
 
+  <h1>{{LanguageLabels[0]}}</h1> 
+<br><br>
     <form  [formGroup]="myForm" >
       <div>
           <label class="field-name" >{{LanguageLabels[1]}}</label>
@@ -213,20 +225,20 @@
         <div>
               <label class="field-name" style="width:90%;">{{LanguageLabels[8]}}</label>
 
-              <label class="field-name" style="margin-left:40px;  max-width:280px;  ">1) {{LanguageLabels[9]}}</label>
+              <label class="field-name" style="margin-left:40px;  max-width:260px;  ">1) {{LanguageLabels[9]}}</label>
               <select id="day"  class="input_select "  formControlName="day">
                 <option value="Sat">{{LanguageLabels[10]}}</option>
                 <option value="Sun">{{LanguageLabels[11]}}</option>
               </select>  
               <div>
-                  <label class="field-name" style="margin-left:40px;  max-width:280px;  ">2) {{LanguageLabels[12]}}</label>
+                  <label class="field-name" style="margin-left:40px;  max-width:260px;  ">2) {{LanguageLabels[12]}}</label>
                   <input  class="input_select " formControlName="golf" id="golf" type="number"  >
               </div>
               <div>
-                <label class="field-name" style="margin-left:40px;  max-width:280px;  ">3) {{LanguageLabels[13]}}</label>
+                <label class="field-name" style="margin-left:40px;  max-width:260px;  ">3) {{LanguageLabels[13]}}</label>
               <select id="holes"  class="input_select "  formControlName="golfHoles">
-                <option value="9">9 {{LanguageLabels[14]}}</option>
-                <option value="18">18 {{LanguageLabels[14]}}</option>
+                <option value="9">9 </option>
+                <option value="18">18 </option>
               </select>  
             </div>
           </div>
