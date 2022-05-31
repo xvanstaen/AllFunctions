@@ -409,6 +409,23 @@ ConvertComment(){
     }
 }
 
+  ClickInvitees(){
+      if (this.Table_User_Data[this.identification.id].nbinvitees!==this.myForm.controls['nbinvitees'].value){
+        this.Table_User_Data[this.identification.id].nbinvitees===this.myForm.controls['nbinvitees'].value;
+        const i=this.Table_User_Data[this.identification.id].firstname.indexOf('&');
+        this.MrName=this.Table_User_Data[this.identification.id].firstname.substring(0,i-1);
+        this.MrsName=this.Table_User_Data[this.identification.id].firstname.substring(i+1,this.Table_User_Data[this.identification.id].firstname.length);
+        if (this.MrsName===''){
+            if (this.yourLanguage==='FR'){
+              this.MrsName='Madame';
+      
+            } else{
+              this.MrsName='Mrs'
+            }
+          }
+        }
+  }
+
   SaveRecord(){
     this.Google_Object_Name="Event-27AUG2022.json";
 
@@ -424,6 +441,8 @@ ConvertComment(){
             // alert(this.Error_Access_Server_Post + ' --- ' +  this.Sent_Message + ' -- http post = ' + this.HTTP_AddressPOST);
           } 
      )
+     // is there a need to return the table? 
+    
      this.returnDATA.emit(this.Table_User_Data);
   }
 
@@ -436,7 +455,8 @@ ConvertComment(){
   }
 
   updateAllRecords(){
-
+    this.SaveRecord();
+    this.clear();
   }
 
   AccessRecord(id:number){

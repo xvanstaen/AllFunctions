@@ -68,15 +68,21 @@
           <i class="em em-champagne animicon alternate-reverse anim-name-slidein" aria-role="presentation" aria-label="Clinking Glasses"></i>
          -->
         <span *ngIf="yourLanguage==='FR'">
-          <h1> Monica & Xavier </h1> <h1>ont le grand plaisir</h1>  <h1>de vous accueillir </h1>
-
-            <h2 >le 27 aout 2022 </h2>
+          <h1> Monica & Xavier<br><br> </h1> <h2>ont le grand plaisir</h2> 
+          <br>
+           <h2>
+  
+            <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>de vous accueillir</span>  
+            <span *ngIf='Table_User_Data[identification.id].nbinvitees!==2'>de t'accueillir</span>  
+             </h2>
+             <br>
+            <h2 >le 27 août 2022 </h2>
             
             <h2>au </h2><h1>Château de la Bégude </h1>
         </span>
         <span *ngIf="yourLanguage==='UK'">
           <h1> Monica & Xavier </h1> <h1>are delighted</h1>  <h1>to welcome you </h1>
-
+          <br>
             <h2 >on 27 Aug 2022 </h2>
             
             <h2>at </h2><h1>Château de la Bégude </h1>
@@ -105,7 +111,7 @@
     <br><br>
     <img   class="images"  src="./assets/Begude  Manoir.JPG" >
     <br>
-    <br>The event will start on Saturday afternoon around 5:00 pm with photo shots followed by apetizers (no picture no drink 🤣) and then diner and dancing until 2:00am. 
+    <br>The event will start on Saturday afternoon around 5:00 pm with photo shots followed by apetizers (no pictures no drinks 🤣) and then diner and dancing until 2:00am. 
     Don't forget to prepare a list of songs you would  like to dance on.
     <br> For diner, you must tell us throug the form below if you want meat (beef) or fish for the main dish.
     <br>On Saturday morning or Sunday morning , if some of you are interested you could play golf either 9 or 18 holes. We need to know the exact number of players in order to book the slot well in advance.
@@ -122,15 +128,14 @@
     if you have food requirements and/or other specific needs (we don't guarantee that we'll meet all your aditional requirements as with some of you we know that we'll get strange comments/requests 🤣 ). 
     <br>
     <br><br> <span style='color:blue;'>Dressing code: relax however no attire such as shorts, slippers. </span>
-    <br> For those who will arrive earlier (to enjoy the environment and/or play petanque or play golf), there will be the possiblity to shower as hotel rooms will be available from 4:00pm (check-out on Sunday noon at the latest).
+    <br><br> For those who will arrive earlier (to enjoy the environment and/or play petanque or play golf), there will be the possiblity to shower as hotel rooms will be available from 4:00pm (check-out on Sunday noon at the latest).
     <br><br>
     <span *ngIf="Table_User_Data[identification.id].night!=='na'">
       We booked a room for you and check-in will be from 4:00pm on Saturday (check-out Sunday noon latest). 
-      <br> <br>
+      <img   class="smallimages"  src="./assets/Begude Room1.PNG" >
+      <img   class="smallimages" src="./assets/Begude Room2.PNG" >
+     <br><br>
     </span>
-     <img   class="smallimages"  src="./assets/Begude Room1.PNG" >
-     <img   class="smallimages" src="./assets/Begude Room2.PNG" >
-    <br><br>
     <br> As said above, the most important thing to do at this stage is to fill-in the form below 
     <span style='color:blue; font-size:16px;'>AS SOON AS POSSIBLE</span>
       <br><br>
@@ -163,23 +168,23 @@
   <img   class="images"   src="./assets/Begude  Manoir.JPG" >
   <br>
 
- <br><br>Cet événement commencera le samedi aux alentours de 17:00 avec une séance de photos qui sera suivie d'un apéritif (pas de photo pas d'apéritif 🤣 et oui JP il y aura egalement ton Ricard) puis ce sera dîner et danse; 
- N'oubliez pas de préparer une liste de chansons sur lesquelles vous aimeriez danser. 
+ <br><br>Cet événement commencera le samedi aux alentours de 17:00 avec une séance de photos qui sera suivie d'un apéritif (pas de photo pas d'apéritif 🤣 et oui JP aura également son Ricard) puis ce sera dîner et danse jusqu'à 2h du matin environ; 
+ Ne pas hesiter a préparer une liste de chansons sur lesquelles nous pourrons tous danser. 
  <br> <br>Pour le dîner,  
- <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>vous devez</span> 
- <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>tu dois</span>
- nous indiquer dans le formulaire ci-dessous si vous voulez de la viande (bœuf) ou du poisson pour votre plat principal. 
+ <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>vous devez nous indiquer dans le formulaire ci-dessous si vous voulez de la viande (bœuf) ou du poisson pour votre plat principal.</span> 
+ <span *ngIf='Table_User_Data[identification.id].nbinvitees!==2'>tu dois nous indiquer dans le formulaire ci-dessous si tu veux de la viande (bœuf) ou du poisson pour ton plat principal.</span>
+ 
 
- <br> <br> <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>Si vous etes</span> 
- <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>Si tu es</span>
-  intéressés, il y aura la possibilité de faire un parcours de golf le samedi matin ou le dimanche matin, soit 9 ou 18 trous. On a besoin de connaître le nombre exact de joueurs afin de réserver au plus tôt. 
+ <br> <br> <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>Si vous etes intéressés</span> 
+ <span *ngIf='Table_User_Data[identification.id].nbinvitees!==2'>Si tu es intéressé</span>
+  , il y aura la possibilité de faire un parcours de golf le samedi matin ou le dimanche matin, soit 9 ou 18 trous. On a besoin de connaître le nombre exact de joueurs afin de réserver au plus tôt. 
  <br><br>
  <img   class="images" src="./assets/Begude Practice.JPG" >
  <br>
  <br> Dimanche à partir de 11:00 nous aurons un brunch qui sera suivi par l'une des activités les plus importantes du week-end, la compétition de pétanque! 
  <br> En fait, 
- <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>Si vous êtes interessés</span> 
- <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>Si tu es interessé</span>
+ <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>si vous êtes interessés</span> 
+ <span *ngIf='Table_User_Data[identification.id].nbinvitees!==2'>si tu es interessé</span>
  , il sera également possible de faire une partie de pétanque le samedi après-midi. 
  <br><br>
  <img   class="images"  src="./assets/Begude  Boule.JPG" >
@@ -192,30 +197,31 @@
  <br><br> Pour s'assurer que tout est bien organisé et que nous répondons à vos besoins du mieux possible, remplissez le formulaire ci-dessous et n'hésitez pas à nous préciser dans la rubrique 'Vos commentaires' si vous avez des restrictions au niveau nourriture ou de faire d'autres demandes 
  (nous ne pouvons garantir que toutes les demandes seront satisfaites car avec certaines personnes on sait à quel type de commentaires/demandes on peut s'attendre 🤣🤣🤣) 
  <br><br> <span style='color:blue;'>Pour la soirée, tenue vestimentaire décontractée, bien sûr pas de short ni de sandales. </span>
- <br> Pour ceux qui viendront plus tôt (pour profiter du bel environnement et/ou jouer à la pétanque ou jouer au golf), il y aura la possibilité de prendre une douche et de se changer.
- <br><br>
+ <br> <br>Pour ceux qui viendront plus tôt (pour profiter du bel environnement et/ou jouer à la pétanque ou jouer au golf), il y aura la possibilité de prendre une douche et de se changer.
+ 
  <span *ngIf="Table_User_Data[identification.id].night!=='na'">
+  <br><br>
  Nous vous avons réservé une chambre qui sera disponible à partir de 16:00 le samedi (check-out dimance midi au plus tard). 
 
 <br><br>
 <img   class="smallimages"  src="./assets/Begude Room1.PNG" >
 <img   class="smallimages" src="./assets/Begude Room2.PNG" >
-</span>
 <br>
- <br><br> Comme précisé plus haut, le plus important maintenant est de remplir et valider  le formulaire <span style='color:blue; font-size:16px;'>AUSSI VITE QUE POSSIBLE</span>
+</span>
+
+ <br><br> Comme précisé plus haut, le plus important maintenant est de remplir et valider le formulaire <span style='color:blue; font-size:16px;'>AUSSI VITE QUE POSSIBLE</span>
     <br><br>
     Nous espérons que 
     <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'> vous êtes </span> 
-    <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>tu es </span>
-    vous êtes 
+    <span *ngIf='Table_User_Data[identification.id].nbinvitees!==2'>tu es </span>
     aussi impatient que nous deux, pour faire la fête en l'honneur de notre union   🍾 🎉 🎊 le week-end du 27-28Aug.
     <br><br>
     Tout est préparé et offert pour 
-    <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'> votre  </span> 
-    <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>ton </span>
+      <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'> votre  </span> 
+      <span *ngIf='Table_User_Data[identification.id].nbinvitees!==2'>ton </span>
     plaisir. Les seules choses que 
     <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'> vous devez  </span> 
-    <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>tu dois </span>
+    <span *ngIf='Table_User_Data[identification.id].nbinvitees!==2'>tu dois </span>
      apporter sont joie et dynamisme. Facile, non?
     <br><br><h2>A très bientôt! <br><br> Monica et Xavier</h2>
 
@@ -233,7 +239,7 @@
     <form  [formGroup]="myForm" >
       <div>
           <label class="field-name" >{{LanguageLabels[1]}}</label>
-          <input  class="input_fieldTwo " formControlName="nbInvitees" id="nbInvitees" type="number" >
+          <input  class="input_fieldTwo " (input)='ClickInvitees()'  formControlName="nbInvitees" id="nbInvitees" type="number" >
     
           <label class="field-name">{{LanguageLabels[2]}} {{MrName}}</label> 
             <select id="dish1"  class=" input_select" formControlName="dishMr">
@@ -476,7 +482,7 @@
       <div>
       <button id='but_1' class="sizeButtons" (click)="ValidateRecord()">Validate</button>
       <button id='but_2' class="sizeButtons" (click)="clear()">Clear</button>
-      <button id='but_3' class="sizeButtons" (click)="SaveRecord()">UpdateAll</button>
+      <button id='but_3' class="sizeButtons" (click)="updateAllRecords()">UpdateAll</button>
       </div>
   </form>
   <br><br>

@@ -120,9 +120,6 @@ export class LoginComponent {
       //this.myForm.controls['password'].setValue("LIM!12monica#Chin");
       //this.myForm.controls['userId'].setValue("XMVIT-Admin");
       
-      // ================ TO BE DELETED AFTER TESTING
-      this.myForm.controls['password'].setValue("LIM!12monica#Chin");
-      this.myForm.controls['userId'].setValue("Event-27AUG2022");
 
       if (this.identification.UserId!=='' && this.identification.psw!=='') {
        // go through login panel again to allow the change of user id if needed SIN!02#JUL
@@ -273,7 +270,7 @@ getEventAug(){
   }
 
 GetUpdatedTable(event:any){
-  this.Table_User_Data[this.Encrypt_Data.id]=event;
+  this.Table_User_Data=event;
 }
 
 onClear(){
