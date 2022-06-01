@@ -193,12 +193,12 @@ img:hover{
 
 
 .field-name{
-    font-size:16px;
+    font-size:13px;
     width:60%;
 }
 
 .input_fieldTwo{
-    font-size:16px;
+    font-size:13px;
     width:37px; 
 }
 .images{
@@ -207,6 +207,11 @@ img:hover{
 
 .smallimages{
     height:100px;
+}
+
+.sizeButtons{
+    font-size:14px;
+
 }
 
 }
@@ -218,4 +223,6 @@ img:hover{
             height:680px;
             margin-top:30px;
         }
+
+ 
       }
