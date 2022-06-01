@@ -211,7 +211,11 @@ img:hover{
 
 .sizeButtons{
     font-size:14px;
+    font-weight: bold;
+}
 
+.input_select{
+        font-size:13px;
 }
 
 }
