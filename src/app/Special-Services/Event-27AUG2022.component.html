@@ -26,7 +26,7 @@
   <div class="flag flagone" (click)="goDown('FR')"> <span><img   style="width:20px; height:20px;"  src="./assets/FlagFrance.png" ></span></div>
   <div class="flag flagtwo" (click)="goDown('UK')"> <span><img   style="width:20px; height:20px;"  src="./assets/FlagUK.png" ></span></div>
   <div *ngIf="invite===true; else manageInvite" >
-    <div  style="position:relative; margin-top:10px; margin-left:18%; float:left;"  >
+    <div  style="position:relative; margin-top:10px; margin-left:22%; float:left;"  >
               <div *ngIf="yourLanguage==='FR'">
                  <span  (click)="goDown('targetRules')" class="dropdown-options dropdown-text">Information</span>
                  <span  (click)="goDown('targetDirection')" class="dropdown-options dropdown-text">Adresse</span>
@@ -46,14 +46,14 @@
         <img   class='sizeMap'  src="./assets/ChateauBegude1.png" >
     </div>
       
-      <span class="emoji  anim-name-slidedown" style="margin-left:2%; animation-duration: 18s;">🥂</span>
-      <span class="emoji  anim-name-slidedown" style="margin-left:12%; animation-direction: alternate;animation-duration: 10s;">🍾</span>
-      <span class="emoji  anim-name-slidedown" style="margin-left:15%; animation-duration: 8s;animation-delay:3s;">🥂</span>
-      
+      <span class="emoji  anim-name-slidedown" style="margin-left:2%; animation-duration: 10s;">🥂</span>
+      <span class="emoji  anim-name-slidedown" style="margin-left:12%; animation-direction: alternate;animation-duration: 8s;">🍾</span>
       <span class="emoji  anim-name-slidedown" style="margin-left:28%; animation-duration: 8s;">🥂</span>
-      <span class="emoji  anim-name-slidedown" style="margin-left:58%; animation-duration: 16s;">🥂</span>
+      
+      <span class="emoji  anim-name-slidedown" style="margin-left:40%; animation-duration: 5s;">🥂</span>
+      <span class="emoji  anim-name-slidedown" style="margin-left:58%; animation-direction: alternate;animation-duration: 6s;">🍾</span>
       <span class="emoji  anim-name-slidedown" style="margin-left:68%; animation-duration: 8s;">🥂</span>
-      <span class="emoji  anim-name-slidedown" style="margin-left:82%; animation-duration: 12s;">🥂</span>
+      <span class="emoji  anim-name-slidedown" style="margin-left:82%; animation-duration: 12s; ;">🍾</span>
       
       <div class="overlap_image">
         
@@ -78,7 +78,7 @@
              <br>
             <h2 >le 27 août 2022 </h2>
             
-            <h2>au </h2><h1>Château de la Bégude </h1>
+            <h2>au </h2><h1>Château de la Bégude </h1><br> 
         </span>
         <span *ngIf="yourLanguage==='UK'">
           <h1> Monica & Xavier </h1> <h1>are delighted</h1>  <h1>to welcome you </h1>
@@ -111,14 +111,16 @@
     <br><br>
     <img   class="images"  src="./assets/Begude  Manoir.JPG" >
     <br>
-    <br>The event will start on Saturday afternoon around 5:00 pm with photo shots followed by apetizers (no pictures no drinks 🤣) and then diner and dancing until 2:00am. 
-    Don't forget to prepare a list of songs you would  like to dance on.
+    <br>The event will start on Saturday afternoon around 5:00 pm with photo shots followed by apetizers (no pictures no drinks 🤣) and then diner and dancing until 2:00am latest. 
+    Don't forget to prepare a list of songs you would like to dance on.
     <br> For diner, you must tell us throug the form below if you want meat (beef) or fish for the main dish.
     <br>On Saturday morning or Sunday morning , if some of you are interested you could play golf either 9 or 18 holes. We need to know the exact number of players in order to book the slot well in advance.
     <br><br>
     <img   class="images"   src="./assets/Begude Practice.JPG" >
     <br><br> 
-    On Sunday, from 11:00am onwards we'll have a brunch followed by the most important activity of the week-end, the competition of petanque!. Indeed, if we have some candidates we could have a first competition on Saturday afternoon! 
+    There will also be the opportunity to practice golf on Saturday afternoon even if you are a beginner. This may be quite funny indeed.
+    <br><br>
+    On Sunday, from 11:00am onwards we'll have a brunch followed by the most important activity of the week-end, the competition of pétanque!. Indeed, if we have some candidates we could also play pétanque on Saturday afternoon! 
     <br><br>
     <img   class="images"   src="./assets/Begude  Boule.JPG" >
     <br>
@@ -168,7 +170,7 @@
   <img   class="images"   src="./assets/Begude  Manoir.JPG" >
   <br>
 
- <br><br>Cet événement commencera le samedi aux alentours de 17:00 avec une séance de photos qui sera suivie d'un apéritif (pas de photo pas d'apéritif 🤣 et oui JP aura également son Ricard) puis ce sera dîner et danse jusqu'à 2h du matin environ; 
+ <br><br>Cet événement commencera le samedi aux alentours de 17:00 avec une séance de photos qui sera suivie d'un apéritif (pas de photo pas d'apéritif 🤣 et oui, JP aura également son Ricard) puis ce sera dîner et danse jusqu'à 2h du matin environ.
  Ne pas hesiter a préparer une liste de chansons sur lesquelles nous pourrons tous danser. 
  <br> <br>Pour le dîner,  
  <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>vous devez nous indiquer dans le formulaire ci-dessous si vous voulez de la viande (bœuf) ou du poisson pour votre plat principal.</span> 
@@ -180,6 +182,7 @@
   , il y aura la possibilité de faire un parcours de golf le samedi matin ou le dimanche matin, soit 9 ou 18 trous. On a besoin de connaître le nombre exact de joueurs afin de réserver au plus tôt. 
  <br><br>
  <img   class="images" src="./assets/Begude Practice.JPG" >
+ <br> Samedi apres-midi il sera possible de faire un practice (golf). Cette activité est ouverte aux debutants qui seront conseillés par nos meilleurs joueurs. 
  <br>
  <br> Dimanche à partir de 11:00 nous aurons un brunch qui sera suivi par l'une des activités les plus importantes du week-end, la compétition de pétanque! 
  <br> En fait, 
@@ -191,7 +194,9 @@
  <br>
  <br> Bien que l'hôtel fournisse des boules, il est préférable que les professionnels que vous êtes apportent leur propre jeu de boules. 
  <br><br>
- <img   class="images" src="./assets/Begude Boule2.PNG" >
+ <img   style="    width:80px;
+ margin-left:20px; 
+ height:80px;" src="./assets/Begude Boule2.PNG" >
  <br>
  <br>S'il n'a pas les siennes JP aura une excuse toute faite pour les 'carreaux' qu'il aura manqué! 
  <br><br> Pour s'assurer que tout est bien organisé et que nous répondons à vos besoins du mieux possible, remplissez le formulaire ci-dessous et n'hésitez pas à nous préciser dans la rubrique 'Vos commentaires' si vous avez des restrictions au niveau nourriture ou de faire d'autres demandes 
@@ -209,7 +214,7 @@
 <br>
 </span>
 
- <br><br> Comme précisé plus haut, le plus important maintenant est de remplir et valider le formulaire <span style='color:blue; font-size:16px;'>AUSSI VITE QUE POSSIBLE</span>
+ <br><br> Comme précisé plus haut, le plus important maintenant est de remplir et valider le formulaire  <span style='color:blue; font-size:16px;'>AUSSI VITE QUE POSSIBLE</span>
     <br><br>
     Nous espérons que 
     <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'> vous êtes </span> 
@@ -232,25 +237,27 @@
 </div>
 
 
-<div style='color:black; font-size:14px; max-width:900px;'>
+<div class="myText" style='color:black; font-size:14px; max-width:900px; background-color:rgb(137, 137, 206);'>
 
   <h1>{{LanguageLabels[0]}}</h1> 
 <br><br>
     <form  [formGroup]="myForm" >
       <div>
-          <label class="field-name" >{{LanguageLabels[1]}}</label>
-          <input  class="input_fieldTwo " (input)='ClickInvitees()'  formControlName="nbInvitees" id="nbInvitees" type="number" >
-    
+          <label class="field-name" >{{LanguageLabels[1]}}</label> 
+          <select id="nbInvitees" type="number"  class="input_select"  (input)='ClickInvitees($event)' formControlName="nbInvitees">
+            <option value=1>1</option>
+            <option value=2>2</option>
+          </select>
+
           <label class="field-name">{{LanguageLabels[2]}} {{MrName}}</label> 
             <select id="dish1"  class=" input_select" formControlName="dishMr">
               <option value="B">{{LanguageLabels[3]}}</option>
               <option value="F">{{LanguageLabels[4]}}</option>
             </select>
 
-
-          <span *ngIf="Table_User_Data[identification.id].nbinvitees===2">
+          <span *ngIf="Table_User_Data[identification.id].nbinvitees!==1">
             <label class="field-name">{{LanguageLabels[2]}} {{MrsName}}</label>
-             <select id="dish2"  class="input_select" formControlName="dishMr">
+             <select id="dish2"  class="input_select" formControlName="dishMrs">
                  <option value="B">{{LanguageLabels[3]}}</option>
                  <option value="F">{{LanguageLabels[4]}}</option>
              </select>
@@ -287,9 +294,30 @@
             <option value="n" selected>{{LanguageLabels[7]}}</option>
           </select>
           </span>
-        <div>
-              <label class="field-name" style="width:90%;">{{LanguageLabels[8]}}</label>
 
+        <div>
+
+              <label class="field-name" >Practice {{LanguageLabels[10]}}</label>
+              <select id="PSatday"  class="input_select "  formControlName="practiceSaturday">
+                <option value="y">{{LanguageLabels[6]}}</option>
+                <option value="n">{{LanguageLabels[7]}}</option>
+              </select>  
+              <div>
+              <label class="field-name" >Pétanque {{LanguageLabels[10]}}</label>
+              <select id="BSatday"  class="input_select "  formControlName="bouleSaturday">
+                <option value="y">{{LanguageLabels[6]}}</option>
+                <option value="n">{{LanguageLabels[7]}}</option>
+              </select>  
+            </div><div>
+              <label class="field-name" >Pétanque {{LanguageLabels[11]}}</label>
+              <select id="BSunday"  class="input_select "  formControlName="bouleSunday">
+                <option value="y">{{LanguageLabels[6]}}</option>
+                <option value="n">{{LanguageLabels[7]}}</option>
+              </select>  
+            </div>
+
+              <label class="field-name" style="width:90%;">{{LanguageLabels[8]}}</label>
+              
               <label class="field-name" style="margin-left:40px;  max-width:260px;  ">1) {{LanguageLabels[9]}}</label>
               <select id="day"  class="input_select "  formControlName="day">
                 <option value="Sat">{{LanguageLabels[10]}}</option>
@@ -297,27 +325,31 @@
               </select>  
               <div>
                   <label class="field-name" style="margin-left:40px;  max-width:260px;  ">2) {{LanguageLabels[12]}}</label>
-                  <input  class="input_select " formControlName="golf" id="golf" type="number"  >
+                  <select  class=" input_select" type="number" formControlName="golf" id="golf">
+                    <option value=1>1</option>
+                    <option value=2>2</option>
+                  </select>
               </div>
               <div>
                 <label class="field-name" style="margin-left:40px;  max-width:260px;  ">3) {{LanguageLabels[13]}}</label>
-              <select id="holes"  class="input_select "  formControlName="golfHoles">
-                <option value="9">9 </option>
-                <option value="18">18 </option>
+              <select id="holes"  class="input_select " type="number" formControlName="golfHoles">
+                <option value=9>9 </option>
+                <option value=18>18 </option>
               </select>  
             </div>
           </div>
           <div *ngIf="Table_User_Data[identification.id].myComment!=='' && Table_User_Data[identification.id].myComment!==undefined">
                 <label class="field-name">{{LanguageLabels[15]}}</label>
-                <input  class="input_field " style=" display: block; overflow-y:scroll;  width:80%; height:100px;" formControlName="myComment" id="text" type="text"  >
+                <input   style=" display: block; overflow-y:scroll; margin-left:20px; width:80%; height:100px;" formControlName="myComment" id="mycomment" type="text"  >
           </div>
           <div >
                 <label class="field-name"  style="width:90%;">{{LanguageLabels[16]}}</label>
-                <textarea   style=" display: block; overflow-y:scroll; margin-left:20px; width:80%; height:100px;" formControlName="yourComment" id="text" type="text"  ></textarea>
+                <textarea   class="yourComment" formControlName="yourComment" id="yourcomment" type="text"  ></textarea>
           </div>
         </div>
         <button id='but_1' class="sizeButtons" (click)="ConfirmData()"> {{LanguageLabels[17]}}</button>
       </form>
+      <br><br>
 </div>
 
 <div class="myText">
@@ -435,6 +467,24 @@
 
 
       <div>
+
+            <label class="field-name" style="margin-left:40px;  max-width:260px;  ">1) Practice {{LanguageLabels[10]}}</label>
+            <select id="PSatday"  class="input_select "  formControlName="practiceSaturday">
+              <option value="y">{{LanguageLabels[6]}}</option>
+              <option value="n">{{LanguageLabels[7]}}</option>
+            </select>  
+            <label class="field-name" style="margin-left:40px;  max-width:260px;  ">1) Pétanque {{LanguageLabels[10]}}</label>
+            <select id="BSatday"  class="input_select "  formControlName="bouleSaturday">
+              <option value="y">{{LanguageLabels[6]}}</option>
+              <option value="n">{{LanguageLabels[7]}}</option>
+            </select>  
+            <label class="field-name" style="margin-left:40px;  max-width:260px;  ">1) Pétanque {{LanguageLabels[11]}}</label>
+            <select id="BSunday"  class="input_select "  formControlName="bouleSunday">
+              <option value="y">{{LanguageLabels[6]}}</option>
+              <option value="n">{{LanguageLabels[7]}}</option>
+            </select>  
+
+
             <label class="field-name" style="width:90%;">{{LanguageLabels[8]}}</label>
 
             <label class="field-name" style="margin-left:40px;  max-width:280px;  ">1) {{LanguageLabels[9]}}</label>
@@ -444,13 +494,16 @@
             </select>  
             <div>
                 <label class="field-name" style="margin-left:40px;  max-width:280px;  ">2) {{LanguageLabels[12]}}</label>
-                <input  class="input_select " formControlName="golf" id="golf" type="number"  >
+                <select  class=" input_select" type="number" formControlName="golf" id="golf">
+                  <option value=1>1</option>
+                  <option value=2>2</option>
+                </select>
             </div>
             <div>
               <label class="field-name" style="margin-left:40px;  max-width:280px;  ">3) {{LanguageLabels[13]}}</label>
-              <select id="holes"  class="input_select "  formControlName="golfHoles">
-              <option value="9">9 {{LanguageLabels[14]}}</option>
-              <option value="18">18 {{LanguageLabels[14]}}</option>
+              <select id="holes" type="number" class="input_select "  formControlName="golfHoles">
+              <option value=9>9 {{LanguageLabels[14]}}</option>
+              <option value=18>18 {{LanguageLabels[14]}}</option>
                </select>  
             </div>
       </div>
@@ -483,6 +536,7 @@
       <button id='but_1' class="sizeButtons" (click)="ValidateRecord()">Validate</button>
       <button id='but_2' class="sizeButtons" (click)="clear()">Clear</button>
       <button id='but_3' class="sizeButtons" (click)="updateAllRecords()">UpdateAll</button>
+      <button id='but_4' class="sizeButtons" (click)="DeleteRecords()">Delete</button>
       </div>
   </form>
   <br><br>
@@ -501,8 +555,8 @@
   </div>
 
   <div *ngFor="let theList of Table_User_Data; let i=index" style="margin-left:20px; ">
-    <div style="max-width:1000px; display:table; background-color:green; border:solid 1px black; ">
-    <span class="field-rowTwo"> {{i+1}}</span> 
+    <div  *ngIf='i!==0' style="max-width:1000px; display:table; background-color:green; border:solid 1px black; ">
+    <span class="field-rowTwo"> {{i}}</span> 
     <span class="field-row">{{theList.firstname}} </span> 
     <span class="field-row"> {{theList.surname}}</span>  
     <span class="field-row">{{theList.UserId}}</span> 
@@ -511,14 +565,13 @@
     <span class="field-rowTwo"> {{theList.brunch}} </span> 
     <span class="field-row">{{Table_DecryptPSW[i]}}</span> 
     <span *ngIf="theList.myComment!=='' && theList.myComment!==undefined" class="field-rowTwo">x </span> 
-    <span *ngIf="theList.yourComment!=='' && theList.yourComment!==undefined" class="field-rowTwo">y</span> 
-   
     <button id='but_4'  (click)="AccessRecord(i)">Other</button>
     <br>
   </div>
   </div>
 
-  <h2 style="margin-top:30px;"><br> Total number of invitees: {{total_invitee}}</h2>
+  <h2 style="margin-left:20px; margin-top:30px;"><br> Total number of invitees: {{total_invitee}}</h2>
+  <h2 style="margin-left:20px;  margin-top:30px;"><br> Total number of rooms: {{total_rooms}}</h2>
 </div>
 </ng-template>
 

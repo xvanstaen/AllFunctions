@@ -123,7 +123,7 @@ h3{
   animation-duration: 4s;
 }
 .animicon{
-  margin-top:0px;
+  margin-top:30px;
   margin-left:10%;
   width: 30px;
   height: 30px;
@@ -134,7 +134,7 @@ h3{
 
 .emoji{
   
-  margin-top:0px;
+  margin-top:30px;
   margin-left:10%;
   font-size:40px;
   position: absolute;
@@ -144,7 +144,7 @@ h3{
 
 
 .dir-reverse{
-  margin-top:20px; 
+  margin-top:30px; 
   margin-left:0%;
   animation-duration: 2s;
   animation-direction: reverse;

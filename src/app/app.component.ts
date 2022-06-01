@@ -108,7 +108,7 @@ export class AppComponent {
     
     // convert to [5] to display XMV Company 
     if (!this.myTypeRoute){
-      this.router.navigateByUrl(this.myRoutingTable[10].Route);
+      this.router.navigateByUrl(this.myRoutingTable[5].Route);
   
     }
     else{
