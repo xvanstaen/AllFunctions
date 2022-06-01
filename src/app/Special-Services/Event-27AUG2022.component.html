@@ -468,17 +468,17 @@
 
       <div>
 
-            <label class="field-name" style="margin-left:40px;  max-width:260px;  ">1) Practice {{LanguageLabels[10]}}</label>
+            <label class="field-name" >Practice {{LanguageLabels[10]}}</label>
             <select id="PSatday"  class="input_select "  formControlName="practiceSaturday">
               <option value="y">{{LanguageLabels[6]}}</option>
               <option value="n">{{LanguageLabels[7]}}</option>
             </select>  
-            <label class="field-name" style="margin-left:40px;  max-width:260px;  ">1) Pétanque {{LanguageLabels[10]}}</label>
+            <label class="field-name" >Pétanque {{LanguageLabels[10]}}</label>
             <select id="BSatday"  class="input_select "  formControlName="bouleSaturday">
               <option value="y">{{LanguageLabels[6]}}</option>
               <option value="n">{{LanguageLabels[7]}}</option>
             </select>  
-            <label class="field-name" style="margin-left:40px;  max-width:260px;  ">1) Pétanque {{LanguageLabels[11]}}</label>
+            <label class="field-name" >Pétanque {{LanguageLabels[11]}}</label>
             <select id="BSunday"  class="input_select "  formControlName="bouleSunday">
               <option value="y">{{LanguageLabels[6]}}</option>
               <option value="n">{{LanguageLabels[7]}}</option>
@@ -509,13 +509,6 @@
       </div>
 
 
-<!--
-
-      <label class="field-name">Night (y/n)</label>
-      <input  class="input_fieldTwo first-label" formControlName="night" id="night" type="text"  >
-      <label class="field-name">Brunch(y/n)</label>
-      <input  class="input_fieldTwo first-label" formControlName="brunch" id="brunch" type="text"  >
--->
 
       <label class="field-name">Read record)</label>
       <input  class="input_fieldTwo first-label" formControlName="readRecord" id="record" type="number"  >
@@ -530,7 +523,13 @@
         <label class="field-name"  style="width:90%;">{{LanguageLabels[16]}}</label>
         <textarea   style=" display: block; overflow-y:scroll; margin-left:20px; width:80%; height:100px;" formControlName="yourComment" id="text" type="text"  ></textarea>
        </div>
-      
+       <div>
+        <label class="field-name">Read access </label>
+        <input  class="input_fieldTwo first-label" formControlName="readAccess" id="readAccess" type="number"  >
+        </div><div>
+        <label class="field-name">Write access</label>
+        <input  class="input_fieldTwo first-label" formControlName="writeAccess" id="writeAccess" type="number"  >
+      </div>
       
       <div>
       <button id='but_1' class="sizeButtons" (click)="ValidateRecord()">Validate</button>

@@ -77,6 +77,8 @@ export class Event27AugComponent {
       readRecord: new  FormControl(0),
       myComment: new  FormControl(''),
       yourComment: new  FormControl(''),
+      readAccess: new  FormControl(0),
+      writeAccess: new  FormControl(0),
     });
 
     CommentStructure={
@@ -88,7 +90,9 @@ export class Event27AugComponent {
       practiceSaturday:'y',
       bouleSaturday:'y',
       bouleSunday:'y',
-      theComments:''
+      theComments:'',
+      readAccess:0,
+      writeAccess:0,
     }
 
     Encrypt:string='';
@@ -165,13 +169,7 @@ onWindowResize() {
       if (this.identification.UserId===this.Admin_UserId) {
         // administrator is connected
         this.invite=false;
-        /******** NOT NEEDED AS THIS RECORD IS NOT USED
-        this.myForm.controls['brunch'].setValue("y");
-        this.myForm.controls['night'].setValue("y");
-        this.myForm.controls['nbInvitees'].setValue(2);
-        this.myForm.controls['userId'].setValue('Event-27AUG2022');
-        this.myForm.controls['readRecord'].setValue(0);
-         ********/
+
         this.Error_Access_Server='';    
         // this.manageInvitees();
         this.count_invitees('Y');
@@ -185,8 +183,11 @@ onWindowResize() {
           this.Table_User_Data[this.identification.id].nbinvitees=Number(this.Table_User_Data[this.identification.id].nbinvitees);
           this.myForm.controls['nbInvitees'].setValue(this.Table_User_Data[this.identification.id].nbinvitees);
           this.myForm.controls['myComment'].setValue(this.Table_User_Data[this.identification.id].myComment);
-          //this.myForm.controls['yourComment'].setValue(this.Table_User_Data[this.identification.id].yourComment);
+    
           this.ConvertComment();
+          this.CommentStructure.readAccess ++;
+          this.Table_User_Data[this.identification.id].yourComment=JSON.stringify(this.CommentStructure);
+          this.SaveRecord();
 
           }
           this.scroller.scrollToAnchor('targetTOP');
@@ -289,32 +290,15 @@ onWindowResize() {
       this.CommentStructure.practiceSaturday=this.myForm.controls['practiceSaturday'].value;
       this.CommentStructure.bouleSaturday=this.myForm.controls['bouleSaturday'].value;
       this.CommentStructure.bouleSunday=this.myForm.controls['bouleSunday'].value;
+      this.CommentStructure.writeAccess ++;
       this.Table_User_Data[i].yourComment=JSON.stringify(this.CommentStructure);
-
+     
       this.SaveRecord();
 
   }
 
   ValidateRecord(){
 
-          if (this.myForm.controls['night'].value.toLowerCase() !== "y" 
-          && this.myForm.controls['night'].value.toLowerCase() !=='n'
-          && this.myForm.controls['night'].value.toLowerCase() !=='na'){
-            this.error_message='enter "y" or "n" for field "night"';
-          } else 
-          if (this.myForm.controls['brunch'].value.toLowerCase() !== "y" 
-          && this.myForm.controls['brunch'].value.toLowerCase() !=='n'
-          && this.myForm.controls['brunch'].value.toLowerCase() !=='na'){
-            this.error_message='enter "y" or "n" for field "brunch"';
-          } else 
-          if (this.myForm.controls['brunch'].value === "" || this.myForm.controls['night'].value==='' ||
-          this.myForm.controls['firstname'].value === "" || this.myForm.controls['surname'].value==='' ||
-          this.myForm.controls['nbInvitees'].value === 0 || this.myForm.controls['userId'].value==='' ||
-          this.myForm.controls['psw'].value === ""
-          ){
-            this.error_message='one or several fields are empty';
-          } else {
-          
           if (this.recordToUpdate!==0){
             this.i=this.recordToUpdate;
             this.recordToUpdate=0;
@@ -335,7 +319,7 @@ onWindowResize() {
           this.Table_User_Data[this.i].UserId=this.myForm.controls['userId'].value;
           this.Table_User_Data[this.i].firstname= this.myForm.controls['firstname'].value;
           this.Table_User_Data[this.i].surname=this.myForm.controls['surname'].value;
-          this.Table_User_Data[this.i].nbinvitees=this.myForm.controls['nbInvitees'].value;
+          this.Table_User_Data[this.i].nbinvitees=Number(this.myForm.controls['nbInvitees'].value);
           this.Table_User_Data[this.i].brunch=this.myForm.controls['brunch'].value;
           this.Table_User_Data[this.i].night=this.myForm.controls['night'].value;
           this.Table_User_Data[this.i].myComment=this.myForm.controls['myComment'].value;
@@ -367,7 +351,7 @@ onWindowResize() {
           this.Individual_User_Data=this.Table_User_Data[this.i];
           
           this.count_invitees('N')
-        }
+
 
 
   }  
@@ -381,6 +365,7 @@ ReadRecord(){
         this.myForm.controls['firstname'].setValue(this.Table_User_Data[this.i].firstname);
         this.myForm.controls['surname'].setValue(this.Table_User_Data[this.i].surname);
         this.Table_User_Data[this.i].nbinvitees=Number(this.Table_User_Data[this.i].nbinvitees);
+        this.myForm.controls['nbInvitees'].setValue(this.Table_User_Data[this.i].nbinvitees);
         this.myForm.controls['brunch'].setValue(this.Table_User_Data[this.i].brunch);
         this.myForm.controls['night'].setValue(this.Table_User_Data[this.i].night);
         this.myForm.controls['psw'].setValue(this.Table_DecryptPSW[this.i]);
@@ -427,6 +412,15 @@ ConvertComment(){
     this.CommentStructure.bouleSaturday='n';
     this.CommentStructure.bouleSunday='n';
   } 
+  if (this.CommentStructure.readAccess===undefined){
+    this.CommentStructure.readAccess=0;
+  }
+  this.myForm.controls['readAccess'].setValue(this.CommentStructure.readAccess);
+  if (this.CommentStructure.writeAccess===undefined){
+    this.CommentStructure.writeAccess=0;
+  }
+  this.myForm.controls['writeAccess'].setValue(this.CommentStructure.writeAccess);
+
   this.myForm.controls['practiceSaturday'].setValue(this.CommentStructure.practiceSaturday);
   this.myForm.controls['bouleSaturday'].setValue(this.CommentStructure.bouleSaturday);
   this.myForm.controls['bouleSunday'].setValue(this.CommentStructure.bouleSunday);
@@ -461,8 +455,7 @@ ConvertComment(){
     this.HTTP_Address=this.Google_Bucket_Access_RootPOST + this.Google_Bucket_Name + "/o?name=" + this.Google_Object_Name  + '&uploadType=media';
     this.http.post(this.HTTP_Address,  this.Table_User_Data )
     .subscribe(res => {
-          // this.Error_Access_Server=JSON.stringify( this.Table_User_Data) + " RETURN ==> " + JSON.stringify(res) + ' -- http post  has no errors = ' + this.HTTP_Address;
-          // alert('Created Successfully');  
+          this.returnDATA.emit(this.Table_User_Data);
 
           },
           error_handler => {
@@ -470,9 +463,6 @@ ConvertComment(){
             // alert(this.Error_Access_Server_Post + ' --- ' +  this.Sent_Message + ' -- http post = ' + this.HTTP_AddressPOST);
           } 
      )
-     // is there a need to return the table? 
-    
-     this.returnDATA.emit(this.Table_User_Data);
   }
 
   onCrypt(type_crypto:string){
