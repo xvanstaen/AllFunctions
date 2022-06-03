@@ -25,7 +25,7 @@ module.exports = function (config) {
       suppressAll: true // removes the duplicated traces
     },
     coverageReporter: {
-      dir: require('path').join(__dirname, './coverage/xmvweb-site-ref'),
+      dir: require('path').join(__dirname, './coverage/allfunctions-ref'),
       subdir: '.',
       reporters: [
         { type: 'html' },

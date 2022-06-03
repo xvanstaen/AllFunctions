@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/xmvweb-site",
+            "outputPath": "dist/allfunctions",
             "allowedCommonJsDependencies": ["crypto-js","moment/locale/pt-br"],
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -39,8 +39,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "1mb",
-                  "maximumError": "2mb"
+                  "maximumWarning": "2mb",
+                  "maximumError": "4mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -71,10 +71,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "AllFunctions:build:production"
+              "browserTarget": "allfunctions:build:production"
             },
             "development": {
-              "browserTarget": "AllFunctions:build:development"
+              "browserTarget": "XMVWebSite:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -82,7 +82,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "AllFunctions:build"
+            "browserTarget": "allfunctions:build"
           }
         },
         "test": {
