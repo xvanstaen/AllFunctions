@@ -33,4 +33,5 @@ export class BioData{
       nbinvitees:number=0;
       myComment:string='';
       yourComment:any;
+      timeStamp:string='';
     };

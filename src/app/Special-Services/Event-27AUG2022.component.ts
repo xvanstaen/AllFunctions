@@ -54,6 +54,11 @@ export class Event27AugComponent {
     invite:boolean=true;
     total_invitee:number=0;
     total_rooms:number=0;
+    resetAccess:boolean=false;
+
+    myDate:string='';
+    myTime=new Date();
+    thetime:string='';
 
     MrName:string='';
     MrsName:string='';
@@ -79,6 +84,7 @@ export class Event27AugComponent {
       yourComment: new  FormControl(''),
       readAccess: new  FormControl(0),
       writeAccess: new  FormControl(0),
+      
     });
 
     CommentStructure={
@@ -143,8 +149,12 @@ export class Event27AugComponent {
     Table_User_Data:Array<EventAug>=[];
     Table_DecryptPSW:Array<string>=[];
     Individual_User_Data= new EventAug;
-
+    Retrieve_User_Data:Array<EventAug>=[];
+    Tab_Record_Update:Array<Boolean>=[];
+    message:string='';
     recordToUpdate:number=0;
+    updateRecord:number=0;
+
 
 @HostListener('window:resize', ['$event'])
 onWindowResize() {
@@ -157,6 +167,9 @@ onWindowResize() {
       this.getScreenWidth = window.innerWidth;
       this.getScreenHeight = window.innerHeight;
       this.  myKeyUp='';
+      this.myTime=new Date();
+      this.myDate= this.myTime.toString().substring(8,24);
+      this.thetime=this.myDate+this.myTime.getTime();
       // get all the records from the login component via the @input
       this.Table_User_Data = this.LoginTable_User_Data;
       this.Table_DecryptPSW= this.LoginTable_DecryptPSW;
@@ -176,6 +189,10 @@ onWindowResize() {
 
       } else {
         this.invite=true;
+        for (this.i=0; this.i<this.Table_User_Data.length; this.i++){
+          this.Tab_Record_Update.push(false);
+          this.Tab_Record_Update[this.i]=false;
+        }
           //this.manageInvitees(); // retrieve the object
           // a user is connected so must display his/her information
           this.myForm.controls['brunch'].setValue(this.Table_User_Data[this.identification.id].brunch);
@@ -268,7 +285,13 @@ onWindowResize() {
     });
   }
 
-  ConfirmData(){
+ResetAccess(){
+  this.resetAccess=true;
+  this.myForm.controls['readAccess'].setValue(0);
+  this.myForm.controls['writeAccess'].setValue(0);
+}
+
+ ConfirmData(){
       const i=this.identification.id;
 
       // always update the record 
@@ -278,21 +301,22 @@ onWindowResize() {
 
       this.CommentStructure.dishMr=this.myForm.controls['dishMr'].value;
       this.CommentStructure.dishMrs=this.myForm.controls['dishMrs'].value;
-      this.CommentStructure.golf=this.myForm.controls['golf'].value;
+      this.CommentStructure.golf=Number(this.myForm.controls['golf'].value);
       if (this.myForm.controls['golf'].value===0){
           this.myForm.controls['golfHoles'].setValue(0);
           this.myForm.controls['day'].setValue('');
-      } else{
-          this.CommentStructure.holes=this.myForm.controls['golfHoles'].value;
-          this.CommentStructure.day=this.myForm.controls['day'].value;
-      }
+      } 
+      this.CommentStructure.holes=Number(this.myForm.controls['golfHoles'].value);
+      this.CommentStructure.day=this.myForm.controls['day'].value;
+      
       this.CommentStructure.theComments=this.myForm.controls['yourComment'].value;
       this.CommentStructure.practiceSaturday=this.myForm.controls['practiceSaturday'].value;
       this.CommentStructure.bouleSaturday=this.myForm.controls['bouleSaturday'].value;
       this.CommentStructure.bouleSunday=this.myForm.controls['bouleSunday'].value;
+
       this.CommentStructure.writeAccess ++;
       this.Table_User_Data[i].yourComment=JSON.stringify(this.CommentStructure);
-     
+      this.updateRecord=1;
       this.SaveRecord();
 
   }
@@ -332,10 +356,17 @@ onWindowResize() {
           this.CommentStructure.practiceSaturday=this.myForm.controls['practiceSaturday'].value;
           this.CommentStructure.bouleSaturday=this.myForm.controls['bouleSaturday'].value;
           this.CommentStructure.bouleSunday=this.myForm.controls['bouleSunday'].value;
-          this.CommentStructure.golf=this.myForm.controls['golf'].value;
-          this.CommentStructure.holes=this.myForm.controls['golfHoles'].value;
+          this.CommentStructure.golf=Number(this.myForm.controls['golf'].value);
+          this.CommentStructure.holes=Number(this.myForm.controls['golfHoles'].value);
           this.CommentStructure.day=this.myForm.controls['day'].value;
           this.CommentStructure.theComments=this.myForm.controls['yourComment'].value;
+          if (this.resetAccess===true) {
+            this.CommentStructure.writeAccess=0;
+            this.CommentStructure.readAccess=0;
+            this.myForm.controls['readAccess'].setValue(0);
+            this.myForm.controls['writeAccess'].setValue(0);
+            this.resetAccess=false;
+          }
           this.Table_User_Data[this.i].yourComment=JSON.stringify(this.CommentStructure);
 
           this.Table_User_Data[this.i].id=this.i;
@@ -349,14 +380,12 @@ onWindowResize() {
           this.Table_User_Data[this.i].psw= this.Encrypt;
 
           this.Individual_User_Data=this.Table_User_Data[this.i];
-          
+          this.Tab_Record_Update[this.i]=true;
           this.count_invitees('N')
-
-
-
   }  
 
 ReadRecord(){
+
   if (this.myForm.controls['readRecord'].value<=this.Table_User_Data.length){
     // read the item
         this.i=this.myForm.controls['readRecord'].value;
@@ -373,7 +402,13 @@ ReadRecord(){
         this.ConvertComment();
 
         this.myForm.controls['readRecord'].setValue(0);
-        this.recordToUpdate=this.i;
+        if (this.resetAccess===true) {
+          this.CommentStructure.writeAccess=0;
+          this.CommentStructure.readAccess=0;
+          this.myForm.controls['readAccess'].setValue(0);
+          this.myForm.controls['writeAccess'].setValue(0);
+          this.resetAccess=false;
+        }
   } else { this.error_message='wrong record to access';}
 }
 
@@ -391,20 +426,32 @@ count_invitees(ConvertComment:string){
     if (ConvertComment==='Y'){
         this.identification.id=this.i;
         this.ConvertComment();
+        this.Table_User_Data[this.i].yourComment=JSON.stringify(this.CommentStructure);
     }
   }
   this. total_rooms = this. total_rooms/2;
 }
 
 ConvertComment(){
+
+  if (this.Table_User_Data[this.identification.id].timeStamp===undefined){
+    this.Table_User_Data[this.identification.id].timeStamp= this.thetime;
+  }
   this.CommentStructure=JSON.parse(this.Table_User_Data[this.identification.id].yourComment);
+
   if (this.CommentStructure.dishMr==='M'){
     this.CommentStructure.dishMr='B';
   }
   this.myForm.controls['dishMr'].setValue(this.CommentStructure.dishMr);
   this.myForm.controls['dishMrs'].setValue(this.CommentStructure.dishMrs);
-  this.myForm.controls['golf'].setValue(this.CommentStructure.golf);
-  this.myForm.controls['golfHoles'].setValue(this.CommentStructure.holes);
+  this.CommentStructure.golf=Number(this.CommentStructure.golf);
+  this.CommentStructure.holes=Number(this.CommentStructure.holes);
+  if (this.CommentStructure.golf===0){
+    this.CommentStructure.holes=0;
+    this.CommentStructure.day='';
+  }
+  this.myForm.controls['golf'].setValue(Number(this.CommentStructure.golf));
+  this.myForm.controls['golfHoles'].setValue(Number(this.CommentStructure.holes));
   this.myForm.controls['yourComment'].setValue(this.CommentStructure.theComments);
   this.myForm.controls['day'].setValue(this.CommentStructure.day);
   if (this.CommentStructure.practiceSaturday===undefined){
@@ -419,6 +466,7 @@ ConvertComment(){
   if (this.CommentStructure.writeAccess===undefined){
     this.CommentStructure.writeAccess=0;
   }
+
   this.myForm.controls['writeAccess'].setValue(this.CommentStructure.writeAccess);
 
   this.myForm.controls['practiceSaturday'].setValue(this.CommentStructure.practiceSaturday);
@@ -451,19 +499,71 @@ ConvertComment(){
 
   SaveRecord(){
     this.Google_Object_Name="Event-27AUG2022.json";
+    // read record
+    // if time stamp still is the same then can update the record
+    // otherwise check when each item was updated
+    // ***********
+    this.myTime=new Date();
+    this.myDate= this.myTime.toString().substring(8,24);
+    this.thetime=this.myDate+this.myTime.getTime();
+    // ***********
+   
+      // ****** get content of object *******
+      this.HTTP_Address=this.Google_Bucket_Access_Root + this.Google_Bucket_Name + "/o/" + this.Google_Object_Name   + "?alt=media";     
+      this.http.get<any>(this.HTTP_Address )
+                  .subscribe(data => {
+                  this.bucket_data=JSON.stringify(data);
+                  var obj = JSON.parse(this.bucket_data);
+                  this.Error_Access_Server='';
+                  if (this.invite===true){
+                      for (this.i=0; this.i<obj.length; this.i++){
 
-    this.HTTP_Address=this.Google_Bucket_Access_RootPOST + this.Google_Bucket_Name + "/o?name=" + this.Google_Object_Name  + '&uploadType=media';
-    this.http.post(this.HTTP_Address,  this.Table_User_Data )
-    .subscribe(res => {
-          this.returnDATA.emit(this.Table_User_Data);
+                          if (obj[this.i].timeStamp!== undefined && obj[this.i].timeStamp!== this.Table_User_Data[this.i].timeStamp ){
+ 
+                            this.Error_Access_Server= 'record ' +this.i+ 'has been updated by another user; redo your updates'
+                            this.Table_User_Data[this.i].timeStamp=obj[this.i].timeStamp;
+                            this.AccessRecord(this.i);
+                            this.i=obj.length;
+                          }
+                      }
+                    }
+                  else {
+                    // check only one record
+                    if (obj[this.identification.id].timeStamp!== undefined && obj[this.identification.id].timeStamp!== this.Table_User_Data[this.identification.id].timeStamp ){
+                      this.Table_User_Data[this.i].timeStamp=obj[this.i].timeStamp;
+                      this.AccessRecord(this.i);
+                      this.Error_Access_Server= 'record ' +this.i+ 'has been updated by another user; redo your updates'   
+                    }
+                  }
+                  if (this.Error_Access_Server===''){
+                        this.resetAccess=false;
+                        if (this.invite===true){
+                              for (this.i=0; this.i<this.Tab_Record_Update.length; this.i++){
+                                if (this.Tab_Record_Update[this.i]===true){
+                                      this.Table_User_Data[this.i].timeStamp=this.thetime;
+                                }
+                              }
+                        } 
+                        else{
+                          this.Table_User_Data[this.identification.id].timeStamp=this.thetime;
+                        }
 
-          },
-          error_handler => {
-            this.Error_Access_Server= "  object ===>   " + JSON.stringify( this.Table_User_Data)  + '   error message: ' + error_handler.message + ' error status: '+ error_handler.statusText+' name: '+ error_handler.name + ' url: '+ error_handler.url;
-            // alert(this.Error_Access_Server_Post + ' --- ' +  this.Sent_Message + ' -- http post = ' + this.HTTP_AddressPOST);
-          } 
-     )
+                        this.HTTP_Address=this.Google_Bucket_Access_RootPOST + this.Google_Bucket_Name + "/o?name=" + this.Google_Object_Name  + '&uploadType=media';
+                        this.http.post(this.HTTP_Address,  this.Table_User_Data )
+                        .subscribe(res => {
+                              this.returnDATA.emit(this.Table_User_Data);
+                              this.message='Record is updated / Mise à jour réussie'
+
+                              },
+                              error_handler => {
+                                this.Error_Access_Server= "  object ===>   " + JSON.stringify( this.Table_User_Data)  + '   error message: ' + error_handler.message + ' error status: '+ error_handler.statusText+' name: '+ error_handler.name + ' url: '+ error_handler.url;
+                                // alert(this.Error_Access_Server_Post + ' --- ' +  this.Sent_Message + ' -- http post = ' + this.HTTP_AddressPOST);
+                              } 
+                        )
+                      }
+              })
   }
+
 
   onCrypt(type_crypto:string){
     if (type_crypto==='Encrypt'){
