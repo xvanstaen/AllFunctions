@@ -180,8 +180,8 @@ onWindowResize() {
       this.Table_DecryptPSW= this.LoginTable_DecryptPSW;
       
       // by default language is French
-      this.LanguageLabels=this.FrenchLabels;
-      this.yourLanguage='FR';
+      this.LanguageLabels=this.EnglishLabels;
+      this.yourLanguage='UK';
 
       // Admin features which purpose is to list all the records and update any field
       if (this.identification.UserId===this.Admin_UserId) {
