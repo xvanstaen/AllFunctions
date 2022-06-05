@@ -33,7 +33,7 @@
                  <span  (click)="goDown('targetForm')" class="dropdown-options dropdown-text">Formulaire</span>
               </div>
               <span *ngIf="yourLanguage==='UK'">
-                <span  (click)="goDown('targetRules')" class="dropdown-options dropdown-text">Guidelines</span>
+                <span  (click)="goDown('targetRules')" class="dropdown-options dropdown-text">Details</span>
                 <span  (click)="goDown('targetDirection')" class="dropdown-options dropdown-text">Address</span>
                 <span  (click)="goDown('targetForm')" class="dropdown-options dropdown-text">Form</span>
             </span>
@@ -81,7 +81,7 @@
             <h2>au </h2><h1>Château de la Bégude </h1><br> 
         </span>
         <span *ngIf="yourLanguage==='UK'">
-          <h1> Monica & Xavier </h1> <h1>are delighted</h1>  <h1>to welcome you </h1>
+          <h1> We, Monica & Xavier, </h1> <h1>welcome you</h1>  <h1> to our post wedding party</h1>
           <br>
             <h2 >on 27 Aug 2022 </h2>
             
@@ -98,7 +98,7 @@
     <span id='targetRules'></span>
    
     <span style='font-weight:bold; margin-left:40%;'><br> 
-        <span *ngIf="yourLanguage==='UK'">Guidelines</span>
+        <span *ngIf="yourLanguage==='UK'">Details</span>
         <span *ngIf="yourLanguage==='FR'">Informations </span>
     </span>
     <br><br>
@@ -106,8 +106,8 @@
     Dear {{Table_User_Data[identification.id].firstname}}, 
     <br>
     <br>
-    It's a great pleasure to welcome you on 27Aug to celebrate our mariage that will have taken place in Singapore on 22Jun . 
-    <br>There will be no ceremony in France but a party that will allow us all to get together and share a wonderful moment in a green,relaxing and warm environment. 
+    We are delighted to welcome you on 27 Aug to celebrate our mariage held in Singapore on 22 Jun. 
+    <br>There is no second wedding ceremony in France, so a party will allow us all to gather in joy to share this wonderful event in a green,relaxing and warm environment. 
     <br><br>
     <img   class="images"  src="./assets/Begude  Manoir.JPG" >
     <br>
@@ -451,11 +451,13 @@
       </div>
           <div>
             <label class="field-name" style="margin-left:40px;  max-width:280px;  ">3) {{LanguageLabels[13]}}</label>
-            <select id="holes" type="number" class="input_select "  formControlName="golfHoles">
-              <option selected value=0>0 </option>
-              <option  value=9>9 {{LanguageLabels[14]}}</option>
-              <option value=18>18 {{LanguageLabels[14]}}</option>
-            </select> 
+            <span *ngIf="CommentStructure.holes===0">
+                <select id="holes" type="number" class="input_select "  formControlName="golfHoles">
+                  <option selected value=0>0 </option>
+                  <option  value=9>9 {{LanguageLabels[14]}}</option>
+                  <option value=18>18 {{LanguageLabels[14]}}</option>
+                </select> 
+          </span> 
             <span *ngIf="CommentStructure.holes===9">
                   <select id="holes" type="number" class="input_select "  formControlName="golfHoles">
                     <option value=0>0 </option>

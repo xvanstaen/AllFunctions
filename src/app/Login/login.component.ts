@@ -1,6 +1,5 @@
 import { Component, Input, Output, EventEmitter, HostListener, OnChanges, SimpleChanges} from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { HttpHeaders } from '@angular/common/http';
+import { HttpClient,  HttpHeaders } from '@angular/common/http';
 import { Router} from '@angular/router';
 import { FormGroup, FormControl, Validators} from '@angular/forms';
 import { encrypt, decrypt} from '../EncryptDecryptServices';
@@ -16,7 +15,7 @@ export class LoginComponent {
 
   constructor(
     private router:Router,
-    private http: HttpClient,
+    private http: HttpClient,    
     ) {}
 
     @Input() identification={
@@ -32,6 +31,8 @@ export class LoginComponent {
     @Output() my_output1= new EventEmitter<any>();
     @Output() my_output2= new EventEmitter<string>();
 
+    
+    myHeader= new  HttpHeaders();
     getScreenWidth: any;
     getScreenHeight: any;
     device_type:string='';
@@ -107,7 +108,8 @@ export class LoginComponent {
       this.getScreenHeight = window.innerHeight;
       this.device_type = navigator.userAgent;
       this.device_type = this.device_type.substring(10, 48);
-     
+      //this.httpHeader.append('content-type', 'application/json');
+      //this.httpHeader.append('Cache-Control', 'no-store, must-revalidate, private, max-age=0, no-transform');
       this.routing_code=0;
       this.getEventAug();
 
@@ -136,8 +138,11 @@ export class LoginComponent {
   GetObject(){
 // ****** get content of object *******
       this.HTTP_Address=this.Google_Bucket_Access_Root + this.Google_Bucket_Name + "/o/" + this.Google_Object_Name   + "?alt=media"; 
-    
-      this.http.get(this.HTTP_Address )
+      this.myHeader=new HttpHeaders({
+        'content-type': 'application/json',
+        'Cache-Control': 'no-store, must-revalidate, private, max-age=0, no-transform'
+      });
+      this.http.get(this.HTTP_Address, {'headers':this.myHeader} )
             .subscribe(data => {
             this.Encrypt_Data = data;
 
@@ -242,7 +247,11 @@ getEventAug(){
   this.Google_Object_Name="Event-27AUG2022.json";
    
   this.HTTP_Address=this.Google_Bucket_Access_Root + this.Google_Bucket_Name + "/o/" + this.Google_Object_Name   + "?alt=media"; 
-  this.http.get<any>(this.HTTP_Address )
+  this.myHeader=new HttpHeaders({
+    'content-type': 'application/json',
+    'Cache-Control': 'no-store, must-revalidate, private, max-age=0, no-transform'
+  });
+  this.http.get(this.HTTP_Address, {'headers':this.myHeader} )
         .subscribe((data ) => {
              
 
