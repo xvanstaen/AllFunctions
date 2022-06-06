@@ -69,23 +69,23 @@
          -->
         <span *ngIf="yourLanguage==='FR'">
           <h1> Monica & Xavier<br><br> </h1> <h2>ont le grand plaisir</h2> 
-          <br>
+          
            <h2>
   
             <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'>de vous accueillir</span>  
             <span *ngIf='Table_User_Data[identification.id].nbinvitees!==2'>de t'accueillir</span>  
              </h2>
-             <br>
+             
             <h2 >le 27 août 2022 </h2>
             
-            <h2>au </h2><h1>Château de la Bégude </h1><br> 
+            <h1>Château de la Bégude </h1><br> 
         </span>
         <span *ngIf="yourLanguage==='UK'">
           <h1> We, </h1><h1>Monica & Xavier, </h1> <h2 style="margin-top:70px;">welcome you</h2><h2> to our </h2><h2>post wedding party</h2>
           
             <h2 >on 27 Aug 2022 </h2>
-            
-            <h2>at Château de la Bégude </h2>
+            <h2>at </h2>
+            <h1>Château de la Bégude </h1>
         </span>
            
 
@@ -124,12 +124,15 @@
     On Sunday, brunch will be served from 11:00am onwards, followed by the most important activity of the weekend - the pétanque competition! In fact, with enough interested enthusiasts, we could also play pétanque on Saturday afternoon!
     <br><br>
     <img   class="images"   src="./assets/Begude  Boule.JPG" >
-    <br>
+    <br><br>
     Although the hotel can provide boules, it would be better if the professionals (you) bring your own personal set(s)!
+    <br><br>
+      <img   style=" width:80px; margin-left:20px; height:80px;" src="./assets/Begude Boule2.PNG" >
+      <br>
     <br>   
     To ensure that everything is well organized in advance, and that we meet your preferences as much as possible, please complete the form below. Kindly do not hesitate to provide additional information, should you have dietary restrictions and/or other specific requests (we regretfully can’t guarantee that we'll meet all your additional requirements, as we’re sure some of you may have peculiar comments/requests 🤣 ).
     <br>
-    <br><br> <span style='color:blue;'>Dress code: casual, however no jeans, t-shirts and no beach attire such as shorts, singlets or slippers. </span>
+    <br> <span style='color:blue;'>Dress code: casual, however no jeans, t-shirts and no beach attire such as shorts, singlets or slippers. </span>
     <br><br> For those who arrive early (to enjoy the scenic environment and/or play petanque or play golf), there will be shower facilities, as the hotel rooms will be available from 4:00pm (check-out on Sunday Noon at the latest).
     <br><br>
     <span *ngIf="Table_User_Data[identification.id].night!=='na'">
@@ -142,7 +145,9 @@
     <br> As said above, the most important thing to do at this stage is to fill-up the form below 
     <span style='color:blue; font-size:16px;'>AS SOON AS POSSIBLE</span>
       <br><br>
-      We hope that you are as excited as us both, to have a lot of fun, camaraderie, and happiness during our celebration 🍾 🎉 🎊 🥂on 27-28Aug. Everything will be prepared for you, with you as our guests. The only things you need to bring is joy, laughter and energy. It’s Easy, right? 😄😄
+      We hope that you are as excited as us both, to have a lot of fun, camaraderie, and happiness during our celebration 🍾 🎉 🎊 🥂on 27-28Aug. 
+      <br>Everything will be prepared for you, with you as our guests. 
+      <br>The only things you need to bring is joy, laughter and energy. It’s Easy, right? 😄😄
      <br><br>
     <h2>See you very soon!</h2> <br> <h2>Monica & Xavier</h2>
     <br><br>
@@ -182,7 +187,7 @@
   , il y aura la possibilité de faire un parcours de golf le samedi matin ou le dimanche matin, soit 9 ou 18 trous. On a besoin de connaître le nombre exact de joueurs afin de réserver au plus tôt. 
  <br><br>
  <img   class="images" src="./assets/Begude Practice.JPG" >
- <br> Samedi apres-midi il sera possible de faire un practice (golf). Cette activité est ouverte aux debutants qui seront conseillés par nos meilleurs joueurs. 
+ <br> <br>Samedi apres-midi il sera possible de faire un practice (golf). Cette activité est ouverte aux debutants qui seront conseillés par nos meilleurs joueurs. 
  <br>
  <br> Dimanche à partir de 11:00 nous aurons un brunch qui sera suivi par l'une des activités les plus importantes du week-end, la compétition de pétanque! 
  <br> En fait, 
@@ -194,12 +199,10 @@
  <br>
  <br> Bien que l'hôtel fournisse des boules, il est préférable que les professionnels que vous êtes apportent leur propre jeu de boules. 
  <br><br>
- <img   style="    width:80px;
- margin-left:20px; 
- height:80px;" src="./assets/Begude Boule2.PNG" >
+ <img  style="width:80px; margin-left:20px; height:80px;" src="./assets/Begude Boule2.PNG" >
  <br>
  <br>S'il n'a pas les siennes JP aura une excuse toute faite pour les 'carreaux' qu'il aura manqué! 
- <br><br> Pour s'assurer que tout est bien organisé et que nous répondons à vos besoins du mieux possible, remplissez le formulaire ci-dessous et n'hésitez pas à nous préciser dans la rubrique 'Vos commentaires' si vous avez des restrictions au niveau nourriture ou de faire d'autres demandes 
+ <br><br> Pour s'assurer que tout est bien organisé et que nous répondions à vos besoins du mieux possible, remplissez le formulaire ci-dessous et n'hésitez pas à nous préciser dans la rubrique 'Vos commentaires' si vous avez des restrictions au niveau nourriture ou de faire d'autres demandes 
  (nous ne pouvons garantir que toutes les demandes seront satisfaites car avec certaines personnes on sait à quel type de commentaires/demandes on peut s'attendre 🤣🤣🤣) 
  <br><br> <span style='color:blue;'>Pour la soirée, tenue vestimentaire décontractée et correcte, bien sûr pas de short, sandales, jean et t-sirt. </span>
  <br> <br>Pour ceux qui viendront plus tôt (pour profiter du bel environnement et/ou jouer à la pétanque ou jouer au golf), il y aura la possibilité de prendre une douche et de se changer.
@@ -227,7 +230,7 @@
     plaisir. Les seules choses que 
     <span *ngIf='Table_User_Data[identification.id].nbinvitees===2'> vous devez  </span> 
     <span *ngIf='Table_User_Data[identification.id].nbinvitees!==2'>tu dois </span>
-     apporter sont joie et dynamisme. Facile, non?
+     apporter sont joie, rires et dynamisme. Facile, non? 😄😄
     <br><br><h2>A très bientôt! <br><br> Monica et Xavier</h2>
 
     </span>

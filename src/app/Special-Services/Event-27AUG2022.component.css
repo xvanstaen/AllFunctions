@@ -23,11 +23,11 @@ h2{
 }
 
 .flagone{
-    margin-left:85%;
+    margin-left:80%;
 }
 
 .flagtwo{
-    margin-left:90%;
+    margin-left:85%;
 }
 
 .dropdown-options{
@@ -201,11 +201,30 @@ img:hover{
     @media only screen and (max-width:900px) {
     
       
-        h2{
-            font-size:38px;
-            margin-top:30px;
-          
-            }
+h2{
+    font-size:38px;
+    margin-top:30px;
+ }
+
+ .sizeMap{
+    height:710px;
+    margin-top:30px;
+}
+
+.overlap_image{
+
+    margin-top:-710px;
+    height:710px;
+
+  }
+
+ .flagone{
+    margin-left:82%;
+}
+
+.flagtwo{
+    margin-left:90%;
+}
 
 .field-name{
     font-size:13px;
@@ -238,10 +257,7 @@ img:hover{
     /*** ============== @media 490 ================ ***/
     /*** ====================================== ***/
     @media only screen and (max-width:490px) {
-        .sizeMap{
-            height:680px;
-            margin-top:30px;
-        }
+
 
  
       }

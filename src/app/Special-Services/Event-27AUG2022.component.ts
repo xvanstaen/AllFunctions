@@ -183,6 +183,11 @@ onWindowResize() {
       this.LanguageLabels=this.EnglishLabels;
       this.yourLanguage='UK';
 
+      this.myHeader=new HttpHeaders({
+        'content-type': 'application/json',
+        'Cache-Control': 'private, max-age=0'
+      });
+
       // Admin features which purpose is to list all the records and update any field
       if (this.identification.UserId===this.Admin_UserId) {
         // administrator is connected
@@ -211,8 +216,10 @@ onWindowResize() {
           this.Table_User_Data[this.identification.id].yourComment=JSON.stringify(this.CommentStructure);
           this.SaveRecord();
 
+        }
+        if (this.invite===false){
+              this.scroller.scrollToAnchor('targetTOP');
           }
-          this.scroller.scrollToAnchor('targetTOP');
   }    
 
   goDown(event:string){
@@ -252,10 +259,7 @@ onWindowResize() {
     // ****** get content of object *******
     this.Google_Object_Name="Event-27AUG2022.json";
     this.HTTP_Address=this.Google_Bucket_Access_Root + this.Google_Bucket_Name + "/o/" + this.Google_Object_Name   + "?alt=media"; 
-    this.myHeader=new HttpHeaders({
-      'content-type': 'application/json',
-      'Cache-Control': 'private, max-age=0'
-    });
+   
     this.http.get(this.HTTP_Address, {'headers':this.myHeader} )
           .subscribe((data ) => {
                
@@ -521,10 +525,7 @@ ConvertComment(){
     // save individual record in case reconciliation is needed
     if (this.invite===true && this.init===false){
       this.HTTP_Address=this.Google_Bucket_Access_RootPOST + this.Google_Bucket_Name + "/o?name=" + this.Table_User_Data[this.identification.id].UserId  + '&uploadType=media';
-      this.myHeader=new HttpHeaders({
-        'content-type': 'application/json',
-        'Cache-Control': ' private, max-age=0'
-      });
+
       this.http.post(this.HTTP_Address,  this.Table_User_Data[this.identification.id] , {'headers':this.myHeader} )
       .subscribe(res => {
            console.log('Individual Record is updated: ', this.Table_User_Data[this.identification.id].UserId );
@@ -540,10 +541,7 @@ ConvertComment(){
       // ****** get content of object *******
       // 'Cache-Control': 'no-store, must-revalidate, private, max-age=0, no-transform'
       this.HTTP_Address=this.Google_Bucket_Access_Root + this.Google_Bucket_Name + "/o/" + this.Google_Object_Name   + "?alt=media";     
-      this.myHeader=new HttpHeaders({
-        'content-type': 'application/json',
-        'Cache-Control': 'private, max-age=0'
-      });
+
       this.http.get(this.HTTP_Address, {'headers':this.myHeader} )
                   .subscribe(data => {
                   this.bucket_data=JSON.stringify(data);
@@ -583,10 +581,7 @@ ConvertComment(){
                         }
 
                         this.HTTP_Address=this.Google_Bucket_Access_RootPOST + this.Google_Bucket_Name + "/o?name=" + this.Google_Object_Name  + '&uploadType=media';
-                        this.myHeader=new HttpHeaders({
-                          'content-type': 'application/json',
-                          'Cache-Control': ' private, max-age=0'
-                        });
+
                         this.http.post(this.HTTP_Address,  this.Table_User_Data , {'headers':this.myHeader} )
                         .subscribe(res => {
                               this.returnDATA.emit(this.Table_User_Data);
