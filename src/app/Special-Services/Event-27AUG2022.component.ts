@@ -155,7 +155,7 @@ export class Event27AugComponent {
     message:string='';
     recordToUpdate:number=0;
     updateRecord:number=0;
-
+    init:boolean=true;
 
 @HostListener('window:resize', ['$event'])
 onWindowResize() {
@@ -171,7 +171,7 @@ onWindowResize() {
       //this.httpHeader.append('content-type', 'application/json');
       //this.httpHeader.append('Cache-Control', 'no-store, must-revalidate, private, max-age=0, no-transform');
 
-      this.  myKeyUp='';
+      this.myKeyUp='';
       this.myTime=new Date();
       this.myDate= this.myTime.toString().substring(8,24);
       this.thetime=this.myDate+this.myTime.getTime();
@@ -326,6 +326,7 @@ ResetAccess(){
       this.CommentStructure.writeAccess ++;
       this.Table_User_Data[i].yourComment=JSON.stringify(this.CommentStructure);
       this.updateRecord=1;
+      this.init=false;
       this.SaveRecord();
 
   }
@@ -517,6 +518,25 @@ ConvertComment(){
     this.thetime=this.myDate+this.myTime.getTime();
     // ***********
    
+    // save individual record in case reconciliation is needed
+    if (this.invite===true && this.init===false){
+      this.HTTP_Address=this.Google_Bucket_Access_RootPOST + this.Google_Bucket_Name + "/o?name=" + this.Table_User_Data[this.identification.id].UserId  + '&uploadType=media';
+      this.myHeader=new HttpHeaders({
+        'content-type': 'application/json',
+        'Cache-Control': 'no-store, must-revalidate, private, max-age=0, no-transform'
+      });
+      this.http.post(this.HTTP_Address,  this.Table_User_Data[this.identification.id] , {'headers':this.myHeader} )
+      .subscribe(res => {
+           console.log('Individual Record is updated: ', this.Table_User_Data[this.identification.id].UserId );
+
+            },
+            error_handler => {
+              console.log('Individual Record is not updated: ', this.Table_User_Data[this.identification.id].UserId );
+
+            } 
+          )
+    }
+
       // ****** get content of object *******
       this.HTTP_Address=this.Google_Bucket_Access_Root + this.Google_Bucket_Name + "/o/" + this.Google_Object_Name   + "?alt=media";     
       this.myHeader=new HttpHeaders({
