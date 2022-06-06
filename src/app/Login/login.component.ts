@@ -249,7 +249,7 @@ getEventAug(){
   this.HTTP_Address=this.Google_Bucket_Access_Root + this.Google_Bucket_Name + "/o/" + this.Google_Object_Name   + "?alt=media"; 
   this.myHeader=new HttpHeaders({
     'content-type': 'application/json',
-    'Cache-Control': 'no-store, must-revalidate, private, max-age=0, no-transform'
+    'Cache-Control': 'private, max-age=0'
   });
   this.http.get(this.HTTP_Address, {'headers':this.myHeader} )
         .subscribe((data ) => {

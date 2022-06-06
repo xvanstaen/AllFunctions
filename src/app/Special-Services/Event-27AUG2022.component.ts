@@ -254,7 +254,7 @@ onWindowResize() {
     this.HTTP_Address=this.Google_Bucket_Access_Root + this.Google_Bucket_Name + "/o/" + this.Google_Object_Name   + "?alt=media"; 
     this.myHeader=new HttpHeaders({
       'content-type': 'application/json',
-      'Cache-Control': 'no-store, must-revalidate, private, max-age=0, no-transform'
+      'Cache-Control': 'private, max-age=0'
     });
     this.http.get(this.HTTP_Address, {'headers':this.myHeader} )
           .subscribe((data ) => {
@@ -523,7 +523,7 @@ ConvertComment(){
       this.HTTP_Address=this.Google_Bucket_Access_RootPOST + this.Google_Bucket_Name + "/o?name=" + this.Table_User_Data[this.identification.id].UserId  + '&uploadType=media';
       this.myHeader=new HttpHeaders({
         'content-type': 'application/json',
-        'Cache-Control': 'no-store, must-revalidate, private, max-age=0, no-transform'
+        'Cache-Control': ' private, max-age=0'
       });
       this.http.post(this.HTTP_Address,  this.Table_User_Data[this.identification.id] , {'headers':this.myHeader} )
       .subscribe(res => {
@@ -538,10 +538,11 @@ ConvertComment(){
     }
 
       // ****** get content of object *******
+      // 'Cache-Control': 'no-store, must-revalidate, private, max-age=0, no-transform'
       this.HTTP_Address=this.Google_Bucket_Access_Root + this.Google_Bucket_Name + "/o/" + this.Google_Object_Name   + "?alt=media";     
       this.myHeader=new HttpHeaders({
         'content-type': 'application/json',
-        'Cache-Control': 'no-store, must-revalidate, private, max-age=0, no-transform'
+        'Cache-Control': 'private, max-age=0'
       });
       this.http.get(this.HTTP_Address, {'headers':this.myHeader} )
                   .subscribe(data => {
@@ -584,7 +585,7 @@ ConvertComment(){
                         this.HTTP_Address=this.Google_Bucket_Access_RootPOST + this.Google_Bucket_Name + "/o?name=" + this.Google_Object_Name  + '&uploadType=media';
                         this.myHeader=new HttpHeaders({
                           'content-type': 'application/json',
-                          'Cache-Control': 'no-store, must-revalidate, private, max-age=0, no-transform'
+                          'Cache-Control': ' private, max-age=0'
                         });
                         this.http.post(this.HTTP_Address,  this.Table_User_Data , {'headers':this.myHeader} )
                         .subscribe(res => {
