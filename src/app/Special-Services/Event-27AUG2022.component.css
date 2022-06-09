@@ -30,13 +30,20 @@ h2{
     margin-left:85%;
 }
 
+.posOptions{
+    position:relative; 
+    margin-top:10px; 
+    margin-left:30%; 
+    float:left;
+}
+
 .dropdown-options{
 
     background-color: #dedcdc;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     height:20px; 
-    width:180px;
-    max-width:25%;
+    width:140px;
+    max-width:18%;
     margin-left:2%;
   }
   
@@ -196,10 +203,22 @@ img:hover{
 }
 
     /*** ====================================== ***/
-    /*** ============== @media 900 ================ ***/
+    /*** ============== @media 800 ================ ***/
     /*** ====================================== ***/
-    @media only screen and (max-width:900px) {
-    
+    @media only screen and (max-width:800px) {
+        .posOptions{
+ 
+            margin-top:10px; 
+            margin-left:20%; 
+
+        }
+        
+        .dropdown-options{
+
+            width:140px;
+            max-width:18%;
+
+          }
       
 h2{
     font-size:38px;

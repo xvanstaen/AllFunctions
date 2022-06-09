@@ -39,15 +39,15 @@ export class Event27AugComponent {
       phone:'',
     };
 
-    FrenchLabels=['Formulaire', 'Nombre de personnes','Plat principal','Boeuf', 'Poisson', "Reste la nuit à l'hotel", 'Oui', 'Non',
+    FrenchLabels=['Formulaire', 'Nombre de personnes','Plat principal','Bœuf', 'Poisson', "Reste la nuit à l'hotel", 'Oui', 'Non',
           "Si vous voulez jouer au golf merci d'indiquer",'jour','Samedi', 'Dimanche', 'nombre de joueurs', 'nombre de trous','trous',
-          'Nos commentaires','Vos commentaires (i.e. restriction nourriture, autres)','Valider', 'Adresse'];
+          'Nos commentaires','Vos commentaires (i.e. restriction nourriture, autres)','Valider', 'Adresse',"Dîner"];
     EnglishLabels=['Form', 'Number of people','Main dish','Beef', 'Fish', 'Spend the night at the hotel', 'Yes', 'No',
           'If you want to play golf please indicate','day','Saturday', 'Sunday', 'number of people', 'number of holes','holes',
-          'Our comments','Your feedback (e.g. food requirements, others)','Validate', 'Address'];
+          'Our comments','Your feedback (e.g. food requirements, others)','Validate', 'Address',"Dinner"];
     LanguageLabels=['', '','','', '', '', 'Yes', 'No',
           'If you want to play golf please indicate','','Saturday', 'Sunday', 'number of people', 'number of holes','holes',
-          '','Your feedback (e.g. food requirements, others)','Validate', 'Address'];
+          '','Your feedback (e.g. food requirements, others)','Validate', 'Address',""];
 
     @Output() returnDATA= new EventEmitter<any>();
 
@@ -209,8 +209,11 @@ onWindowResize() {
           this.myForm.controls['night'].setValue(this.Table_User_Data[this.identification.id].night);
           this.Table_User_Data[this.identification.id].nbinvitees=Number(this.Table_User_Data[this.identification.id].nbinvitees);
           this.myForm.controls['nbInvitees'].setValue(this.Table_User_Data[this.identification.id].nbinvitees);
+          if (this.Table_User_Data[this.identification.id].myComment === null){
+            this.Table_User_Data[this.identification.id].myComment='';
+          }
           this.myForm.controls['myComment'].setValue(this.Table_User_Data[this.identification.id].myComment);
-    
+            
           this.ConvertComment();
           this.CommentStructure.readAccess ++;
           this.Table_User_Data[this.identification.id].yourComment=JSON.stringify(this.CommentStructure);
@@ -457,6 +460,9 @@ ConvertComment(){
     this.CommentStructure.dishMr='B';
   }
   this.myForm.controls['dishMr'].setValue(this.CommentStructure.dishMr);
+  if (this.CommentStructure.dishMrs===null){
+    this.CommentStructure.dishMrs='F';
+  }
   this.myForm.controls['dishMrs'].setValue(this.CommentStructure.dishMrs);
   this.CommentStructure.golf=Number(this.CommentStructure.golf);
   this.CommentStructure.holes=Number(this.CommentStructure.holes);
