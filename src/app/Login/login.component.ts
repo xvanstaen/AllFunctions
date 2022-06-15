@@ -66,6 +66,7 @@ export class LoginComponent {
     bucket_data:string='';
 
     HTTP_Address:string='';
+    HTTP_AddressMetaData:string='';
     Server_Name:string='Google'; // "Google" or "MyJson"
     Google_Bucket_Access_Root:string='https://storage.googleapis.com/storage/v1/b/';
     Google_Bucket_Access_RootPOST:string='https://storage.googleapis.com/upload/storage/v1/b/';
@@ -108,6 +109,11 @@ export class LoginComponent {
       this.getScreenHeight = window.innerHeight;
       this.device_type = navigator.userAgent;
       this.device_type = this.device_type.substring(10, 48);
+
+      this.myHeader=new HttpHeaders({
+        'content-type': 'application/json',
+        'cache-control': 'private, max-age=0'
+      });
       //this.httpHeader.append('content-type', 'application/json');
       //this.httpHeader.append('Cache-Control', 'no-store, must-revalidate, private, max-age=0, no-transform');
       this.routing_code=0;
@@ -119,8 +125,8 @@ export class LoginComponent {
 
 
       // ================ TO BE DELETED AFTER TESTING
-      //this.myForm.controls['password'].setValue("LIM!12monica#Chin");
-      //this.myForm.controls['userId'].setValue("XMVIT-Admin");
+      this.myForm.controls['password'].setValue("LIM!12monica#Chin");
+      this.myForm.controls['userId'].setValue("XMVIT-Admin");
       
 
       if (this.identification.UserId!=='' && this.identification.psw!=='') {
@@ -138,12 +144,14 @@ export class LoginComponent {
   GetObject(){
 // ****** get content of object *******
       this.HTTP_Address=this.Google_Bucket_Access_Root + this.Google_Bucket_Name + "/o/" + this.Google_Object_Name   + "?alt=media"; 
-      this.myHeader=new HttpHeaders({
-        'content-type': 'application/json',
-        'Cache-Control': 'no-store, must-revalidate, private, max-age=0, no-transform'
-      });
-      this.http.get(this.HTTP_Address, {'headers':this.myHeader} )
+      this.HTTP_AddressMetaData=this.Google_Bucket_Access_Root + this.Google_Bucket_Name + "/o/" + this.Google_Object_Name ; 
+      
+      this.http.get(this.HTTP_AddressMetaData )
             .subscribe(data => {
+            // console.log('GetObject Metadata= ' , data);
+            this.http.get(this.HTTP_Address, {'headers':this.myHeader} )
+            .subscribe(data => {
+            //console.log(data);
             this.Encrypt_Data = data;
 
             this.Crypto_Key=this.Encrypt_Data.key;
@@ -163,7 +171,7 @@ export class LoginComponent {
                         this.routing_code=4;
                         // ************
                         // TO BE DELETED AFTER TESTING PERIOD
-                        // this.myForm.controls['action'].setValue("Event-27AUG2022");
+                        this.myForm.controls['action'].setValue("Event-27AUG2022");
                       } else if (this.myForm.controls['action'].value==='Manage Contact'){
                           this.routing_code=1; // go to Respond_Contact
                       } else if (this.myForm.controls['action'].value==='Event-27AUG2022'){
@@ -194,6 +202,7 @@ export class LoginComponent {
               
                 // alert(this.message  + ' -- http get = ' + this.HTTP_Address);
             } 
+            )}
         )
     }
 
@@ -246,14 +255,17 @@ getEventAug(){
 
   this.Google_Object_Name="Event-27AUG2022.json";
    
-  this.HTTP_Address=this.Google_Bucket_Access_Root + this.Google_Bucket_Name + "/o/" + this.Google_Object_Name   + "?alt=media"; 
-  this.myHeader=new HttpHeaders({
-    'content-type': 'application/json',
-    'Cache-Control': 'private, max-age=0'
-  });
-  this.http.get(this.HTTP_Address, {'headers':this.myHeader} )
+  this.HTTP_Address=this.Google_Bucket_Access_Root + this.Google_Bucket_Name + "/o/" + this.Google_Object_Name   + "?alt=media" ;
+
+  this.HTTP_AddressMetaData=this.Google_Bucket_Access_Root + this.Google_Bucket_Name + "/o/" + this.Google_Object_Name  + "?cacheContro=max-age=0, no-store, private"; 
+  
+
+  this.http.get(this.HTTP_AddressMetaData)
         .subscribe((data ) => {
-             
+          console.log('GetEventAug MetaData= ' , data);
+          
+          this.http.get(this.HTTP_Address, {'headers':this.myHeader} )
+            .subscribe((data ) => {
 
               this.bucket_data=JSON.stringify(data);
               var obj = JSON.parse(this.bucket_data);
@@ -276,6 +288,8 @@ getEventAug(){
               error_handler => {
                 this.text_error='INIT - error message==> ' + error_handler.message + ' error status==> '+ error_handler.statusText+'   name=> '+ error_handler.name + '   Error url==>  '+ error_handler.url;
               } 
+
+        )}
         )
   }
 
