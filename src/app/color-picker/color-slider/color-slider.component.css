@@ -1,0 +1,19 @@
+
+  
+  .color-palette:hover {
+    cursor: pointer;
+  }
+
+  .position{
+    
+    color:black;
+    position:absolute;
+    border:solid 2px black;
+
+  }
+
+/*
+    margin-left:20px;
+     margin-top: 0px;
+*/
+  

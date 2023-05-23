@@ -1,0 +1,232 @@
+
+<div [formGroup]="TheCalendarform" >
+        <div class="cancelbutton ">
+                <button  (click)="OnCancel()">
+                X
+                </button>
+        </div>
+        <div class=" calendarheader"> 
+                                Choose your travel date(s) 
+        </div> 
+
+        
+
+        <div class='placeh'> departure ({{placeholderOW}}) </div>
+        <div class='placeh placeh_r'> return ({{placeholderR}})</div>
+
+        <div  class=' maininput'>
+                <input    *ngIf='initObj.valid_input_OW!=="Y"; else inputOW'
+                 (input)="OnInputOW($event)" [value]="initObj.input_OW"
+                 type='text' >        
+        </div>
+        <ng-template class='maininputfilled' #inputOW> 
+                <input  
+                 (input)="OnInputOW($event)" [value]="initObj.input_OW"
+                 type='text' >   
+        </ng-template>
+
+        <div  class='maininput secondinput'>
+                <input   (input)='OnInputRET($event)' 
+                 type='text' [value]="initObj.input_RET">  
+        </div> 
+
+        <div class="errorboxOW" *ngIf ='type_error!==3 && type_error<20; else error2' >
+                {{error_msg}}  
+        
+        </div>
+        <ng-template #error2 >   <span class="errorboxOW">  
+        </span>  </ng-template>
+
+        <div class="errorboxOW" *ngIf ='type_error!==3 && type_error>=20; else error3' >
+                {{error_msg}}  
+        
+        </div>
+        <ng-template  #error3 >   <span class="errorboxOW"> 
+              
+        </span>  </ng-template>
+
+    <div class="bigblock ">  
+        <div class=' leftarrow'> 
+                <button  (click)="OnArrowLeft('L')" >
+                        <mat-icon class="material-icons-outlined">
+                                 arrow_back_ios_new 
+                              </mat-icon></button> <!--button arrow_back_ios_new or chevron_left-->
+        </div>                 
+        <span class='arrowtext arrowtextleft'>{{initObj.monthname_c}} {{initObj.display_yearnb}}</span>
+                
+            <!-- =================== 1st CALENDAR ====================================== -->
+        <div class=" testblock  ">  
+                <div  class="daydiv" *ngFor = "let listdays of StringOfDays;  let i=index">
+                                <span>{{listdays.DoW}} </span>
+                </div>
+                        
+                 <div  class="daydiv" *ngFor = "let daysofmonths of initObj.dayspermonth1 | slice:2;  let i=index"
+                 [class.selected]="daysofmonths.DoMonth"
+                (click)="onSelectCalendOne(daysofmonths)">
+                        
+                    <!--
+                            for current month-year if day is before today, override the color to show that the corresponding day(s) cannot be select
+                        -->
+                    <li  *ngIf ='initObj.today_year===initObj.display_yearnb && initObj.today_month===initObj.display_monthnb
+                    && daysofmonths.DoMonth<initObj.today_day
+                    ; else testselection'>
+                                <span class=" overridecolor"*ngIf='daysofmonths.DoMonth!==0' >{{daysofmonths.DoMonth}} </span>
+                        
+                   </li>
+
+                   <!-- test if origin date is on 1st calendar -->
+                   <ng-template #testselection>
+                        <li  *ngIf ='initObj.valid_input_OW==="Y" && initObj.dayspermonth1[0].DoMonth===initObj.display_yearnb 
+                        && initObj.dayspermonth1[1].DoMonth===initObj.monthnb
+                        && daysofmonths.DoMonth===initObj.daynb
+                                ; else testreturn'>
+                        <span class="selected" *ngIf='daysofmonths.DoMonth!==0'>{{daysofmonths.DoMonth}} </span>
+                
+                        </li>
+                   </ng-template>
+
+                   <!-- highlight all days until return date if return date has been selected 
+  
+                -->
+                   <ng-template #testreturn>
+                        <li  *ngIf ='initObj.valid_input_OW==="Y" && initObj.valid_input_RET==="Y" && daysofmonths.DoMonth!==0 
+                                && (
+                                      (
+                                        (initObj.dayspermonth1[0].DoMonth===initObj.yearnb 
+                                                && initObj.dayspermonth1[1].DoMonth===initObj.monthnb && daysofmonths.DoMonth>initObj.daynb) ||
+                                        (initObj.dayspermonth1[1].DoMonth>initObj.monthnb && initObj.dayspermonth1[0].DoMonth===initObj.yearnb ) ||
+                                                initObj.dayspermonth1[0].DoMonth>initObj.yearnb 
+                                      ) && (
+                                        (initObj.dayspermonth1[0].DoMonth===initObj.nyearnb 
+                                        && initObj.dayspermonth1[1].DoMonth===initObj.nmonthnb && daysofmonths.DoMonth<initObj.ndaynb) ||
+                                                (initObj.dayspermonth1[1].DoMonth<initObj.nmonthnb && initObj.dayspermonth1[0].DoMonth===initObj.nyearnb ) ||
+                                        initObj.dayspermonth1[0].DoMonth<initObj.nyearnb 
+
+                                      )
+                                
+                                
+                                   )
+                                
+                                ; else selectret'>
+                        <span class="selectrange" *ngIf='daysofmonths.DoMonth!==0'> {{daysofmonths.DoMonth}} </span>
+                
+                        </li>
+                   </ng-template>
+
+                   <!-- highlight the return date if part of 1st calendar
+                -->
+                   <ng-template #selectret>
+                        <li  *ngIf ='initObj.valid_input_RET==="Y" && initObj.nyearnb===initObj.dayspermonth1[0].DoMonth &&  
+                                                initObj.nmonthnb===initObj.dayspermonth1[1].DoMonth && daysofmonths.DoMonth===initObj.ndaynb
+                                ; else testtoday'>
+                        <span class="selected" >{{daysofmonths.DoMonth}} </span>
+                        </li>
+                   </ng-template>
+
+                   <ng-template #testtoday > 
+                           <li  *ngIf ='initObj.today_year===initObj.dayspermonth1[0].DoMonth && initObj.today_month===initObj.dayspermonth1[1].DoMonth
+                           && daysofmonths.DoMonth===initObj.today_day
+                        ; else otherdays'>
+                                <span class='today' >{{daysofmonths.DoMonth}} </span>
+                        </li>
+                        </ng-template>
+                        <ng-template #otherdays>
+                                <li *ngIf='daysofmonths.DoMonth!==0'>{{daysofmonths.DoMonth}} </li>
+                        </ng-template>
+                </div>
+        </div>
+        </div>     
+     <!-- =================== 2nd CALENDAR ====================================== -->
+     <div class=" bigblock">  
+        <div class='arrowtext arrowtextright'>
+        <span > {{initObj.monthname_n}} {{initObj.display_nyearnb}}</span>
+        </div>
+        <div class='rightarrow'> 
+                <button  (click)="OnArrowRight('R')">
+                        <mat-icon class="material-icons-outlined">
+                                arrow_forward_ios
+                              </mat-icon></button>
+        <!--button arrow_forward_ios or chevron_right-->
+                
+        </div>
+        <div class=" testblock ">  
+                <div  class="daydiv" *ngFor = "let listdays of StringOfDays;  let i=index">
+                        <span>{{listdays.DoW}} </span>
+                </div>
+
+        <div  class="daydiv"  *ngFor = "let daysofmonths of initObj.dayspermonth2 | slice:2;  let i=index"
+        [class.selected]="daysofmonths.DoMonth"
+                (click)="onSelectCalendTwo(daysofmonths)">
+
+                <!-- test if origin date is part of second calendar  -->
+                <li  *ngIf ='initObj.valid_input_OW==="Y" && daysofmonths.DoMonth===initObj.daynb
+                && initObj.dayspermonth2[1].DoMonth===initObj.monthnb
+                && initObj.dayspermonth2[0].DoMonth===initObj.yearnb
+                        ; else testrange'>
+                <span class="selected" >{{daysofmonths.DoMonth}} </span>
+        
+                </li>
+
+           <ng-template #testrange>
+                <li  *ngIf ='initObj.valid_input_OW==="Y" && initObj.valid_input_RET==="Y" && initObj.dayspermonth2[0].DoMonth===initObj.yearnb 
+                && initObj.dayspermonth2[1].DoMonth===initObj.monthnb && daysofmonths.DoMonth>initObj.daynb
+                && (initObj.nyearnb>initObj.dayspermonth2[0].DoMonth  || 
+                        ( initObj.nyearnb===initObj.dayspermonth2[0].DoMonth &&  initObj.nmonthnb>initObj.dayspermonth2[1].DoMonth) ||
+                        (initObj.nyearnb===initObj.dayspermonth2[0].DoMonth &&  
+                                initObj.nmonthnb===initObj.dayspermonth2[1].DoMonth && daysofmonths.DoMonth<initObj.ndaynb)
+                )
+                        ; else selectdateret'>
+                <span class="selectrange" >{{daysofmonths.DoMonth}} </span>
+        
+                </li>
+           </ng-template>
+
+
+                <!-- highlight the return date -->
+                <ng-template #selectdateret>
+                        <li  *ngIf ='initObj.valid_input_RET==="Y" && initObj.dayspermonth2[0].DoMonth===initObj.nyearnb 
+                        && initObj.dayspermonth2[1].DoMonth===initObj.nmonthnb
+                        && daysofmonths.DoMonth===initObj.ndaynb
+                                ; else rangereturn'>
+                        <span class="selected" >{{daysofmonths.DoMonth}} </span>
+                
+                        </li>
+                </ng-template>
+                 
+                   <ng-template #rangereturn>
+                        <li  *ngIf ='initObj.valid_input_OW==="Y" && initObj.valid_input_RET==="Y" &&  daysofmonths.DoMonth!==0 && 
+                        ( initObj.yearnb<initObj.dayspermonth2[0].DoMonth  ||
+                                ( initObj.yearnb===initObj.dayspermonth2[0].DoMonth && initObj.monthnb<initObj.dayspermonth2[1].DoMonth)
+                        ) &&
+                                (initObj.nyearnb>initObj.dayspermonth2[0].DoMonth || 
+                                ( initObj.nyearnb===initObj.dayspermonth2[0].DoMonth &&  initObj.nmonthnb>initObj.dayspermonth2[1].DoMonth) ||
+                                (initObj.nyearnb===initObj.dayspermonth2[0].DoMonth &&  initObj.nmonthnb===initObj.dayspermonth2[1].DoMonth && daysofmonths.DoMonth<initObj.ndaynb)
+                                )
+                                ; else retothertoday'>
+                        <span class="selectrange" >{{daysofmonths.DoMonth}} </span>
+                
+                        </li>
+                    </ng-template>
+                        <ng-template #retothertoday>
+                                <li *ngIf='daysofmonths.DoMonth!==0' >{{daysofmonths.DoMonth}} </li>
+                        </ng-template>
+        </div>
+        </div>
+   
+</div>
+<div class="errorbox">
+        <span  *ngIf="type_error===3"  >
+                {{error_msg}}
+        </span>
+</div>
+        <div class="radioposition">
+                <input   type="radio" formControlName="travel_type" value="X"> select again 
+                <input   type="radio" formControlName="travel_type" value="O"> one-way 
+                <input   type="radio" formControlName="travel_type" value="R"> return
+               <input type="submit" value="Click" (click)="OnSubmit()">
+               <br><br><br><br>
+        </div>  
+       
+</div>
+
+

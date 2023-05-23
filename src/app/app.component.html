@@ -1,0 +1,39 @@
+<body>
+
+
+<div style=" max-width: 440px;">
+    <span style="width:99%; background-color: cyan; margin-left:10px; border:solid 2px red; display:inline-block; ">
+        <span style="width:100%; color:#0000ff; font-size:22px; display:inline-block; text-align: center; padding-top:10px; height:50px;"> Select the apps </span>
+        <br>
+        <span style="width:130px; display:inline-block; margin-left:10px;">1. XMV Company</span>
+        <span style="width:130px; display:inline-block; margin-left:10px;">2. Logos</span>
+        <span style="width:130px; display:inline-block; margin-left:10px;">3. Telephone</span>
+        <span style="width:130px; display:inline-block; margin-left:10px;">4. Slider</span>
+        <span style="width:130px; display:inline-block; margin-left:10px;">5. ColorPicker</span>
+        <span style="width:130px; display:inline-block; margin-left:10px;">6. Encrypt</span>
+        <span style="width:130px; display:inline-block; margin-left:10px;">7. CSSTable</span>
+        <span style="width:130px; display:inline-block; margin-left:10px;">8. Upload File</span>
+        <span style="width:130px; display:inline-block; margin-left:10px;">9. Save & Download</span>
+
+        <br><br>
+    </span>
+    <input style="width:80px; height:30px; margin-left:150px; margin-top:20px;"  placeholder="selection#" type="text" (input)="onInput($event)">
+    <button class="sizeButtons"  (click)="onSelectApps()">Submit</button>
+</div>
+
+<div *ngIf="isAppsSelected===true">
+    <div *ngIf="selectApps===1">
+        <app-xmv-company [configServer]="configServer" [XMVConfig]="XMVConfig" [isConfigServerRetrieved]="isConfigServerRetrieved"></app-xmv-company>
+    </div>
+    <div *ngIf="selectApps>1 && selectApps<10" style="float:none;">
+        <app-routing-app [selectApps]="selectApps"> </app-routing-app>
+    </div>
+</div>
+  
+
+
+</body>
+
+
+
+<router-outlet></router-outlet>

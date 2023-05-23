@@ -1,0 +1,66 @@
+<!--  
+
+      {{device_type}}
+    <br> height=  {{getScreenHeight}}
+    <br> width =  {{getScreenWidth}}
+-->
+<head>
+
+</head>
+
+<body>
+
+  <section >
+
+    <div class='logo'>
+        <img src="./assets/KoreanAir-Logo/KoreanAir-Logo_2.png" class="size_logo" >
+    </div>
+
+    <div class='options'>
+     BOOK
+    </div>
+    <div class='options'>
+      AIRPORT
+    </div>
+    <div class='options'>
+      IN-FLIGHT
+    </div>
+    <div class='options'>
+      SKYPASS
+    </div>
+   
+    <div class="first_icon">
+      <button class='icons' (click) = "OpenSearchGeneralDialog()" > 
+          <mat-icon class="butt" >
+            search
+          </mat-icon>
+      </button>
+
+  
+
+      <button class='icons' routerLink="/myRouting"> <mat-icon class="butt"> 
+        shopping_cart
+    </mat-icon> </button> 
+
+    <button class='icons' (click) = "ReturnOther()">
+   <mat-icon class="butt">
+      info
+    </mat-icon></button>
+
+    <button class='icons'>
+      <mat-icon  class="butt">
+        login 
+      </mat-icon>
+    </button>
+  </div>
+  </section>
+
+
+
+<BookingFormComponent></BookingFormComponent>
+
+</body>
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+
+
+

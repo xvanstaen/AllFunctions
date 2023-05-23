@@ -1,0 +1,95 @@
+/* define header */
+
+
+div {
+    margin: 5px;
+    height: 3px;
+}
+
+.options {
+    font-size: 14px;
+    color: black;
+    font-weight: bold;
+    float:left;
+    width: 80px;
+    text-align: center;
+    margin-top: 30px;
+}
+
+
+.logo {
+    margin-left: 25px;
+    float:left;
+    margin-top:10px;
+}
+
+.size_logo{
+    width:160px; 
+    height: 60px;
+}
+.first_icon{
+    margin-right:60px;
+}
+.icons {
+    width: 40px;
+    height:30px;
+    float:right;
+    text-align: center;
+    margin-top: 25px;
+    margin-left:20px;
+}
+.butt{
+    margin-left:-7px;
+    margin-top: 0px;
+}
+
+ /*** ====================================== ***/
+    /*** ============== @media 850 ================ ***/
+    /*** ====================================== ***/
+    @media only screen and (max-width: 850px) {
+        /*
+        section{
+            max-width:410px; 
+            width:410px;
+        }
+        */
+        div {
+            margin: 5px;
+            height: 3px;
+        }
+        
+        .size_logo{
+            width:80px; 
+            height: 30px;
+        }
+        .options {
+            margin-top:30px;
+            font-size: 10px;
+            width: 51px;
+            margin-top:15px;
+            float:left;
+
+        }
+        .first_icon{
+            margin-left:40%;
+            float:left;
+        }
+        .icons {
+            width:15px;
+            height:21px;
+            margin-left:10px;
+            margin-top: 20px;
+            float:left;
+        }
+        .butt{
+            margin-left:-12px;
+            margin-top:0px;
+            font-size:12px;
+        }
+ 
+        
+
+        
+        
+
+    }
