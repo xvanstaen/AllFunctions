@@ -7,7 +7,8 @@ import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.servic
 import { configServer } from './JsonServerClass';
 import { XMVConfig } from './JsonServerClass';
 import { environment } from 'src/environments/environment';
-
+import { LoginIdentif } from './JsonServerClass';
+import {mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from './ClassConverter';
 
 @Component({
   selector: 'app-root',
@@ -25,6 +26,12 @@ export class AppComponent {
   configServer=new configServer;
   XMVConfig=new XMVConfig;
   isConfigServerRetrieved:boolean=false;
+  identification=new LoginIdentif;
+  ConvertUnit=new mainClassConv;
+  ConvToDisplay=new mainConvItem;
+  theTabOfUnits=new mainClassUnit;
+  WeightRefTable=new mainRecordConvert;
+  convertOnly:boolean=true;
 
   ngOnInit(){
       this.RetrieveConfig();
@@ -58,6 +65,7 @@ export class AppComponent {
             }
 
         }
+        this.getRecord('manage-login','Fitness.json',0);
         this.isConfigServerRetrieved=true;
         },
         error => {
@@ -76,5 +84,38 @@ export class AppComponent {
   onSelectApps(){
     this.isAppsSelected=true;
   }
+
+
+  ReceiveFiles(event:any){
+
+    if (event.fileType!=='' && 
+            event.fileType===this.identification.configFitness.fileType.convertUnit){ 
+        this.ConvertUnit=event;
+    } else if (event.fileType!=='' && 
+            event.fileType===this.identification.configFitness.fileType.convToDisplay){ 
+         this.ConvToDisplay=event;
+  
+    } else if (event.fileType!=='' && 
+            event.fileType===this.identification.configFitness.fileType.tabOfUnits){ 
+        this.theTabOfUnits=event;
+  
+    } else if (event.fileType!=='' && 
+          event.fileType===this.identification.configFitness.fileType.weightReference){ 
+        this.WeightRefTable=event;
+      } 
+  }
+
+isIdRetrieved:boolean=false;
+  getRecord(Bucket:string,GoogleObject:string, iWait:number){
+    this.ManageGoogleService.getContentObject(this.configServer, Bucket, GoogleObject )
+        .subscribe((data ) => {    
+          this.identification=data;
+          this.isIdRetrieved=true;
+      },
+      error_handler => {
+
+      })
+  }
+           
 }
 

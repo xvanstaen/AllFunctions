@@ -14,6 +14,7 @@
         <span style="width:130px; display:inline-block; margin-left:10px;">7. CSSTable</span>
         <span style="width:130px; display:inline-block; margin-left:10px;">8. Upload File</span>
         <span style="width:130px; display:inline-block; margin-left:10px;">9. Save & Download</span>
+        <span style="width:130px; display:inline-block; margin-left:10px;">10. Converter</span>
 
         <br><br>
     </span>
@@ -22,12 +23,21 @@
 </div>
 
 <div *ngIf="isAppsSelected===true">
-    <div *ngIf="selectApps===1">
-        <app-xmv-company [configServer]="configServer" [XMVConfig]="XMVConfig" [isConfigServerRetrieved]="isConfigServerRetrieved"></app-xmv-company>
+    <div *ngIf="selectApps===1 && isIdRetrieved===true">
+        <app-xmv-company [configServer]="configServer" [INidentification]="identification" [XMVConfig]="XMVConfig" [isConfigServerRetrieved]="isConfigServerRetrieved"
+        [InConvertUnit]="ConvertUnit" [InConvToDisplay]="ConvToDisplay" [IntheTabOfUnits]="theTabOfUnits"  [InWeightRefTable]="WeightRefTable" 
+        >
+    </app-xmv-company>
     </div>
     <div *ngIf="selectApps>1 && selectApps<10" style="float:none;">
         <app-routing-app [selectApps]="selectApps"> </app-routing-app>
     </div>
+    <div *ngIf="selectApps===10">
+        <app-converter  [identification]="identification" [XMVConfig]="XMVConfig" [configServer]="configServer" [convertOnly]="convertOnly" 
+        [InConvertUnit]="ConvertUnit" [InConvToDisplay]="ConvToDisplay" [IntheTabOfUnits]="theTabOfUnits"  [InWeightRefTable]="WeightRefTable" (returnFile)="ReceiveFiles($event)"     
+        >
+        </app-converter>
+    </div>  
 </div>
   
 
