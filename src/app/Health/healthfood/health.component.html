@@ -50,15 +50,16 @@
             <input  (click)='SelRadio("Y-7")' class="theRadioButt" type="radio" name="ReloadHTML" formControlName="ReloadHTML" id="ReloadHTML" value="Y" > <span class="YesNo">&nbsp;&nbsp;Yes</span> 
             <input  (click)='SelRadio("N-7")' class="theRadioButt" style="margin-left:10px;" type="radio" name="ReloadHTML" formControlName="ReloadHTML" id="ReloadHTML" value="N" > <span class="YesNo">&nbsp;&nbsp;No</span>
         </div>
-
+        <div class="skipLine">&nbsp;</div>  
 </div>
 
 <div *ngIf="error_msg!=='' && errorFn==='Copy'" class="error">{{error_msg}}</div>
 
 <div id='posAppCalFat'></div>
-<div  *ngIf="isMgtCaloriesFat===true && EventHTTPReceived[1]===true">
-    <app-calories-fat [identification]="identification"  [posAppCalFat]="posAppCalFat"
-    [ConfigCaloriesFat]="ConfigCaloriesFat"  [HTMLCaloriesFat]="ConfigHTMLFitHealth.ConfigCalFat.confCaloriesFat" (myEmit)="SaveCaloriesFat($event)">
+<div  *ngIf="isMgtCaloriesFat===true && EventHTTPReceived[1]===true && EventHTTPReceived[6]===true">
+    <app-calories-fat [identification]="identification"  [posAppCalFat]="posAppCalFat" [inFileRecipe]="fileRecipe"
+    [ConfigCaloriesFat]="ConfigCaloriesFat"  [HTMLCaloriesFat]="ConfigHTMLFitHealth.ConfigCalFat.confCaloriesFat" (myEmit)="SaveCaloriesFat($event)"
+    (myEmitRecipe)="SaveRecipeFile($event)">
     </app-calories-fat>
     <div class="skipLine">&nbsp;</div>
 </div>

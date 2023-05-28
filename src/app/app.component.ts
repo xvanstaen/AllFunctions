@@ -32,6 +32,7 @@ export class AppComponent {
   theTabOfUnits=new mainClassUnit;
   WeightRefTable=new mainRecordConvert;
   convertOnly:boolean=true;
+  selHealthFunction:number=0;
 
   ngOnInit(){
       this.RetrieveConfig();
@@ -78,6 +79,12 @@ export class AppComponent {
   onInput(event:any){
       this.selectApps=Number(event.target.value);
       this.isAppsSelected=false;
+      if (this.selectApps===11){
+        this.selHealthFunction=5;
+      } else {
+        this.selHealthFunction=0;
+      }
+          
   }
 
   isAppsSelected:boolean=false;
@@ -111,6 +118,14 @@ isIdRetrieved:boolean=false;
         .subscribe((data ) => {    
           this.identification=data;
           this.isIdRetrieved=true;
+          // ==============================================
+          // ======== TO BE REMOVED AFTER THE TEST ========
+          // ==============================================
+          this.isAppsSelected=true;
+          this.selectApps=11;
+          this.selHealthFunction=5;
+          // ==============================================
+
       },
       error_handler => {
 

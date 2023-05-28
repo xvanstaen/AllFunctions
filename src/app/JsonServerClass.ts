@@ -37,12 +37,14 @@ export class BioData{
           fileFitnessMyConfig:"FitnessMyConfig",
           fileStartName:"FitStat-",
           fileStartLength:8,
-          myChartConfig:"fitness1configChart"
+          myChartConfig:"fitness1configChart",
+          recipe:"fitnessRecipe",
         },
         fileType:{
           Health:"HealthTracking",
           FitnessMyConfig:"FitnessMyConfig",
           myChart:"myConfigChart",
+          recipe:"fitnessRecipe",
         }
       };
       configFitness={

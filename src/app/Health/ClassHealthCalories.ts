@@ -8,6 +8,7 @@ export class mainClassCaloriesFat{
 export class ClassCaloriesFat{
     Type:string="";
     Content:Array<ClassItem>=[];
+    Total=new ClassItem;
   }
   
   export class ClassItem{

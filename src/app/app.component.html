@@ -15,6 +15,7 @@
         <span style="width:130px; display:inline-block; margin-left:10px;">8. Upload File</span>
         <span style="width:130px; display:inline-block; margin-left:10px;">9. Save & Download</span>
         <span style="width:130px; display:inline-block; margin-left:10px;">10. Converter</span>
+        <span style="width:130px; display:inline-block; margin-left:10px;">11. Calories & Fat</span>
 
         <br><br>
     </span>
@@ -37,6 +38,12 @@
         [InConvertUnit]="ConvertUnit" [InConvToDisplay]="ConvToDisplay" [IntheTabOfUnits]="theTabOfUnits"  [InWeightRefTable]="WeightRefTable" (returnFile)="ReceiveFiles($event)"     
         >
         </app-converter>
+    </div>  
+    <div *ngIf="selectApps===11">
+        <app-health  [identification]="identification" [XMVConfig]="XMVConfig" [configServer]="configServer"  [triggerFunction]="selHealthFunction"
+        (returnFile)="ReceiveFiles($event)"     
+        >
+        </app-health>
     </div>  
 </div>
   

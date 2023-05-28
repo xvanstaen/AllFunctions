@@ -111,24 +111,10 @@ div{
     background-color: var(--rOdd,#8a97e8);
 }
 
-/*****
-.StraightDropDown{
-  width:260px;
-  border: 0px solid green;
-  height: 200px;
-  overflow-y: scroll;
+.rowNew {
+  background-color: var(--rOdd,#ef81a0);
 }
-  
-.Straight-options{
-  width:250px;
-  font-size:11px;
-  height:30px;
-  color:black;
-  text-align: left;
-  margin-left:-2px;
-  border:0px; 
-}
-*****/
+
 
 .theRadio{
     margin-left:10px; margin-top:10px; color:blue; font-size:12px; 

@@ -75,6 +75,7 @@ export class HealthComponent implements OnInit {
   @Input() InConfigHTMLFitHealth=new classConfHTMLFitHealth;
   @Input() InConfigChart=new classConfigChart;
   @Input() InFileParamChart=new classFileParamChart;
+  @Input() triggerFunction:number=0;
   
   fileParamChart=new classFileParamChart;
   ConfigChart=new classConfigChart;
@@ -83,6 +84,7 @@ export class HealthComponent implements OnInit {
   HealthAllData=new mainDailyReport; // contain the full object
   SelectedRecord = new DailyReport; 
   ConfigCaloriesFat=new mainClassCaloriesFat;
+  fileRecipe=new mainClassCaloriesFat;
 
   myLogConsole:boolean=false;
   myConsole:Array< msgConsole>=[];
@@ -394,13 +396,16 @@ ngOnInit(): void {
     this.ConfigChart=this.InConfigChart;
     this.EventHTTPReceived[4]=true;
   }
+
   if (this.fileParamChart.fileType===''){
     this.GetRecord(this.identification.fitness.bucket,this.identification.fitness.files.myChartConfig,5);
   } else {
     this.fileParamChart=this.InFileParamChart;
     this.EventHTTPReceived[5]=true;
   }
-
+  if (this.fileRecipe.fileType===''){
+    this.GetRecord(this.identification.fitness.bucket,this.identification.fitness.files.recipe,6);
+  } 
  
  
   this.getScreenWidth = window.innerWidth;
@@ -412,6 +417,11 @@ ngOnInit(): void {
   const theDate=new Date;
   this.TheSelectDisplays.controls['startRange'].setValue('');
   this.TheSelectDisplays.controls['endRange'].setValue('');
+
+  if (this.triggerFunction!==0){
+    const theSelection='Y-'+this.triggerFunction;
+    this.SelRadio(theSelection.trim());
+  }
 }
 
 RetrieveConfHTML(){
@@ -464,6 +474,32 @@ SaveCaloriesFat(event:any){
   }
 }
 
+SaveRecipeFile(event:any){
+  // save this file
+ // if (Array.isArray(event)===false){
+  if (event.fileType===undefined){
+    this.SpecificForm.controls['FileName'].setValue(event);
+  } else if (event.tabCaloriesFat.length!==0) {
+      this.fileRecipe.tabCaloriesFat.splice(0, this.fileRecipe.tabCaloriesFat.length);
+      for (var i=0; i<event.tabCaloriesFat.length; i++){
+        const CalFatClass = new ClassCaloriesFat;
+        this.fileRecipe.tabCaloriesFat.push(CalFatClass);
+        this.fileRecipe.tabCaloriesFat[i].Type=event.tabCaloriesFat[i].Type;
+                for (var j=0; j<event.tabCaloriesFat[i].Content.length; j++){
+          const itemClass= new ClassItem;
+          this.fileRecipe.tabCaloriesFat[this.fileRecipe.tabCaloriesFat.length-1].Content.push(itemClass);
+          this.fileRecipe.tabCaloriesFat[i].Content[j]=event.tabCaloriesFat[i].Content[j];
+      }
+      }
+  
+    if (this.fileRecipe.fileType===''){
+      this.fileRecipe.fileType=this.identification.fitness.fileType.recipe;
+    }
+    this.SaveNewRecord(this.identification.fitness.bucket, this.SpecificForm.controls['FileName'].value, this.fileRecipe);
+
+
+  }
+}
 dateRangeSelection(event:any){
   this.error_msg='';
   this.isRangeDateError=false;
@@ -1302,7 +1338,9 @@ GetRecord(Bucket:string,GoogleObject:string, iWait:number){
               } 
               else if (iWait===5){
                 this.fileParamChart=data;
-              }
+              } else if (iWait===6){
+                this.fileRecipe=data;
+              } 
 
               this.returnFile.emit(data);
               this.EventHTTPReceived[iWait]=true;
