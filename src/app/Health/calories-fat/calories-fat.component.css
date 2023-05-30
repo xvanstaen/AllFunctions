@@ -53,6 +53,12 @@ div{
   padding-left:10px;
 }
 
+.widthRecipe{
+  width:calc(var(--wType) + 30px);
+  text-align: left; 
+  padding-left:10px;
+}
+
 .widthAction{
   width:var(--wAction); 
   text-align: center; 
@@ -89,14 +95,24 @@ div{
 }
 
 .text{
-   
-    
-    font-size:11px;
+    font-size:14px;
     display:inline-block;
     height:var(--rowHeight,28px);
     }
 
+.totalRecipe{
+  font-size:16px;
+  font-weight:bold;
+  color:green;
+  display:inline-block;
+  height:var(--rowHeight,28px);
+  pointer-events: none;
+}
 
+.totalRecipe:read-only{
+  border:0px solid blue;
+  
+}
 .text:hover{
   color:red;
   font-weight: bold;

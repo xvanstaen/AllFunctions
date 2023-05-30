@@ -57,7 +57,7 @@
 
 <div id='posAppCalFat'></div>
 <div  *ngIf="isMgtCaloriesFat===true && EventHTTPReceived[1]===true && EventHTTPReceived[6]===true">
-    <app-calories-fat [identification]="identification"  [posAppCalFat]="posAppCalFat" [inFileRecipe]="fileRecipe"
+    <app-calories-fat [identification]="identification" [XMVConfig]="XMVConfig" [configServer]="configServer"  [posAppCalFat]="posAppCalFat" [inFileRecipe]="fileRecipe"
     [ConfigCaloriesFat]="ConfigCaloriesFat"  [HTMLCaloriesFat]="ConfigHTMLFitHealth.ConfigCalFat.confCaloriesFat" (myEmit)="SaveCaloriesFat($event)"
     (myEmitRecipe)="SaveRecipeFile($event)">
     </app-calories-fat>

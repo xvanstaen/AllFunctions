@@ -438,68 +438,6 @@ SearchText(event:any){
   }
 }
 
-saveParamChart(event:any){
-  this.fileParamChart.fileType=this.identification.fitness.fileType.myChart;
-  this.fileParamChart.data=event;
-  this.SaveNewRecord(this.identification.fitness.bucket, this.identification.fitness.files.myChartConfig, this.fileParamChart);
-}
-
-SaveCaloriesFat(event:any){
-  // save this file
- // if (Array.isArray(event)===false){
-  if (event.fileType===undefined){
-    this.SpecificForm.controls['FileName'].setValue(event);
-  } else if (event.tabCaloriesFat.length!==0) {
-      this.ConfigCaloriesFat.tabCaloriesFat.splice(0, this.ConfigCaloriesFat.tabCaloriesFat.length);
-      for (var i=0; i<event.tabCaloriesFat.length; i++){
-        const CalFatClass = new ClassCaloriesFat;
-        this.ConfigCaloriesFat.tabCaloriesFat.push(CalFatClass);
-        this.ConfigCaloriesFat.tabCaloriesFat[i].Type=event.tabCaloriesFat[i].Type;
-                for (var j=0; j<event.tabCaloriesFat[i].Content.length; j++){
-          const itemClass= new ClassItem;
-          this.ConfigCaloriesFat.tabCaloriesFat[this.ConfigCaloriesFat.tabCaloriesFat.length-1].Content.push(itemClass);
-          this.ConfigCaloriesFat.tabCaloriesFat[i].Content[j]=event.tabCaloriesFat[i].Content[j];
-      }
-      }
-  
-
-
-   // this.ConfigCaloriesFat=event;
-    if (this.ConfigCaloriesFat.fileType===''){
-      this.ConfigCaloriesFat.fileType=this.identification.configFitness.fileType.calories;
-    }
-    this.SaveNewRecord(this.identification.configFitness.bucket, this.SpecificForm.controls['FileName'].value, this.ConfigCaloriesFat);
-    this.CreateDropDownCalFat();
-
-  }
-}
-
-SaveRecipeFile(event:any){
-  // save this file
- // if (Array.isArray(event)===false){
-  if (event.fileType===undefined){
-    this.SpecificForm.controls['FileName'].setValue(event);
-  } else if (event.tabCaloriesFat.length!==0) {
-      this.fileRecipe.tabCaloriesFat.splice(0, this.fileRecipe.tabCaloriesFat.length);
-      for (var i=0; i<event.tabCaloriesFat.length; i++){
-        const CalFatClass = new ClassCaloriesFat;
-        this.fileRecipe.tabCaloriesFat.push(CalFatClass);
-        this.fileRecipe.tabCaloriesFat[i].Type=event.tabCaloriesFat[i].Type;
-                for (var j=0; j<event.tabCaloriesFat[i].Content.length; j++){
-          const itemClass= new ClassItem;
-          this.fileRecipe.tabCaloriesFat[this.fileRecipe.tabCaloriesFat.length-1].Content.push(itemClass);
-          this.fileRecipe.tabCaloriesFat[i].Content[j]=event.tabCaloriesFat[i].Content[j];
-      }
-      }
-  
-    if (this.fileRecipe.fileType===''){
-      this.fileRecipe.fileType=this.identification.fitness.fileType.recipe;
-    }
-    this.SaveNewRecord(this.identification.fitness.bucket, this.SpecificForm.controls['FileName'].value, this.fileRecipe);
-
-
-  }
-}
 dateRangeSelection(event:any){
   this.error_msg='';
   this.isRangeDateError=false;
@@ -1366,73 +1304,6 @@ calculateHealth(selRecord:DailyReport){
   }
 }
 
-ConfirmSave(event:any){
-      this.SpecificForm.controls['FileName'].setValue(this.identification.fitness.files.fileHealth);
-      this.error_msg='';
-      if (event.target.id.substring(0,3)==='Cre'){
-        // CHECK THAT THERE IS NO DUPE FOR THE DATE 
-        var i=0;
-        for (i=0; i<this.HealthData.tabDailyReport.length && this.error_msg===''; i++){
-          this.CheckDupeDate(this.HealthData.tabDailyReport[i].date);
-        }
-        if (this.error_msg===''){
-          this.IsSaveConfirmedCre = true;
-          this.IsSaveConfirmedSel = false;
-        } else {
-          this.errorFn='Cre';
-          this.IsSaveConfirmedCre = false;
-          this.IsSaveConfirmedSel = false;
-        }
-      } else if (event.target.id.substring(0,3)==='Sel'){
-        // CHECK THAT THERE IS NO DUPE FOR THE DATE 
-        if (this.SelectedRecord.date!==this.TheSelectDisplays.controls['SelectedDate'].value){
-            this.CheckDupeDate(this.SelectedRecord.date);
-        }
-        if (this.error_msg===''){
-          this.IsSaveConfirmedCre = false;
-          this.IsSaveConfirmedSel = true;
-        } else {
-          this.errorFn='Sel';
-          this.IsSaveConfirmedCre = false;
-          this.IsSaveConfirmedSel = false;
-        }
-      }  else if (event.target.id.substring(0,3)==='All'){
-          this.IsSaveConfirmedAll = true;
-          this.errorFn='All';
-      }
-    } 
-
-SaveCopy(){
-    this.HealthAllData.tabDailyReport.sort((a, b) => (a.date > b.date) ? -1 : 1);
-    if (this.HealthAllData.fileType!==''){
-      this.HealthAllData.fileType=this.identification.fitness.fileType.Health;
-    }
-    this.SaveNewRecord(this.identification.fitness.bucket, this.SpecificForm.controls['FileName'].value, this.HealthAllData);
-    this.returnFile.emit(this.HealthAllData);
-    this.isCopyFile=false;
-    this.TheSelectDisplays.controls['CopyFile'].setValue('N');
-    this.errorFn='Copy';
-  }
-
-CancelCopy(){
-    this.isCopyFile=false;
-    this.TheSelectDisplays.controls['CopyFile'].setValue('N');
-    this.errorFn='';
-  }
-
-CancelRecord(event:any){
-    this.findIds(event.target.id);
-    if (event.target.id.substring(0,3)==='Cre'){
-      this.HealthData.tabDailyReport.splice(0,this.HealthData.tabDailyReport.length);
-      this.theEvent.target.id='New';
-      this.CreateDay(this.theEvent);
-    } else if (event.target.id.substring(0,3)==='Sel'){
-        this.SelectedRecord = new DailyReport; 
-        this.isSelectedDateFound=false;
-        this.TheSelectDisplays.controls['SelectedDate'].setValue('');
-        // this.fillAllData(this.HealthAllData.tabDailyReport[this.SelectedRecordNb], this.SelectedRecord);
-    }
-  }
 
 fillAllData(inRecord:any, outRecord:any){
     var i=0;
@@ -1483,6 +1354,138 @@ cancelDelDate(){
 CancelUpdateAll(event:any){
   this.CancelSave()
 
+}
+
+
+saveParamChart(event:any){
+  this.fileParamChart.fileType=this.identification.fitness.fileType.myChart;
+  this.fileParamChart.data=event;
+  this.SaveNewRecord(this.identification.fitness.bucket, this.identification.fitness.files.myChartConfig, this.fileParamChart);
+}
+
+SaveCaloriesFat(event:any){
+  // save this file
+ // if (Array.isArray(event)===false){
+  if (event.fileType===undefined){
+    this.SpecificForm.controls['FileName'].setValue(event);
+  } else if (event.tabCaloriesFat.length!==0) {
+      this.ConfigCaloriesFat.tabCaloriesFat.splice(0, this.ConfigCaloriesFat.tabCaloriesFat.length);
+      for (var i=0; i<event.tabCaloriesFat.length; i++){
+        const CalFatClass = new ClassCaloriesFat;
+        this.ConfigCaloriesFat.tabCaloriesFat.push(CalFatClass);
+        this.ConfigCaloriesFat.tabCaloriesFat[i].Type=event.tabCaloriesFat[i].Type;
+                for (var j=0; j<event.tabCaloriesFat[i].Content.length; j++){
+          const itemClass= new ClassItem;
+          this.ConfigCaloriesFat.tabCaloriesFat[this.ConfigCaloriesFat.tabCaloriesFat.length-1].Content.push(itemClass);
+          this.ConfigCaloriesFat.tabCaloriesFat[i].Content[j]=event.tabCaloriesFat[i].Content[j];
+      }
+      }
+  
+
+
+   // this.ConfigCaloriesFat=event;
+    if (this.ConfigCaloriesFat.fileType===''){
+      this.ConfigCaloriesFat.fileType=this.identification.configFitness.fileType.calories;
+    }
+    this.SaveNewRecord(this.identification.configFitness.bucket, this.SpecificForm.controls['FileName'].value, this.ConfigCaloriesFat);
+    this.CreateDropDownCalFat();
+
+  }
+}
+
+SaveRecipeFile(event:any){
+  // save this file
+ // if (Array.isArray(event)===false){
+  if (event.fileType===undefined){
+    this.SpecificForm.controls['FileName'].setValue(event);
+  } else if (event.tabCaloriesFat.length!==0) {
+      this.fileRecipe.tabCaloriesFat.splice(0, this.fileRecipe.tabCaloriesFat.length);
+      for (var i=0; i<event.tabCaloriesFat.length; i++){
+        const CalFatClass = new ClassCaloriesFat;
+        this.fileRecipe.tabCaloriesFat.push(CalFatClass);
+        this.fileRecipe.tabCaloriesFat[i].Type=event.tabCaloriesFat[i].Type;
+        this.fileRecipe.tabCaloriesFat[i].Total=event.tabCaloriesFat[i].Total;
+        for (var j=0; j<event.tabCaloriesFat[i].Content.length; j++){
+              const itemClass= new ClassItem;
+              this.fileRecipe.tabCaloriesFat[this.fileRecipe.tabCaloriesFat.length-1].Content.push(itemClass);
+              this.fileRecipe.tabCaloriesFat[i].Content[j]=event.tabCaloriesFat[i].Content[j];
+          }
+      }
+  
+    if (this.fileRecipe.fileType===''){
+      this.fileRecipe.fileType=this.identification.fitness.fileType.recipe;
+    }
+    this.SaveNewRecord(this.identification.fitness.bucket, this.SpecificForm.controls['FileName'].value, this.fileRecipe);
+
+
+  }
+}
+ConfirmSave(event:any){
+  this.SpecificForm.controls['FileName'].setValue(this.identification.fitness.files.fileHealth);
+  this.error_msg='';
+  if (event.target.id.substring(0,3)==='Cre'){
+    // CHECK THAT THERE IS NO DUPE FOR THE DATE 
+    var i=0;
+    for (i=0; i<this.HealthData.tabDailyReport.length && this.error_msg===''; i++){
+      this.CheckDupeDate(this.HealthData.tabDailyReport[i].date);
+    }
+    if (this.error_msg===''){
+      this.IsSaveConfirmedCre = true;
+      this.IsSaveConfirmedSel = false;
+    } else {
+      this.errorFn='Cre';
+      this.IsSaveConfirmedCre = false;
+      this.IsSaveConfirmedSel = false;
+    }
+  } else if (event.target.id.substring(0,3)==='Sel'){
+    // CHECK THAT THERE IS NO DUPE FOR THE DATE 
+    if (this.SelectedRecord.date!==this.TheSelectDisplays.controls['SelectedDate'].value){
+        this.CheckDupeDate(this.SelectedRecord.date);
+    }
+    if (this.error_msg===''){
+      this.IsSaveConfirmedCre = false;
+      this.IsSaveConfirmedSel = true;
+    } else {
+      this.errorFn='Sel';
+      this.IsSaveConfirmedCre = false;
+      this.IsSaveConfirmedSel = false;
+    }
+  }  else if (event.target.id.substring(0,3)==='All'){
+      this.IsSaveConfirmedAll = true;
+      this.errorFn='All';
+  }
+} 
+
+SaveCopy(){
+this.HealthAllData.tabDailyReport.sort((a, b) => (a.date > b.date) ? -1 : 1);
+if (this.HealthAllData.fileType!==''){
+  this.HealthAllData.fileType=this.identification.fitness.fileType.Health;
+}
+this.SaveNewRecord(this.identification.fitness.bucket, this.SpecificForm.controls['FileName'].value, this.HealthAllData);
+this.returnFile.emit(this.HealthAllData);
+this.isCopyFile=false;
+this.TheSelectDisplays.controls['CopyFile'].setValue('N');
+this.errorFn='Copy';
+}
+
+CancelCopy(){
+this.isCopyFile=false;
+this.TheSelectDisplays.controls['CopyFile'].setValue('N');
+this.errorFn='';
+}
+
+CancelRecord(event:any){
+this.findIds(event.target.id);
+if (event.target.id.substring(0,3)==='Cre'){
+  this.HealthData.tabDailyReport.splice(0,this.HealthData.tabDailyReport.length);
+  this.theEvent.target.id='New';
+  this.CreateDay(this.theEvent);
+} else if (event.target.id.substring(0,3)==='Sel'){
+    this.SelectedRecord = new DailyReport; 
+    this.isSelectedDateFound=false;
+    this.TheSelectDisplays.controls['SelectedDate'].setValue('');
+    // this.fillAllData(this.HealthAllData.tabDailyReport[this.SelectedRecordNb], this.SelectedRecord);
+}
 }
   
 CancelSave(){
@@ -1605,6 +1608,8 @@ SaveNewRecord(GoogleBucket:string, GoogleObject:string, record:any){
             } 
           )
       }
+
+
 
 waitHTTP(loop:number, max_loop:number, eventNb:number){
   const pas=500;

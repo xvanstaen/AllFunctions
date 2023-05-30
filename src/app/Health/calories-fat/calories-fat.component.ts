@@ -23,12 +23,16 @@ import {manage_input} from '../../manageinput';
 import {eventoutput, thedateformat} from '../../apt_code_name';
 import { msgConsole } from '../../JsonServerClass';
 import {msginLogConsole} from '../../consoleLog'
-import {ClassSubConv} from '../../ClassConverter'
+
+import {mainClassCaloriesFat, ClassCaloriesFat} from '../ClassHealthCalories'
+import {ClassItem} from '../ClassHealthCalories'
+
+import {ClassSubConv, mainConvItem, mainRecordConvert, mainClassUnit} from '../../ClassConverter'
+import {mainClassConv} from '../../ClassConverter'
 import {ClassConv} from '../../ClassConverter'
 import {ClassUnit} from '../../ClassConverter'
 import {ConvItem} from '../../ClassConverter'
-import {mainClassCaloriesFat, ClassCaloriesFat} from '../ClassHealthCalories'
-import {ClassItem} from '../ClassHealthCalories'
+import {recordConvert} from '../../ClassConverter'
 
 import {classConfCaloriesFat} from '../classConfHTMLTableAll';
 
@@ -60,6 +64,9 @@ export class CaloriesFatComponent implements OnInit {
   @Input() ConfigCaloriesFat=new mainClassCaloriesFat;
   @Input() inFileRecipe=new mainClassCaloriesFat;
   @Input() HTMLCaloriesFat=new classConfCaloriesFat;
+
+  ConvToDisplay=new mainConvItem;
+
   @Input() posAppCalFat= {
             Top:0,
             Left:0,
@@ -70,6 +77,7 @@ export class CaloriesFatComponent implements OnInit {
   outConfigCaloriesFat=new mainClassCaloriesFat;
   outFileRecipe=new mainClassCaloriesFat;
 
+  EventHTTPReceived:Array<boolean>=[];
 
   IsSaveConfirmed:boolean=false;
   IsSaveRecipeConfirmed:boolean=false;
@@ -96,11 +104,16 @@ export class CaloriesFatComponent implements OnInit {
   tabFood:Array<any>=[{name:''}];
   tabInputType:Array<any>=[];
   tabInputFood:Array<any>=[];
+
+  tabRecipe:Array<any>=[];
+  tabRecipeFood:Array<any>=[];
+  tabInputRecipe:Array<any>=[];
+  tabInputRecipeFood:Array<any>=[];
   typeAction:Array<string>=['add before', 'add after','delete'];
   TabAction:Array<any>=[{name:'',action:''}];
   TabActionRecipe:Array<any>=[{name:'',action:''}];
 
-  tabRecipe:Array<any>=[];
+
 
   // to open DROPDOWN box 
   dialogueCalFat:Array<boolean>=[false, false,false,false]; // first is for type and second one is for food/ingredient
@@ -108,6 +121,8 @@ export class CaloriesFatComponent implements OnInit {
 
   selType:string='';
   selFood:string='';
+  RecipeSel:string='';
+  RecipeSelFood:string='';
 
   // when value is one then item has been created in this session
   tabNewRecord:Array<any>=[
@@ -140,6 +155,11 @@ export class CaloriesFatComponent implements OnInit {
   tablePosLeft:number=0;
   theHeight:number=0;
   docHeaderAll:any;
+
+  RecipetablePosTop:number=-1;
+  RecipetablePosLeft:number=0;
+  RecipetheHeight:number=0;
+  RecipedocHeaderAll:any;
     
   // get position of pointer/cursor
   mousedown:boolean=false;
@@ -151,7 +171,7 @@ export class CaloriesFatComponent implements OnInit {
 @HostListener('window:mouseup', ['$event'])
 onMouseUp(event: MouseEvent) {
     this.selectedPosition = { x: event.pageX, y: event.pageY };
-    if (this.tablePosTop<0){
+    if (this.tablePosTop<0 || this.RecipetablePosTop<0){
       this.getPosAfterTitle();
     }
   }
@@ -171,6 +191,12 @@ getPosAfterTitle(){
     this.tablePosTop = this.docHeaderAll.offsetTop;
     this.theHeight=Number(this.HTMLCaloriesFat.title.height.substring(0,this.HTMLCaloriesFat.title.height.indexOf('px')));
    // console.log('Div Title ==>  tablePosLeft='+this.tablePosLeft+'  tablePosTop='+this.tablePosTop);
+  
+   this.RecipedocHeaderAll = document.getElementById("posRecipeTable");
+   this.RecipetablePosLeft = this.docHeaderAll.offsetLeft;
+   this.RecipetablePosTop = this.docHeaderAll.offsetTop;
+   this.RecipetheHeight=Number(this.HTMLCaloriesFat.title.height.substring(0,this.HTMLCaloriesFat.title.height.indexOf('px')));
+  
   } 
 
 
@@ -185,6 +211,9 @@ ngOnInit(): void {
   this.device_type = navigator.userAgent;
   this.device_type = this.device_type.substring(10, 48);
 
+  this.EventHTTPReceived[0]=false;
+  this.getRecord(this.identification.configFitness.bucket,this.identification.configFitness.files.convToDisplay,0);
+
   this.TabAction[0].name='Cancel';
   this.TabAction[0].action='';
   this.TabActionRecipe[0].name='Cancel';
@@ -196,22 +225,32 @@ ngOnInit(): void {
       this.TabAction.push(myAction);
       this.TabAction[this.TabAction.length-1].name=itemName;
       this.TabAction[this.TabAction.length-1].action=this.typeAction[i];
-
-      this.TabActionRecipe.push(myAction);
-      this.TabActionRecipe[this.TabAction.length-1].name='Recipe';
-      this.TabActionRecipe[this.TabAction.length-1].action=this.typeAction[i];
+      const myActionRec={name:'',action:''};
+      this.TabActionRecipe.push(myActionRec);
+      this.TabActionRecipe[this.TabActionRecipe.length-1].name='Recipe';
+      this.TabActionRecipe[this.TabActionRecipe.length-1].action=this.typeAction[i];
   }
+
   itemName='Food';
   for (i=0; i<this.typeAction.length; i++){
       const myAction={name:'',action:''};
       this.TabAction.push(myAction);
       this.TabAction[this.TabAction.length-1].name=itemName;
       this.TabAction[this.TabAction.length-1].action=this.typeAction[i];
-      this.TabActionRecipe.push(myAction);
-      this.TabActionRecipe[this.TabAction.length-1].name=itemName;
-      this.TabActionRecipe[this.TabAction.length-1].action=this.typeAction[i];
+      const myActionRec={name:'',action:''};
+      this.TabActionRecipe.push(myActionRec);
+      this.TabActionRecipe[this.TabActionRecipe.length-1].name=itemName;
+      this.TabActionRecipe[this.TabActionRecipe.length-1].action=this.typeAction[i];
   }
   
+  const myActionRec={name:'Calculate',action:'Total'};
+  this.TabActionRecipe.push(myActionRec);
+  //this.TabActionRecipe[this.TabActionRecipe.length-1].name='Calculate';
+  //this.TabActionRecipe[this.TabActionRecipe.length-1].action='Total';
+  const myActionRec1={name:'Recipe',action:'Transfer'};
+  this.TabActionRecipe.push(myActionRec1);
+  //this.TabActionRecipe[this.TabActionRecipe.length-1].name='Recipe';
+  //this.TabActionRecipe[this.TabActionRecipe.length-1].action='Transfer';
 
   if (this.ConfigCaloriesFat.tabCaloriesFat.length===0){
     this.initOutTab(this.ConfigCaloriesFat,'calories');
@@ -231,8 +270,11 @@ ngOnInit(): void {
 
 fillConfig(outFile:any,inFile:any, type:string){
   if (type==='Calories'){
-    this.tabType[0].name='';
-    this.tabFood[0].name='';
+    this.tabType.splice(0,this.tabType.length);
+    this.tabType.push({name:''});
+    this.tabFood.splice(0,this.tabFood.length);
+    this.tabFood.push({name:''});
+
     outFile.tabCaloriesFat.splice(0,outFile.tabCaloriesFat.length);
     outFile.fileType=inFile.fileType;
     for (var i=0; i<inFile.tabCaloriesFat.length; i++){
@@ -244,30 +286,58 @@ fillConfig(outFile:any,inFile:any, type:string){
       for (var j=0; j<inFile.tabCaloriesFat[i].Content.length; j++){
         const itemClass= new ClassItem;
         outFile.tabCaloriesFat[i].Content.push(itemClass);
-        outFile.tabCaloriesFat[i].Content[j]=inFile.tabCaloriesFat[i].Content[j];
+        this.copyContent(outFile.tabCaloriesFat[i].Content[j], inFile.tabCaloriesFat[i].Content[j]);
+        
         this.tabFood.push({name:''});
-        this.tabFood[this.tabFood.length-1].name=inFile.tabCaloriesFat[i].Content[j].Name.toLowerCase().trim();;
+        this.tabFood[this.tabFood.length-1].name=inFile.tabCaloriesFat[i].Content[j].Name.toLowerCase().trim();
+       
         }
     }
     this.tabType.sort((a, b) => (a.name < b.name) ? -1 : 1);
     this.tabFood.sort((a, b) => (a.name < b.name) ? -1 : 1);
     this.tabType[0].name='cancel';
     this.tabFood[0].name='cancel';
+   
     } else {
+      this.tabRecipe.splice(0,this.tabRecipe.length);
+      this.tabRecipe.push({name:''});
+      this.tabInputRecipe.splice(0,this.tabRecipe.length);
+      this.tabInputRecipe.push({name:''});
+      this.tabRecipeFood.splice(0,this.tabFood.length);
+      this.tabRecipeFood.push({name:''});
+      this.tabInputRecipeFood.splice(0,this.tabFood.length);
+      this.tabInputRecipeFood.push({name:''});
+
       outFile.tabCaloriesFat.splice(0,outFile.tabCaloriesFat.length);
       outFile.fileType=inFile.fileType;
       for (var i=0; i<inFile.tabCaloriesFat.length; i++){
         const CalFatClass = new ClassCaloriesFat;
         outFile.tabCaloriesFat.push(CalFatClass);
         outFile.tabCaloriesFat[i].Type=inFile.tabCaloriesFat[i].Type;
-
+        outFile.tabCaloriesFat[i].Total=inFile.tabCaloriesFat[i].Total;
+        this.tabRecipe.push({name:''});
+        this.tabRecipe[this.tabRecipe.length-1].name=inFile.tabCaloriesFat[i].Type.toLowerCase().trim();
+        this.tabInputRecipe.push({name:''});
+        this.tabInputRecipe[this.tabInputRecipe.length-1].name=inFile.tabCaloriesFat[i].Type.toLowerCase().trim();
         for (var j=0; j<inFile.tabCaloriesFat[i].Content.length; j++){
           const itemClass= new ClassItem;
           outFile.tabCaloriesFat[i].Content.push(itemClass);
-          outFile.tabCaloriesFat[i].Content[j]=inFile.tabCaloriesFat[i].Content[j];
-
+          this.copyContent(outFile.tabCaloriesFat[i].Content[j], inFile.tabCaloriesFat[i].Content[j]);
+          this.tabRecipeFood.push({name:''});
+          this.tabRecipeFood[this.tabRecipeFood.length-1].name=inFile.tabCaloriesFat[i].Content[j].Name.toLowerCase().trim();
+          this.tabInputRecipeFood.push({name:''});
+          this.tabInputRecipeFood[this.tabInputRecipeFood.length-1].name=inFile.tabCaloriesFat[i].Content[j].Name.toLowerCase().trim();
           }
       }
+      this.tabRecipe.sort((a, b) => (a.name < b.name) ? -1 : 1);
+      this.tabRecipe[0].name='cancel';
+      this.tabInputRecipe.sort((a, b) => (a.name < b.name) ? -1 : 1);
+      this.tabInputRecipe[0].name='cancel';
+
+      this.tabInputRecipeFood.sort((a, b) => (a.name < b.name) ? -1 : 1);
+      this.tabInputRecipeFood[0].name='cancel';
+      this.tabRecipeFood.sort((a, b) => (a.name < b.name) ? -1 : 1);
+      this.tabRecipeFood[0].name='cancel';
     }
 }
 
@@ -334,7 +404,7 @@ onAction(event:any){
               this.createAfterBefore(this.TabOfId[0],'Recipe');
           } else if (this.TabActionRecipe[iAction].action==='add after'){
               this.createAfterBefore(this.TabOfId[0]+1,'Recipe');
-          } else if (this.TabActionRecipe[iAction].action==='delete'){
+          }  else if (this.TabActionRecipe[iAction].action==='delete'){
           if (this.outFileRecipe.tabCaloriesFat.length==1 ){
               this.nameDeletedItem='';
               this.error_msg='only one item - cannot be deleted';
@@ -343,7 +413,12 @@ onAction(event:any){
             this.posDeletedItem=this.posType;
             this.isDeleteRecipe=true;
               }
+            } else if (this.TabActionRecipe[iAction].action==='Transfer'){
+              this.transferToCalFat(this.TabOfId[0]);
             }
+      } else if (this.TabActionRecipe[iAction].name==='Calculate' && this.TabActionRecipe[iAction].action==='Total'){
+        this.calculateTotal(this.TabOfId[0]);
+
       } else if (this.TabActionRecipe[iAction].name==='Food'){
         if (this.TabActionRecipe[iAction].action==='add before'){
           this.createAfterBefore(this.TabOfId[1],'RecipeFood');
@@ -411,6 +486,19 @@ onAction(event:any){
     } else  if (this.theEvent.target.id.substring(0,5)==='NoDel'){
       this.isDeleteType=false;
       this.isDeleteFood=false;    
+    }  else if (this.theEvent.target.id.substring(0,12)==='RecipeYesDel'){
+      if (this.isDeleteRecipe===true){
+        this.outFileRecipe.tabCaloriesFat.splice(this.TabOfId[0],1);
+        // this.tabNewRecord.splice(this.TabOfId[0],1);
+      } if (this.isDeleteRecipeFood===true){
+        this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content.splice(this.TabOfId[1],1);
+        // this.tabNewRecord[this.TabOfId[0]].food.splice(this.TabOfId[1],1);
+      }
+      this.isDeleteRecipe=false;
+      this.isDeleteRecipeFood=false;
+    } else  if (this.theEvent.target.id.substring(0,11)==='RecipeNoDel'){
+      this.isDeleteRecipe=false;
+      this.isDeleteRecipeFood=false;    
     }  
 }
 
@@ -521,43 +609,166 @@ onInput(event:any){
   }
 }
 
+searchFoodCalories(foodName:string, iRecipe:number, jRecipe:number){
+  var trouve=false;
+  if (this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Serving!==0 && 
+    this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Name!=='' && this.EventHTTPReceived[0]===true){
+      for (var i=0; i<this.outConfigCaloriesFat.tabCaloriesFat.length && trouve===false; i++){
+          for (var j=0; j<this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length && trouve===false; j++){
+            if (this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Name.toLowerCase().trim()===foodName.toLowerCase().trim() ){
+              trouve=true;
+              const quantity=this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Serving / this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Serving;
 
-onInputRecipe(event:any){
+              this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].ServingUnit=this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].ServingUnit;
+              this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Calories=this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Calories * quantity;
+              this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Protein=this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Protein * quantity;
+              this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Carbs=this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Carbs * quantity;
+              this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Cholesterol=this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Cholesterol * quantity;
+              this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Sugar=this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Sugar * quantity;
+              this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].GlyIndex=this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].GlyIndex * quantity;
+              this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Fat.Saturated=this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Fat.Saturated * quantity;
+              this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Fat.Total=this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Fat.Total * quantity;
+            }
+          }
+      }
+  }
+}
 
- 
+copyContent(outRecord:any,inRecord:any){
+  outRecord.Name=inRecord.Name;
+  outRecord.Serving=inRecord.Serving;
+  outRecord.ServingUnit=inRecord.ServingUnit;
+  outRecord.Calories=inRecord.Calories ;
+  outRecord.Protein=inRecord.Protein ;
+  outRecord.Carbs=inRecord.Carbs ;
+  outRecord.Cholesterol=inRecord.Cholesterol ;
+  outRecord.Sugar=inRecord.Sugar ;
+  outRecord.GlyIndex=inRecord.GlyIndex ;
+  outRecord.Fat.Saturated=inRecord.Fat.Saturated;
+  outRecord.Fat.Total=inRecord.Fat.Total;
+}
+
+calculateTotal( iRecipe:number){
+  // eveything is to be converted in grams
+  var servingTotal:number=0;
+  var jRecipe=0;
+  this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Calories=0;
+  this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Protein=0;
+  this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Carbs=0;
+  this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Cholesterol=0;
+  this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Sugar=0;
+  this.outFileRecipe.tabCaloriesFat[iRecipe].Total.GlyIndex=0;
+  this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Fat.Saturated=0;
+  this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Fat.Total=0;
+  this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Serving=0;
+  this.outFileRecipe.tabCaloriesFat[iRecipe].Total.ServingUnit='gram';
+  for (var jRecipe=0; jRecipe<this.outFileRecipe.tabCaloriesFat[iRecipe].Content.length; jRecipe++){
+      this.conversion=0;
+      if (this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].ServingUnit.toLowerCase().trim()!=='gram'){
+        this.convertUnits(this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].ServingUnit.toLowerCase().trim(),'gram');
+      }
+      if (this.conversion!==0){
+        this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Serving=this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Serving + this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Serving * this.conversion;
+      } else {
+        this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Serving=this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Serving + this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Serving;
+      }
+      this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Calories=this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Calories +
+      this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Calories;
+      this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Protein=this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Protein +
+      this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Protein;
+      this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Carbs=this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Carbs +
+      this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Carbs;
+      this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Cholesterol=this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Cholesterol +
+      this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Cholesterol;
+      this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Sugar=this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Sugar +
+      this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Sugar;
+      this.outFileRecipe.tabCaloriesFat[iRecipe].Total.GlyIndex=this.outFileRecipe.tabCaloriesFat[iRecipe].Total.GlyIndex +
+      this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].GlyIndex;
+      this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Fat.Saturated=this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Fat.Saturated +
+      this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Fat.Saturated;
+      this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Fat.Total=this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Fat.Total +
+      this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Fat.Total;
+    
+      
+  }
+
+}
+
+conversion:number=0;
+convertUnits(from:string,to:string){
+  
+  for (var i=0; i<this.ConvToDisplay.tabConvItem.length && ( 
+            this.ConvToDisplay.tabConvItem[i].from!==from || this.ConvToDisplay.tabConvItem[i].to!==to ); i++){
+  }
+  if (i<this.ConvToDisplay.tabConvItem.length){
+      this.conversion=this.ConvToDisplay.tabConvItem[i].valueFromTo;
+  } else { // from-to not found; try to ind to-from
+    for (var i=0; i<this.ConvToDisplay.tabConvItem.length && ( 
+      this.ConvToDisplay.tabConvItem[i].from!==to || this.ConvToDisplay.tabConvItem[i].to!==from ); i++){
+      }
+      if (i<this.ConvToDisplay.tabConvItem.length){
+        this.conversion=1/this.ConvToDisplay.tabConvItem[i].valueFromTo;
+      }
+  }
+
+}
+
+onSelRecipeFood(event:any){
+  this.error_msg='';
+  this.findIds(event.target.id);
+  if (event.target.id.substring(0,13)==='selRecipeFood'){
+    this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name =event.target.textContent.toLowerCase().trim();
+    this.tabInputRecipeFood.splice(0,this.tabInputRecipeFood.length);
+    this.isRecipeFoodInput=false;
+    if (this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].lockData!=='Y'){
+      this.searchFoodCalories(event.target.textContent.toLowerCase().trim(), this.TabOfId[0], this.TabOfId[1]);
+    }
+  } 
+}
+
+isRecipeFoodInput:boolean=false;
+onInputRecipe(event:any){ 
   //this.offsetHeight= event.currentTarget.offsetHeight;
   this.offsetLeft = event.currentTarget.offsetLeft;
   //this.offsetTop = event.currentTarget.offsetTop;
   this.offsetWidth = event.currentTarget.offsetWidth;
+  this.isRecipeFoodInput=false;
 
-  this.tabInputType.splice(0,this.tabInputType.length);
-  this.tabInputFood.splice(0,this.tabInputFood.length);
   var iTab:number=0;
   this.error_msg='';
 
   this.findIds(event.target.id);
   if (event.target.id.substring(0,6)==='Recipe'){
     this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Type=event.target.value.toLowerCase().trim();
-    // check if first letters already exists
+
+    this.tabInputRecipe.splice(0,this.tabInputType.length);
+    // check if recipe already exists
     iTab=-1;
-    for (var i=0; i<this.tabType.length; i++){
-      if (this.tabType[i].name.substr(0,event.target.value.trim().length)===event.target.value.toLowerCase().trim()){
-        iTab++;
-        this.tabInputType[iTab]=this.tabType[i].name.toLowerCase().trim();
-      }
+    for (var i=0; i<this.tabRecipe.length && this.tabRecipe[i].name.toLowerCase().trim()!==event.target.value.toLowerCase().trim(); i++){};
+    if (i<this.tabRecipe.length){
+        this.error_msg='recipe ' + event.target.value + ' already exists';
     }
   } else if (event.target.id.substring(0,4)==='name'){
     this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name=event.target.value.toLowerCase().trim();
-  // check if first letters already exists
-    iTab=-1;
-    for (var i=0; i<this.tabType.length; i++){
-      if (this.tabFood[i].name.substr(0,event.target.value.trim().length)===event.target.value.toLowerCase().trim()){
-        iTab++;
-        this.tabInputFood[iTab]=this.tabFood[i].name.toLowerCase().trim();
+    // check if first letters already exists
+      this.tabInputRecipeFood.splice(0,this.tabInputRecipeFood.length);
+      this.isRecipeFoodInput=true;
+      iTab=-1;
+      for (var i=0; i<this.tabFood.length; i++){
+        if (this.tabFood[i].name.substring(0,event.target.value.trim().length)===event.target.value.toLowerCase().trim()){
+          iTab++;
+          this.tabInputRecipeFood[iTab]=this.tabFood[i].name.toLowerCase().trim();
+        }
       }
-    }
+      if (this.tabInputRecipeFood.length===1 && this.tabInputRecipeFood[0]=== event.target.value.toLowerCase().trim() && this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].lockData!=='Y'){
+          this.searchFoodCalories(event.target.value.toLowerCase().trim(), this.TabOfId[0], this.TabOfId[1]);
+          this.isRecipeFoodInput=false;
+      }
+      
+
   } else if (event.target.id.substring(0,4)==='serv'){
     this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Serving=Number(event.target.value);
+    this.searchFoodCalories(this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name, this.TabOfId[0], this.TabOfId[1]);
   } else if (event.target.id.substring(0,4)==='unit'){
     this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].ServingUnit=event.target.value.toLowerCase().trim();
   } else if (event.target.id.substring(0,4)==='calo'){
@@ -576,6 +787,16 @@ onInputRecipe(event:any){
     this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Fat.Saturated=Number(event.target.value);
   } else if (event.target.id.substring(0,4)==='tota'){
     this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Fat.Total=Number(event.target.value);
+  } else if (event.target.id.substring(0,4)==='lock'){
+    if (event.target.value.toUpperCase().trim()==='Y' || event.target.value.toUpperCase().trim()==="N"){
+      this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].lockData=event.target.value.toUpperCase().trim();
+      if (this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].lockData==='N'){
+        this.searchFoodCalories(this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name.toLowerCase().trim(), this.TabOfId[0], this.TabOfId[1]);
+    }
+    }
+    else {
+      this.error_msg="Lock value must be 'Y' or 'N'";
+    }  
   }
 }
 
@@ -592,19 +813,67 @@ SearchText(event:any){
 onFilter(event:any){
   this.filterType=false;
   this.filterFood=false;
+  this.filterRecipe=false;
+  this.filterRecipeFood=false;
   this.selType='';
   this.selFood='';
-  if (event.target.id==='Type'){
+  this.RecipeSel='';
+  this.RecipeSelFood='';
+
+  if (event.target.id==='Recipe'){
+    this.filterRecipe=true;
+  } else if (event.target.id==='RecipeFood'){
+    this.filterRecipeFood=true;
+  } else if (event.target.id.substring(0,6)==='Recipe'){
+    if (event.target.textContent.indexOf('cancel')===-1){
+      if (event.target.id==='RecipeSel'){
+        this.RecipeSel=event.target.textContent.trim();
+      } else if (event.target.id==='RecipeSelFood'){
+        this.RecipeSelFood=event.target.textContent.trim();
+      }   
+    } 
+  }
+    
+ else if (event.target.id==='Type'){
     this.filterType=true;
   } else if (event.target.id==='Food'){
     this.filterFood=true;
   } else if (event.target.textContent.indexOf('cancel')===-1){
     if (event.target.id==='selType'){
-      this.selType=event.target.textContent;
+      this.selType=event.target.textContent.trim();
     } else if (event.target.id==='selFood'){
-      this.selFood=event.target.textContent;
+      this.selFood=event.target.textContent.trim();
     }   
   }
+}
+
+transferToCalFat(iRecipe:number){
+  // check if name of recipe already exists under Type='recipe'
+  var j=0;
+  for (var i=0; i< this.outConfigCaloriesFat.tabCaloriesFat.length && this.outConfigCaloriesFat.tabCaloriesFat[i].Type!=='Recipe'; i++){
+  }
+  if (i=== this.outConfigCaloriesFat.tabCaloriesFat.length){
+    // Type='Recipe' has not been found; create it
+    this.createAfterBefore(this.outConfigCaloriesFat.tabCaloriesFat.length,'Type');
+    i=this.outConfigCaloriesFat.tabCaloriesFat.length-1;
+    this.outConfigCaloriesFat.tabCaloriesFat[i].Type='Recipe';
+    j=0;
+  } else {
+    // check if item food already exists and if yes overide figures otherwise create new food item
+    this.TabOfId[0]=i;
+    for (j=0; j<this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length && 
+      this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Name.toLowerCase().trim() !== this.outFileRecipe.tabCaloriesFat[iRecipe].Type.toLowerCase().trim();j++){
+
+    }  
+    if (j===this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length){
+      this.TabOfId[1]=this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length;
+      this.createAfterBefore(this.TabOfId[1],'Food');
+      j=this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length-1;
+    }
+  }
+  this.copyContent(this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j],this.outFileRecipe.tabCaloriesFat[iRecipe].Total);
+// name of the recipe
+  this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Name=this.outFileRecipe.tabCaloriesFat[iRecipe].Type;
 }
 
 
@@ -738,6 +1007,18 @@ SaveFile(event:any){
     this.myEmit.emit(this.SpecificForm.controls['FileName'].value);
     this.myEmit.emit(this.outConfigCaloriesFat);
   }
+}
+
+getRecord(Bucket:string,GoogleObject:string, iWait:number){
+  
+  this.ManageGoogleService.getContentObject(this.configServer, Bucket, GoogleObject )
+      .subscribe((data ) => {    
+        this.ConvToDisplay=data;
+        this.EventHTTPReceived[iWait]=true;
+    },
+    error_handler => {
+
+    })
 }
 
 /**

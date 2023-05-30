@@ -25,6 +25,7 @@ export class ClassCaloriesFat{
     };
     Protein:number=0;
     Carbs:number=0;
+    lockData:string="N";
   }
 
   //
