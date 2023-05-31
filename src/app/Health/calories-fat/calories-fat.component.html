@@ -98,7 +98,7 @@
     <!-- ================== DROPDOWN LIST : recipe =============== -->
 <div class="dropdown "  *ngIf="filterRecipe===true">
         <div class="Straight-content"  >
-            <div  class="StraightDropDown StraightDropDownOverflow" [ngStyle]="{  'margin-top.px': theHeight  ,'margin-left.px':130, 'width.px':130}" >
+            <div  class="StraightDropDown StraightDropDownOverflow" [ngStyle]="{  'margin-top.px': RecipetheHeight  ,'margin-left.px':130, 'width.px':130}" >
                 <li *ngFor="let food of tabRecipe; let m=index;" 
                         class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
                             (click)="onFilter($event)" id="RecipeSel" [value]="food.name"> {{food.name}} 
@@ -110,7 +110,7 @@
     <!-- ================== DROPDOWN LIST : food =============== -->
 <div class="dropdown "  *ngIf="filterRecipeFood===true">
     <div class="Straight-content"  >
-        <div  class="StraightDropDown StraightDropDownOverflow" [ngStyle]="{  'margin-top.px': theHeight  ,'margin-left.px':260, 'width.px':130}" >
+        <div  class="StraightDropDown StraightDropDownOverflow" [ngStyle]="{  'margin-top.px': RecipetheHeight  ,'margin-left.px':260, 'width.px':130}" >
             <li *ngFor="let food of tabInputRecipeFood; let m=index;" 
                     class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
                         (click)="onFilter($event)" id="RecipeSelFood" [value]="food.name"> {{food.name}} 
@@ -123,12 +123,12 @@
 <div class="dropdown " *ngIf="isRecipeFoodInput===true && tabInputRecipeFood.length>0">
 
     <div class="Straight-content"  >
-        <div  class="StraightDropDown StraightDropDownOverflow" [ngStyle]="{  'margin-top.px': theHeight  ,'margin-left.px':130, 'width.px':130}" >
+        <div  class="StraightDropDown StraightDropDownOverflow" [ngStyle]="{  'margin-top.px': selectedPosition.y - 560  ,'margin-left.px':260, 'width.px':130, 'height.px':sizeBoxRecipeFood}" >
     
             <li *ngFor="let tabFood of tabInputRecipeFood; let m=index;" 
                     class="Straight-options"  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
-                        (click)="onSelRecipeFood($event)" id="selRecipeFood-{{TabOfId[0]}}-{{TabOfId[1]}}-{{TabOfId[2]}}-{{m}}" value="{{tabFood}}">
-                       {{tabFood}}
+                        (click)="onSelRecipeFood($event)" id="selRecipeFood-{{TabOfId[0]}}-{{TabOfId[1]}}-{{TabOfId[2]}}-{{m}}" value="{{tabFood.name}}">
+                       {{tabFood.name}}
             </li>
         </div>            
     </div>

@@ -103,7 +103,7 @@ export class CaloriesFatComponent implements OnInit {
   tabType:Array<any>=[{name:''}];
   tabFood:Array<any>=[{name:''}];
   tabInputType:Array<any>=[];
-  tabInputFood:Array<any>=[];
+  //tabInputFood:Array<any>=[];
 
   tabRecipe:Array<any>=[];
   tabRecipeFood:Array<any>=[];
@@ -338,10 +338,12 @@ fillConfig(outFile:any,inFile:any, type:string){
       this.tabInputRecipeFood[0].name='cancel';
       this.tabRecipeFood.sort((a, b) => (a.name < b.name) ? -1 : 1);
       this.tabRecipeFood[0].name='cancel';
+      this.sizeBoxRecipeFood=this.tabInputRecipeFood.length * this.heightItemOptionBox;
     }
 }
 
-
+sizeBoxRecipeFood:number=0;
+heightItemOptionBox:number=25;
 initTrackRecord(){
     for (var i=0; i<this.outConfigCaloriesFat.tabCaloriesFat.length; i++){
       if (this.tabNewRecord.length===0 || i!==0){
@@ -561,7 +563,7 @@ onInput(event:any){
   //console.log('offsetHeight='+this.offsetHeight +'  offsetLeft= '+this.offsetLeft + ' offsetTop=' + this.offsetTop 
   //+ ' scrollHeight='+this.scrollHeight+ '  scrollTop=' +this.scrollTop);
   this.tabInputType.splice(0,this.tabInputType.length);
-  this.tabInputFood.splice(0,this.tabInputFood.length);
+  //this.tabInputFood.splice(0,this.tabInputFood.length);
   var iTab:number=0;
   this.error_msg='';
 
@@ -579,6 +581,7 @@ onInput(event:any){
   } else if (event.target.id.substring(0,4)==='name'){
     this.outConfigCaloriesFat.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name=event.target.value.toLowerCase().trim();
   // check if first letters already exists
+  /*
     iTab=-1;
     for (var i=0; i<this.tabType.length; i++){
       if (this.tabFood[i].name.substr(0,event.target.value.trim().length)===event.target.value.toLowerCase().trim()){
@@ -586,6 +589,7 @@ onInput(event:any){
         this.tabInputFood[iTab]=this.tabFood[i].name.toLowerCase().trim();
       }
     }
+    */
   } else if (event.target.id.substring(0,4)==='serv'){
     this.outConfigCaloriesFat.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Serving=Number(event.target.value);
   } else if (event.target.id.substring(0,4)==='unit'){
@@ -713,16 +717,21 @@ convertUnits(from:string,to:string){
 
 }
 
-onSelRecipeFood(event:any){
-  this.error_msg='';
+onSelRecipeFood(event:any){ 
+  this.error_msg=''; 
   this.findIds(event.target.id);
   if (event.target.id.substring(0,13)==='selRecipeFood'){
+    if (event.target.textContent.trim()!=='cancel')
     this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name =event.target.textContent.toLowerCase().trim();
     this.tabInputRecipeFood.splice(0,this.tabInputRecipeFood.length);
-    this.isRecipeFoodInput=false;
+    for (var i=0; i<this.tabRecipeFood.length; i++){
+      this.tabInputRecipeFood.push({name:''});
+      this.tabInputRecipeFood[this.tabInputRecipeFood.length-1].name=this.tabRecipeFood[i].name;
+    }
     if (this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].lockData!=='Y'){
       this.searchFoodCalories(event.target.textContent.toLowerCase().trim(), this.TabOfId[0], this.TabOfId[1]);
     }
+    this.isRecipeFoodInput=false;
   } 
 }
 
@@ -757,14 +766,15 @@ onInputRecipe(event:any){
       for (var i=0; i<this.tabFood.length; i++){
         if (this.tabFood[i].name.substring(0,event.target.value.trim().length)===event.target.value.toLowerCase().trim()){
           iTab++;
-          this.tabInputRecipeFood[iTab]=this.tabFood[i].name.toLowerCase().trim();
+          this.tabInputRecipeFood.push({name:''});
+          this.tabInputRecipeFood[iTab].name=this.tabFood[i].name.toLowerCase().trim();
         }
       }
       if (this.tabInputRecipeFood.length===1 && this.tabInputRecipeFood[0]=== event.target.value.toLowerCase().trim() && this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].lockData!=='Y'){
           this.searchFoodCalories(event.target.value.toLowerCase().trim(), this.TabOfId[0], this.TabOfId[1]);
           this.isRecipeFoodInput=false;
       }
-      
+      this.sizeBoxRecipeFood=this.tabInputRecipeFood.length * this.heightItemOptionBox;      
 
   } else if (event.target.id.substring(0,4)==='serv'){
     this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Serving=Number(event.target.value);

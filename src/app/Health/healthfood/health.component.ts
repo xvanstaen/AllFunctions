@@ -1252,6 +1252,9 @@ GetRecord(Bucket:string,GoogleObject:string, iWait:number){
                 if (this.HealthAllData.fileType===''){
                   this.HealthAllData.fileType=this.identification.fitness.fileType.Health;
                 }
+                if (this.InHealthAllData.fileType===''){
+                  this.FillHealthAllInOut(this.InHealthAllData, this.HealthAllData);
+                }
                 this.initTrackRecord();
                 this.SpecificForm.controls['FileName'].setValue(this.identification.fitness.files.fileHealth);
               } else if (iWait===1){
