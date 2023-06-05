@@ -1621,7 +1621,7 @@ ConfirmSave(){
   this.OpenDialogue[this.prev_Dialogue]=false;
   var i=0;
   
-  for (i=0; i<this.ErrorinputDate.length && this.ErrorinputDate[i]===''; i++){
+  for (i=0; i<this.ErrorinputDate.length && ( this.ErrorinputDate[i]==='' || this.ErrorinputDate[i]===undefined ); i++){
   }
   if (i===this.ErrorinputDate.length) {
     this.SpecificForm.controls['FileName'].setValue(this.Google_Object_Name);

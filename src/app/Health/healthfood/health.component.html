@@ -4,7 +4,7 @@
 </head> 
 <body>
     <div class="skipLine">&nbsp;</div>
-    <div [formGroup]="TheSelectDisplays" style="display:block; background-color:lightgrey; width:90%; max-width:410px; height:230px; margin-left:20px; border:solid 2px blue; ">
+    <div [formGroup]="TheSelectDisplays" style="display:block; background-color:lightgrey; width:90%; max-width:410px; height:250px; margin-left:20px; border:solid 2px blue; ">
         <div class="skipLine">&nbsp;</div>  
         <div  >
             <div class="theRadio">Create a new day </div>  
@@ -42,13 +42,18 @@
         </div>
         <div >
             <div class="theRadio">Display the charts </div> 
-            <input  (click)='SelRadio("Y-8")' class="theRadioButt" type="radio" name="DisplayChart" formControlName="DisplayChart" id="DisplayChart" value="Y" > <span class="YesNo">&nbsp;&nbsp;Yes</span> 
-            <input  (click)='SelRadio("N-8")' class="theRadioButt" style="margin-left:10px;" type="radio" name="DisplayChart" formControlName="DisplayChart" id="DisplayChart" value="N" > <span class="YesNo">&nbsp;&nbsp;No</span>
+            <input  (click)='SelRadio("Y-7")' class="theRadioButt" type="radio" name="DisplayChart" formControlName="DisplayChart" id="DisplayChart" value="Y" > <span class="YesNo">&nbsp;&nbsp;Yes</span> 
+            <input  (click)='SelRadio("N-7")' class="theRadioButt" style="margin-left:10px;" type="radio" name="DisplayChart" formControlName="DisplayChart" id="DisplayChart" value="N" > <span class="YesNo">&nbsp;&nbsp;No</span>
         </div>
         <div >
             <div class="theRadio">Re-load HTML configuration file </div> 
-            <input  (click)='SelRadio("Y-7")' class="theRadioButt" type="radio" name="ReloadHTML" formControlName="ReloadHTML" id="ReloadHTML" value="Y" > <span class="YesNo">&nbsp;&nbsp;Yes</span> 
-            <input  (click)='SelRadio("N-7")' class="theRadioButt" style="margin-left:10px;" type="radio" name="ReloadHTML" formControlName="ReloadHTML" id="ReloadHTML" value="N" > <span class="YesNo">&nbsp;&nbsp;No</span>
+            <input  (click)='SelRadio("Y-8")' class="theRadioButt" type="radio" name="ReloadHTML"  id="ReloadHTML" formControlName="ReloadHTML" value="Y" > <span class="YesNo">&nbsp;&nbsp;Yes</span> 
+            <input  (click)='SelRadio("N-8")' class="theRadioButt" style="margin-left:10px;" type="radio" name="ReloadHTML" formControlName="ReloadHTML" id="ReloadHTML" value="N" > <span class="YesNo">&nbsp;&nbsp;No</span>
+        </div>
+        <div >
+            <div class="theRadio">Re-load Chart configuration file </div> 
+            <input  (click)='SelRadio("Y-9")' class="theRadioButt" type="radio" name="ReloadChart"  id="ReloadChart" formControlName="ReloadChart"  value="Y" > <span class="YesNo">&nbsp;&nbsp;Yes</span> 
+            <input  (click)='SelRadio("N-9")' class="theRadioButt" style="margin-left:10px;" type="radio" name="ReloadChart"  formControlName="ReloadChart"  id="ReloadChart" value="N" > <span class="YesNo">&nbsp;&nbsp;No</span>
         </div>
         <div class="skipLine">&nbsp;</div>  
 </div>
@@ -63,7 +68,7 @@
     </app-calories-fat>
     <div class="skipLine">&nbsp;</div>
 </div>
-<div  *ngIf="isDisplayChart===true && EventHTTPReceived[4]===true">
+<div  *ngIf="isDisplayChart===true && EventHTTPReceived[4]===true && EventHTTPReceived[0]===true && EventHTTPReceived[5]===true">
     <app-report-health [identification]="identification"  [INFileParamChart]="fileParamChart"
     [ConfigChartHealth]="ConfigChart.chartHealth"  [HealthAllData]="HealthAllData" (returnFile)="saveParamChart($event)">
     </app-report-health>

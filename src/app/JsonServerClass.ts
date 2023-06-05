@@ -75,7 +75,7 @@ export class BioData{
         GI:0,
         SaturatedFat:0,
         Cholesterol:{
-          minLimit:0,
+          myLimit:0,
           maxLimit:0,
         },
         Calories:0,

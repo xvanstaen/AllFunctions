@@ -183,7 +183,7 @@
     <div class="skipLine">&nbsp;</div>
     <div style="width:99%; display:inline-block; margin-left:10px; color:blue;">Select the items to consider for this chart</div>
     <span *ngFor="let tab of tabofLabels; let i=index;">
-        <span style="width:47%; display:inline-block; margin-left:10px;">
+        <span *ngIf="tabofExistLabels[i]===true" style="width:47%; display:inline-block; margin-left:10px;">
             <span *ngIf="selectedFields[i]==='N'" style="width:5%;">
                 <input style="width:20px;" (click)='SelRadio($event)'   class="theRadioButt" type="radio"  id="A-{{i}}"  value="Y"  >  
             </span>
@@ -315,7 +315,7 @@
     </div>
 </div>
 <div class="skipLine">&nbsp;</div>
-<div style="overflow-x:scroll; display:inline-block;" [ngStyle]="{'max-width.px ': 900, 'max-height.px ': 900}">
+<div *ngIf="isTestLineChart===true" style="overflow-x:scroll; display:inline-block;" [ngStyle]="{'max-width.px ': 900, 'max-height.px ': 900}">
     <div style=" border:1px blue solid; padding-top:50px;" 
             [ngStyle]="{'background-color': canvas[3].background, 'margin-left.px':canvas[3].marginLeft,
             'width.px': canvas[3].width, 'height.px ': canvas[3].height}">

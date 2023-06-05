@@ -146,6 +146,7 @@ export class HealthComponent implements OnInit {
     theAction: new FormControl('Action', { nonNullable: true }),
     DisplayChart: new FormControl('N', { nonNullable: true }),
     ReloadHTML: new FormControl('N', { nonNullable: true }),
+    ReloadChart: new FormControl('N', { nonNullable: true }),
     startRange: new FormControl('',[
           Validators.required,
           // validates date format yyyy-mm-dd with regular expression
@@ -1698,23 +1699,24 @@ LogMsgConsole(msg:string){
           this.isAllDataModified=true;
           //this.tabNewRecordAll.splice(0,this.tabNewRecordAll.length);
           //this.initTrackRecord();
-    
-        } else if (i==='7'){
+        }
+        } else if (i==='8'){
           if (NoYes==='Y'){
             this.GetRecord(this.identification.configFitness.bucket,this.identification.configFitness.files.confHTML,3);
           } 
-        } else {
-          this.IsCalculateCalories=false;
+        }  else if (i==='7'){
+          if (NoYes==='Y'){
+            this.isDisplayChart=true;
+          } 
+          else {
+            this.isDisplayChart=false; //
+            }
+        }  else if (i==='9'){
+          if (NoYes==='Y'){
+              this.GetRecord(this.identification.configFitness.bucket,this.identification.configFitness.files.confChart,4);
+          }
         }
-      } else if (i==='8'){
-        if (NoYes==='Y'){
-          this.isDisplayChart=true;
-        } 
-       else {
-        this.isDisplayChart=false;
-      }
-      }
-  }
+    }
   
 
 

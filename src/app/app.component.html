@@ -16,6 +16,8 @@
         <span style="width:130px; display:inline-block; margin-left:10px;">9. Save & Download</span>
         <span style="width:130px; display:inline-block; margin-left:10px;">10. Converter</span>
         <span style="width:130px; display:inline-block; margin-left:10px;">11. Calories & Fat</span>
+        <span style="width:130px; display:inline-block; margin-left:10px;">12. Health data</span>
+        <span style="width:130px; display:inline-block; margin-left:10px;">13. Health Chart</span>
 
         <br><br>
     </span>
@@ -39,7 +41,7 @@
         >
         </app-converter>
     </div>  
-    <div *ngIf="selectApps===11">
+    <div *ngIf="selectApps>10  &&  selectApps<14">
         <app-health  [identification]="identification" [XMVConfig]="XMVConfig" [configServer]="configServer"  [triggerFunction]="selHealthFunction"
         (returnFile)="ReceiveFiles($event)"     
         >

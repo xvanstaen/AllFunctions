@@ -81,7 +81,11 @@ export class AppComponent {
       this.isAppsSelected=false;
       if (this.selectApps===11){
         this.selHealthFunction=5;
-      } else {
+      } else if (this.selectApps===12){
+        this.selHealthFunction=3;
+      } else if (this.selectApps===13){
+        this.selHealthFunction=7;
+      } else{
         this.selHealthFunction=0;
       }
           
@@ -121,9 +125,9 @@ isIdRetrieved:boolean=false;
           // ==============================================
           // ======== TO BE REMOVED AFTER THE TEST ========
           // ==============================================
-          this.isAppsSelected=true;
-          this.selectApps=11;
-          this.selHealthFunction=5;
+          //this.isAppsSelected=true;
+          //this.selectApps=11;
+          //this.selHealthFunction=5;
           // ==============================================
 
       },
