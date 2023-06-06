@@ -36,6 +36,10 @@ export class ColorPickerComponent {
     VerHor: new FormControl('', {validators:[Validators.required, Validators.minLength(3)], nonNullable: true}),
     top: new FormControl('',{validators:[ Validators.required], nonNullable: true}),
     left: new FormControl('',{validators:[ Validators.required], nonNullable: true}),
+    rgba1: new FormControl('',{validators:[ Validators.required], nonNullable: true}),
+    rgba2: new FormControl('',{validators:[ Validators.required], nonNullable: true}),
+    rgba3: new FormControl('',{validators:[ Validators.required], nonNullable: true}),
+    rgba4: new FormControl('',{validators:[ Validators.required], nonNullable: true}),
 
   });
   ngOnInit(){
@@ -57,6 +61,10 @@ onSubmit(){
     this.posSlider.VerHor=this.myForm.controls['VerHor'].value;
     this.posSlider.top=Number(this.myForm.controls['top'].value);
     this.posSlider.left=Number(this.myForm.controls['left'].value);
+
+    this.my_input_child2='rgba('+this.myForm.controls['rgba1'].value+","+this.myForm.controls['rgba2'].value
+                      +","+this.myForm.controls['rgba3'].value+","+this.myForm.controls['rgba4'].value+")";
+    this.my_input_child1=this.my_input_child2;
     this.isDisplaySlider=true;
     this.paramChange++;
     

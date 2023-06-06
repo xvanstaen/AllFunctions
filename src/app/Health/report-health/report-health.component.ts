@@ -218,11 +218,11 @@ export class ReportHealthComponent implements OnInit {
         this.collectSpecialData(i, this.overallTab[i].datasetBar, this.overallTab[i].labelBar, this.overallTabLimit[i].dataset, this.overallTabLimit[i].label);        
     }
 
-    this.newtabChart=document.getElementById('myLineCanvas');
-    this.newtabCtx=this.newtabChart.getContext('2d');
+       //   TEST LINE CHART
 
-    //   TEST LINE CHART
     // this.isTestLineChart=true;
+    // this.newtabChart=document.getElementById('myLineCanvas');
+    // this.newtabCtx=this.newtabChart.getContext('2d');
     // this.testLineChart();
   }
 
