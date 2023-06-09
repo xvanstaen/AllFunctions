@@ -1,4 +1,4 @@
-import { classPlugin, classAxisX, classAxisY, classLegendChart, classPluginTitle } from '../Health/classChart';
+import { classPlugin, classAxis, classLegendChart, classPluginTitle } from '../Health/classChart';
 
 
 export class classConfigChart{
@@ -37,8 +37,8 @@ export class  classchartHealth{
             plugins:new classPlugin,
             indexAxis:"",
             scales:{
-                axisX: new classAxisX,
-                axisY: new classAxisY,
+                axisX: new classAxis,
+                axisY: new classAxis,
             },
             aspectRatio:1
         },
@@ -71,8 +71,8 @@ export class  classchartHealth{
         options: {
             plugins:new classPlugin,
             scales:{
-                axisX: new classAxisX,
-                axisY: new classAxisY,
+                axisX: new classAxis,
+                axisY: new classAxis,
             },
             aspectRatio:1
         },

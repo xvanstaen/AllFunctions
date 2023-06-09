@@ -39,7 +39,7 @@ import {classConfHTMLFitHealth, classConfTableAll} from '../classConfHTMLTableAl
 
 import {CalcFatCalories} from '../CalcFatCalories';
 import { classConfigChart, classchartHealth } from '../classConfigChart';
-import { classAxisX, classAxisY, classLegendChart, classPluginTitle , classTabFormChart, classFileParamChart} from '../classChart';
+import { classAxis,  classLegendChart, classPluginTitle , classTabFormChart, classFileParamChart} from '../classChart';
 
 
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
