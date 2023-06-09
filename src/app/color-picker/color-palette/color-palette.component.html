@@ -2,6 +2,7 @@
 
 <canvas #myCanvas id='canvasElPalette' 
 class="color-palette position" 
+[ngStyle]="{'margin-left.px':margLeft, 'margin-top.px':margTop}"
 width="255" 
 height="255" 
 (mousedown)="onMouseDown($event)" 

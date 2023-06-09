@@ -77,6 +77,7 @@ export class ReportHealthComponent implements OnInit {
   @Input() ConfigChartHealth=new classchartHealth;
   @Input() INFileParamChart=new classFileParamChart;
   posSlider=new classPosSlider;
+  posPalette=new classPosSlider;
   paramChange:number=0; // used to trigger the change on slider position
   @Output() returnFile= new EventEmitter<any>();
 
@@ -193,7 +194,7 @@ export class ReportHealthComponent implements OnInit {
     borderColor:new FormControl('', { nonNullable: true }),
     borderWidth:new FormControl(0, { nonNullable: true }),
     position:new FormControl('', { nonNullable: true }),
-    stacked:new FormControl(false, { nonNullable: true }),
+    stacked:new FormControl('', { nonNullable: true }),
     ticksColor:new FormControl('', { nonNullable: true }),
   });
 
@@ -201,7 +202,7 @@ export class ReportHealthComponent implements OnInit {
     borderColor:new FormControl('', { nonNullable: true }),
     borderWidth:new FormControl(0, { nonNullable: true }),
     position:new FormControl('', { nonNullable: true }),
-    stacked:new FormControl(false, { nonNullable: true }),
+    stacked:new FormControl('', { nonNullable: true }),
     ticksColor:new FormControl('', { nonNullable: true }),
   });
 
@@ -235,6 +236,10 @@ export class ReportHealthComponent implements OnInit {
   selected_boxColor:string='';
   selected_chartTitleColor:string='';
   selected_colorTitle:string="";
+  selected_XBorderColor:string="";
+  selected_YBorderColor:string="";
+  selected_XTicksColor:string="";
+  selected_YTicksColor:string="";
 
   selectedFields:Array<any>=[];
   selectedLimitFields:Array<any>=[];
@@ -270,10 +275,7 @@ export class ReportHealthComponent implements OnInit {
   isSelectYTicksColor:boolean=false;
   isSliderSelected:boolean=false;
   
-  selected_XBorderColor:string="";
-  selected_YBorderColor:string="";
-  selected_XTicksColor:string="";
-  selected_YTicksColor:string="";
+
   returnXBorderColorRgba={
     slider:new classReturnColor,
     palette:new classReturnColor,
@@ -338,10 +340,11 @@ tabDisplay:Array<boolean>=[false,true];
 ngOnInit() {
 
   var i=0;
-
   this.posSlider.VerHor='H';
   this.posSlider.top=5;
-  this.posSlider.left=20;
+  this.posSlider.left=40;
+  this.posPalette.top=0;
+  this.posPalette.left=60;
   for (i=0; i<this.ConfigChartHealth.barDefault.datasets.labels.length; i++){
 
       this.FillSelected.selected='N';
@@ -581,6 +584,10 @@ SelChart(event:any){
 cancelChartParam(event:any){
   if (event.target.id==="allChartParam"){
     this.selectedChart=0;
+    this.isParamTitle=false;
+    this.isParamLegend=false;
+    this.isParamAxis=false;
+
   } else   if (event.target.id==="chartTitle"){
     this.isParamTitle=false;
     this.isParamLegend=false;
@@ -592,8 +599,18 @@ cancelChartParam(event:any){
 
 processAxis(event:any){
   this.isParamAxis=false;
-  this.tabParamChart[this.selectedChart-1].axisX.stacked=this.selectAxisX.controls['stacked'].value;
-  this.tabParamChart[this.selectedChart-1].axisY.stacked=this.selectAxisY.controls['stacked'].value;
+  if (this.selectAxisX.controls['stacked'].value==='false'){
+    this.tabParamChart[this.selectedChart-1].axisX.stacked=false;
+  } else {
+    this.tabParamChart[this.selectedChart-1].axisX.stacked=true;
+  }
+  if (this.selectAxisY.controls['stacked'].value==='false'){
+    this.tabParamChart[this.selectedChart-1].axisY.stacked=false;
+  } else {
+    this.tabParamChart[this.selectedChart-1].axisY.stacked=true;
+  }
+
+
   this.selectChart.controls['stackedX'].setValue(this.tabParamChart[this.selectedChart-1].axisX.stacked);
   this.selectChart.controls['stackedY'].setValue(this.tabParamChart[this.selectedChart-1].axisY.stacked);
 }
@@ -625,8 +642,16 @@ fillInTabOfCharts(nb:number){
   this.tabParamChart[nb].legendBox.color=this.selectChart.controls['boxcolor'].value;
   this.fillRgba(this.returnBoxRgba,this.tabParamChart[nb].legendBoxRgba);
 
-  this.tabParamChart[nb].axisX.stacked=this.selectChart.controls['stackedX'].value;
-  this.tabParamChart[nb].axisY.stacked=this.selectChart.controls['stackedY'].value;
+  if (this.selectChart.controls['stackedX'].value==='false'){
+    this.tabParamChart[nb].axisX.stacked=false;
+  } else {
+    this.tabParamChart[nb].axisX.stacked=true;
+  }
+  if (this.selectChart.controls['stackedY'].value==='false'){
+    this.tabParamChart[nb].axisY.stacked=false;
+  } else {
+    this.tabParamChart[nb].axisY.stacked=true;
+  }
 
   this.tabParamChart[nb].axisX.border.color=this.selectAxisX.controls['borderColor'].value;
   this.tabParamChart[nb].axisX.border.width=this.selectAxisX.controls['borderWidth'].value;
@@ -784,6 +809,10 @@ fillInFormFromTab(nb:number){
   this.selectAxisY.controls['position'].setValue(this.tabParamChart[nb].axisY.position);
   this.selectAxisY.controls['ticksColor'].setValue(this.tabParamChart[nb].axisY.ticks.color);
   this.selectAxisX.controls['stacked'].setValue(this.tabParamChart[nb].axisY.stacked);
+  this.selected_XTicksColor=this.tabParamChart[nb].axisX.ticks.color;
+  this.selected_XBorderColor=this.tabParamChart[nb].axisX.border.color;
+  this.selected_YTicksColor=this.tabParamChart[nb].axisY.ticks.color;
+  this.selected_YBorderColor=this.tabParamChart[nb].axisY.border.color;
 
 
   this.selectChart.controls['period'].setValue(this.tabParamChart[nb].period.toLowerCase().trim());
@@ -856,12 +885,12 @@ this.selectTitle.controls['sliderYpos'].setValue(outRgba.slider.yPos);
   if (id==='viewChartTitle'){
       this.isParamTitle=true;
       this.selectTitle.controls['text'].setValue(this.selectChart.controls['chartTitle'].value);
-      this.selectTitle.controls['color'].setValue(this.returnTitleRgba.palette.rgba);
+      this.selectTitle.controls['color'].setValue(this.selectChart.controls['colorChartTitle'].value);
       this.selected_colorTitle=this.selectChart.controls['colorChartTitle'].value;
   } else if (id==='viewLegendTitle'){
     this.selectTitle.controls['paddingLeft'].setValue(this.tabParamChart[this.selectedChart-1].legendTitle.padding.left);
     this.selectTitle.controls['text'].setValue(this.selectChart.controls['legendTitle'].value);
-    this.selectTitle.controls['color'].setValue(this.returnLegendRgba.palette.rgba);
+    this.selectTitle.controls['color'].setValue(this.selectChart.controls['colorLegendTitle'].value);
     this.isParamLegend=true;
     this.selected_colorTitle=this.selectChart.controls['colorLegendTitle'].value;
   }
@@ -903,11 +932,13 @@ fillTabTitle(outFile:any,outRgba:any){
 
       this.selectChart.controls['legendTitle'].setValue(outFile.text);
       this.selectChart.controls['colorLegendTitle'].setValue(outFile.color);
+
       
     } else  if (this.isParamTitle===true){
       outFile.padding.left=this.selectTitle.controls['paddingLeft'].value;
       this.selectChart.controls['chartTitle'].setValue(outFile.text);
       this.selectChart.controls['colorChartTitle'].setValue(outFile.color);
+
       
     }
   
@@ -1185,6 +1216,30 @@ if (event==='Cancel'){
     this.returnBoxRgba.palette=this.returnPalette;
     this.returnBoxRgba.slider=this.returnSlider;
     this.isSelectBoxColor=false;
+  } else if (this.isSelectXBorderColor===true){
+    this.selected_XBorderColor = this.temporaryColor;
+    this.selectAxisX.controls['borderColor'].setValue(this.temporaryColor);
+    this.returnXBorderColorRgba.palette=this.returnPalette;
+    this.returnXBorderColorRgba.slider=this.returnSlider;
+    this.isSelectXBorderColor=false;
+  } else if (this.isSelectXTicksColor===true){
+    this.selected_XTicksColor = this.temporaryColor;
+    this.selectAxisX.controls['ticksColor'].setValue(this.temporaryColor);
+    this.returnXTicksRgba.palette=this.returnPalette;
+    this.returnXTicksRgba.slider=this.returnSlider;
+    this.isSelectXTicksColor=false;
+  } else if (this.isSelectYBorderColor===true){
+    this.selected_YBorderColor = this.temporaryColor;
+    this.selectAxisY.controls['borderColor'].setValue(this.temporaryColor);
+    this.returnYBorderColorRgba.palette=this.returnPalette;
+    this.returnYBorderColorRgba.slider=this.returnSlider;
+    this.isSelectYBorderColor=false;
+  } else if (this.isSelectYTicksColor===true){
+    this.selected_YTicksColor = this.temporaryColor;
+    this.selectAxisY.controls['ticksColor'].setValue(this.temporaryColor);
+    this.returnYTicksRgba.palette=this.returnPalette;
+    this.returnYTicksRgba.slider=this.returnSlider;
+    this.isSelectYTicksColor=false;
   }
 
   if (this.isSelectLChartTitleColor===true){
@@ -1876,8 +1931,8 @@ specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
           plugins: {
             title:{
               padding: {
-                top: this.ConfigChartHealth.barDefault.options.plugins.title.padding.top, 
-                bottom:this.ConfigChartHealth.barDefault.options.plugins.title.padding.bottom,
+                top: this.tabParamChart[nb].chartTitle.padding.top, 
+                bottom:this.tabParamChart[nb].chartTitle.padding.bottom,
               },
               //position: "bottom",
               display:true,
@@ -1885,9 +1940,9 @@ specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
               //align:'center',
               color:TitleColor,
               font:{
-                  size:this.ConfigChartHealth.barDefault.options.plugins.title.font.size,
-                  weight:'bold',
-                  family:'Helvetica',
+                  size:this.tabParamChart[nb].chartTitle.font.size,
+                  weight:this.tabParamChart[nb].chartTitle.font.weight,
+                  family:this.tabParamChart[nb].chartTitle.font.family,
                 }
             },
           legend: {
@@ -1903,8 +1958,8 @@ specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
                
                 font:{
                   size:theboxfontSize,
-                  weight:'bold',
-                  family:'Helvetica',
+                  weight:this.tabParamChart[nb].legendBox.font.weight,
+                  family:this.tabParamChart[nb].legendBox.font.family,
                 }
                 
               },
@@ -1912,16 +1967,18 @@ specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
             maxWidth:this.ConfigChartHealth.barDefault.options.plugins.legend.maxWidth,
             reverse:false,
             title:{
-              display:true,
+              display:displayLegendTitle,
               text:mylegendTitle,
               color:legendColor,
-                  padding:{
-                    left:0,
+              padding:{
+                    left:this.tabParamChart[nb].legendTitle.padding.left,
+                    top:this.tabParamChart[nb].legendTitle.padding.top,
+                    bottom:this.tabParamChart[nb].legendTitle.padding.bottom,
                   },  
               font:{
-                  size:this.ConfigChartHealth.barDefault.options.plugins.legend.title.font.size,
-                  weight:'bold',
-                  family:'Helvetica',
+                  size:this.tabParamChart[nb].legendTitle.font.size,
+                  weight:this.tabParamChart[nb].legendTitle.font.weight,
+                  family:this.tabParamChart[nb].legendTitle.font.family,
                 }
               },
 
@@ -1938,21 +1995,21 @@ specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
             y: {
               beginAtZero: true,
               type:'linear',
-              position:'left',
+              position:'right',
               stacked: yStacked ,
-              border:{ color:this.ConfigChartHealth.barDefault.options.scales.axisY.border.color, 
-                width:this.ConfigChartHealth.barDefault.options.scales.axisY.border.width },
+              border:{ color:this.tabParamChart[nb].axisY.border.color, 
+                width:this.tabParamChart[nb].axisY.border.width },
               ticks:{
                 // stepSize:0.7,
-                color:this.ConfigChartHealth.barDefault.options.scales.axisY.ticks.color,
+                color:this.tabParamChart[nb].axisY.ticks.color,
               }
             },
             x: {
               stacked: xStacked ,
-              border:{ color:this.ConfigChartHealth.barDefault.options.scales.axisX.border.color, 
-                width:this.ConfigChartHealth.barDefault.options.scales.axisX.border.width },
+              border:{ color:this.tabParamChart[nb].axisX.border.color, 
+                width:this.tabParamChart[nb].axisX.border.width },
               ticks:{
-                color:this.ConfigChartHealth.barDefault.options.scales.axisX.ticks.color,
+                color:this.tabParamChart[nb].axisX.ticks.color,
               }
             },
           },
@@ -1968,7 +2025,6 @@ specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
         data: {
           labels:dateLabel,
           datasets: theDatasets,
-          
         },
         
         options: { 

@@ -18,6 +18,7 @@ export class ColorPickerComponent {
   my_output_child2:string='';
 
   posSlider=new classPosSlider;
+  posPalette=new classPosSlider;
   paramChange:number=0; // used to trigger the change on slider position
 
   returnSlider={
@@ -40,7 +41,8 @@ export class ColorPickerComponent {
     rgba2: new FormControl('',{validators:[ Validators.required], nonNullable: true}),
     rgba3: new FormControl('',{validators:[ Validators.required], nonNullable: true}),
     rgba4: new FormControl('',{validators:[ Validators.required], nonNullable: true}),
-
+    palTop: new FormControl('',{validators:[ Validators.required], nonNullable: true}),
+    palLeft: new FormControl('',{validators:[ Validators.required], nonNullable: true}),
   });
   ngOnInit(){
     //console.log('=====>init  color-picker');
@@ -51,8 +53,8 @@ export class ColorPickerComponent {
     this.myForm.controls['top'].setValue('3');
     this.myForm.controls['left'].setValue('20');
 
-
-
+    this.myForm.controls['palTop'].setValue('0');
+    this.myForm.controls['palLeft'].setValue('20');
 
   }
 
@@ -61,6 +63,8 @@ onSubmit(){
     this.posSlider.VerHor=this.myForm.controls['VerHor'].value;
     this.posSlider.top=Number(this.myForm.controls['top'].value);
     this.posSlider.left=Number(this.myForm.controls['left'].value);
+    this.posPalette.top=Number(this.myForm.controls['palTop'].value);
+    this.posPalette.left=Number(this.myForm.controls['palLeft'].value);
 
     this.my_input_child2='rgba('+this.myForm.controls['rgba1'].value+","+this.myForm.controls['rgba2'].value
                       +","+this.myForm.controls['rgba3'].value+","+this.myForm.controls['rgba4'].value+")";

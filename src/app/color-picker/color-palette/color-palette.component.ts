@@ -1,5 +1,6 @@
-import { Component,  SimpleChanges, ViewChild, AfterViewInit, OnInit,  OnChanges,
+import { Component,  SimpleChanges, ViewChild, AfterViewInit, OnInit, OnChanges,
   Output, Input, HostListener, EventEmitter } from '@angular/core';
+import {classPosSlider} from '../../JsonServerClass';
 
 @Component({
   selector: 'app-color-palette',
@@ -11,6 +12,8 @@ export class ColorPaletteComponent implements OnInit, OnChanges, AfterViewInit {
   constructor() { }
 
   @Input() my_input1: string='';
+  @Input() posPalette = new classPosSlider;
+  @Input() paramChange:number=0;
   @Input() INreturnField={
     rgba:'',
     xPos:0,
@@ -20,6 +23,9 @@ export class ColorPaletteComponent implements OnInit, OnChanges, AfterViewInit {
   @Output() my_output2= new EventEmitter<any>();
 
   @ViewChild('myCanvas', { static: true })
+
+  margLeft:number=0;
+  margTop:number=0;
 
   i=0;
   mytext:string='';
@@ -43,7 +49,14 @@ export class ColorPaletteComponent implements OnInit, OnChanges, AfterViewInit {
 
   ngOnInit(): void {
     //console.log('first child init - no emit');
-    
+    if (this.posPalette.left===undefined || this.posPalette.left===0){
+      this.margLeft=20;
+      this.margTop=0;
+    } else {
+      this.margLeft=this.posPalette.left;
+      this.margTop=this.posPalette.top;
+    }
+
   }
    
   
@@ -118,6 +131,9 @@ export class ColorPaletteComponent implements OnInit, OnChanges, AfterViewInit {
                   
                 }
               
+          } else if (propName==='paramChange'){
+            this.ngOnInit();
+            this.draw();
           }
       }
 
@@ -176,7 +192,7 @@ export class ColorPaletteComponent implements OnInit, OnChanges, AfterViewInit {
       return 'rgba(' + imageData[0] + ',' + imageData[1] + ',' + imageData[2] + ',1)';
     }
   
-
+   
 
 
 }

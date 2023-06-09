@@ -58,11 +58,11 @@ export class ColorSliderComponent implements OnInit, OnChanges, AfterViewInit {
 
 ngOnInit(): void {
   if (this.posSlider.VerHor==='H'){
-      this.canvas.width=250;
+      this.canvas.width=300;
       this.canvas.height=50;
   } else {
     this.canvas.width=50;
-    this.canvas.height=250;
+    this.canvas.height=251;
   }
 
 
@@ -80,7 +80,7 @@ ngAfterViewInit() {
     if (this.INreturnField.rgba!==undefined && this.INreturnField.rgba!=='' ){
       this.ctx.beginPath()
       this.ctx.strokeStyle = 'white'
-      this.ctx.lineWidth = 3
+      this.ctx.lineWidth = 2
       //this.ctx.rect(0, this.selectedHeight - 5, width, 10)
       this.ctx.rect( this.INreturnField.xPos - 5, 0, 10, 50)
       this.ctx.stroke()
@@ -99,7 +99,7 @@ draw() {
       const height = this.theCanvas.height;
       this.ctx.clearRect(0, 0, width, height);
       if (this.posSlider.VerHor==='H'){
-        gradient = this.ctx.createLinearGradient(0, 0, width, 0);
+        gradient = this.ctx.createLinearGradient(0, 0, width , 0);
       } else {
         gradient = this.ctx.createLinearGradient(0, 0, 0, height);
       }
@@ -123,9 +123,9 @@ draw() {
         this.ctx.strokeStyle = 'white'
         this.ctx.lineWidth = 3
         if (this.posSlider.VerHor==='H'){
-          this.ctx.rect( this.selectedWidth - 5, 0, 10, height);
+          this.ctx.rect( this.selectedWidth - 5, 0, 3, height);
         } else {
-          this.ctx.rect(0, this.selectedHeight - 5, width, 10);
+          this.ctx.rect(0, this.selectedHeight - 5, width, 3);
         }
         this.ctx.stroke()
         this.ctx.closePath()
