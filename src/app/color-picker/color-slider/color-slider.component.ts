@@ -1,6 +1,9 @@
 import { Component, OnInit , Input, Output, EventEmitter, ViewChild, SimpleChanges, OnChanges, 
   AfterContentInit, HostListener, AfterViewInit} from '@angular/core';
   import {classPosSlider} from '../../JsonServerClass';
+
+  import {MatSliderModule} from '@angular/material/slider';
+
 @Component({
   selector: 'app-color-slider',
   templateUrl: './color-slider.component.html',
@@ -33,16 +36,13 @@ export class ColorSliderComponent implements OnInit, OnChanges, AfterViewInit {
 
   mousedown:boolean=false;
 
-  selectedHeight: number=0;
-  selectedWidth: number=0;
+  selectedHeight:number=0;
+  selectedWidth:number=0;
 
   hexColor: string='';
   rgbaColor: any;
-
   theCanvas:any;
   ctx:any;
-  x:number=0;
-  y:number=0;
 
   returnField={
     rgba:'',
@@ -55,53 +55,57 @@ export class ColorSliderComponent implements OnInit, OnChanges, AfterViewInit {
     height:0
   }
 
-
 ngOnInit(): void {
   if (this.posSlider.VerHor==='H'){
-      this.canvas.width=300;
+      this.canvas.width=255;
       this.canvas.height=50;
   } else {
     this.canvas.width=50;
-    this.canvas.height=251;
+    this.canvas.height=255;
   }
 
 
   }
 
 ngAfterViewInit() { 
-    this.theCanvas=document.getElementById('canvasIDSlider');
-    if (!this.ctx) { //true
-        // from origin
-        //this.ctx = (this.myCanvas.nativeElement as HTMLCanvasElement).getContext('2d');
-        //this.ctx = this.myCanvas.nativeElement.getContext('2d');
-        this.ctx=this.theCanvas.getContext('2d');
+  if (this.posSlider.VerHor==='H'){
+    this.theCanvas=document.getElementById('canvasIDSliderH');
+  } else {
+    this.theCanvas=document.getElementById('canvasIDSliderV');
+  }
+  this.ctx=this.theCanvas.getContext('2d');
+  this.draw();
+  if (this.INreturnField.rgba!==undefined && this.INreturnField.rgba!=='' ){
+    this.ctx.beginPath()
+    this.ctx.strokeStyle = 'white'
+    this.ctx.lineWidth = 2
+    //this.ctx.rect(0, this.selectedHeight - 5, width, 10)
+    if (this.posSlider.VerHor==='H'){
+      this.ctx.rect( this.INreturnField.xPos - 1, 0, this.ctx.lineWidth, this.canvas.height);
+    } else {
+      this.ctx.rect(0, this.INreturnField.yPos - 1, this.canvas.width, this.ctx.lineWidth);
     }
-    this.draw();
-    if (this.INreturnField.rgba!==undefined && this.INreturnField.rgba!=='' ){
-      this.ctx.beginPath()
-      this.ctx.strokeStyle = 'white'
-      this.ctx.lineWidth = 2
-      //this.ctx.rect(0, this.selectedHeight - 5, width, 10)
-      this.ctx.rect( this.INreturnField.xPos - 5, 0, 10, 50)
-      this.ctx.stroke()
-      this.ctx.closePath()
-    }
-    
- 
-    }
+    //this.ctx.rect( this.INreturnField.xPos - 5, 0, 10, 50)
+    this.ctx.stroke()
+    this.ctx.closePath()
+  } 
+}
   
 draw() {
-    // from origin
-    //const width = this.myCanvas.nativeElement.width;
-    //const height = this.myCanvas.nativeElement.height;
+
       var gradient:any;
       const width = this.theCanvas.width;
       const height = this.theCanvas.height;
-      this.ctx.clearRect(0, 0, width, height);
+      this.ctx.clearRect(0, 0, width , height);
       if (this.posSlider.VerHor==='H'){
-        gradient = this.ctx.createLinearGradient(0, 0, width , 0);
+      // x0=The x-coordinate of the start point of the gradient
+      // y0=The y-coordinate of the start point of the gradient
+      // x1=The x-coordinate of the end point of the gradient
+      // y1=The y-coordinate of the end point of the gradient
+      // this.ctx.createLinearGradient(x0, y0, x1 , y1);
+          gradient = this.ctx.createLinearGradient(0, 0, width , 0);
       } else {
-        gradient = this.ctx.createLinearGradient(0, 0, 0, height);
+          gradient = this.ctx.createLinearGradient(0, 0, 0, height);
       }
       
       gradient.addColorStop(0, 'rgba(255, 0, 0, 1)');
@@ -113,22 +117,22 @@ draw() {
       gradient.addColorStop(1, 'rgba(255, 0, 0, 1)');
 
       this.ctx.beginPath();
-      this.ctx.rect(0, 0, width, height);
       this.ctx.fillStyle = gradient;
+      this.ctx.rect(0, 0, width, height);
       this.ctx.fill();
       this.ctx.closePath();
 
-      if (this.selectedHeight || this.selectedWidth) {
-        this.ctx.beginPath()
+      if (this.selectedWidth!==0 || this.selectedHeight!==0){
+        this.ctx.beginPath();
         this.ctx.strokeStyle = 'white'
-        this.ctx.lineWidth = 3
+        this.ctx.lineWidth = 2
         if (this.posSlider.VerHor==='H'){
-          this.ctx.rect( this.selectedWidth - 5, 0, 3, height);
+          this.ctx.rect( this.selectedWidth - 1, 0, this.ctx.lineWidth, this.canvas.height);
         } else {
-          this.ctx.rect(0, this.selectedHeight - 5, width, 3);
+          this.ctx.rect(0, this.selectedHeight - 1, this.canvas.width, this.ctx.lineWidth);
         }
-        this.ctx.stroke()
-        this.ctx.closePath()
+        this.ctx.stroke();
+        this.ctx.closePath();
       }
 
 }
@@ -139,16 +143,16 @@ onMouseDown(evt: MouseEvent) {
     this.selectedHeight = evt.offsetY;
     this.selectedWidth = evt.offsetX;
     this.draw();
-    this.emitColor(evt.offsetX, evt.offsetY);
-    }
+    this.emitColor();
+  }
   
 onMouseMove(evt: MouseEvent) {
     if (this.mousedown) {
       this.selectedHeight = evt.offsetY;
       this.selectedWidth = evt.offsetX;
       this.draw();
-      this.emitColor(evt.offsetX, evt.offsetY);
-    }
+      this.emitColor();
+    } 
   }
 
 @HostListener('window:mouseup', ['$event'])
@@ -158,8 +162,10 @@ onMouseUp(evt: MouseEvent) {
   }
   
 
-emitColor(x: number, y: number) {
-      this.rgbaColor = this.getColorAtPosition(x, y);
+emitColor() {
+  var imageDataBis = this.ctx.getImageData(this.selectedWidth, this.selectedHeight, 1, 1);
+  console.log('Image RGBA= '+imageDataBis.data[0] + ','+imageDataBis.data[2] + ','+imageDataBis.data[3] + ',' );
+      this.rgbaColor = this.getColorAtPosition();
       this.returnField.rgba=this.rgbaColor;
       this.returnField.xPos=this.selectedWidth;
       this.returnField.yPos=this.selectedHeight;
@@ -167,9 +173,38 @@ emitColor(x: number, y: number) {
       this.my_output2.emit(this.returnField);
      }
      
-getColorAtPosition(x: number, y: number) {
-       const imageData = this.ctx.getImageData(x, y, 1, 1).data;
-       return 'rgba(' + imageData[0] + ',' + imageData[1] + ',' + imageData[2] + ',1)';
+getColorAtPosition() {
+
+  var AA=0;
+  var BB=0;
+  var CC=0;
+  var iFound=0;
+  var imageData = this.ctx.getImageData(1, 1, 1, 1);
+
+  if (this.posSlider.VerHor==='H'){
+      for (var i=1; i<this.selectedWidth+3 ; i++){
+        imageData = this.ctx.getImageData(i, 1, 1, 1);
+        AA=imageData.data[0];
+        BB=imageData.data[1];
+        CC=imageData.data[2];
+        if ((AA!==0 || BB !==0 || CC !==0) ){
+            iFound=i;
+        }
+      }
+  } else  if (this.posSlider.VerHor==='V'){
+    for (var i=1; i<this.selectedHeight+3 ; i++){
+      imageData = this.ctx.getImageData(1, i, 1, 1);
+      AA=imageData.data[0];
+      BB=imageData.data[1];
+      CC=imageData.data[2];
+      if ((AA!==0 || BB !==0 || CC !==0) ){
+          iFound=i;
+      }
+    }
+  }
+  //imageData = this.ctx.getImageData(iFound, 1, 1, 1);
+  //return 'rgba(' + imageData[0] + ',' + imageData[1] + ',' + imageData[2] + ',1)';
+  return 'rgba(' + AA + ',' + BB + ',' + CC + ',1)';
      }
      
 ngOnChanges(changes: SimpleChanges) { 
@@ -180,9 +215,7 @@ ngOnChanges(changes: SimpleChanges) {
         this.ngOnInit();
         this.draw();
       }
-    
      }
-
     }
 
 

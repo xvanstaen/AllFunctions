@@ -126,14 +126,23 @@
 .sliderdefault {
     width: 160px;
     height: 20px;
+
+    border-radius: 10%;  
+    background: yellow;
+    color:blue;
+    outline: none;
+    opacity: 0.2;
+    -webkit-transition: .5s;
+    transition: opacity .5s;
   }
 
 .slider {
-    width: 160px;
+    width: 260px;
     height: 20px;
     border-radius: 5px;  
-    background: #d3d3d3;
-    outline: none;
+    background: yellow;
+    color:red;
+    outline:none;
     opacity: 0.7;
     -webkit-transition: .2s;
     transition: opacity .2s;
@@ -143,13 +152,17 @@
     opacity: 10;
   }
 
+  .sliderdefault:hover {
+    opacity: 10;
+  }
+
   .slider::-webkit-slider-thumb {
     -webkit-appearance: none !important;
     appearance: none;
-    width: 15px;
-    height: 15px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%; 
-    background: #04AA6D;
+    background: red;
     cursor: pointer;
   }
   

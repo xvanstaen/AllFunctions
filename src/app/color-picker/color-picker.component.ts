@@ -49,7 +49,7 @@ export class ColorPickerComponent {
     this.my_input_child1='white';
     this.my_input_child2='white';
 
-    this.myForm.controls['VerHor'].setValue('V');
+    this.myForm.controls['VerHor'].setValue('H');
     this.myForm.controls['top'].setValue('3');
     this.myForm.controls['left'].setValue('20');
 

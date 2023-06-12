@@ -111,39 +111,6 @@ export class ColorPaletteComponent implements OnInit, OnChanges, AfterViewInit {
       }
     }
   
-    ngOnChanges(changes: SimpleChanges) {   
-      
-
-      var i=0;
-      for (const propName in changes){
-          const j=changes[propName];
-          if (propName==='my_input1'){
-            if (changes['my_input1'].firstChange===true){
-              this.previous_my_input1 = changes['my_input1'].currentValue; // data is not used indeed
-            }
-            else {
-                  this.draw();
-                  const pos = this.selectedPosition;
-                  if (pos) {
-                    this.rgbaColor=this.getColorAtPosition(pos.x, pos.y);
-                  
-                  }
-                  
-                }
-              
-          } else if (propName==='paramChange'){
-            this.ngOnInit();
-            this.draw();
-          }
-      }
-
-
-  
-        
-          
-    }
-
-
     @HostListener('window:mouseup', ['$event'])
     onMouseUp(evt: MouseEvent) {
       this.mousedown = false;
@@ -184,8 +151,6 @@ export class ColorPaletteComponent implements OnInit, OnChanges, AfterViewInit {
       this.my_output2.emit(this.returnField);
     }
   
-  
-  
     getColorAtPosition(x: number, y: number) {
       const imageData = this.ctx.getImageData(x, y, 1, 1).data;
       //console.log('getColor', this.ctx.getImageData(x, y, 1, 1).data);
@@ -193,6 +158,27 @@ export class ColorPaletteComponent implements OnInit, OnChanges, AfterViewInit {
     }
   
    
-
+    ngOnChanges(changes: SimpleChanges) {   
+      var i=0;
+      for (const propName in changes){
+          const j=changes[propName];
+          if (propName==='my_input1'){
+            if (changes['my_input1'].firstChange===true){
+              this.previous_my_input1 = changes['my_input1'].currentValue; // data is not used indeed
+            }
+            else {
+                  this.draw();
+                  const pos = this.selectedPosition;
+                  if (pos) {
+                    this.rgbaColor=this.getColorAtPosition(pos.x, pos.y);
+                  
+                  } 
+                }
+          } else if (propName==='paramChange' && changes['paramChange'].firstChange===false){
+            this.ngOnInit();
+            this.draw();
+          }
+      }    
+    }
 
 }

@@ -1,14 +1,36 @@
 
-<canvas
-  #THECanvas
-  id='canvasIDSlider'
-  class="color-slider position"
-  [ngStyle]="{'width.px':canvas.width, 'height.px':canvas.height, 'margin-top.px':posSlider.top , 'margin-left.px':posSlider.left}"
-
-  (mousedown)="onMouseDown($event)"
-  (mousemove)="onMouseMove($event)"
->
-</canvas>
+<div *ngIf="posSlider.VerHor==='H'">
+      <canvas 
+        #THECanvas
+        width="255"
+        height="50"
+        id='canvasIDSliderH'
+        style="border:1px solid black;"
+        (mousedown)="onMouseDown($event)"
+        (mousemove)="onMouseMove($event)"
+        class="color-slider" 
+        
+        [ngStyle]="{'margin-top.px':posSlider.top , 'margin-left.px':posSlider.left}"
+      >
+      </canvas>
+      <input type="range" min=1 max=255 style="width:257px; " [ngStyle]="{'margin-left.px':posSlider.left}">
+      <mat-slider  thumbLabel tickInterval="1" min=1 max=255 style="width:257px; height:5px;" [ngStyle]="{'margin-left.px':posSlider.left}"></mat-slider>
+  </div>
+  <div *ngIf="posSlider.VerHor==='V'">
+    <canvas 
+      #THECanvas
+      width="50"
+      height="255"
+      id='canvasIDSliderV'
+      style="border:1px solid black;"
+      (mousedown)="onMouseDown($event)"
+      (mousemove)="onMouseMove($event)"
+      class="color-slider" 
+      [ngStyle]="{'margin-top.px':posSlider.top , 'margin-left.px':posSlider.left}"
+    >
+    </canvas>
+    <mat-slider vertical   thumbLabel tickInterval="1" min=1 max=255 style="height:257px; " [ngStyle]="{'margin-left.px':posSlider.left}"></mat-slider>
+</div>
 
 <!--
   width="50"

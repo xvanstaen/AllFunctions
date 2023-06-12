@@ -342,7 +342,7 @@ ngOnInit() {
   var i=0;
   this.posSlider.VerHor='H';
   this.posSlider.top=5;
-  this.posSlider.left=40;
+  this.posSlider.left=60;
   this.posPalette.top=0;
   this.posPalette.left=60;
   for (i=0; i<this.ConfigChartHealth.barDefault.datasets.labels.length; i++){
@@ -1427,10 +1427,11 @@ collectSpecialData(nb:number,datasetsSpecialBar:Array<any>,  dateLabelSpecial:Ar
   var nbWeeks=0;
   var iWeekly=-1;
 
-    datasetsSpecialBar.splice(0,datasetsSpecialBar.length);
-    dateLabelSpecial.splice(0,dateLabelSpecial.length);
+  this.refDailySaturated.splice(0,this.refDailySaturated.length);
+  datasetsSpecialBar.splice(0,datasetsSpecialBar.length);
+  dateLabelSpecial.splice(0,dateLabelSpecial.length);
 
-    for (var i=0; i<this.tabParamChart[nb].labels.length ; i++){
+  for (var i=0; i<this.tabParamChart[nb].labels.length ; i++){
       if (this.tabParamChart[nb].labels[i]==='Y'){
           constLab[iLabel]=this.ConfigChartHealth.barDefault.datasets.labels[i];
           colorLab[iLabel]=this.tabParamChart[nb].labelsColor[i];
@@ -1673,8 +1674,11 @@ collectSpecialData(nb:number,datasetsSpecialBar:Array<any>,  dateLabelSpecial:Ar
                 datasetsSpecialBar[j].data[iDataset]=addWeekly + this.HealthAllData.tabDailyReport[i].total.Cholesterol;
               } else if (constLab[j]==="Saturated Fat"){
                 datasetsSpecialBar[j].data[iDataset]=addWeekly + this.HealthAllData.tabDailyReport[i].total.Fat.Saturated;
+                if (this.refDailySaturated[iDataset]===undefined){this.refDailySaturated[iDataset]=0;}
+                this.refDailySaturated[iDataset]=this.refDailySaturated[iDataset]+ (Number(this.HealthAllData.tabDailyReport[i].burntCalories)+ this.identification.health.Calories) * this.identification.health.SaturatedFat / 9;
               } else if (constLab[j]==="Calories burnt"){
                   datasetsSpecialBar[j].data[iDataset]=addWeekly + Number(this.HealthAllData.tabDailyReport[i].burntCalories) + this.identification.health.Calories;
+                  
               } else if (constLab[j]==="Calories intake"){
                 datasetsSpecialBar[j].data[iDataset]=addWeekly + this.HealthAllData.tabDailyReport[i].total.Calories;
               }
@@ -1695,10 +1699,12 @@ collectSpecialData(nb:number,datasetsSpecialBar:Array<any>,  dateLabelSpecial:Ar
               datasetsSpecialBar[j].data[iDataset]==addWeekly + this.HealthAllData.tabDailyReport[i].total.Cholesterol;
             } else if (this.ConfigChartHealth.barDefault.datasets.labels[j]==="Saturated Fat"){
               datasetsSpecialBar[j].data[iDataset]==addWeekly + this.HealthAllData.tabDailyReport[i].total.Fat.Saturated;
+              if (this.refDailySaturated[iDataset]===undefined){this.refDailySaturated[iDataset]=0;}
+              this.refDailySaturated[iDataset]=this.refDailySaturated[iDataset]+ (Number(this.HealthAllData.tabDailyReport[i].burntCalories)  + this.identification.health.Calories) * this.identification.health.SaturatedFat / 9;
             } else if (this.ConfigChartHealth.barDefault.datasets.labels[j]==="Calories burnt"){
-              datasetsSpecialBar[j].data[iDataset]==addWeekly + Number(this.HealthAllData.tabDailyReport[i].total.Calories) + this.identification.health.Calories;
+              datasetsSpecialBar[j].data[iDataset]==addWeekly + Number(this.HealthAllData.tabDailyReport[i].burntCalories) + this.identification.health.Calories;
             } else if (this.ConfigChartHealth.barDefault.datasets.labels[j]==="Calories intake"){
-              datasetsSpecialBar[j].data[iDataset]==addWeekly + this.HealthAllData.tabDailyReport[i].burntCalories;
+              datasetsSpecialBar[j].data[iDataset]==addWeekly + this.HealthAllData.tabDailyReport[i].total.Calories;
             }
           }
         }
@@ -1752,8 +1758,14 @@ collectSpecialData(nb:number,datasetsSpecialBar:Array<any>,  dateLabelSpecial:Ar
             //tension:0.2,
             pointStyle:false,
           });
-          for (var j=0; j<datasetsSpecialBar[i].data.length; j++){
+          if (datasetsSpecialBar[i].label==='Saturated Fat'){
+            for (var j=0; j<datasetsSpecialBar[i].data.length; j++){
+              datasetsSpecialBar[datasetsSpecialBar.length-1].data[j]=this.refDailySaturated[j];
+            } 
+          } else {
+            for (var j=0; j<datasetsSpecialBar[i].data.length; j++){
               datasetsSpecialBar[datasetsSpecialBar.length-1].data[j]=dataValue;
+            }  
           }
 
           datasetsSpecialBar[datasetsSpecialBar.length-1].borderColor[datasetsSpecialBar.length-1]=this.tabParamChart[nb].limitLabelsColor[labLimit];
@@ -1768,6 +1780,7 @@ collectSpecialData(nb:number,datasetsSpecialBar:Array<any>,  dateLabelSpecial:Ar
   //} 
 }
 
+refDailySaturated:Array<number>=[];
 specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
 
   Chart.defaults.font.size = 14;

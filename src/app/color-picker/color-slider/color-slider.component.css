@@ -1,18 +1,19 @@
 
   
-  .color-palette:hover {
+  .color-slider{
+    color:black;
+    border:solid 4px blue;
+    display:block;
+  }
+
+  .color-slider:hover {
     cursor: pointer;
   }
 
-  .position{
-    
-    color:black;
-    position:absolute;
-    border:solid 2px black;
 
-  }
 
 /*
+position:absolute;
     margin-left:20px;
      margin-top: 0px;
 */
