@@ -49,7 +49,7 @@ export class ColorPickerComponent {
     this.my_input_child1='white';
     this.my_input_child2='white';
 
-    this.myForm.controls['VerHor'].setValue('H');
+    this.myForm.controls['VerHor'].setValue('V');
     this.myForm.controls['top'].setValue('3');
     this.myForm.controls['left'].setValue('20');
 
@@ -60,7 +60,7 @@ export class ColorPickerComponent {
 
 isDisplaySlider:boolean=false;
 onSubmit(){
-    this.posSlider.VerHor=this.myForm.controls['VerHor'].value;
+    this.posSlider.VerHor=this.myForm.controls['VerHor'].value.toUpperCase().trim();;
     this.posSlider.top=Number(this.myForm.controls['top'].value);
     this.posSlider.left=Number(this.myForm.controls['left'].value);
     this.posPalette.top=Number(this.myForm.controls['palTop'].value);

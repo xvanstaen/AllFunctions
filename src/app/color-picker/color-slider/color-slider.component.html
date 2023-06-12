@@ -1,39 +1,36 @@
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head> 
 
-<div *ngIf="posSlider.VerHor==='H'">
+<div *ngIf="posSlider.VerHor==='H' || posSlider.VerHor==='V'" style="max-width:257px; max-height:257px; position:absolute; z-index:1;">
+
       <canvas 
         #THECanvas
-        width="255"
-        height="50"
+        width="257"
+        height="257"
         id='canvasIDSliderH'
-        style="border:1px solid black;"
+        style="border:0px solid black;"
         (mousedown)="onMouseDown($event)"
         (mousemove)="onMouseMove($event)"
         class="color-slider" 
         
         [ngStyle]="{'margin-top.px':posSlider.top , 'margin-left.px':posSlider.left}"
       >
+      
       </canvas>
-      <input type="range" min=1 max=255 style="width:257px; " [ngStyle]="{'margin-left.px':posSlider.left}">
-      <mat-slider  thumbLabel tickInterval="1" min=1 max=255 style="width:257px; height:5px;" [ngStyle]="{'margin-left.px':posSlider.left}"></mat-slider>
-  </div>
-  <div *ngIf="posSlider.VerHor==='V'">
-    <canvas 
-      #THECanvas
-      width="50"
-      height="255"
-      id='canvasIDSliderV'
-      style="border:1px solid black;"
-      (mousedown)="onMouseDown($event)"
-      (mousemove)="onMouseMove($event)"
-      class="color-slider" 
-      [ngStyle]="{'margin-top.px':posSlider.top , 'margin-left.px':posSlider.left}"
-    >
-    </canvas>
-    <mat-slider vertical   thumbLabel tickInterval="1" min=1 max=255 style="height:257px; " [ngStyle]="{'margin-left.px':posSlider.left}"></mat-slider>
-</div>
+      
+      <div *ngIf="posSlider.VerHor==='H'">
+        <input type="range" value={{selectedPos.x}} min=1 max=255 style="width:257px; margin-top:-205px; z-index: 1;"  id="myRange" (input)='returnValue($event)' [ngStyle]="{'margin-left.px':posSlider.left}">
+      </div>
+      <div *ngIf="posSlider.VerHor==='V'" >
+        <div *ngIf="browserType==='Firefox'">
+            <input type="range" value={{selectNb}} min=1 max=255 class="verticalFirefox" id="myRange" (input)='returnValue($event)'>
+        </div> 
+        <div *ngIf="browserType==='Others'">
+          <input type="range" value={{selectNb}} min=1 max=255 class="verticalOthers" id="myRange" (input)='returnValue($event)'>
+      </div> 
+      </div>
 
-<!--
-  width="50"
-  height="270"
--->
+      
+  </div>
 

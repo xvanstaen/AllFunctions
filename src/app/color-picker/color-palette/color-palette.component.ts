@@ -119,19 +119,9 @@ export class ColorPaletteComponent implements OnInit, OnChanges, AfterViewInit {
     onMouseDown(evt: MouseEvent) {
       //console.log("mouse down in Palette");
       this.mousedown = true;
-      
       this.selectedPosition = { x: evt.offsetX, y: evt.offsetY };
       this.draw();
-      this.emitColor(evt.offsetX, evt.offsetY);
-      /*
-      this.rgbaColor=this.getColorAtPosition(evt.offsetX, evt.offsetY);
-      this.my_output1.emit(this.rgbaColor);
-      this.returnField.rgba=this.rgbaColor;
-      this.returnField.xPos=evt.offsetX;
-      this.returnField.yPos=evt.offsetY;
-      this.my_output2.emit(this.returnField);
-      */
- 
+      this.emitColor(evt.offsetX, evt.offsetY); 
     }
   
     onMouseMove(evt: MouseEvent) {

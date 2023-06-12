@@ -36,8 +36,7 @@ export class ColorSliderComponent implements OnInit, OnChanges, AfterViewInit {
 
   mousedown:boolean=false;
 
-  selectedHeight:number=0;
-  selectedWidth:number=0;
+  selectedPos={x:0,y:0}
 
   hexColor: string='';
   rgbaColor: any;
@@ -54,32 +53,65 @@ export class ColorSliderComponent implements OnInit, OnChanges, AfterViewInit {
     width:0,
     height:0
   }
+  selectNb:number=255;
+  getScreenWidth:number=0;
+  getScreenHeight:number=0;
+  browserType:string="";
+  @HostListener('window:resize', ['$event'])
+  onWindowResize() {
+      this.getScreenWidth = window.innerWidth;
+      this.getScreenHeight = window.innerHeight;
+    }
+
 
 ngOnInit(): void {
+  this.getScreenWidth = window.innerWidth;
+  this.getScreenHeight = window.innerHeight;
+  
+  if (navigator.userAgent.indexOf("Firefox")>0){
+    this.browserType="Firefox";
+  } else {this.browserType="Others"};
+
   if (this.posSlider.VerHor==='H'){
       this.canvas.width=255;
       this.canvas.height=50;
+      this.selectNb=1;
   } else {
     this.canvas.width=50;
     this.canvas.height=255;
+    this.selectNb=255;
   }
-
-
+  if (this.INreturnField.rgba!==undefined && this.INreturnField.rgba!=='' ){
+    this.selectedPos.x=this.INreturnField.xPos;
+    this.selectedPos.y=this.INreturnField.yPos;
+  } else {
+    this.selectedPos.x=0;
+    this.selectedPos.y=0;
+    
   }
+}
 
 ngAfterViewInit() { 
+  this.theCanvas=document.getElementById('canvasIDSliderH');
+  /*
   if (this.posSlider.VerHor==='H'){
     this.theCanvas=document.getElementById('canvasIDSliderH');
   } else {
     this.theCanvas=document.getElementById('canvasIDSliderV');
   }
-  this.ctx=this.theCanvas.getContext('2d');
+  */
+  if (!this.ctx){
+    this.ctx=this.theCanvas.getContext('2d');
+  }
+    
   this.draw();
   if (this.INreturnField.rgba!==undefined && this.INreturnField.rgba!=='' ){
     this.ctx.beginPath()
     this.ctx.strokeStyle = 'white'
     this.ctx.lineWidth = 2
     //this.ctx.rect(0, this.selectedHeight - 5, width, 10)
+
+
     if (this.posSlider.VerHor==='H'){
       this.ctx.rect( this.INreturnField.xPos - 1, 0, this.ctx.lineWidth, this.canvas.height);
     } else {
@@ -90,7 +122,21 @@ ngAfterViewInit() {
     this.ctx.closePath()
   } 
 }
+
+
+returnValue(event:any){
+  if (this.posSlider.VerHor==='H'){
+    this.selectedPos.x=event.currentTarget.valueAsNumber;
+  } else {
+    this.selectedPos.y=256-event.currentTarget.valueAsNumber;
+  }
+  this.selectNb=event.currentTarget.valueAsNumber;
   
+ this.draw();
+ this.emitColor();
+ this.colorSelected();
+}
+
 draw() {
 
       var gradient:any;
@@ -103,9 +149,9 @@ draw() {
       // x1=The x-coordinate of the end point of the gradient
       // y1=The y-coordinate of the end point of the gradient
       // this.ctx.createLinearGradient(x0, y0, x1 , y1);
-          gradient = this.ctx.createLinearGradient(0, 0, width , 0);
+          gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width , 0);
       } else {
-          gradient = this.ctx.createLinearGradient(0, 0, 0, height);
+          gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
       }
       
       gradient.addColorStop(0, 'rgba(255, 0, 0, 1)');
@@ -116,95 +162,94 @@ draw() {
       gradient.addColorStop(0.85, 'rgba(255, 0, 255, 1)');
       gradient.addColorStop(1, 'rgba(255, 0, 0, 1)');
 
+      /*
+      const grd = this.ctx.createLinearGradient(0, 0, 250, 0);
+      grd.addColorStop(0, "black");
+      grd.addColorStop("0.3", "magenta");
+      grd.addColorStop("0.5", "blue");
+      grd.addColorStop("0.6", "green");
+      grd.addColorStop("0.8", "yellow");
+      grd.addColorStop(1, "red");
+      */
+
       this.ctx.beginPath();
       this.ctx.fillStyle = gradient;
-      this.ctx.rect(0, 0, width, height);
+      //this.ctx.fillStyle = grd;
+      this.ctx.rect(0, 0, this.canvas.width, this.canvas.height);
       this.ctx.fill();
       this.ctx.closePath();
 
-      if (this.selectedWidth!==0 || this.selectedHeight!==0){
-        this.ctx.beginPath();
-        this.ctx.strokeStyle = 'white'
-        this.ctx.lineWidth = 2
-        if (this.posSlider.VerHor==='H'){
-          this.ctx.rect( this.selectedWidth - 1, 0, this.ctx.lineWidth, this.canvas.height);
-        } else {
-          this.ctx.rect(0, this.selectedHeight - 1, this.canvas.width, this.ctx.lineWidth);
-        }
-        this.ctx.stroke();
-        this.ctx.closePath();
-      }
+
 
 }
 
-
+myMouse:number=0;
 onMouseDown(evt: MouseEvent) {
     this.mousedown = true;
-    this.selectedHeight = evt.offsetY;
-    this.selectedWidth = evt.offsetX;
+    this.myMouse++
+    this.selectedPos = { x: evt.offsetX, y: evt.offsetY };
+    this.selectNb=256-this.selectedPos.y;
     this.draw();
     this.emitColor();
+    this.colorSelected();
   }
   
+colorSelected(){
+  if (this.selectedPos.x!==0 || this.selectedPos.y!==0){
+    
+    this.ctx.beginPath();
+    this.ctx.strokeStyle = 'white'
+    this.ctx.lineWidth = 2;
+    if (this.posSlider.VerHor==='H'){
+      this.ctx.rect( this.selectedPos.x - 1, 0, this.ctx.lineWidth, this.canvas.height);
+    } else {
+      this.ctx.rect(0, this.selectedPos.y - 1, this.canvas.width, this.ctx.lineWidth);
+    }
+    this.ctx.stroke();
+    this.ctx.closePath();
+  }
+}
+
 onMouseMove(evt: MouseEvent) {
     if (this.mousedown) {
-      this.selectedHeight = evt.offsetY;
-      this.selectedWidth = evt.offsetX;
+      this.selectedPos = { x: evt.offsetX, y: evt.offsetY };
+      this.selectNb=256-this.selectedPos.y;
       this.draw();
       this.emitColor();
+      this.colorSelected();
     } 
   }
 
 @HostListener('window:mouseup', ['$event'])
 onMouseUp(evt: MouseEvent) { 
-    // console.log('onMouseUp ', evt);
     this.mousedown = false;
   }
-  
+ 
 
 emitColor() {
-  var imageDataBis = this.ctx.getImageData(this.selectedWidth, this.selectedHeight, 1, 1);
-  console.log('Image RGBA= '+imageDataBis.data[0] + ','+imageDataBis.data[2] + ','+imageDataBis.data[3] + ',' );
       this.rgbaColor = this.getColorAtPosition();
       this.returnField.rgba=this.rgbaColor;
-      this.returnField.xPos=this.selectedWidth;
-      this.returnField.yPos=this.selectedHeight;
+      this.returnField.xPos=this.selectedPos.x;
+      this.returnField.yPos=this.selectedPos.y;
       this.my_output1.emit(this.rgbaColor);
       this.my_output2.emit(this.returnField);
      }
      
 getColorAtPosition() {
 
-  var AA=0;
-  var BB=0;
-  var CC=0;
-  var iFound=0;
-  var imageData = this.ctx.getImageData(1, 1, 1, 1);
-
   if (this.posSlider.VerHor==='H'){
-      for (var i=1; i<this.selectedWidth+3 ; i++){
-        imageData = this.ctx.getImageData(i, 1, 1, 1);
-        AA=imageData.data[0];
-        BB=imageData.data[1];
-        CC=imageData.data[2];
-        if ((AA!==0 || BB !==0 || CC !==0) ){
-            iFound=i;
-        }
-      }
-  } else  if (this.posSlider.VerHor==='V'){
-    for (var i=1; i<this.selectedHeight+3 ; i++){
-      imageData = this.ctx.getImageData(1, i, 1, 1);
-      AA=imageData.data[0];
-      BB=imageData.data[1];
-      CC=imageData.data[2];
-      if ((AA!==0 || BB !==0 || CC !==0) ){
-          iFound=i;
-      }
-    }
+      var imageData = this.ctx.getImageData(this.selectedPos.x, 1, 1, 1);
+  } else {
+    var imageData = this.ctx.getImageData(3, this.selectedPos.y, 1, 1);
   }
-  //imageData = this.ctx.getImageData(iFound, 1, 1, 1);
-  //return 'rgba(' + imageData[0] + ',' + imageData[1] + ',' + imageData[2] + ',1)';
-  return 'rgba(' + AA + ',' + BB + ',' + CC + ',1)';
+
+ // for (var i=0; i<255; i++){
+ //   var imageDataB = this.ctx.getImageData(i , 3, 1, 1);
+ // }
+
+  return 'rgba(' + imageData.data[0] + ',' + imageData.data[1] + ',' + imageData.data[2] + ',1)';
+
+
      }
      
 ngOnChanges(changes: SimpleChanges) { 
@@ -214,6 +259,22 @@ ngOnChanges(changes: SimpleChanges) {
       if (propName==='paramChange' && changes['paramChange'].firstChange===false){
         this.ngOnInit();
         this.draw();
+        if (this.INreturnField.rgba!==undefined && this.INreturnField.rgba!=='' ){
+          this.ctx.beginPath()
+          this.ctx.strokeStyle = 'white'
+          this.ctx.lineWidth = 2
+          //this.ctx.rect(0, this.selectedHeight - 5, width, 10)
+      
+      
+          if (this.posSlider.VerHor==='H'){
+            this.ctx.rect( this.INreturnField.xPos - 1, 0, this.ctx.lineWidth, this.canvas.height);
+          } else {
+            this.ctx.rect(0, this.INreturnField.yPos - 1, this.canvas.width, this.ctx.lineWidth);
+          }
+          //this.ctx.rect( this.INreturnField.xPos - 5, 0, 10, 50)
+          this.ctx.stroke()
+          this.ctx.closePath()
+        } 
       }
      }
     }

@@ -1,7 +1,7 @@
 <div class="skipLine">&nbsp;</div>
-<div *ngIf="isSliderSelected===true " style="position:absolute;  margin-left:20px;height:500px;width:410px; z-index: 1; background-color: lightgrey; border: solid 2px blue;"
+<div *ngIf="isSliderSelected===true " style="position:absolute;  margin-left:20px;height:520px;width:410px; z-index: 1; background-color: lightgrey; border: solid 2px blue;"
         [ngStyle]="{'margin-top.px':posTopDropdownSlider}">
-    <div style="position:absolute; margin-top:10px; margin-left:10px;height:475px;width:380px; z-index: 1; background-color: white; border: solid 2px blue;">  
+    <div style="position:absolute; margin-top:10px; margin-left:10px;height:495px;width:380px; z-index: 1; background-color: white; border: solid 2px blue;">  
         <div class="skipline">&nbsp;</div>
         <span style='margin-left:30px; width:90%; display:inline-block;' > Slider {{my_input_child2}} </span>
         <span style='margin-left:30px; width:90%; display:inline-block;' > Palette: {{temporaryColor}} </span>
@@ -10,7 +10,7 @@
         </app-color-palette>
         <app-color-slider [my_input2]="my_input_child2" [posSlider]="posSlider" [paramChange]="paramChange" [INreturnField]="returnSlider" (my_output2)='fnSliderBis($event)' (my_output1)='fnSlider($event)'>
         </app-color-slider>
-        <div style="margin-top:20px;">
+        <div style="margin-top:80px;">
             <span style="width:40px; height:40px; border:solid 0.5px black; display: inline-block;  margin-left:55px;" [ngStyle]="{'background-color':my_input_child2}"></span>
             <span style="width:40px; height:40px; border:solid 0.5px black; display: inline-block; margin-left:15px;" [ngStyle]="{'background-color':temporaryColor}"></span>
             <div style="margin-left:200px; margin-top:-40px;">
