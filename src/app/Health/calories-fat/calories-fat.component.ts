@@ -12,7 +12,6 @@ import { Observable } from 'rxjs';
 
 import { BucketList, Bucket_List_Info} from '../../JsonServerClass';
 
-
 // configServer is needed to use ManageGoogleService
 // it is stored in MangoDB and accessed via ManageMangoDBService
 import { configServer, XMVConfig, LoginIdentif, classPosDiv } from '../../JsonServerClass';
@@ -24,15 +23,10 @@ import {eventoutput, thedateformat} from '../../apt_code_name';
 import { msgConsole } from '../../JsonServerClass';
 import {msginLogConsole} from '../../consoleLog'
 
-import {mainClassCaloriesFat, ClassCaloriesFat} from '../ClassHealthCalories'
-import {ClassItem} from '../ClassHealthCalories'
+import {mainClassCaloriesFat, ClassCaloriesFat, ClassItem} from '../ClassHealthCalories'
 
 import {ClassSubConv, mainConvItem, mainRecordConvert, mainClassUnit} from '../../ClassConverter'
-import {mainClassConv} from '../../ClassConverter'
-import {ClassConv} from '../../ClassConverter'
-import {ClassUnit} from '../../ClassConverter'
-import {ConvItem} from '../../ClassConverter'
-import {recordConvert} from '../../ClassConverter'
+import {mainClassConv, ClassConv, ClassUnit, ConvItem, recordConvert} from '../../ClassConverter'
 
 import {classConfCaloriesFat} from '../classConfHTMLTableAll';
 

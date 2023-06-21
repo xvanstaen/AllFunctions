@@ -4,10 +4,9 @@ import { FormGroup,UntypedFormControl, FormControl, Validators} from '@angular/f
 
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
-import { configServer } from './JsonServerClass';
-import { XMVConfig } from './JsonServerClass';
+import { LoginIdentif ,XMVConfig, configServer } from './JsonServerClass';
 import { environment } from 'src/environments/environment';
-import { LoginIdentif } from './JsonServerClass';
+import {  classPosDiv } from './JsonServerClass';
 import {mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from './ClassConverter';
 
 @Component({
@@ -25,14 +24,8 @@ export class AppComponent {
    
     ) {}
 
-  //@ViewChild('ParentHealth', { static: false }) divData!: ElementRef;
 
-
-  //ngAfterViewInit() {
-  //  this.divData.nativeElement.innerHTML = "Hello Angular";
-  //}
-
-            // import configuration files
+      // import configuration files
       // access MongoDB
   configServer=new configServer;
   XMVConfig=new XMVConfig;
@@ -51,18 +44,18 @@ export class AppComponent {
   
   }
   
-
   docDiv:any;
-  posDiv={
-    Top:0,
-    Left:0,
-  }
+  posDiv=  new classPosDiv;
   
   getPosDiv(){
     if (document.getElementById("posTopMain")!==null){
         this.docDiv = document.getElementById("posTopMain");
         this.posDiv.Left = this.docDiv.offsetLeft;
         this.posDiv.Top = this.docDiv.offsetTop;
+        this.posDiv.Client.Top=Math.round(this.docDiv.getBoundingClientRect().top);
+        this.posDiv.Client.Left=Math.round(this.docDiv.getBoundingClientRect().left);
+        this.posDiv.Client.Bottom=Math.round(this.docDiv.getBoundingClientRect().bottom);
+        this.posDiv.Client.Height=Math.round(this.docDiv.getBoundingClientRect().height);
     }
   }
 
@@ -107,20 +100,13 @@ export class AppComponent {
       this.isAppsSelected=false;
       if (this.selectApps===11){
         this.selHealthFunction=5;
-
-       
       } else if (this.selectApps===12){
         this.selHealthFunction=3;
-
-        
       } else if (this.selectApps===13){
         this.selHealthFunction=7;
-
-        
       } else{
         this.selHealthFunction=0;
-      }
-          
+      } 
   }
 
   isAppsSelected:boolean=false;
@@ -148,23 +134,14 @@ export class AppComponent {
       } 
   }
 
-isIdRetrieved:boolean=false;
+  isIdRetrieved:boolean=false;
   getRecord(Bucket:string,GoogleObject:string, iWait:number){
     this.ManageGoogleService.getContentObject(this.configServer, Bucket, GoogleObject )
         .subscribe((data ) => {    
           this.identification=data;
           this.isIdRetrieved=true;
-          // ==============================================
-          // ======== TO BE REMOVED AFTER THE TEST ========
-          // ==============================================
-          //this.isAppsSelected=true;
-          //this.selectApps=11;
-          //this.selHealthFunction=5;
-          // ==============================================
-
       },
-      error_handler => {
-
+        error_handler => {
       })
   }
            

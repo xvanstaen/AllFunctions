@@ -188,13 +188,7 @@ export class XmvCompanyComponent implements OnInit, OnChanges, AfterViewChecked 
     this.Events_nb = event;
   }
 
-  BackTo(event:any){
-   
-  }
 
-  TopicURL(){
-
-  }
   ngOnChanges(){
    // console.log('on changes');
   }
