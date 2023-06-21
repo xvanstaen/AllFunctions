@@ -10,14 +10,13 @@ import { ViewportScroller } from "@angular/common";
 import { FormGroup, FormControl, Validators, FormBuilder, FormArray} from '@angular/forms';
 import { Observable } from 'rxjs';
 
-import { BucketList } from '../../JsonServerClass';
-import { Bucket_List_Info } from '../../JsonServerClass';
+import { BucketList, Bucket_List_Info  } from '../../JsonServerClass';
 
 // configServer is needed to use ManageGoogleService
 // it is stored in MangoDB and accessed via ManageMangoDBService
 
 import {msginLogConsole} from '../../consoleLog'
-import { configServer, XMVConfig, LoginIdentif, msgConsole } from '../../JsonServerClass';
+import { configServer, XMVConfig, LoginIdentif, msgConsole, classPosDiv } from '../../JsonServerClass';
 
 import { environment } from 'src/environments/environment';
 import {manage_input} from '../../manageinput';
@@ -25,15 +24,11 @@ import {eventoutput, thedateformat} from '../../apt_code_name';
 
 import {  getStyleDropDownContent, getStyleDropDownBox, classDropDown } from '../../DropDownStyle'
 
-import {ClassSubConv} from '../../ClassConverter'
-import {ClassConv, mainClassConv} from '../../ClassConverter'
-import {ClassUnit} from '../../ClassConverter'
-import {ConvItem} from '../../ClassConverter'
+
+import {ClassSubConv, ClassConv, mainClassConv, ClassUnit, ConvItem} from '../../ClassConverter'
+
 import {ClassCaloriesFat, mainClassCaloriesFat} from '../ClassHealthCalories'
-import {ClassItem} from '../ClassHealthCalories'
-import {DailyReport, mainDailyReport} from '../ClassHealthCalories'
-import {ClassMeal} from '../ClassHealthCalories'
-import {ClassDish} from '../ClassHealthCalories'
+import {ClassItem, DailyReport, mainDailyReport, ClassMeal, ClassDish} from '../ClassHealthCalories'
 
 import {classConfHTMLFitHealth, classConfTableAll} from '../classConfHTMLTableAll';
 
@@ -235,13 +230,6 @@ tabInputFood:Array<any>=[];
 //selFood:string='';
 
 
-tablePosTop:number=0;
-tablePosLeft:number=0;
-docHeaderAll:any;
-posAppCalFat={
-  Top:0,
-  Left:0,
-}
 
 // Dropdown box dimension
 
@@ -261,21 +249,69 @@ sizeBoxMeal:number=0;
 sizeBoxContentFood:number=0;
 sizeBoxFood:number=0;
 
-docAppCalFat:any;
-
 mousedown:boolean=false;
 selectedPosition ={ 
   x: 0,
   y: 0} ;
 
+
+
+  docDivCalFat:any;
+  posDivCalFat= new classPosDiv;
+
+  docDivReportHealth:any;
+  posDivReportHealth= new classPosDiv;
   
+  docDivAfterTitle:any;
+  posDivAfterTitle= new classPosDiv;
+  getPosDivAfterTitle(){
+    if (document.getElementById("posAfterTitle")!==null){
+        this.docDivAfterTitle = document.getElementById("posAfterTitle");
+        this.posDivAfterTitle.Left = this.docDivAfterTitle.offsetLeft;
+        this.posDivAfterTitle.Top = this.docDivAfterTitle.offsetTop;
+        this.posDivAfterTitle.Client.Top=Math.round(this.docDivAfterTitle.getBoundingClientRect().top);
+        this.posDivAfterTitle.Client.Left=Math.round(this.docDivAfterTitle.getBoundingClientRect().left);
+    }
+  }
+
+  getPosDivOthers(){
+    if (document.getElementById("posTopAppCalFat")!==null){
+        this.docDivCalFat = document.getElementById("posTopAppCalFat");
+        this.posDivCalFat.Left = this.docDivCalFat.offsetLeft;
+        this.posDivCalFat.Top = this.docDivCalFat.offsetTop;
+        this.posDivCalFat.Client.Top=Math.round(this.docDivCalFat.getBoundingClientRect().top);
+        this.posDivCalFat.Client.Left=Math.round(this.docDivCalFat.getBoundingClientRect().left);
+    }
+    if (document.getElementById("posTopAppReportHealth")!==null){
+      this.docDivReportHealth = document.getElementById("posTopAppReportHealth");
+      this.posDivReportHealth.Left = this.docDivReportHealth.offsetLeft;
+      this.posDivReportHealth.Top = this.docDivReportHealth.offsetTop;
+      this.posDivReportHealth.Client.Top=Math.round(this.docDivReportHealth.getBoundingClientRect().top);
+      this.posDivReportHealth.Client.Left=Math.round(this.docDivReportHealth.getBoundingClientRect().left);
+    }
+  }
+
+
+titleHeight:number=0;
+posItem:number=0;
+eventClientY:number=0;
 @HostListener('window:mouseup', ['$event'])
 onMouseUp(event: MouseEvent) {
-  this.selectedPosition = { x: event.pageX, y: event.pageY };
-  this.getPosAfterTitle();
-  //console.log('evt.pageX='+evt.pageX+' evt.pageY=' + evt.pageY );
-}
+  //this.selectedPosition = { x: event.pageX, y: event.pageY };
+  this.getPosDivAfterTitle();
+  this.eventClientY=event.clientY;
 
+}
+findPosItem(sizeBox:any){
+  //this.posItem=this.confTableAll.height - this.posDivAfterTitle.Client.Top - this.titleHeight;
+  const thePos=Number(this.eventClientY)-Number(this.posDivAfterTitle.Client.Top)-Number(this.titleHeight);
+  this.posItem= Math.trunc(thePos / 20) * 20;
+  if (this.posItem===0) { this.posItem=1;}
+  if (Number(sizeBox)+this.posItem > this.confTableAll.height){
+    this.posItem=this.confTableAll.height - Number(sizeBox);
+  }
+}
+/****
 onMouseDown(evt: MouseEvent) {
   this.selectedPosition = { x: evt.pageX, y: evt.pageY };
 }
@@ -283,20 +319,10 @@ onMouseDown(evt: MouseEvent) {
 onMouseMove(evt: MouseEvent) {
   this.selectedPosition = { x: evt.pageX, y: evt.pageY };
 }
+ */
 
+  
 
-getPosAfterTitle(){
-  if (document.getElementById("posAfterTitle")!==null){
-      this.docHeaderAll = document.getElementById("posAfterTitle");
-      this.tablePosLeft = this.docHeaderAll.offsetLeft;
-      this.tablePosTop = this.docHeaderAll.offsetTop;
-  }
-  // to be passed to calories-fat component
-  this.docAppCalFat = document.getElementById("posAppCalFat"); 
-  this.posAppCalFat.Left = this.docAppCalFat.offsetLeft;
-  this.posAppCalFat.Top = this.docAppCalFat.offsetTop;
-  //console.log(' posAppCalFat   Top=' + this.posAppCalFat.Top + '  Left='+this.posAppCalFat.Left);
-}
 
 @HostListener('window:resize', ['$event'])
 onWindowResize() {
@@ -305,7 +331,9 @@ onWindowResize() {
   }
 
 ngOnInit(): void {
-
+  
+  this.getPosDivOthers();
+  this.getPosDivAfterTitle();
   this.sizeBox.widthContent=160;
   this.sizeBox.widthOptions=160;
   this.sizeBox.heightItem=25;
@@ -386,6 +414,7 @@ ngOnInit(): void {
     this.ConfigHTMLFitHealth=this.InConfigHTMLFitHealth;
     this.confTableAll=this.InConfigHTMLFitHealth.ConfigHealth.confTableAll;
     this.EventHTTPReceived[3]=true;
+    this.calculateHeight();
   }
   // TO BE REVIEWED IN ORDER TO READ, MODIFY ONLINE AND SAVE
   //this.ConfigHTMLFitness.tabConfig[0].confTableAll=this.confTableAll;
@@ -420,14 +449,24 @@ ngOnInit(): void {
   this.TheSelectDisplays.controls['endRange'].setValue('');
 
   if (this.triggerFunction!==0){
+    if (this.triggerFunction===3){
+      this.TheSelectDisplays.controls['DisplayAll'].setValue('Y');
+    } else if (this.triggerFunction===5){
+      this.TheSelectDisplays.controls['MgtCalories'].setValue('Y');
+    } else if (this.triggerFunction===7){
+      this.TheSelectDisplays.controls['DisplayChart'].setValue('Y');
+    } 
+
     const theSelection='Y-'+this.triggerFunction;
     this.SelRadio(theSelection.trim());
   }
 }
 
-RetrieveConfHTML(){
 
-
+calculateHeight(){
+  var i=0;
+  i=this.confTableAll.title.height.indexOf('px');
+  this.titleHeight=Number(this.confTableAll.title.height.substring(0,i));
 }
 
 checkText:string='';
@@ -575,11 +614,16 @@ CreateTabFood(item:any, value:any){
     if (this.sizeBoxContentFood>this.sizeBox.maxHeightContent){
       this.sizeBoxContentFood=this.sizeBox.maxHeightContent;
       this.sizeBoxFood=this.sizeBox.maxHeightOptions;
+      this.sizeBox.scrollY="scroll";
     } else {
       this.sizeBoxFood=this.sizeBoxContentFood;
+      this.sizeBox.scrollY="hidden";
     }
+    this.findPosItem(this.sizeBoxFood);
+
     this.styleBoxFood=getStyleDropDownContent(this.sizeBoxContentFood, this.sizeBox.widthContent );
-    this.styleBoxOptionFood=getStyleDropDownBox(this.sizeBoxFood, this.sizeBox.widthOptions, this.offsetLeft - 24, this.selectedPosition.y - this.tablePosTop - 255, this.sizeBox.scrollY);
+    //this.styleBoxOptionFood=getStyleDropDownBox(this.sizeBoxFood, this.sizeBox.widthOptions, this.offsetLeft - 24, this.selectedPosition.y -this.posDivAfterTitle.Client.Top - 255, this.sizeBox.scrollY);
+    this.styleBoxOptionFood=getStyleDropDownBox(this.sizeBoxFood, this.sizeBox.widthOptions, this.offsetLeft +100, this.posItem, this.sizeBox.scrollY);
 
   }
   else if (item==='Meal'){
@@ -596,9 +640,14 @@ CreateTabFood(item:any, value:any){
         this.sizeBoxMeal=this.sizeBox.maxHeightOptions;
       } else {
         this.sizeBoxMeal=this.sizeBoxContentMeal;
+        this.sizeBox.scrollY="scroll";
       }
+      this.findPosItem(this.sizeBoxMeal);
+      this.sizeBox.scrollY="hidden";
+
       this.styleBoxMeal=getStyleDropDownContent(this.sizeBoxContentMeal, this.sizeBox.widthContent - 50);
-      this.styleBoxOptionMeal=getStyleDropDownBox(this.sizeBoxMeal, this.sizeBox.widthOptions - 50, this.offsetLeft - 20,  this.selectedPosition.y - this.tablePosTop  - 255, this.sizeBox.scrollY);
+      //this.styleBoxOptionMeal=getStyleDropDownBox(this.sizeBoxMeal, this.sizeBox.widthOptions - 50, this.offsetLeft - 20,  this.selectedPosition.y - this.posDivAfterTitle.Client.Top  - 255, this.sizeBox.scrollY);
+      this.styleBoxOptionMeal=getStyleDropDownBox(this.sizeBoxMeal, this.sizeBox.widthOptions - 50, this.offsetLeft +70,  this.posItem, this.sizeBox.scrollY);
     }
 
 }
@@ -667,7 +716,6 @@ scrollHeight:number=0;
 scrollTop:number=0;
 
 onInputDailyAll(event:any){
-this.getPosAfterTitle();
 //this.offsetHeight= event.currentTarget.offsetHeight;
 this.offsetLeft = event.currentTarget.offsetLeft;
 //this.offsetTop = event.currentTarget.offsetTop;
@@ -764,9 +812,11 @@ onAction(event:any){
     this.dialogue[this.prevDialogue]=true;
     this.sizeBox.heightOptions=this.sizeBox.heightItem  * (this.NewTabAction.length) + 10;
     this.sizeBox.heightContent=this.sizeBox.heightOptions;
+    this.findPosItem(this.sizeBox.heightOptions);
 
     this.styleBox=getStyleDropDownContent(this.sizeBox.heightContent, this.sizeBox.widthContent);
-    this.styleBoxOption=getStyleDropDownBox(this.sizeBox.heightOptions, this.sizeBox.widthOptions,  60, this.selectedPosition.y - this.tablePosTop - 279, this.sizeBox.scrollY);
+    // this.styleBoxOption=getStyleDropDownBox(this.sizeBox.heightOptions, this.sizeBox.widthOptions,  60, this.selectedPosition.y - this.posDivAfterTitle.Client.Top - 279, this.sizeBox.scrollY);
+    this.styleBoxOption=getStyleDropDownBox(this.sizeBox.heightOptions, this.sizeBox.widthOptions,  60, this.posItem, this.sizeBox.scrollY);
 
   } else  if (event.target.id.substring(0,9)==='selAction'){
       if (event.target.textContent.indexOf('cancel')!==-1){
@@ -929,7 +979,8 @@ onAction(event:any){
     this.sizeBox.heightContent=90;
 
     this.styleBox=getStyleDropDownContent(this.sizeBox.heightContent, 240);
-    this.styleBoxOption=getStyleDropDownBox(this.sizeBox.heightOptions, 240,  60, this.selectedPosition.y - this.tablePosTop - this.posDelConfirm, this.sizeBox.scrollY);
+    //this.styleBoxOption=getStyleDropDownBox(this.sizeBox.heightOptions, 240,  60, this.selectedPosition.y - this.posDivAfterTitle.Client.Top - this.posDelConfirm, this.sizeBox.scrollY);
+    this.styleBoxOption=getStyleDropDownBox(this.sizeBox.heightOptions, 240,  60, this.posItem, this.sizeBox.scrollY);
 
   }
 }
@@ -1274,6 +1325,7 @@ GetRecord(Bucket:string,GoogleObject:string, iWait:number){
               else if (iWait===3){
                   this.ConfigHTMLFitHealth=data;
                   this.confTableAll=this.ConfigHTMLFitHealth.ConfigHealth.confTableAll;
+                  this.calculateHeight();
               }
               else if (iWait===4){
                 this.ConfigChart=data;

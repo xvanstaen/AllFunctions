@@ -1,7 +1,7 @@
 <body>
 
 
-<div style=" max-width: 440px;">
+<div style=" max-width: 440px; ">
     <span style="width:99%; background-color: cyan; margin-left:10px; border:solid 2px red; display:inline-block; ">
         <span style="width:100%; color:#0000ff; font-size:22px; display:inline-block; text-align: center; padding-top:10px; height:50px;"> Select the apps </span>
         <br>
@@ -24,7 +24,7 @@
     <input style="width:80px; height:30px; margin-left:150px; margin-top:20px;"  placeholder="selection#" type="text" (input)="onInput($event)">
     <button class="sizeButtons"  (click)="onSelectApps()">Submit</button>
 </div>
-
+<div id="posTopMain" ></div>
 <div *ngIf="isAppsSelected===true">
     <div *ngIf="selectApps===1 && isIdRetrieved===true">
         <app-xmv-company [configServer]="configServer" [INidentification]="identification" [XMVConfig]="XMVConfig" [isConfigServerRetrieved]="isConfigServerRetrieved"
@@ -32,7 +32,9 @@
         >
     </app-xmv-company>
     </div>
+   
     <div *ngIf="selectApps>1 && selectApps<10" style="float:none;">
+       
         <app-routing-app [selectApps]="selectApps"> </app-routing-app>
     </div>
     <div *ngIf="selectApps===10">
@@ -41,7 +43,9 @@
         >
         </app-converter>
     </div>  
+    
     <div *ngIf="selectApps>10  &&  selectApps<14">
+        
         <app-health  [identification]="identification" [XMVConfig]="XMVConfig" [configServer]="configServer"  [triggerFunction]="selHealthFunction"
         (returnFile)="ReceiveFiles($event)"     
         >

@@ -10,17 +10,17 @@ import { ViewportScroller } from "@angular/common";
 import { FormGroup, FormControl, Validators, FormBuilder, FormArray} from '@angular/forms';
 import { Observable } from 'rxjs';
 
-import { BucketList } from '../../JsonServerClass';
-import { Bucket_List_Info } from '../../JsonServerClass';
+import { BucketList, Bucket_List_Info} from '../../JsonServerClass';
+
 
 // configServer is needed to use ManageGoogleService
 // it is stored in MangoDB and accessed via ManageMangoDBService
-import { configServer } from '../../JsonServerClass';
-import { XMVConfig } from '../../JsonServerClass';
+import { configServer, XMVConfig, LoginIdentif, classPosDiv } from '../../JsonServerClass';
+
 import { environment } from 'src/environments/environment';
-import { LoginIdentif } from '../../JsonServerClass';
 import {manage_input} from '../../manageinput';
 import {eventoutput, thedateformat} from '../../apt_code_name';
+
 import { msgConsole } from '../../JsonServerClass';
 import {msginLogConsole} from '../../consoleLog'
 
@@ -67,10 +67,8 @@ export class CaloriesFatComponent implements OnInit {
 
   ConvToDisplay=new mainConvItem;
 
-  @Input() posAppCalFat= {
-            Top:0,
-            Left:0,
-          }
+  @Input() posDivCalFat= new classPosDiv;
+          
   @Output() myEmit= new EventEmitter<any>();
   @Output() myEmitRecipe= new EventEmitter<any>();
 
@@ -171,32 +169,84 @@ export class CaloriesFatComponent implements OnInit {
 @HostListener('window:mouseup', ['$event'])
 onMouseUp(event: MouseEvent) {
     this.selectedPosition = { x: event.pageX, y: event.pageY };
-    if (this.tablePosTop<0 || this.RecipetablePosTop<0){
-      this.getPosAfterTitle();
+    const i=this.HTMLCaloriesFat.title.height.indexOf('px');
+    const titleHeight=Number(this.HTMLCaloriesFat.title.height.substring(0,i));
+    this.getPosDivTable();
+    // this allows to position the dropdown list where the click occured
+    this.posItemAction=Number(event.clientY)-Number(this.posDivTable.Client.Top)+Number(titleHeight);
+    if (this.posItemAction>this.HTMLCaloriesFat.height/2 ){
+      // this allows to position the dropdownlist at the middle of the window and then dropdownlist remains within the scrolling window
+      this.posItemAction=this.HTMLCaloriesFat.height/2;
     }
-  }
-  
-onMouseDown(event: MouseEvent) {
-    this.selectedPosition = { x: event.pageX, y: event.pageY };
-  }
-  
-onMouseMove(event: MouseEvent) {
-    this.selectedPosition = { x: event.pageX, y: event.pageY };
+ 
   }
 
+  docDivTable:any;
+  posDivTable= new classPosDiv;
+
+  docDivEndTable:any;
+  posDivEndTable= new classPosDiv;
+
+  docDivRecipeTable:any;
+  posDivRecipeTable= new classPosDiv;
+
+  docDivItem:any;
+  posDivItem= new classPosDiv;
+
+
+  getPosItem(item:string){
+    var trouve=false;
+    if (item==='Action'){
+      if (document.getElementById("posAction")!==null){
+        this.docDivItem = document.getElementById("posAction");
+        trouve=true;
+      }
+    } else if (item==='Type'){
+      if (document.getElementById("posType")!==null){
+        this.docDivItem = document.getElementById("posType");
+        trouve=true;
+      }
+    } else if (item==='Food'){
+      if (document.getElementById("posFood")!==null){
+        this.docDivItem = document.getElementById("posFood");
+        trouve=true;
+      }
+    }
+    if (trouve===true){
+      this.posDivItem.Left = this.docDivItem.offsetLeft;
+      this.posDivItem.Top = this.docDivItem.offsetTop;
+      this.posDivItem.Client.Top=Math.round(this.docDivItem.getBoundingClientRect().top);
+      this.posDivItem.Client.Left=Math.round(this.docDivItem.getBoundingClientRect().left);
+    }
+  } 
+posItemAction:number=0;
 // position of the table referenced by the <div id="posTable"> 
-getPosAfterTitle(){
-    this.docHeaderAll = document.getElementById("posTable");
-    this.tablePosLeft = this.docHeaderAll.offsetLeft;
-    this.tablePosTop = this.docHeaderAll.offsetTop;
-    this.theHeight=Number(this.HTMLCaloriesFat.title.height.substring(0,this.HTMLCaloriesFat.title.height.indexOf('px')));
-   // console.log('Div Title ==>  tablePosLeft='+this.tablePosLeft+'  tablePosTop='+this.tablePosTop);
-  
-   this.RecipedocHeaderAll = document.getElementById("posRecipeTable");
-   this.RecipetablePosLeft = this.docHeaderAll.offsetLeft;
-   this.RecipetablePosTop = this.docHeaderAll.offsetTop;
-   this.RecipetheHeight=Number(this.HTMLCaloriesFat.title.height.substring(0,this.HTMLCaloriesFat.title.height.indexOf('px')));
-  
+getPosDivTable(){
+    if (document.getElementById("posStartTable")!==null){
+      this.docDivTable = document.getElementById("posStartTable");
+      this.posDivTable.Left = this.docDivTable.offsetLeft;
+      this.posDivTable.Top = this.docDivTable.offsetTop;
+      this.theHeight=Number(this.HTMLCaloriesFat.title.height.substring(0,this.HTMLCaloriesFat.title.height.indexOf('px')));
+      this.posDivTable.Client.Top=Math.round(this.docDivTable.getBoundingClientRect().top);
+      this.posDivTable.Client.Left=Math.round(this.docDivTable.getBoundingClientRect().left);
+    }
+}
+getPosDivOthers(){
+    if (document.getElementById("posEndTable")!==null){
+      this.docDivEndTable = document.getElementById("posEndTable");
+      this.posDivEndTable.Left = this.docDivEndTable.offsetLeft;
+      this.posDivEndTable.Top = this.docDivEndTable.offsetTop;
+      this.posDivEndTable.Client.Top=Math.round(this.docDivEndTable.getBoundingClientRect().top);
+      this.posDivEndTable.Client.Left=Math.round(this.docDivEndTable.getBoundingClientRect().left);
+    }
+    if (document.getElementById("posRecipeTable")!==null){
+      this.docDivRecipeTable = document.getElementById("posRecipeTable");
+      this.posDivRecipeTable.Left = this.docDivRecipeTable.offsetLeft;
+      this.posDivRecipeTable.Top = this.docDivRecipeTable.offsetTop;
+      this.RecipetheHeight=Number(this.HTMLCaloriesFat.title.height.substring(0,this.HTMLCaloriesFat.title.height.indexOf('px')));
+      this.posDivRecipeTable.Client.Top=Math.round(this.docDivRecipeTable.getBoundingClientRect().top);
+      this.posDivRecipeTable.Client.Left=Math.round(this.docDivRecipeTable.getBoundingClientRect().left);
+    }
   } 
 
 
@@ -207,6 +257,8 @@ onWindowResize() {
   }
 
 ngOnInit(): void {
+  this.getPosDivTable();
+  this.getPosDivOthers();
   this.onWindowResize();
   this.device_type = navigator.userAgent;
   this.device_type = this.device_type.substring(10, 48);
@@ -439,6 +491,7 @@ onAction(event:any){
       }
     } else if (this.theEvent.target.id.substring(0,10)==='openAction'){
       this.dialogueCalFat[0]=true;
+      this.getPosItem("Action");
     } else  if (this.theEvent.target.id.substring(0,9)==='selAction'){
       if (iAction===0){
         this.isDeleteType=false;
@@ -569,6 +622,7 @@ onInput(event:any){
 
   this.findIds(event.target.id);
   if (event.target.id.substring(0,4)==='type'){
+    this.getPosItem("Type");
     this.outConfigCaloriesFat.tabCaloriesFat[this.TabOfId[0]].Type=event.target.value.toLowerCase().trim();
     // check if first letters already exists
     iTab=-1;
@@ -579,6 +633,7 @@ onInput(event:any){
       }
     }
   } else if (event.target.id.substring(0,4)==='name'){
+    this.getPosItem("Food");
     this.outConfigCaloriesFat.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name=event.target.value.toLowerCase().trim();
   // check if first letters already exists
   /*

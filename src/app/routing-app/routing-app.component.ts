@@ -155,8 +155,25 @@ export class RoutingAppComponent implements OnInit {
     ) {}
 
 
+
+  docDiv:any;
+  posDiv={
+    Top:0,
+    Left:0,
+  }
+  myPosPalette:number=0;
+  getPosDiv(){
+    if (document.getElementById("posBeforeColorPicker")!==null){
+        this.docDiv = document.getElementById("posBeforeColorPicker");
+        this.posDiv.Left = this.docDiv.offsetLeft;
+        this.posDiv.Top = this.docDiv.offsetTop;
+        this.myPosPalette=this.docDiv.offsetParent.offsetTop;
+        
+    }
+    }
+
 ngOnInit() {
-    
+   this.getPosDiv();
     // console.log('ngOnInit of routing-test.ts')
     this.my_input_child1='red';
     this.my_input_child2='red';
@@ -371,13 +388,75 @@ Server_Error(error:HttpErrorResponse){
   // console.log('error',error);
 }
 
+
+//@HostListener('window:touchstart', ['$event'])
+//@HostListener('window:touchmove', ['$event'])
+//@HostListener('window:touchend', ['$event'])
+isTouch:boolean=false;
+touchValue:number=0;
+selectedPos={x:0,y:0};
+msg:string='';
+nbMoves:number=0;
+nbTouchStart:number=0;
+myEvent={
+  currentTargetV:"",
+  targetV:"",
+  id:""
+}
+onTouchStart(event:any){
+  this.isTouch=true;
+  this.myEvent.currentTargetV=event.currentTarget.value;
+  this.myEvent.targetV=event.target.value;
+  this.myEvent.id=event.target.id;
+  if (event.currentTarget.value!==undefined){
+    this.myValue=Number(event.currentTarget.value);
+  }
+  this.nbTouchStart++;
+
+  if (event.type==='touchstart'){
+      this.msg='touchstart ok; nb of touch start=' + this.nbTouchStart;
+      var touch = event.touches[0] || event.changedTouches[0];
+  this.msg=this.msg+' touch.pageX='+touch.pageX+'  touch.pageY=' + touch.pageY + '   touch.screenX='+ touch.screenX+
+  '   touch.screenY='+ touch.screenY ;
+  }  if (event.type==='touchmove'){
+    this.msg='touchmove ok; nb of touch start=' + this.nbTouchStart;
+    var touch = event.touches[0] || event.changedTouches[0];
+this.msg=this.msg+' touch.pageX='+touch.pageX+'  touch.pageY=' + touch.pageY + '   touch.screenX='+ touch.screenX+
+'   touch.screenY='+ touch.screenY ; 
+    }  else {this.msg='event.type = '+event.type};
+  
+  
+
+}
+
+msgMove:string='';
+onTouchEnd(event:TouchEvent){
+  this.msg='event.type = '+event.type;
+  this.isTouch=false;
+  this.msgMove='';
+  this.nbMoves=0;
+
+}
+onTouchMove(event:TouchEvent){
+  if (this.isTouch===true){
+    this.nbMoves++;
+    this.msgMove='nbMoves='+this.nbMoves;
+    this.onTouchStart(event);
+  }
+}
+
+msgReturnValue:string="";
 returnValue(event:any){
-  this.myDiv=event;
-  this.otherValue = this.myDiv.currentTarget.valueAsNumber;
-  this.mystring=this.myDiv.currentTarget.value;
+  this.msgReturnValue="";
+  if (event.type==='touchstart'){
+      this.msgReturnValue="goto onTouchStart from returnValue";
+      this.onTouchStart(event);
+  }
+  this.otherValue = event.currentTarget.valueAsNumber;
+  this.myValue=Number(event.currentTarget.value);
   // console.log('event',this.mystring,  event );
-  this.mySlider = document.getElementById("myRange");
-  this.myValue =this.mySlider.value;
+  //this.mySlider = document.getElementById("myRange");
+  //this.myValue =this.mySlider.value;
   // console.log('values: myOutput', this.otherValue, 'myValue=', this.myValue);
   }
 

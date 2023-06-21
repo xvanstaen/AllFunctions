@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, AfterViewInit,SimpleChanges,
-  Output, Input, HostListener, EventEmitter } from '@angular/core';
+  Output, Input, HostListener, EventEmitter, ElementRef, } from '@angular/core';
 import { FormGroup,UntypedFormControl, FormControl, Validators} from '@angular/forms';
 
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
@@ -16,13 +16,24 @@ import {mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from './Cl
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+
+  
   constructor(
     private ManageGoogleService: ManageGoogleService,
     private ManageMangoDB: ManageMangoDBService,
+    private elementRef: ElementRef,
+   
     ) {}
-      // import configuration files
-      // access MongoDB
 
+  //@ViewChild('ParentHealth', { static: false }) divData!: ElementRef;
+
+
+  //ngAfterViewInit() {
+  //  this.divData.nativeElement.innerHTML = "Hello Angular";
+  //}
+
+            // import configuration files
+      // access MongoDB
   configServer=new configServer;
   XMVConfig=new XMVConfig;
   isConfigServerRetrieved:boolean=false;
@@ -36,9 +47,24 @@ export class AppComponent {
 
   ngOnInit(){
       this.RetrieveConfig();
+      this.getPosDiv();
+  
   }
   
 
+  docDiv:any;
+  posDiv={
+    Top:0,
+    Left:0,
+  }
+  
+  getPosDiv(){
+    if (document.getElementById("posTopMain")!==null){
+        this.docDiv = document.getElementById("posTopMain");
+        this.posDiv.Left = this.docDiv.offsetLeft;
+        this.posDiv.Top = this.docDiv.offsetTop;
+    }
+  }
 
   RetrieveConfig(){
       var test_prod='prod';
@@ -81,10 +107,16 @@ export class AppComponent {
       this.isAppsSelected=false;
       if (this.selectApps===11){
         this.selHealthFunction=5;
+
+       
       } else if (this.selectApps===12){
         this.selHealthFunction=3;
+
+        
       } else if (this.selectApps===13){
         this.selHealthFunction=7;
+
+        
       } else{
         this.selHealthFunction=0;
       }

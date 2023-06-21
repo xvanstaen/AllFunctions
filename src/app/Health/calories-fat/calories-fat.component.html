@@ -44,7 +44,7 @@
      height:46px; text-align:center; padding-top:10px; margin-top:15px;" [ngStyle]="{'width.px': HTMLCaloriesFat.width+64}">
      RECIPE
 </div>
-<div id="posRecipeTable"
+<div 
        [ngStyle]="{'height.px':HTMLCaloriesFat.title.height, 'min-width.px': HTMLCaloriesFat.minwidth+80, 'width.px': HTMLCaloriesFat.width+80, 'color':HTMLCaloriesFat.color, 'background-color':HTMLCaloriesFat.background }" 
        style=" padding:0.3px; --thHeight:{{HTMLCaloriesFat.title.height}}; --thColor:{{HTMLCaloriesFat.title.color}}; --thBackground:{{HTMLCaloriesFat.title.background}}; 
        --wType:{{HTMLCaloriesFat.colWidth.type}}; --wAction:{{HTMLCaloriesFat.colWidth.action}}; 
@@ -149,7 +149,7 @@
     </div>
 </div>
 
-<div [ngStyle]="{'height.px':HTMLCaloriesFat.height, 'min-width.px': HTMLCaloriesFat.minwidth+80 , 'width.px': HTMLCaloriesFat.width+80, 'color':HTMLCaloriesFat.color, 'background-color':HTMLCaloriesFat.background }" 
+<div id="posRecipeTable" [ngStyle]="{'height.px':HTMLCaloriesFat.height, 'min-width.px': HTMLCaloriesFat.minwidth+80 , 'width.px': HTMLCaloriesFat.width+80, 'color':HTMLCaloriesFat.color, 'background-color':HTMLCaloriesFat.background }" 
   style="overflow:scroll;">
    <!-- ================== display of the table =============== -->
     <div *ngFor="let tab of outFileRecipe.tabCaloriesFat; let i=index ">
@@ -296,7 +296,7 @@
         ================ Display and Manage Calories & Fat table ================ 
         =========================================================================
      -->
-<div id="posTable"
+<div 
     [ngStyle]="{'height.px':HTMLCaloriesFat.title.height, 'min-width.px': HTMLCaloriesFat.minwidth , 'width.px': HTMLCaloriesFat.width, 'color':HTMLCaloriesFat.color, 'background-color':HTMLCaloriesFat.background }" 
     style=" padding:0.3px; --thHeight:{{HTMLCaloriesFat.title.height}}; --thColor:{{HTMLCaloriesFat.title.color}}; --thBackground:{{HTMLCaloriesFat.title.background}}; 
     --wType:{{HTMLCaloriesFat.colWidth.type}}; --wAction:{{HTMLCaloriesFat.colWidth.action}}; 
@@ -354,7 +354,8 @@
  <!-- ================== DROPDOWN LIST : action =============== -->
 <div class="dropdown" *ngIf="dialogueCalFat[0]===true && isDeleteType===false && isDeleteFood===false">
         <div class="Straight-content"  >
-            <div  class="StraightDropDown "  style="height:180px; width:140px; overflow-y:hidden;" [ngStyle]="{ 'margin-top.px': selectedPosition.y - tablePosTop - 450 ,'margin-left.px': 50}"  >
+                                                <!-- selectedPosition.y - tablePosTop - 450 -->
+            <div  class="StraightDropDown "  style="height:180px; width:140px; overflow-y:hidden;" [ngStyle]="{ 'margin-top.px': posItemAction  ,'margin-left.px': 50}"  >
                 <li *ngFor="let theTab of TabAction; let m=index;" [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
                         class="Straight-options "   style=" width:140px; "
                             (click)="onAction($event)" id="selAction-{{TabOfId[0]}}-{{TabOfId[1]}}-{{m}}" value="{{m}}">
@@ -378,7 +379,7 @@
     
  
 
-<div [ngStyle]="{'height.px':HTMLCaloriesFat.height, 'min-width.px': HTMLCaloriesFat.minwidth , 'width.px': HTMLCaloriesFat.width, 'color':HTMLCaloriesFat.color, 'background-color':HTMLCaloriesFat.background }" 
+<div id="posStartTable" [ngStyle]="{'height.px':HTMLCaloriesFat.height, 'min-width.px': HTMLCaloriesFat.minwidth , 'width.px': HTMLCaloriesFat.width, 'color':HTMLCaloriesFat.color, 'background-color':HTMLCaloriesFat.background }" 
     style="overflow:scroll;">
      <!-- ================== display of the table =============== -->
     <div *ngFor="let tab of outConfigCaloriesFat.tabCaloriesFat; let i=index ">
@@ -395,17 +396,18 @@
                             [ngClass]="{'rowEven': i % 2===0, 'rowOdd': i % 2 !==0, 'rowNew': (tabNewRecord[i].nb===1 || tabNewRecord[i].food[j].nb===1)}"
                             *ngIf="checkText==='' || (checkText!=='' && content.Name.toLowerCase().trim().indexOf(checkText.toLowerCase().trim())!==-1)" >
                             
-                        <div  class="widthAction" style="display:inline-block;">
+                        <div  id ="posAction" class="widthAction" style="display:inline-block;">
                             <span id='openAction-{{i}}-{{j}}'  class="circle" (click)="onAction($event)">
                                 A
                             </span>
                         </div>
-
-                        <input *ngIf='j===0' type="text" (input)="onInput($event)" id="type-{{i}}" placeholder="meat/fish/oil" class="text widthType"  value="{{tab.Type}}"  [ngClass]="{'rowEven': i % 2===0, 'rowOdd': i % 2 !==0, 'rowNew': (tabNewRecord[i].nb===1 || tabNewRecord[i].food[j].nb===1)}">
-                        <span *ngIf='j!==0'  class="text widthType"  style="pointer-events: none; display:inline-block;"    [ngClass]="{'rowEven': i % 2===0, 'rowOdd': i % 2 !==0, 'rowNew': (tabNewRecord[i].nb===1 || tabNewRecord[i].food[j].nb===1)}" >&nbsp;</span>
-                    
-                        <input type="text" (input)="onInput($event)" id="name-{{i}}-{{j}}" class="text widthIngr" value="{{content.Name}}"  [ngClass]="{'rowEven': i % 2===0, 'rowOdd': i % 2 !==0, 'rowNew': (tabNewRecord[i].nb===1 || tabNewRecord[i].food[j].nb===1)}">
-                    
+                        <div id ="posType" style="display:inline-block;">
+                            <input *ngIf='j===0' type="text" (input)="onInput($event)" id="type-{{i}}" placeholder="meat/fish/oil" class="text widthType"  value="{{tab.Type}}"  [ngClass]="{'rowEven': i % 2===0, 'rowOdd': i % 2 !==0, 'rowNew': (tabNewRecord[i].nb===1 || tabNewRecord[i].food[j].nb===1)}">
+                            <span *ngIf='j!==0'  class="text widthType"  style="pointer-events: none; display:inline-block;"    [ngClass]="{'rowEven': i % 2===0, 'rowOdd': i % 2 !==0, 'rowNew': (tabNewRecord[i].nb===1 || tabNewRecord[i].food[j].nb===1)}" >&nbsp;</span>
+                        </div>
+                        <div id ="posFood" style="display:inline-block;">
+                            <input type="text" (input)="onInput($event)" id="name-{{i}}-{{j}}" class="text widthIngr" value="{{content.Name}}"  [ngClass]="{'rowEven': i % 2===0, 'rowOdd': i % 2 !==0, 'rowNew': (tabNewRecord[i].nb===1 || tabNewRecord[i].food[j].nb===1)}">
+                        </div>
                         <input type="text" (input)="onInput($event)" id="serv-{{i}}-{{j}}" class="text widthOther" value="{{content.Serving}}" [ngClass]="{'rowEven': i % 2===0, 'rowOdd': i % 2 !==0, 'rowNew': (tabNewRecord[i].nb===1 || tabNewRecord[i].food[j].nb===1)}" >
 
                         <input type="text" (input)="onInput($event)" id="unit-{{i}}-{{j}}" class="text widthOther" value="{{content.ServingUnit}}"  [ngClass]="{'rowEven': i % 2===0, 'rowOdd': i % 2 !==0, 'rowNew': (tabNewRecord[i].nb===1 || tabNewRecord[i].food[j].nb===1)}">
@@ -431,6 +433,7 @@
             </div>
         </div>
     </div> 
+    <div id="posEndTable"></div>
 </div>
 
 

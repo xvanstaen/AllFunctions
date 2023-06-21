@@ -262,9 +262,24 @@ export class classPosSlider{
   top:number=0;
   left:number=0;
   VerHor:string='';
+  div={
+    top:0,
+    left:0,
+  }
 }
 
-
+export class classPosDiv{
+  Top:number=-1;
+  Left:number=0;
+  Client={
+    Top:0,
+    Left:0,
+    Height:0,
+    Bottom:0,
+    X:0,
+    Y:0,
+  }
+}
 
 
 

@@ -63,10 +63,28 @@ export class ColorSliderComponent implements OnInit, OnChanges, AfterViewInit {
       this.getScreenHeight = window.innerHeight;
     }
 
+//@HostListener('touchstart', ['$event'])
+//@HostListener('touchmove', ['$event'])
+//@HostListener('touchend', ['$event'])
+
+docDiv:any;
+posDiv={
+  Top:0,
+  Left:0,
+}
+
+getPosDiv(){
+  if (document.getElementById("posDivCanvas")!==null){
+      this.docDiv = document.getElementById("posDivCanvas");
+      this.posDiv.Left = this.docDiv.offsetLeft;
+      this.posDiv.Top = this.docDiv.offsetTop;
+  }
+}
 
 ngOnInit(): void {
   this.getScreenWidth = window.innerWidth;
   this.getScreenHeight = window.innerHeight;
+  this.getPosDiv();
   
   if (navigator.userAgent.indexOf("Firefox")>0){
     this.browserType="Firefox";
@@ -92,7 +110,11 @@ ngOnInit(): void {
 }
 
 ngAfterViewInit() { 
-  this.theCanvas=document.getElementById('canvasIDSliderH');
+  if (this.posSlider.VerHor==='H'){
+      this.theCanvas=document.getElementById('canvasIDSliderH');
+  } else if (this.posSlider.VerHor==='V'){
+    this.theCanvas=document.getElementById('canvasIDSliderV');
+  }
   /*
   if (this.posSlider.VerHor==='H'){
     this.theCanvas=document.getElementById('canvasIDSliderH');
@@ -124,18 +146,6 @@ ngAfterViewInit() {
 }
 
 
-returnValue(event:any){
-  if (this.posSlider.VerHor==='H'){
-    this.selectedPos.x=event.currentTarget.valueAsNumber;
-  } else {
-    this.selectedPos.y=256-event.currentTarget.valueAsNumber;
-  }
-  this.selectNb=event.currentTarget.valueAsNumber;
-  
- this.draw();
- this.emitColor();
- this.colorSelected();
-}
 
 draw() {
 
@@ -185,6 +195,7 @@ draw() {
 
 myMouse:number=0;
 onMouseDown(evt: MouseEvent) {
+    //this.msg="onMouseDown";
     this.mousedown = true;
     this.myMouse++
     this.selectedPos = { x: evt.offsetX, y: evt.offsetY };
@@ -209,6 +220,37 @@ colorSelected(){
     this.ctx.closePath();
   }
 }
+
+
+//myTouch:any;
+//msg:string="";
+//myElement:any;
+onTouchStart(event:any){
+  //this.getPosDiv();
+  //this.msg="Touch ";
+  event.preventDefault(); // this si to stop scrolling when touch screen on the slider is performed
+  var touch = event.touches[0] || event.changedTouches[0];
+  //this.myTouch=touch;
+  //this.myElement=touch.target;
+  //this.msg=this.msg+'onTouchStart==> pageX='+touch.pageX + '   screenX='+ touch.screenX + 'client.X=' + touch.clientX +  
+  //+ '  clientLeft='+this.myElement.clientLeft + '  clientTop='+this.myElement.clientTop + '  clientWidth='+this.myElement.clientWidth;
+  if (this.posSlider.VerHor==='H'){
+    this.selectedPos.x=touch.pageX-this.posDiv.Left-this.posSlider.left-this.posSlider.div.left;
+    if (this.selectedPos.x<1){this.selectedPos.x=1} else if (this.selectedPos.x>254){this.selectedPos.x=254};
+    this.selectNb=this.selectedPos.x;
+  } else {
+    this.selectedPos.y=touch.clientY-this.posDiv.Top-this.posSlider.top-this.posSlider.div.top;
+    if (this.selectedPos.y<1){this.selectedPos.y=1} else if (this.selectedPos.y>254){this.selectedPos.y=254};
+    this.selectNb=this.selectedPos.y;
+  }
+  this.draw();
+  this.emitColor();
+  this.colorSelected();
+
+  //this.returnValue(event);
+}
+
+
 
 onMouseMove(evt: MouseEvent) {
     if (this.mousedown) {

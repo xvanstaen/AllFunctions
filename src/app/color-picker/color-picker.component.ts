@@ -1,5 +1,5 @@
 import { Component, OnInit , Input, Output, ViewChild,  HostListener,  HostBinding, ChangeDetectionStrategy, 
-  SimpleChanges,EventEmitter, AfterViewInit, AfterViewChecked, AfterContentChecked, Inject, LOCALE_ID} from '@angular/core';
+  SimpleChanges,EventEmitter, AfterViewInit, AfterViewChecked, AfterContentChecked, Inject, LOCALE_ID, ElementRef} from '@angular/core';
 import { FormGroup,UntypedFormControl, FormControl, Validators} from '@angular/forms';
 import {classPosSlider} from '../JsonServerClass';
 @Component({
@@ -12,6 +12,13 @@ import {classPosSlider} from '../JsonServerClass';
 
 export class ColorPickerComponent {
   @Output() returnFile= new EventEmitter<any>(); // not used
+
+  constructor(
+
+    
+    ) {}
+
+    
   my_input_child1:string='';
   my_input_child2:string='';
   my_output_child1:string='';
@@ -44,8 +51,13 @@ export class ColorPickerComponent {
     palTop: new FormControl('',{validators:[ Validators.required], nonNullable: true}),
     palLeft: new FormControl('',{validators:[ Validators.required], nonNullable: true}),
   });
+
+
   ngOnInit(){
     //console.log('=====>init  color-picker');
+
+ 
+
     this.my_input_child1='white';
     this.my_input_child2='white';
 

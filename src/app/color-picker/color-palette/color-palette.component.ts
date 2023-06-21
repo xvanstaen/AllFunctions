@@ -49,6 +49,7 @@ export class ColorPaletteComponent implements OnInit, OnChanges, AfterViewInit {
 
   ngOnInit(): void {
     //console.log('first child init - no emit');
+    this.getPosDiv();
     if (this.posPalette.left===undefined || this.posPalette.left===0){
       this.margLeft=20;
       this.margTop=0;
@@ -57,7 +58,7 @@ export class ColorPaletteComponent implements OnInit, OnChanges, AfterViewInit {
       this.margTop=this.posPalette.top;
     }
 
-  }
+    }
    
   
 
@@ -131,7 +132,46 @@ export class ColorPaletteComponent implements OnInit, OnChanges, AfterViewInit {
         this.emitColor(evt.offsetX, evt.offsetY);
       }
     }
-  
+    docDiv:any;
+    posDiv={
+      Top:0,
+      Left:0,
+    }
+    //myPosPalette:number=0;
+    myPosRectTop:any;
+    getPosDiv(){
+      if (document.getElementById("posDivCanvasP")!==null){
+          this.docDiv = document.getElementById("posDivCanvasP");
+          this.posDiv.Left = this.docDiv.offsetLeft;
+          this.posDiv.Top = this.docDiv.offsetTop;
+          //this.myPosPalette=this.docDiv.offsetParent.offsetTop;
+       
+          this.myPosRectTop=Math.round(this.docDiv.getBoundingClientRect().top); // can use trunc() as well
+      }
+    }
+   // msg:string="";
+    onTouchStart(event:any){
+      event.preventDefault(); // this si to stop scrolling when touch screen on the palette is performed
+      this.getPosDiv();
+      var touch = event.touches[0] || event.changedTouches[0];
+
+      this.selectedPosition.x=touch.pageX-this.posDiv.Left-this.margLeft-this.posPalette.div.left;
+      if (this.selectedPosition.x<1){this.selectedPosition.x=1} else if (this.selectedPosition.x>255){this.selectedPosition.x=255};
+      this.selectedPosition.y=touch.clientY - this.myPosRectTop;
+      /*
+      if (this.posPalette.div.top===0){
+        this.selectedPosition.y=touch.pageY-this.posDiv.Top-this.myPosPalette; // 244
+      } else {
+        this.selectedPosition.y=touch.pageY-this.posDiv.Top-this.myPosPalette;
+      }
+      */
+      if (this.selectedPosition.y<1){this.selectedPosition.y=1} else if (this.selectedPosition.y>255){this.selectedPosition.y=255};
+      //this.msg='x=' + this.selectedPosition.x+ 'y=' + this.selectedPosition.y + 'pageY=' + touch.pageY  + 'screenY=' + touch.screenY  + 'clientY=' + touch.clientY  + 'posDiv.Top' + this.posDiv.Top + 
+      //'posPalette.top=' + this.posPalette.top + 'posPalette.div.top' + this.posPalette.div.top;
+      this.draw();
+      this.emitColor(this.selectedPosition.x, this.selectedPosition.y);
+    }
+    
     emitColor(x: number, y: number) {
       this.rgbaColor = this.getColorAtPosition(x, y);
       this.my_output1.emit(this.rgbaColor);

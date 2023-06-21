@@ -1,31 +1,27 @@
 import { Component, OnInit , Input, Output, ViewChild,  HostListener,  HostBinding, ChangeDetectionStrategy, 
   SimpleChanges,EventEmitter, AfterViewInit, AfterViewChecked, AfterContentChecked, Inject, LOCALE_ID} from '@angular/core';
   
-import { DatePipe, formatDate } from '@angular/common'; 
+import { DatePipe, formatDate,  ViewportScroller } from '@angular/common'; 
 
 //import  { Color, Label } from 'ng2-charts';
 import { Chart, ChartOptions, ChartType, ChartConfiguration, PluginChartOptions, ScaleChartOptions, ChartDataset,
   BarController, BarElement, CategoryScale, ChartData, LinearScale, LineController, LineElement, PointElement, } from 'chart.js/auto';
 
-import { HttpClient } from '@angular/common/http';
-import { HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router} from '@angular/router';
-import { ViewportScroller } from "@angular/common";
 import { FormGroup, FormControl, UntypedFormControl, Validators, FormBuilder, FormArray} from '@angular/forms';
 import { Observable } from 'rxjs';
 
-import { BucketList } from '../../JsonServerClass';
-import { Bucket_List_Info } from '../../JsonServerClass';
+import { BucketList, Bucket_List_Info } from '../../JsonServerClass';
 
 // configServer is needed to use ManageGoogleService
 // it is stored in MangoDB and accessed via ManageMangoDBService
-import { configServer } from '../../JsonServerClass';
-import { XMVConfig } from '../../JsonServerClass';
+import { configServer, XMVConfig } from '../../JsonServerClass';
+
 import { environment } from 'src/environments/environment';
-import { LoginIdentif } from '../../JsonServerClass';
+import { LoginIdentif, classPosDiv, msgConsole } from '../../JsonServerClass';
 import {manage_input} from '../../manageinput';
 import {eventoutput, thedateformat} from '../../apt_code_name';
-import { msgConsole } from '../../JsonServerClass';
 import {msginLogConsole} from '../../consoleLog'
 
 import { mainClassCaloriesFat, mainDailyReport} from '../ClassHealthCalories'
@@ -83,6 +79,9 @@ export class ReportHealthComponent implements OnInit {
 
   @ViewChild('baseChart', { static: true })
 
+  // DEBUG
+  debugPhone:boolean=false;
+
   FileParamChart=new classFileParamChart;
   current_Chart:number=0;
   tabParamChart:Array<classTabFormChart>=[];
@@ -91,6 +90,15 @@ export class ReportHealthComponent implements OnInit {
   tabCtx:Array<any>=[];
   tabChart:Array<any>=[];
   myTabChart:Array<Chart>=[];
+
+  mainWindow={
+    top:120,
+    left:20,
+  }
+  subWindow={
+    top:20,
+    left:10,
+  }
   
   tabCanvasId:Array<string>=['canvas1','canvas2','canvas3','canvas4'];
 
@@ -315,6 +323,54 @@ export class ReportHealthComponent implements OnInit {
   }
   newtabChart:any;
   newtabCtx:any;
+
+  isPosDivSlider:boolean=false;
+  isPosDivSliderTrue:boolean=false;
+  docDivPosSlider:any;
+  posDivPosSlider= new classPosDiv;
+  docDivPosSliderTrue:any;
+  posDivPosSliderTrue= new classPosDiv;
+  
+  getPosDivPosSlider(){
+    if (document.getElementById("posDivSlider")!==null){
+        this.docDivPosSlider = document.getElementById("posDivSlider");
+        this.isPosDivSlider=true;
+        this.posDivPosSlider.Left = this.docDivPosSlider.offsetLeft;
+        this.posDivPosSlider.Top = this.docDivPosSlider.offsetTop;
+        this.posDivPosSlider.Client.Top=Math.round(this.docDivPosSlider.getBoundingClientRect().top);
+        this.posDivPosSlider.Client.Left=Math.round(this.docDivPosSlider.getBoundingClientRect().left);
+        this.posDivPosSlider.Client.Bottom=Math.round(this.docDivPosSlider.getBoundingClientRect().bottom);
+        this.posDivPosSlider.Client.Height=Math.round(this.docDivPosSlider.getBoundingClientRect().height);
+        //const AA = this.docDivPosSlider.parentElement.offsetHeight;
+        //const BB = this.docDivPosSlider.parentElement.offsetTop;
+    }
+  }
+  getPosDivPosSliderTrue(){
+    if (document.getElementById("posDivSliderTrue")!==null){
+      this.docDivPosSliderTrue = document.getElementById("posDivSliderTrue");
+      this.isPosDivSliderTrue=true;
+      this.posDivPosSliderTrue.Left = this.docDivPosSliderTrue.offsetLeft;
+      this.posDivPosSliderTrue.Top = this.docDivPosSliderTrue.offsetTop;
+      this.posDivPosSliderTrue.Client.Top=Math.round(this.docDivPosSliderTrue.getBoundingClientRect().top);
+      this.posDivPosSliderTrue.Client.Left=Math.round(this.docDivPosSliderTrue.getBoundingClientRect().left);
+      this.posDivPosSliderTrue.Client.Bottom=Math.round(this.docDivPosSliderTrue.getBoundingClientRect().bottom);
+      this.posDivPosSliderTrue.Client.Height=Math.round(this.docDivPosSliderTrue.getBoundingClientRect().height);
+    }
+  }
+  eventClientY:number=0;
+  eventPageY:number=0;
+  @HostListener('window:mouseup', ['$event'])
+  onMouseUp(event: MouseEvent) {
+    //this.selectedPosition = { x: event.pageX, y: event.pageY };
+    if (this.debugPhone===true){
+        this.getPosDivPosSliderTrue();
+        this.eventClientY=event.clientY;
+        this.eventPageY=event.pageY;
+    }
+  
+  }
+
+
   ngAfterViewInit(){ // this.ConfigChartHealth.barChart.length     
     for (var i=0; i<this.tabCanvasId.length; i++){
         this.tabChart[i]=document.getElementById(this.tabCanvasId[i]);
@@ -324,7 +380,6 @@ export class ReportHealthComponent implements OnInit {
         this.overallTabLimit.push({dataset:[], label:[]});
         this.collectSpecialData(i, this.overallTab[i].datasetBar, this.overallTab[i].labelBar, this.overallTabLimit[i].dataset, this.overallTabLimit[i].label);        
     }
-
        //   TEST LINE CHART
 
     // this.isTestLineChart=true;
@@ -338,11 +393,17 @@ tabTextAlign:Array<string>=["cancel","center","left","right","end","start","inhe
 tabTitlePosition:Array<string>=["cancel","top","bottom"];
 tabDisplay:Array<boolean>=[false,true];
 ngOnInit() {
-
+  if (this.debugPhone===true){
+      this.getPosDivPosSlider();
+  }
   var i=0;
   this.posSlider.VerHor='H';
   this.posSlider.top=5;
   this.posSlider.left=60;
+  this.posSlider.div.left=this.mainWindow.left + this.subWindow.left;
+  this.posSlider.div.top=this.mainWindow.top + this.subWindow.top;
+  this.posPalette.div.left=this.mainWindow.left + this.subWindow.left;
+  this.posPalette.div.top=this.mainWindow.top + this.subWindow.top;
   this.posPalette.top=0;
   this.posPalette.left=60;
   for (i=0; i<this.ConfigChartHealth.barDefault.datasets.labels.length; i++){
@@ -578,6 +639,10 @@ SelChart(event:any){
     this.selectedChart=4;
   }
   this.fillInFormFromTab(this.selectedChart-1);
+  if (this.debugPhone === true){
+    this.getPosDivPosSlider();
+  }
+  
   
 }
 
@@ -587,6 +652,10 @@ cancelChartParam(event:any){
     this.isParamTitle=false;
     this.isParamLegend=false;
     this.isParamAxis=false;
+    this.isParamTitle=false;
+    this.isParamLegend=false;
+    this.isParamAxis=false;
+    this.resetBooleans();
 
   } else   if (event.target.id==="chartTitle"){
     this.isParamTitle=false;
@@ -988,7 +1057,6 @@ selectType(event:any){
 
 selectPeriod(event:any){
   this.resetBooleans();
-  this.isSelectLChartTitleColor=false;
   if (event.target.id==='selPeriod'){
     this.isPeriodSelected=true;
   } else if (event.target.id==='selectedPeriod'){
@@ -1020,12 +1088,14 @@ resetBooleans(){
   this.isSelectXTicksColor=false;
   this.isSelectYBorderColor=false;
   this.isSelectYTicksColor=false;
+  this.isPosDivSliderTrue=false;
 }
 
 
 selectColorAxis(event:any){
   this.resetBooleans();
-  this.posTopDropdownSlider=120;
+  this.mainWindow.top=120;
+  this.posSlider.div.top=this.mainWindow.top + this.subWindow.top;
   if (event==="xBorderColor"){
     this.isSelectXBorderColor=true;
     this.my_input_child1=this.selected_XBorderColor;
@@ -1056,13 +1126,16 @@ selectColorAxis(event:any){
 
   }
   this.isSliderSelected=true;
+
 }
 
 
 
 selectColor(event:any){
   this.resetBooleans();
-  this.posTopDropdownSlider=120;
+  
+  this.mainWindow.top=120;
+  this.posSlider.div.top=this.mainWindow.top + this.subWindow.top;
   if (event==='canvasColor'){
     this.isSelectCanvasColor=true;
     this.my_input_child1=this.selected_canvasColor;
@@ -1138,6 +1211,8 @@ selectColor(event:any){
     this.my_input_child1=this.returnPalette.rgba;
     this.temporaryColor=this.returnPalette.rgba;
   }
+
+
 }
 
 initRgba(event:any){
@@ -1165,12 +1240,14 @@ fnPaletteBis(event:any){
 
 temporaryColor:string='';
 fnPalette(event:any){ 
+  if (this.debugPhone===true){
+      this.getPosDivPosSliderTrue();
+  }
   this.temporaryColor=event;
   }
 
 
 fnExitPalette(event:any){
-
 if (event==='Cancel'){
   this.resetBooleans();
 } else if (event==='Save'){
@@ -1345,7 +1422,6 @@ buildChart(nb:number){
 }
 
 
-posTopDropdownSlider:number=0;
 selectLabelColor(event:any){
   const i=event.target.id.indexOf('-');
   this.dialogLabColor[this.currentLabColor]=false;
@@ -1371,7 +1447,8 @@ selectLabelColor(event:any){
     this.temporaryColor=this.returnPalette.rgba;
   }
   this.isSliderSelected=true;
-  this.posTopDropdownSlider=370;
+  this.mainWindow.top=370;
+  this.posSlider.div.top=this.mainWindow.top + this.subWindow.top;
 }
 
 
