@@ -50,6 +50,7 @@ import { ReportHealthComponent } from './Health/report-health/report-health.comp
 import { ColorPickerComponent } from 'src/app/color-picker/color-picker.component';
 import { ColorPaletteComponent } from 'src/app/color-picker/color-palette/color-palette.component';
 import { ColorSliderComponent } from 'src/app/color-picker/color-slider/color-slider.component';
+import { RecipeComponent } from './recipe/recipe.component';
 //import { NgxIntlTelInputComponent } from './ngx-intl-tel-input/ngx-intl-tel-input.component';
 
 @NgModule({
@@ -90,6 +91,7 @@ import { ColorSliderComponent } from 'src/app/color-picker/color-slider/color-sl
     MyDatePickerComponent,
     RoutingAppComponent,
     ManageUrlTopicComponent,
+    RecipeComponent,
 
     
 

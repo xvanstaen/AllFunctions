@@ -1,0 +1,92 @@
+@import "../Health/FitnessHealthGeneral.css";
+
+
+.titleName{
+    width:100%; color: white; display:inline-block; border: solid 1px blue; text-align: center; background-color: cyan;
+    font-size:18px; height:40px; padding-top:10px; 
+}
+
+
+.titleHeader{
+    color:blue; display:inline-block;  border: solid 1px blue; text-align: center; 
+    background-color: lightgrey; height:35px; padding-top:6px;
+}
+
+.theRow{
+    color:blue; display:inline-block; border:blue solid 1px;
+    height:29px; 
+    background-color: lightgrey;
+}
+
+.listRecipes{
+    margin-left:20px; width:120px; background-color: cyan;
+    display:inline-block;
+}
+.listRecipes:hover{
+     background-color: blue;
+     color:white;
+}
+
+.circle{
+    border-radius: 50% 50%;
+    color:blue;
+    width:22px;
+    height:22px;
+    border: solid 1px rgb(4, 4, 124);
+    margin-left:15px;
+    margin-top:2px;
+    font-size:14px;
+    font-weight:bold;
+    background-color: lightgreen;
+    text-align: center;
+    padding-top:-5px;
+    display:inline-block;
+  }
+  
+  .circle:hover{
+    color:red;
+    background-color:cyan;
+    width:22px;
+    height:22px;
+    border: solid 2px rgb(4, 4, 124);
+  }
+
+  .input{
+    height:25px;
+    padding:2px;
+    
+    font-size:14px;
+    background-color: lightgrey;
+  }
+
+  .materiel{
+    height:25px;
+    padding:2px;
+    color:blue;
+    font-size:18px;
+    background-color: lightgrey;
+    text-align: center;
+    padding-top:25px;
+    width:15%; 
+    display:inline-block; 
+    height:80px; 
+    overflow:hidden;
+  }
+
+  .input:hover{
+    background-color: cyan;
+    color:blue;
+  }
+
+  .nutritionName{
+    width:76%; padding:5px; margin-left:2%; display:inline-block;
+  }
+
+  .nutritionNb{
+    width:18%; padding:5px; display:inline-block;
+  }
+
+  .nutritionTotal{
+    margin-left:5px; width:95%; padding:5px; color:white; background-color: blue;
+  }
+

@@ -82,6 +82,11 @@ export class BioData{
         Carbs:0,
         Protein:0
       };
+      recipe={
+        bucket:'',
+        fileType:'',
+        fileStartName:'',
+      };
     };
 
   export class EventAug {
@@ -268,18 +273,6 @@ export class classPosSlider{
   }
 }
 
-export class classPosDiv{
-  Top:number=-1;
-  Left:number=0;
-  Client={
-    Top:0,
-    Left:0,
-    Height:0,
-    Bottom:0,
-    X:0,
-    Y:0,
-  }
-}
 
 
 

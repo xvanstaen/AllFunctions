@@ -1,3 +1,6 @@
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
 <body>
 
 
@@ -5,19 +8,20 @@
     <span style="width:99%; background-color: cyan; margin-left:10px; border:solid 2px red; display:inline-block; ">
         <span style="width:100%; color:#0000ff; font-size:22px; display:inline-block; text-align: center; padding-top:10px; height:50px;"> Select the apps </span>
         <br>
-        <span style="width:130px; display:inline-block; margin-left:10px;">1. XMV Company</span>
-        <span style="width:130px; display:inline-block; margin-left:10px;">2. Logos</span>
-        <span style="width:130px; display:inline-block; margin-left:10px;">3. Telephone</span>
-        <span style="width:130px; display:inline-block; margin-left:10px;">4. Slider</span>
-        <span style="width:130px; display:inline-block; margin-left:10px;">5. ColorPicker</span>
-        <span style="width:130px; display:inline-block; margin-left:10px;">6. Encrypt</span>
-        <span style="width:130px; display:inline-block; margin-left:10px;">7. CSSTable</span>
-        <span style="width:130px; display:inline-block; margin-left:10px;">8. Upload File</span>
-        <span style="width:130px; display:inline-block; margin-left:10px;">9. Save & Download</span>
-        <span style="width:130px; display:inline-block; margin-left:10px;">10. Converter</span>
-        <span style="width:130px; display:inline-block; margin-left:10px;">11. Calories & Fat</span>
-        <span style="width:130px; display:inline-block; margin-left:10px;">12. Health data</span>
-        <span style="width:130px; display:inline-block; margin-left:10px;">13. Health Chart</span>
+        <span class="options" >1. XMV Company</span>
+        <span class="options" >2. Logos</span>
+        <span class="options" >3. Telephone</span>
+        <span class="options" >4. Slider</span>
+        <span class="options" >5. ColorPicker</span>
+        <span class="options" >6. Encrypt</span>
+        <span class="options" >7. CSSTable</span>
+        <span class="options" >8. Upload File</span>
+        <span class="options" >9. Save & Download</span>
+        <span class="options" >10. Converter</span>
+        <span class="options" >11. Calories & Fat</span>
+        <span class="options" >12. Health data</span>
+        <span class="options" >13. Health Chart</span>
+        <span class="options" >14. Recipe</span>
 
         <br><br>
     </span>
@@ -50,6 +54,13 @@
         (returnFile)="ReceiveFiles($event)"     
         >
         </app-health>
+    </div>  
+
+    <div *ngIf="selectApps===14">
+        <app-recipe  [identification]="identification" [XMVConfig]="XMVConfig" [configServer]="configServer"  
+         [InConvToDisplay]="ConvToDisplay"     
+        >
+        </app-recipe>
     </div>  
 </div>
   

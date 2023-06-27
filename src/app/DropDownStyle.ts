@@ -9,6 +9,7 @@ export class classDropDown{
     maxHeightContent:number=275;
     maxHeightOptions:number=275; 
     scrollY:string='hidden';
+
   }
 
 export function getStyleDropDownContent(height:number, width:number){

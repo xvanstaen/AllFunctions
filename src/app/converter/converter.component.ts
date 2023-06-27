@@ -1,12 +1,11 @@
 import { Component, OnInit , Input, Output, HostListener,  HostBinding, ChangeDetectionStrategy, 
   SimpleChanges,EventEmitter, AfterViewInit, AfterViewChecked, AfterContentChecked, Inject, LOCALE_ID} from '@angular/core';
   
-import { DatePipe, formatDate } from '@angular/common'; 
+import { DatePipe, formatDate, ViewportScroller } from '@angular/common'; 
 
-import { HttpClient } from '@angular/common/http';
-import { HttpHeaders } from '@angular/common/http';
+import { HttpClient , HttpHeaders } from '@angular/common/http';
 import { Router} from '@angular/router';
-import { ViewportScroller } from "@angular/common";
+
 import { FormGroup, FormControl, Validators, FormBuilder, FormArray} from '@angular/forms';
 import { Observable } from 'rxjs';
 
@@ -16,20 +15,17 @@ import { Bucket_List_Info } from '../JsonServerClass';
 
 // configServer is needed to use ManageGoogleService
 // it is stored in MangoDB and accessed via ManageMangoDBService
-import { configServer } from '../JsonServerClass';
-import { XMVConfig } from '../JsonServerClass';
-import { environment } from 'src/environments/environment';
-import { LoginIdentif } from '../JsonServerClass';
-import {manage_input} from '../manageinput';
-import {eventoutput, thedateformat} from '../apt_code_name';
+import { configServer, XMVConfig, LoginIdentif  } from '../JsonServerClass';
 import { msgConsole } from '../JsonServerClass';
 import {msginLogConsole} from '../consoleLog'
+import { environment } from 'src/environments/environment';
+
+import {manage_input} from '../manageinput';
+import {eventoutput, thedateformat} from '../apt_code_name';
+
 import {ClassSubConv, mainConvItem, mainRecordConvert, mainClassUnit} from '../ClassConverter'
-import {mainClassConv} from '../ClassConverter'
-import {ClassConv} from '../ClassConverter'
-import {ClassUnit} from '../ClassConverter'
-import {ConvItem} from '../ClassConverter'
-import {recordConvert} from '../ClassConverter'
+import {mainClassConv, ClassConv, ClassUnit, ConvItem, recordConvert} from '../ClassConverter'
+
 
 import {  getStyleDropDownContent, getStyleDropDownBox, classDropDown } from '../DropDownStyle'
 
@@ -192,7 +188,6 @@ export class ConverterComponent implements OnInit {
       this.getScreenWidth = window.innerWidth;
       this.getScreenHeight = window.innerHeight;
     }
-
 
 
 

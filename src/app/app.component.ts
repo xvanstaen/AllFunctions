@@ -6,7 +6,7 @@ import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service'
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
 import { LoginIdentif ,XMVConfig, configServer } from './JsonServerClass';
 import { environment } from 'src/environments/environment';
-import {  classPosDiv } from './JsonServerClass';
+
 import {mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from './ClassConverter';
 
 @Component({
@@ -40,24 +40,8 @@ export class AppComponent {
 
   ngOnInit(){
       this.RetrieveConfig();
-      this.getPosDiv();
-  
   }
   
-  docDiv:any;
-  posDiv=  new classPosDiv;
-  
-  getPosDiv(){
-    if (document.getElementById("posTopMain")!==null){
-        this.docDiv = document.getElementById("posTopMain");
-        this.posDiv.Left = this.docDiv.offsetLeft;
-        this.posDiv.Top = this.docDiv.offsetTop;
-        this.posDiv.Client.Top=Math.round(this.docDiv.getBoundingClientRect().top);
-        this.posDiv.Client.Left=Math.round(this.docDiv.getBoundingClientRect().left);
-        this.posDiv.Client.Bottom=Math.round(this.docDiv.getBoundingClientRect().bottom);
-        this.posDiv.Client.Height=Math.round(this.docDiv.getBoundingClientRect().height);
-    }
-  }
 
   RetrieveConfig(){
       var test_prod='prod';

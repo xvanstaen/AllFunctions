@@ -52,3 +52,7 @@
     background-color:rgb(48, 89, 159);
     background-image: linear-gradient(rgb(97, 166, 206), rgb(63, 153, 206));
   }
+
+.options{
+  width:130px; display:inline-block; margin-left:10px;
+}
