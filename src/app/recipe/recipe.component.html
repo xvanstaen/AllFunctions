@@ -7,8 +7,8 @@
 </div>
 <div *ngIf="dictionaryOnly===false">
 <div *ngIf="EventHTTPReceived[0]===true && isCreateRecipeName===false && isRecipeModified===false && theListOfObjects.length>1" style="min-width:400px; max-width:500px; margin-top:5px;" >
-        <div class="objectHeader" style="margin-left:10px; font-size:14px;">Select the file containing your recipe(s)</div>
-
+        <div class="objectHeader" style="margin-left:10px; font-size:14px; width:96%; display:inline-block;">Select the type of recipe(s)</div>
+    <!--
             <div   *ngFor="let listFile of theListOfObjects; let i=index" >
                     <div style="list-style-type: none; ">
                             <input   *ngIf="recordRecipe===i" class="radioButton" (click)='RadioSelection($event)' type="radio"  name="theRadio" id="{{i}}" value="Y"  checked>
@@ -17,8 +17,23 @@
           
                     </div>
                   
+            </div>   
+    -->
+        <div   *ngFor="let listFile of theListOfObjects; let i=index" >
+                
+            <div *ngIf="i % 2=== 0" style="margin-left:10px; " > 
+                    <div   class="listObj"   [ngClass]="{'even1': i % 4 === 0 , 'even2': i % 4 === 2 }"> 
+                        <div style="padding-left:15px; width:100%; display:inline-block; " [ngClass]="{'listObjSel':i===radioSelect}"  (click)='RadioSelection($event)' 
+                                id="listA-{{i}}" >{{i+1}} - {{listFile.name}}</div>
+                    </div>
+                    <div  *ngIf=" i < theListOfObjects.length-2"  class="listObj"   [ngClass]="{'even2': (i + 1) % 4 === 1 , 'even1': (i + 1) % 4 === 3}"> 
+                        <div style="padding-left:15px; width:100%; display:inline-block;  " [ngClass]="{'listObjSel':i+1===radioSelect}"  (click)='RadioSelection($event)' 
+                                id="listB-{{i+1}}" >{{i+2}} - {{theListOfObjects[i+1].name}}</div>
+                    </div>
+                </div>  
+
             </div>    
-        <div class="skipLine">&nbsp;</div>
+
 </div>
 
 <div *ngIf="EventHTTPReceived[1]===true" style=" margin-left:10px; width:94%; max-width:650px; margin-top:20px;" >

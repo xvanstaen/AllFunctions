@@ -1,10 +1,35 @@
 @import "../Health/FitnessHealthGeneral.css";
 
 
-.object:hover{
+.listObj:hover{
   color:white;
-  background-color:blue;
+  background-color:rgb(113, 113, 247);
+  font-size:14px;
   
+}
+
+.listObjSel{
+  color:white;
+  background-color:rgb(113, 113, 247);
+}
+
+.even1{
+  background-color:lightgrey;
+}
+
+.even2{
+  background-color:rgb(175, 174, 174);
+}
+
+.odd1{
+  background-color:rgb(131, 130, 130);
+}
+.odd2{
+  background-color:rgb(98, 97, 97);
+}
+
+.listObj{
+  width:48%; display:inline-block; height:25px;
 }
 
 .eye {

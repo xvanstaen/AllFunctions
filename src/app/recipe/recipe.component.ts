@@ -312,21 +312,24 @@ selLanguage(event:string){
 
   } 
 }
+radioSelect:number=-1;
 RadioSelection(event:any){
-
-  const i=parseInt(event.target.id.substring(2));
-  const val=Number(event.target.id.substring(0,1));
-  if (this.fileNb !== Number(event.target.id)){
+  this.findId(event.target.id);
+  // const i=parseInt(event.target.id.substring(2));
+  const val=this.idNb;
+  this.radioSelect=this.idNb;
+  //const val=Number(event.target.id.substring(0,1));
+  if (  this.fileNb !== Number(event.target.id)){
     this.recipeFile.recipe.splice(0,this.recipeFile.recipe.length);
     this.initialRecipeFile.recipe.splice(0,this.initialRecipeFile.recipe.length);
-    this.fileNb = Number(event.target.id);
+    this.fileNb = this.radioSelect;
     //this.getRecord(this.googleBucketName, this.myListOfObjects.items[this.fileNb].name,1);
     const nameOfFile=this.theListOfObjects[this.fileNb].header+this.theListOfObjects[this.fileNb].name+this.theListOfObjects[this.fileNb].json;
     this.getRecord(this.googleBucketName, nameOfFile,1);
     this.recordRecipe=0;
     
   } else {
-      // keep the files
+      // keep the file
       this.recipeFile.recipe.splice(0,this.recipeFile.recipe.length);
       this.fillFileRecord(this.initialRecipeFile,this.recipeFile);
       
