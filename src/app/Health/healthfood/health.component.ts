@@ -286,8 +286,8 @@ ngOnInit(): void {
   this.posDivCalFat=getPosDiv("posTopAppCalFat");
   this.posDivAfterTitle=getPosDiv("posTopAppReportHealth");
   this.posDivAfterTitle=getPosDiv("posAfterTitle");
-  this.sizeBox.widthContent=160;
-  this.sizeBox.widthOptions=160;
+  this.sizeBox.widthContent=0;
+  this.sizeBox.widthOptions=220;
   this.sizeBox.heightItem=25;
   this.sizeBox.maxHeightContent=275;
   this.sizeBox.maxHeightOptions=275;
@@ -484,8 +484,10 @@ CreateDropDownCalFat(){
       //this.tabType.push({name:''});
       //this.tabType[this.tabType.length-1].name=this.ConfigCaloriesFat.tabCaloriesFat[i].Type.toLowerCase().trim();
       for (j=0; j<this.ConfigCaloriesFat.tabCaloriesFat[i].Content.length; j++){
-        this.tabFood.push({name:''});
-        this.tabFood[this.tabFood.length-1].name=this.ConfigCaloriesFat.tabCaloriesFat[i].Content[j].Name.toLowerCase().trim();;
+        this.tabFood.push({name:'',serving:"",unit:""});
+        this.tabFood[this.tabFood.length-1].name=this.ConfigCaloriesFat.tabCaloriesFat[i].Content[j].Name.toLowerCase().trim();
+        this.tabFood[this.tabFood.length-1].serving=this.ConfigCaloriesFat.tabCaloriesFat[i].Content[j].Serving;
+        this.tabFood[this.tabFood.length-1].unit=this.ConfigCaloriesFat.tabCaloriesFat[i].Content[j].ServingUnit.toLowerCase().trim();
       }
    }
    //this.tabType.sort((a, b) => (a.name < b.name) ? -1 : 1);
@@ -557,9 +559,12 @@ CreateTabFood(item:any, value:any){
   if (item==='Food'){
     iTab=-1;
     for (var i=0; i<this.tabFood.length; i++){
-      if (this.tabFood[i].name.substr(0,value.trim().length).toLowerCase().trim()===value.toLowerCase().trim()){
+      if (this.tabFood[i].name.toLowerCase().trim().indexOf(value.toLowerCase().trim()) !== -1){
         iTab++;
-        this.tabInputFood[iTab]=this.tabFood[i].name.toLowerCase().trim();
+        this.tabInputFood.push({name:"",serving:"",unit:""});
+        this.tabInputFood[iTab].name=this.tabFood[i].name.toLowerCase().trim();
+        this.tabInputFood[iTab].serving=this.tabFood[i].serving;
+        this.tabInputFood[iTab].unit=this.tabFood[i].unit;
       }
     }
     this.sizeBoxContentFood=this.sizeBox.heightItem  * this.tabInputFood.length;
@@ -608,7 +613,8 @@ onSelMealFood(event:any){
   this.error_msg='';
   this.findIds(event.target.id);
   if (event.currentTarget.id.substring(0,7)==='selFood'){
-    this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name =event.target.textContent.toLowerCase().trim();
+    //this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name =event.target.textContent.toLowerCase().trim();
+    this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name =this.tabInputFood[this.TabOfId[3]].name;
     this.tabInputFood.splice(0,this.tabInputFood.length);
   } else if (event.currentTarget.id.substring(0,7)==='selMeal'){
     this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].name=event.target.textContent.toLowerCase().trim();

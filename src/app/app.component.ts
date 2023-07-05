@@ -79,8 +79,10 @@ export class AppComponent {
   }
 
   selectApps:number=0;
+  dictionaryOnly:boolean=false;
   onInput(event:any){
       this.selectApps=Number(event.target.value);
+      this.dictionaryOnly=false;
       this.isAppsSelected=false;
       if (this.selectApps===11){
         this.selHealthFunction=5;
@@ -88,7 +90,9 @@ export class AppComponent {
         this.selHealthFunction=3;
       } else if (this.selectApps===13){
         this.selHealthFunction=7;
-      } else{
+      }  else if (this.selectApps===15){
+        this.dictionaryOnly=true;
+      }else{
         this.selHealthFunction=0;
       } 
   }

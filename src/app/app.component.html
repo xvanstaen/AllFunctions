@@ -5,7 +5,7 @@
 
 
 <div style=" max-width: 440px; ">
-    <span style="width:99%; background-color: cyan; margin-left:10px; border:solid 2px red; display:inline-block; ">
+    <span style="width:94%; background-color: cyan; margin-left:10px; border:solid 2px red; display:inline-block; ">
         <span style="width:100%; color:#0000ff; font-size:22px; display:inline-block; text-align: center; padding-top:10px; height:50px;"> Select the apps </span>
         <br>
         <span class="options" >1. XMV Company</span>
@@ -22,6 +22,7 @@
         <span class="options" >12. Health data</span>
         <span class="options" >13. Health Chart</span>
         <span class="options" >14. Recipe</span>
+        <span class="options" >15. Dictionnairy for recipe</span>
 
         <br><br>
     </span>
@@ -29,8 +30,8 @@
     <button class="sizeButtons"  (click)="onSelectApps()">Submit</button>
 </div>
 <div id="posTopMain" ></div>
-<div *ngIf="isAppsSelected===true">
-    <div *ngIf="selectApps===1 && isIdRetrieved===true">
+<div *ngIf="isAppsSelected===true && isIdRetrieved===true && this.isConfigServerRetrieved===true">
+    <div *ngIf="selectApps===1 ">
         <app-xmv-company [configServer]="configServer" [INidentification]="identification" [XMVConfig]="XMVConfig" [isConfigServerRetrieved]="isConfigServerRetrieved"
         [InConvertUnit]="ConvertUnit" [InConvToDisplay]="ConvToDisplay" [IntheTabOfUnits]="theTabOfUnits"  [InWeightRefTable]="WeightRefTable" 
         >
@@ -56,12 +57,13 @@
         </app-health>
     </div>  
 
-    <div *ngIf="selectApps===14">
+    <div *ngIf="selectApps===14 || selectApps===15">
         <app-recipe  [identification]="identification" [XMVConfig]="XMVConfig" [configServer]="configServer"  
-         [InConvToDisplay]="ConvToDisplay"     
+         [InConvToDisplay]="ConvToDisplay"     [dictionaryOnly]="dictionaryOnly"
         >
         </app-recipe>
     </div>  
+
 </div>
   
 

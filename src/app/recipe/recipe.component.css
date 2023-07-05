@@ -1,9 +1,39 @@
 @import "../Health/FitnessHealthGeneral.css";
 
 
+.object:hover{
+  color:white;
+  background-color:blue;
+  
+}
+
+.eye {
+  width:50%; padding-left:28px;  vertical-align:text-bottom;
+}
+.eye:hover {
+  color:green;
+}
+.eyeNutrition {
+  width:20%; padding-left:28px;  vertical-align:text-bottom;
+}
+.eyeNutrition:hover {
+  color:green;
+}
+
+.menu{
+  padding-left:10px; vertical-align:text-bottom; color: blue;  font-size:26px;
+}
+
+.menuBox{margin-left:15px; padding-left:6px; width:44px; height:28px; background:cyan; display:inline-block;}
+
+.menuBox:hover {
+  color:darkgreen;
+  font-weight:bold;
+  background:lightgrey;
+}
 .titleName{
-    width:100%; color: white; display:inline-block; border: solid 1px blue; text-align: center; background-color: cyan;
-    font-size:18px; height:40px; padding-top:10px; 
+    width:100%; color: white; display:inline-block; border: solid 1px blue;  background-color: cyan;
+    font-size:18px; height:40px; padding-top:5px; 
 }
 
 
@@ -89,4 +119,67 @@
   .nutritionTotal{
     margin-left:5px; width:95%; padding:5px; color:white; background-color: blue;
   }
+
+  .recipeStraight-options:hover{
+    color:white;
+    background-color:blue;
+  }
+
+  .recipeStraight-options{
+    width:120px;
+    font-size:12px;
+    height:50px;
+    color:black;
+
+    padding:10px;
+    border:0px; 
+    display:block;
+    float:left;
+    
+    
+  }
+
+  .changeAllItems{
+    width:100%; color:blue; font-size:16px; margin-left:20px; margin-top:5px;
+  }
+
+  .changeAllCurrentValue{
+    background-color:cyan; width:40px; 
+  }
+
+  .changeAllNewValue{
+    
+    background-color:cyan; width:40px; height:25px;
+  }
+
+  .changeAllNewValue:hover{
+    color:white; background-color:blue;
+  }
+
+  .changeNamelNew{
+    
+    background-color:cyan; width:200px; height:25px;
+  }
+
+  .changeNameNew:hover{
+    color:white; background-color:blue;
+  }
+
+.flag{
+  display:inline-block;
+  width:35px;
+  height:35px;
+  margin-left:20px;
+ 
+}
+
+
+.flagone:hover{
+  background-color:cyan;
+}
+
+.flagtwo:hover{
+  background-color:cyan;
+}
+
 

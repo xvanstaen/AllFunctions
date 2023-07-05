@@ -87,6 +87,11 @@ export class BioData{
         fileType:'',
         fileStartName:'',
       };
+      dictionary={
+        bucket:'',
+        fileType:'',
+        fileName:'',
+      };
     };
 
   export class EventAug {

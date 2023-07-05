@@ -2,41 +2,50 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-
-<div *ngIf="EventHTTPReceived[0]===true && isCreateRecipeName===false && isRecipeModified===false" style="min-width:400px; max-width:500px; margin-top:20px;" >
-
+<div *ngIf="dictionaryOnly===true">
+<app-dictionary [configServer]="configServer" [identification]="identification" [XMVConfig]="XMVConfig" ></app-dictionary>
+</div>
+<div *ngIf="dictionaryOnly===false">
+<div *ngIf="EventHTTPReceived[0]===true && isCreateRecipeName===false && isRecipeModified===false && theListOfObjects.length>1" style="min-width:400px; max-width:500px; margin-top:5px;" >
         <div class="objectHeader" style="margin-left:10px; font-size:14px;">Select the file containing your recipe(s)</div>
 
-            <div   *ngFor="let listFile of myListOfObjects.items; let i=index" >
+            <div   *ngFor="let listFile of theListOfObjects; let i=index" >
                     <div style="list-style-type: none; ">
-  
-                            <input   class="radioButton" (click)='RadioSelection($event)' type="radio"  id="{{i}}" value="N"  >
-                            <div  [ngClass]="{'even': i % 2 === 0, 'odd':i % 2 !== 0}"  class=" object" style="margin-left:10px; padding-top:-25px;" ><span style="margin-left:15px;" >{{i+1}} - {{listFile.name}}</span></div>
+                            <input   *ngIf="recordRecipe===i" class="radioButton" (click)='RadioSelection($event)' type="radio"  name="theRadio" id="{{i}}" value="Y"  checked>
+                            <input   *ngIf="recordRecipe!==i" class="radioButton" (click)='RadioSelection($event)' type="radio"  name="theRadio" id="{{i}}" value="N"  >
+                            <div  [ngClass]="{'even': i % 2 === 0, 'odd':i % 2 !== 0}"   class=" object" style="margin-left:10px; padding-top:-25px;" ><span style="margin-left:15px;" >{{i+1}} - {{listFile.name}}</span></div>
           
                     </div>
                   
             </div>    
-    <div class="skipLine">&nbsp;</div>
-
+        <div class="skipLine">&nbsp;</div>
 </div>
 
 <div *ngIf="EventHTTPReceived[1]===true" style=" margin-left:10px; width:94%; max-width:650px; margin-top:20px;" >
     <div id="posDivBeforeTitle"></div>
+
+    <!-- ====== SEARCH RECIPE ====== -->
     <div *ngIf="isRecipeModified===false">
         <span style="color:blue; font-size:14px; width:60px; margin-left:10px;"> Search recipe </span>
         <input type="text" [value]="textToSearch" id='search' (input)="searchText($event)" (click)="searchText($event)"
             style="margin-left:10px; width:120px; height:25px; color:blue; ">
         <button id='cancel' class="sizeButtons" style="margin-left:10px;" (click)="searchText($event)" >Cancel</button>
         <div class="skipLine">&nbsp;</div>
-        <li *ngFor="let tab of tabSearch; let m=index;" class="Straight-options "  
+        <li *ngFor="let tab of tabSearch; let m=index;" class="recipeStraight-options " 
                         [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
                         (click)="afterDropDown($event)" id="selText" >
-                        <div *ngIf="m % 2 ===0" id="selText-{{m}}" style="width:120px; display:inline-block; color:blue;">{{tab}}   </div>
-                        <div *ngIf="m % 2 !==0" id="selText-{{m}}" style="width:120px; display:inline-block; color:green;">{{tab}}   </div>
-        </li>
+                        <span *ngIf="m % 3 ===0" id="selText-{{m}}"  >{{tab.name}}   </span>
+                        <span *ngIf="m % 3 ===1" id="selText-{{m}}"  >{{tab.name}}   </span>
+                        <span *ngIf="m % 3 ===2" id="selText-{{m}}"  >{{tab.name}}   </span>
+                        <!--
+                        <span *ngIf="m % 4 ===3" id="selText-{{m}}" style=" color:green;">{{tab}}   </span>
+                        -->
+                    </li>
+       
 
     </div>
     <div class="skipLine">&nbsp;</div>
+    <!-- ====== SAVE/CANCEL MODIFICATION OF RECIPE ====== -->
     <div *ngIf="IsSaveConfirmed===false && isRecipeModified===true;" style="margin: left 1px;0px; display:inline-block; width:80%">
         <div class="msg"  style="text-align: center;">
             Recipe record has been modified
@@ -46,6 +55,8 @@
         <button id='but_2' class="sizeButtons" (click)="CancelRecord()"> Cancel</button>
         <div class="msg"  ><br>{{message}} </div>
     </div>
+
+    
     <div *ngIf="IsSaveConfirmed===true" style="margin-left:20px; width:80%">
         <div class="msg"  >
             Please enter the name of the file you want to save your data in :
@@ -66,21 +77,55 @@
             <button id='clear' class="sizeButtons" style="margin-left:10px;" (click)="nameRecipe($event)" >Clear</button>
             <button id='cancel' class="sizeButtons" style="margin-left:10px;" (click)="nameRecipe($event)" >Cancel</button>
     </div>
-    <div *ngIf="tabSearch.length===0 && isCreateRecipeName===false">
+    <div *ngIf="tabSearch.length===0 && isCreateRecipeName===false ">
         <!-- TITLE-->
         <div class="titleName"> 
-            <div class="circle"  (click)="onAction($event)"  id='ActionRecipe'>A</div>  
-            <div class="dropdown" *ngIf="isActionRecipe===true && isRecipeModified===false">
+            <div style="margin-left:80px;" class="circle"  (click)="onAction($event)"  id='ActionRecipe'>A</div>  
+            <div class="dropdown" *ngIf="isActionRecipe===true ">
                 <div [ngStyle]="styleBoxAction">
                     <div   [ngStyle]="styleBoxOptionAction"  >
-                        <li *ngFor="let tab of tabActionRecipe; let m=index;" 
-                                class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
-                                    (click)="afterDropDown($event)" id="ActionRecipe" [value]="m">{{tab}}   
-                        </li>
+                        <!--
+                        <div *ngIf="isRecipeModified===false">
+                        -->
+                            <li *ngFor="let tab of tabActionRecipe; let m=index;" 
+                                    class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
+                                        (click)="afterDropDown($event)" id="ActionRecipe" [value]="m">{{tab}}   
+                            </li>
+                        <!--
+                        </div>
+                        -->
+                        <!--
+                        <div *ngIf="isRecipeModified===true">
+                        
+                            <li *ngFor="let tab of tabLessActionRecipe; let m=index;" 
+                                    class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
+                                        (click)="afterDropDown($event)" id="ActionRecipe" [value]="m">{{tab}}   
+                            </li>
+        
+                        </div>
+                        -->
                     </div>
                 </div>
             </div>
-            
+            <div *ngIf="isChangeRecipeName===true ">
+                            
+                <div class="dropdown ">
+                    <div  [ngStyle]="styleBoxChangeName">
+                        <div  [ngStyle]="styleBoxOptionChangeName" >
+                           
+                                <div class="changeAllItems" > Name to change#{{recipeFile.recipe[recordRecipe].name}}</div>
+                                <div class="changeAllItems">  New name: 
+                                        <input type="text" [value]="temporaryNameRecipe" id="input"  class="changeNameNew" (input)="onChangeName($event)">
+                                </div>
+                                <br>
+                                <button id='but_3' id="save" class="sizeButtons"  style="margin-left:50px;" (click)="onChangeName($event)">Confirm</button>
+                                <button id='but_4' id="cancel" class="sizeButtons" (click)="onChangeName($event)"> Cancel</button>
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
             <div class="dropdown" *ngIf="isDeleteRecipe===true">
                 <div [ngStyle]="styleBox" >
                     <div  [ngStyle]="styleBoxOption ">
@@ -96,39 +141,80 @@
                     </div>
                 </div>
             </div>
-            <div style='margin-left:15px; display:inline-block; color:blue; font-weight:bold; margin-top:-12px;'>{{recipeFile.recipe[recordRecipe].name}} </div>
-            <div id="listRecipe" class="listRecipes" (click)="onAction($event)"> [list recipes]</div>
+            <div style='margin-left:15px; display:inline-block; color:blue; font-weight:bold; margin-top:-20px;'>{{recipeFile.recipe[recordRecipe].name}} </div>
+            
+            <div class="menuBox" id="listRecipe" (click)="onAction($event)">
+            <mat-icon  class="menu"  id="listRecipe" (click)="onAction($event)" >
+               menu
+            </mat-icon>
+        </div>
 
         </div>
 
         <div *ngIf="isListRecipe===true ">
             <div class="dropdown ">
-                <div class="Straight-content"  [ngStyle]="{ 'width.px':350, 'height.px': heightListRecipe  ,'margin-left.px': posLeftDropDown, 'margin-top.px':posTopDropDown }">                        
-                    <div  class="StraightDropDown " [ngStyle]="{ 'height.px': heightListRecipe  ,'margin-left.px': 5}"  >
+                <div [ngStyle]="styleBoxListRecipe ">                        
+                    <div   [ngStyle]="styleBoxOptionListRecipe"  >
                         <li *ngFor="let tab of tabRecipe; let m=index;" 
                                 class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
-                                        click)="afterDropDown($event)" id="selRecipe" [value]="m">{{tab}}   
+                                        (click)="afterDropDown($event)" id="selRecipe" [value]="tab.posRec">{{tab.name}}   
                         </li>
                     </div>
                 </div>
             </div>
         </div>
+        
+
         <div *ngFor="let StdPer of theStdPersoDisplay; let j=index;">                
                             <!-- Header table -->
-            <div *ngIf='j===0' style="width:100%;" class="titleHeader">Standard</div>
-            <div *ngIf='j===1'style="width:100%;" class="titleHeader">Personalized</div>
+            <!-- Display the title for STANDARD and Visibility on/off icon -->
+            <div *ngIf="j===0"  style="width:100%;  background-color:lightgrey;  height:44px; border : solid 2px blue;">
+                <div style='font-size:16px; width:50%;  text-align: right;  margin-top:8px;  display:inline-block; color:blue '>Standard
+                </div>
+                <span  *ngIf='theStdPersoDisplay[0]==="Y"'>
+                    <mat-icon style=" color: red;" class="eye" id="eyeStd" (click)='selStdPer($event)' >
+                        visibility_off
+                    </mat-icon>
+                </span>
+                <span  *ngIf='theStdPersoDisplay[0]==="N"'>
+                    <mat-icon style=" color: blue;" class="eye" id="eyeStd" id="eyeStd" (click)='selStdPer($event)' >
+                        visibility
+                    </mat-icon>
+                </span>
+                    <!--
+                    <mat-icon aria-hidden="false"  fontIcon="visibility_off"  style=" color:green; vertical-align: middle;"></mat-icon>
+                    -->
+            </div>
+           
+            <!-- Display the title for PERSONNALIZED and Visibility on/off  icon-->
+            <div *ngIf="j===1"  style="width:100%;  background-color:lightgrey;  height:44px; border : solid 2px blue;">
+                <div style='font-size:16px; width:50%;  text-align: right;  margin-top:8px;  display:inline-block; color:blue'>Personnalized
+                </div>
+                <span  *ngIf='theStdPersoDisplay[1]==="Y"'>
+                    <mat-icon style=" color: red;" class="eye" id="eyeStd" id="eyePerso" (click)='selStdPer($event)' >
+                        visibility_off
+                    </mat-icon>
+                </span>
+                <span  *ngIf='theStdPersoDisplay[1]==="N"'>
+                    <mat-icon style=" color: blue;" class="eye" id="eyeStd" id="eyePerso" (click)='selStdPer($event)' >
+                        visibility
+                    </mat-icon>
+                </span>
+                    <!--
+                    <mat-icon aria-hidden="false"  fontIcon="visibility_off"  style=" color:green; vertical-align: middle;"></mat-icon>
+                    -->
+            </div>
+     
 
-            <div style="width:20%;" class="titleHeader">Action</div>
-            <div style="width:40%;"  class="titleHeader" >Ingredients</div>
-            <div style="width:20%; " class="titleHeader">Quantity</div>
-            <div style="width:20%; " class="titleHeader">Unit</div>
-<!--
-            <div style="width:10%;" class="titleHeader">Action</div>
-            <div style="width:20%;"  class="titleHeader" >Ingredients</div>
-            <div style="width:10%; " class="titleHeader">Quantity</div>
-            <div style="width:10%; " class="titleHeader">Unit</div>
--->
-            <div *ngIf="j===0">
+  
+            <div *ngIf="(j===0 && theStdPersoDisplay[0]==='Y') || (j===1 && theStdPersoDisplay[1]==='Y')">
+                <div style="width:20%;" class="titleHeader">Action</div>
+                <div style="width:40%;"  class="titleHeader" >Ingredients</div>
+                <div style="width:20%; " class="titleHeader">Quantity</div>
+                <div style="width:20%; " class="titleHeader">Unit</div>
+            </div>
+        <!-- ====== Display record related to STANDARD recipe ====== -->
+            <div *ngIf="theStdPersoDisplay[0]==='Y' && j===0">
                 <div   *ngFor="let theRecipe of recipeFile.recipe[recordRecipe].data; let i=index">
                     <div id="posAfterTitle">
                         <div  style="width:20%;" class="theRow">
@@ -145,8 +231,30 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- ====== DROPDOWN - CHANGE VALUE ====== -->
+                            <div *ngIf="isChangeValueForAll===true && i===idNb">
+                            
+                                <div class="dropdown ">
+                                    <div  [ngStyle]="styleBoxChangeAll">
+                                        <div  [ngStyle]="styleBoxOptionChangeAll" >
+                                            <form  [formGroup]="SpecificForm" >
+                                                <div class="changeAllItems" style="text-align: center;"> item#{{idNb+1}}: {{currentIngr}}</div>
+                                                <div class="changeAllItems"> Current value :
+                                                    <span class="changeAllCurrentValue"> {{currentValue}}</span>
+                                                </div>
+                                                <div class="changeAllItems">  New value: 
+                                                        <input type="text" formControlName="changeValue" class="changeAllNewValue">
+                                                </div>
+                                                <br>
+                                                <button id='but_3' id="save" class="sizeButtons"  style="margin-left:50px;" (click)="onChangeValues($event)">Confirm</button>
+                                                <button id='but_4' id="cancel" class="sizeButtons" (click)="onChangeValues($event)"> Cancel</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
+                        <!-- ====== Display Ingredient and DROPDOWN with list of potential ingredients ====== -->
                         <div style="width:40%;"  class="theRow" >
                             <input style="width:98%;" class="input" type="text" id="ingr-{{i}}"  (mouseup)="onMouseUp($event)"   (input)="modifInput($event)" value="{{theRecipe.ingr}}">
                             <div *ngIf="isIngrDropDown===true && i===idNb && idText==='ingr'">
@@ -172,24 +280,64 @@
                     
                     </div>
                 </div>
-                <div style ="width:100%; display:inline-block; text-align: center; color:blue; background-color: lightgrey; border:solid 1px blue;">Materiel Std</div>
+                <div style ="width:100%; display:inline-block; text-align: center; color:blue; background-color: lightgrey; border:solid 1px blue;">Ustensiles Std</div>
                 <div style ="width:100%; display:inline-block; color:blue; background-color: lightgrey; border:solid 1px blue;">
     
-                    <textarea  class="input" (input)="modifInput($event)" style="width: 100%; overflow-y:scroll; display:inline-block; max-height:80px; word-wrap: break-word; " 
-                    [ngStyle]="{'height.px':heightMaterielPerso}" id="materiel" value="{{recipeFile.recipe[recordRecipe].materiel}}">
+                    <textarea  class="input" (input)="modifInput($event)" style="width: 100%; overflow-y:scroll; display:inline-block;  word-wrap: break-word; " 
+                    [ngStyle]="{'height.px':heightMateriel, 'max-height.px':maxHeightCommBox}" id="materiel" value="{{recipeFile.recipe[recordRecipe].materiel}}">
                     </textarea>
                 </div>
-                <div style ="width:100%; display:inline-block; text-align: center; color:blue; background-color: lightgrey; border:solid 1px blue;">Commentaires Std</div>
-                <div style ="width:100%; display:inline-block; color:blue; background-color: lightgrey; border:solid 1px blue;">
-                    <textarea  class="input" (input)="modifInput($event)" style="overflow-y:scroll; display:inline-block; width:100%; max-height:180px; word-wrap: break-word; color:blue; background-color: lightgrey; border:solid 1px blue;" 
-                    [ngStyle]="{'height.px':heightComments}" id="comments" value="{{recipeFile.recipe[recordRecipe].comments}}">
-                    </textarea>
-                </div>
-                <div *ngIf="tabSearch.length===0 && isCreateRecipeName===false">
-                    <div style="width:300px; margin-left:10px; display:inline-block; max-width: 300px; border:solid 2px black;">
-                        <div class="skipLine">&nbsp;</div>
-                        <div style="width:100%; margin-left:10px; display:inline-block; font-size:22px;  text-align: center; color:green;">Nutrition Facts Std
+                <div style ="width:100%; display:inline-block; text-align: left; color:blue; background-color: lightgrey; border:solid 1px blue;">
+                    <div style="margin-left:35%;" class="circle"  (click)="onAction($event)"  id='ActionComments'>A</div>  
+                    <span style="margin-left:20px;">Comments Std</span>
+                    
+                    <div *ngIf="isActionComments===true && idText==='ActionComments'">
+                        <div class="dropdown ">
+                            <div class="Straight-content" style="overflow-y:scroll;" [ngStyle]="{ 'width.px':180, 'height.px': theHeight  ,'margin-left.px': posLeftDropDown, 'margin-top.px':posTopDropDown }">
+                                <div  class="StraightDropDown " style="overflow-y:scroll;" [ngStyle]="{ 'height.px': theHeight  - 60,'margin-left.px': 5}"  >
+                                    <li *ngFor="let tab of tabActionComments; let m=index;" 
+                                            class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
+                                                (click)="dropdownComments($event)" id="comments" [value]="m">{{tab}}   
+                                    </li>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+                </div>
+                <div style ="width:100%; display:inline-block; color:blue; background-color: lightgrey; border:solid 1px blue;">
+                    <div class="flag " (click)="selLanguage('FR')"> <span><img   style="width:20px; height:20px; margin:7px;"  src="./assets/FlagFrance.png" ></span></div>
+
+                    <textarea  class="input" (input)="modifInput($event)" style="overflow-y:scroll; display:inline-block; width:100%;  word-wrap: break-word; color:blue; background-color: lightgrey; border:solid 1px blue;" 
+                    [ngStyle]="{'height.px':heightComments, 'max-height.px':maxHeightCommBox}" id="comments" value="{{recipeFile.recipe[recordRecipe].comments}}">
+                    </textarea>
+                </div>
+                <div style ="width:100%; display:inline-block; color:blue; background-color: white; border:solid 1px blue;"> 
+                    <div class="flag" (click)="selLanguage('UK')"> <span><img   style="width:20px; height:20px; margin:7px;"  src="./assets/FlagUK.png" ></span></div>
+
+                    <textarea  class="input" (input)="modifInput($event)" style="overflow-y:scroll; display:inline-block; width:100%;  word-wrap: break-word; color:blue; background-color: lightgrey; border:solid 1px blue;" 
+                    [ngStyle]="{'height.px':heightCommentsEn, 'max-height.px':maxHeightCommBox}" id="commentsEn" value="{{recipeFile.recipe[recordRecipe].commentsEn}}">
+                    </textarea>
+                </div>
+                <!-- ====== NUTRITION FACTS FOR STANDARD ====== -->
+                <div *ngIf="tabSearch.length===0 && isCreateRecipeName===false">
+                    <div style="width:98%; margin-left:10px; display:inline-block; border:solid 2px black; ">
+                        <div class="skipLine">&nbsp;</div>
+                        
+                        <div style="width:100%; height:10px;  margin-top:-20px; margin-left:10px; display:inline-block; font-size:22px;  text-align: center; color:green;">
+                            Nutrition Facts Std
+                            <span  *ngIf='eyeNutritionFact[0]==="Y"'>
+                                <mat-icon style=" color: red;" class="eyeNutrition" id="eyeStd" (click)='selEyeNutFact($event)' >
+                                    visibility_off
+                                </mat-icon>
+                            </span>
+                            <span  *ngIf='eyeNutritionFact[0]==="N"'>
+                                <mat-icon style=" color: blue;" class="eyeNutrition" id="eyeStd"  (click)='selEyeNutFact($event)' >
+                                    visibility
+                                </mat-icon>
+                            </span>
+                           
+                        </div>
+                        <span  *ngIf='eyeNutritionFact[0]==="Y"'>
                         <div class="skipLine">&nbsp;</div>
                         <div class="nutritionName even">Calories</div>
                         <div  class="nutritionNb even">{{recipeFile.recipe[recordRecipe].nutrition.calories | number:'1.2-2'}}</div>
@@ -204,11 +352,13 @@
                         <div class="skipLine">&nbsp;</div>
                         <div class="nutritionTotal">Total weight: {{recipeFile.recipe[recordRecipe].nutrition.totalWeight | number:'1.2-2'}}  gram(s)</div>
                         <div class="skipLine">&nbsp;</div>
+                        </span>
                     </div>
                 </div>
             </div> <!-- if j==0 -->
 
-            <div *ngIf="j===1">
+            <!-- ====== Display record related to PERSONNALIZED recipe ====== -->
+            <div *ngIf="theStdPersoDisplay[1]==='Y'&& j===1">
                 <div   *ngFor="let theRecipe of recipeFile.recipe[recordRecipe].data; let i=index">
                     <div  style="width:20%;" class="theRow">
                         <div class="circle"  (click)="onAction($event)"  id='ActionPerso-{{i}}'>A</div>  
@@ -224,23 +374,23 @@
                                 </div>
                             </div>
                         </div>
-    
-                        <div *ngIf="(isChangeValueForAll===true || isChangeValueForAllPerso===true ) && i===idNb">
+
+                        
+                        <div *ngIf="isChangeValueForAllPerso===true && i===idNb">
+                            
                             <div class="dropdown ">
-                                <div class="Straight-content"  [ngStyle]="{ 'width.px':150, 'height.px': 140  ,'margin-left.px': margLeftChangeAll, 'margin-top.px':-10 }">
-                                    <div  class="StraightDropDown " [ngStyle]="{ 'height.px': 140  ,'margin-left.px': 5}" style="background-color:lightgreen" >
-                                    
-                                        
+                                <div  [ngStyle]="styleBoxChangeAll">
+                                    <div  [ngStyle]="styleBoxOptionChangeAll" >
                                         <form  [formGroup]="SpecificForm" >
-                                            <div style="width:100%; color:blue; font-size:16px"> item#{{idNb+1}}: {{currentIngr}}</div>
-                                            <div style="width:100%; color:blue; font-size:16px"> Current value 
-                                                <span style="background-color:cyan; width:40px;"> {{currentValue}}
-                                                </span></div>
-                                            <div style="width:100%; color:blue; font-size:16px">  New value: 
-                                                    <input type="text" formControlName="changeValue" style="background-color:cyan; width:40px; height;25px;">
+                                            <div class="changeAllItems" style="text-align: center;"> item#{{idNb+1}}: {{currentIngr}}</div>
+                                            <div class="changeAllItems"> Current value :
+                                                <span class="changeAllCurrentValue"> {{currentValue}}</span>
                                             </div>
-                                            <br><br>
-                                            <button id='but_3' id="save" class="sizeButtons" (click)="onChangeValues($event)">Confirm</button>
+                                            <div class="changeAllItems">  New value: 
+                                                    <input type="text" formControlName="changeValue" class="changeAllNewValue">
+                                            </div>
+                                            <br>
+                                            <button id='but_3' id="save" class="sizeButtons"  style="margin-left:50px;" (click)="onChangeValues($event)">Confirm</button>
                                             <button id='but_4' id="cancel" class="sizeButtons" (click)="onChangeValues($event)"> Cancel</button>
                                         </form>
                                     </div>
@@ -248,6 +398,7 @@
                             </div>
                         </div>
                     </div>
+                    <!-- ====== Display Ingredient and DROPDOWN with list of potential ingredients ====== -->
                     <div style="width:40%;"  class="theRow" >
                         <input style="width:98%;" class="input" type="text" id="ingrPerso-{{i}}" (mouseup)="onMouseUp($event)"  (input)="modifInput($event)" value="{{recipeFile.recipe[recordRecipe].dataPerso[i].ingr}}">
                         <div *ngIf="isIngrDropDown===true && i===idNb && idText==='ingrPerso'">
@@ -271,38 +422,70 @@
                         <input style="width:98%;" class="input" type="text" id="unitPerso-{{i}}"  (input)="modifInput($event)" value="{{recipeFile.recipe[recordRecipe].dataPerso[i].unit}}">
                     </div>
                 </div> <!-- *ngFor -->
-                <div style ="width:100%; display:inline-block; text-align: center; color:blue; background-color: lightgrey; border:solid 1px blue;">Materiel Perso</div>
+                <div style ="width:100%; display:inline-block; text-align: center; color:blue; background-color: lightgrey; border:solid 1px blue;">Ustensiles Perso</div>
                 <div style ="width:100%; display:inline-block; color:blue; background-color: lightgrey; border:solid 1px blue;">
-                    <textarea  class="input" (input)="modifInput($event)" style="width:100%; overflow-y:scroll; display:inline-block; max-height:80px; word-wrap: break-word; " [ngStyle]="{'height.px':heightMaterielPerso}"
+                    <textarea  class="input" (input)="modifInput($event)" style="width:100%; overflow-y:scroll; display:inline-block;  word-wrap: break-word; "
+                     [ngStyle]="{'height.px':heightMaterielPerso, 'max-height.px':maxHeightCommBox}"
                                 id="materielPerso" value="{{recipeFile.recipe[recordRecipe].materielPerso}}">
                     </textarea>
                 </div>
     
-                <div style ="width:100%; display:inline-block; text-align: center; color:blue; background-color: lightgrey; border:solid 1px blue;">Commentaires Std</div>
+                <div style ="width:100%; display:inline-block; text-align: left; color:blue; background-color: lightgrey; border:solid 1px blue;">
+                    <div style="margin-left:35%;" class="circle"  (click)="onAction($event)"  id='ActionCommentsPerso'>A</div>  
+                    <span style="margin-left:20px;">Comments Perso</span>
+                    <div *ngIf="isActionComments===true && idText==='ActionCommentsPerso'">
+                        <div class="dropdown ">
+                            <div class="Straight-content"  [ngStyle]="{ 'width.px':50, 'height.px': theHeight  ,'margin-left.px': posLeftDropDown, 'margin-top.px':posTopDropDown }">
+                                <div  class="StraightDropDown "  style="overflow-y:scroll;" [ngStyle]="{ 'height.px': theHeight  - 80 ,'margin-left.px': 5}"  >
+                                    <li *ngFor="let tab of tabActionCommentsPerso; let m=index;" 
+                                            class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
+                                                (click)="dropdownComments($event)" id="commentsPerso" [value]="m">{{tab}}   
+                                    </li>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div>
-                    <textarea  class="input" (input)="modifInput($event)" style="overflow-y:scroll; display:inline-block; width:100%; max-height:180px; word-wrap: break-word; color:blue; background-color: lightgrey; border:solid 1px blue;" 
-                    [ngStyle]="{'height.px':heightCommentsPerso}" id="commentsPerso" value="{{recipeFile.recipe[recordRecipe].commentsPerso}}">
+                    <textarea  class="input" (input)="modifInput($event)" style="overflow-y:scroll; display:inline-block; width:100%;  word-wrap: break-word; color:blue; background-color: lightgrey; border:solid 1px blue;" 
+                    [ngStyle]="{'height.px':heightCommentsPerso, 'max-height.px':maxHeightCommBox}" id="commentsPerso" value="{{recipeFile.recipe[recordRecipe].commentsPerso}}">
                     </textarea>
                 </div>
+                <!-- ====== NUTRITION FACTS FOR PERSO ====== -->
                 <div *ngIf="tabSearch.length===0 && isCreateRecipeName===false && recipeFile.recipe[recordRecipe].nutritionPerso.totalWeight">
-                    <div style="width:300px; margin-left:10px; display:inline-block; max-width: 300px; border:solid 2px black;">
+                    <div style="width:98%; margin-left:10px; display:inline-block; border:solid 2px black; ">
                         <div class="skipLine">&nbsp;</div>
-                        <div style="width:100%; margin-left:10px; display:inline-block; font-size:22px;  text-align: center; color:green;">Nutrition Facts Perso
+                        
+                        <div style="width:100%; margin-top:-20px;margin-left:10px; display:inline-block; font-size:22px;  text-align: center; color:green;">
+                            Nutrition Facts Perso
+                            <span  *ngIf='eyeNutritionFact[1]==="Y"'>
+                                <mat-icon style=" color: red;" class="eyeNutrition" id="eyePerso" (click)='selEyeNutFact($event)' >
+                                    visibility_off
+                                </mat-icon>
+                            </span>
+                            <span  *ngIf='eyeNutritionFact[1]==="N"'>
+                                <mat-icon style=" color: blue;" class="eyeNutrition" id="eyePerso"  (click)='selEyeNutFact($event)' >
+                                    visibility
+                                </mat-icon>
+                            </span>
+                           
                         </div>
-                        <div class="skipLine">&nbsp;</div>
-                        <div  class="nutritionName even">Calories</div>
-                        <div  class="nutritionNb even">{{recipeFile.recipe[recordRecipe].nutritionPerso.calories | number:'1.2-2'}} </div>
-                        <div class="nutritionName odd">Proteins</div>
-                        <div  class="nutritionNb odd">{{recipeFile.recipe[recordRecipe].nutritionPerso.proteins | number:'1.2-2'}}</div>
-                        <div class="nutritionName even">Carbs & Sugar</div>
-                        <div  class="nutritionNb even"> {{recipeFile.recipe[recordRecipe].nutritionPerso.carbs | number:'1.2-2'}}</div>
-                        <div class="nutritionName odd">Cholesterol</div>
-                        <div  class="nutritionNb odd">{{recipeFile.recipe[recordRecipe].nutritionPerso.cholesterol | number:'1.2-2'}}</div>
-                        <div class="nutritionName even">Saturated Fat</div>
-                        <div  class="nutritionNb even">{{recipeFile.recipe[recordRecipe].nutritionPerso.satFat | number:'1.2-2'}}</div>
-                        <div class="skipLine">&nbsp;</div>
-                        <div class="nutritionTotal">Total weight: {{recipeFile.recipe[recordRecipe].nutritionPerso.totalWeight | number:'1.2-2'}} gram(s)</div>
-                        <div class="skipLine">&nbsp;</div>
+                        <span  *ngIf='eyeNutritionFact[1]==="Y"'>
+                            <div class="skipLine">&nbsp;</div>
+                            <div  class="nutritionName even">Calories</div>
+                            <div  class="nutritionNb even">{{recipeFile.recipe[recordRecipe].nutritionPerso.calories | number:'1.2-2'}} </div>
+                            <div class="nutritionName odd">Proteins</div>
+                            <div  class="nutritionNb odd">{{recipeFile.recipe[recordRecipe].nutritionPerso.proteins | number:'1.2-2'}}</div>
+                            <div class="nutritionName even">Carbs & Sugar</div>
+                            <div  class="nutritionNb even"> {{recipeFile.recipe[recordRecipe].nutritionPerso.carbs | number:'1.2-2'}}</div>
+                            <div class="nutritionName odd">Cholesterol</div>
+                            <div  class="nutritionNb odd">{{recipeFile.recipe[recordRecipe].nutritionPerso.cholesterol | number:'1.2-2'}}</div>
+                            <div class="nutritionName even">Saturated Fat</div>
+                            <div  class="nutritionNb even">{{recipeFile.recipe[recordRecipe].nutritionPerso.satFat | number:'1.2-2'}}</div>
+                            <div class="skipLine">&nbsp;</div>
+                            <div class="nutritionTotal">Total weight: {{recipeFile.recipe[recordRecipe].nutritionPerso.totalWeight | number:'1.2-2'}} gram(s)</div>
+                            <div class="skipLine">&nbsp;</div>
+                        </span>
                     </div>
                 </div>
             </div> <!-- if j===1-->

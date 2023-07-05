@@ -51,6 +51,7 @@ import { ColorPickerComponent } from 'src/app/color-picker/color-picker.componen
 import { ColorPaletteComponent } from 'src/app/color-picker/color-palette/color-palette.component';
 import { ColorSliderComponent } from 'src/app/color-picker/color-slider/color-slider.component';
 import { RecipeComponent } from './recipe/recipe.component';
+import { DictionaryComponent } from './dictionary/dictionary.component';
 //import { NgxIntlTelInputComponent } from './ngx-intl-tel-input/ngx-intl-tel-input.component';
 
 @NgModule({
@@ -92,6 +93,7 @@ import { RecipeComponent } from './recipe/recipe.component';
     RoutingAppComponent,
     ManageUrlTopicComponent,
     RecipeComponent,
+    DictionaryComponent,
 
     
 
