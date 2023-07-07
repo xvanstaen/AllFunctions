@@ -8,6 +8,10 @@
   
 }
 
+.type{
+  margin-left:15px; display:inline-block; color:blue; font-weight:bold; margin-top:-20px; height:20px; width:60px; font-size:12px;
+}
+
 .listObjSel{
   color:white;
   background-color:rgb(113, 113, 247);

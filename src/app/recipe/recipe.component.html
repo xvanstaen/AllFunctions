@@ -6,8 +6,9 @@
 <app-dictionary [configServer]="configServer" [identification]="identification" [XMVConfig]="XMVConfig" ></app-dictionary>
 </div>
 <div *ngIf="dictionaryOnly===false">
+    
 <div *ngIf="EventHTTPReceived[0]===true && isCreateRecipeName===false && isRecipeModified===false && theListOfObjects.length>1" style="min-width:400px; max-width:500px; margin-top:5px;" >
-        <div class="objectHeader" style="margin-left:10px; font-size:14px; width:96%; display:inline-block;">Select the type of recipe(s)</div>
+    <div class="objectHeader" style="margin-left:10px; font-size:14px; width:96%; display:inline-block;">Select the type of recipe(s)</div>
     <!--
             <div   *ngFor="let listFile of theListOfObjects; let i=index" >
                     <div style="list-style-type: none; ">
@@ -36,11 +37,39 @@
 
 </div>
 
+<div *ngIf="EventHTTPReceived[0]===true  && recipeFile.listTypeRecipe.length>1" style="min-width:400px; max-width:500px; margin-top:5px;" >
+
+    <div class="objectHeader" style="margin-left:10px; font-size:14px; width:96%; display:inline-block;">Select the type of recipe(s)</div>
+    <div style="margin-left:10px; ">
+        <div   class="listObj even2" > 
+            <div style="padding-left:15px; width:100%; display:inline-block; " [ngClass]="{'listObjSel':selectedTypeFr==='ALL'}"  (click)='RadioSelection($event)' 
+                        id="TypeAll" >0 - ALL
+            </div>
+        </div>
+    </div>
+    <div   *ngFor="let listType of recipeFile.listTypeRecipe; let i=index" >
+            
+        <div *ngIf="i % 2=== 0" style="margin-left:10px; " > 
+            <div   class="listObj"   [ngClass]="{'even1': i % 4 === 0 , 'even2': i % 4 === 2 }"> 
+                <div style="padding-left:15px; width:100%; display:inline-block; " [ngClass]="{'listObjSel':i===radioSelect}"  (click)='RadioSelection($event)' 
+                            id="TypeA-{{i}}" >{{i+1}} - {{listType.Fr}}/{{listType.En}}
+                </div>
+            </div>
+            <div  *ngIf=" i < recipeFile.listTypeRecipe.length-1"  class="listObj"   [ngClass]="{'even2': (i + 1) % 4 === 1 , 'even1': (i + 1) % 4 === 3}"> 
+                <div style="padding-left:15px; width:100%; display:inline-block;  " [ngClass]="{'listObjSel':i+1===radioSelect}"  (click)='RadioSelection($event)' 
+                            id="TypeB-{{i+1}}" >{{i+2}} - {{recipeFile.listTypeRecipe[i+1].Fr}}/ {{recipeFile.listTypeRecipe[i+1].En}}
+                </div>
+            </div>
+        </div>  
+    </div>  
+    <button id='but_2' class="sizeButtons" (click)="onRefresh()"> Refresh</button> 
+</div>
+
 <div *ngIf="EventHTTPReceived[1]===true" style=" margin-left:10px; width:94%; max-width:650px; margin-top:20px;" >
     <div id="posDivBeforeTitle"></div>
 
     <!-- ====== SEARCH RECIPE ====== -->
-    <div *ngIf="isRecipeModified===false">
+   
         <span style="color:blue; font-size:14px; width:60px; margin-left:10px;"> Search recipe </span>
         <input type="text" [value]="textToSearch" id='search' (input)="searchText($event)" (click)="searchText($event)"
             style="margin-left:10px; width:120px; height:25px; color:blue; ">
@@ -58,7 +87,7 @@
                     </li>
        
 
-    </div>
+    
     <div class="skipLine">&nbsp;</div>
     <!-- ====== SAVE/CANCEL MODIFICATION OF RECIPE ====== -->
     <div *ngIf="IsSaveConfirmed===false && isRecipeModified===true;" style="margin: left 1px;0px; display:inline-block; width:80%">
@@ -92,38 +121,34 @@
             <button id='clear' class="sizeButtons" style="margin-left:10px;" (click)="nameRecipe($event)" >Clear</button>
             <button id='cancel' class="sizeButtons" style="margin-left:10px;" (click)="nameRecipe($event)" >Cancel</button>
     </div>
-    <div *ngIf="tabSearch.length===0 && isCreateRecipeName===false ">
+    <div *ngIf="isCreateRecipeName===false ">
         <!-- TITLE-->
         <div class="titleName"> 
+            <input type="text" (input)="onInputType($event)" id='Fr' class='type' value="{{recipeFile.recipe[recordRecipe].typeFr}}">
+            <input type="text" (input)="onInputType($event)" id='En' class='type' value="{{recipeFile.recipe[recordRecipe].typeEn}} ">
+            <div class="dropdown" *ngIf="isListTypeFr===true || isListTypeEn===true">
+                <div [ngStyle]="styleBoxListType">
+                    <div   [ngStyle]="styleBoxOptionListType"  >
+                        <li *ngFor="let tab of tabDropdownType; let m=index;" 
+                                class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
+                                    (click)="onDropdownListType($event)" id="listType" [value]="tab.name">{{tab.name}}   
+                        </li>
+                    </div>
+                </div>
+            </div>
+            
             <div style="margin-left:80px;" class="circle"  (click)="onAction($event)"  id='ActionRecipe'>A</div>  
             <div class="dropdown" *ngIf="isActionRecipe===true ">
                 <div [ngStyle]="styleBoxAction">
                     <div   [ngStyle]="styleBoxOptionAction"  >
-                        <!--
-                        <div *ngIf="isRecipeModified===false">
-                        -->
-                            <li *ngFor="let tab of tabActionRecipe; let m=index;" 
-                                    class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
-                                        (click)="afterDropDown($event)" id="ActionRecipe" [value]="m">{{tab}}   
-                            </li>
-                        <!--
-                        </div>
-                        -->
-                        <!--
-                        <div *ngIf="isRecipeModified===true">
-                        
-                            <li *ngFor="let tab of tabLessActionRecipe; let m=index;" 
-                                    class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
-                                        (click)="afterDropDown($event)" id="ActionRecipe" [value]="m">{{tab}}   
-                            </li>
-        
-                        </div>
-                        -->
+                        <li *ngFor="let tab of tabActionRecipe; let m=index;" 
+                                class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
+                                    (click)="afterDropDown($event)" id="ActionRecipe" [value]="m">{{tab}}   
+                        </li>
                     </div>
                 </div>
             </div>
             <div *ngIf="isChangeRecipeName===true ">
-                            
                 <div class="dropdown ">
                     <div  [ngStyle]="styleBoxChangeName">
                         <div  [ngStyle]="styleBoxOptionChangeName" >
@@ -147,7 +172,7 @@
             
                         <div style="width:100%; color:blue; font-size:14px; text-align: center;">Confirm the deletion of recipe {{delMsg}}</div> 
                         <div   style='margin-left:40px; margin-top:8px; width:60%; display:inline-block; 
-                        background-color:lightgrey;   float:left;  height:25px;'>
+                                            background-color:lightgrey;   float:left;  height:25px;'>
                             <input  style='margin-left:10px;' (click)='delRecipe($event)' type="radio"   id="YesDelConfirm"  value="Y" >&nbsp;&nbsp;Yes
                             <input  style='margin-left:10px;' (click)='delRecipe($event)' type="radio"   id="NoDelConfirm"  value="N">  &nbsp;&nbsp;No 
                              
@@ -156,6 +181,7 @@
                     </div>
                 </div>
             </div>
+
             <div style='margin-left:15px; display:inline-block; color:blue; font-weight:bold; margin-top:-20px;'>{{recipeFile.recipe[recordRecipe].name}} </div>
             
             <div class="menuBox" id="listRecipe" (click)="onAction($event)">
@@ -172,7 +198,7 @@
                     <div   [ngStyle]="styleBoxOptionListRecipe"  >
                         <li *ngFor="let tab of tabRecipe; let m=index;" 
                                 class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
-                                        (click)="afterDropDown($event)" id="selRecipe" [value]="tab.posRec">{{tab.name}}   
+                                        (click)="afterDropDown($event)" id="selRecipe" [value]="m">{{tab.name}}   
                         </li>
                     </div>
                 </div>
@@ -334,7 +360,7 @@
                     </textarea>
                 </div>
                 <!-- ====== NUTRITION FACTS FOR STANDARD ====== -->
-                <div *ngIf="tabSearch.length===0 && isCreateRecipeName===false">
+                <div *ngIf="isCreateRecipeName===false">
                     <div style="width:98%; margin-left:10px; display:inline-block; border:solid 2px black; ">
                         <div class="skipLine">&nbsp;</div>
                         
@@ -467,7 +493,7 @@
                     </textarea>
                 </div>
                 <!-- ====== NUTRITION FACTS FOR PERSO ====== -->
-                <div *ngIf="tabSearch.length===0 && isCreateRecipeName===false && recipeFile.recipe[recordRecipe].nutritionPerso.totalWeight">
+                <div *ngIf="isCreateRecipeName===false && recipeFile.recipe[recordRecipe].nutritionPerso.totalWeight">
                     <div style="width:98%; margin-left:10px; display:inline-block; border:solid 2px black; ">
                         <div class="skipLine">&nbsp;</div>
                         

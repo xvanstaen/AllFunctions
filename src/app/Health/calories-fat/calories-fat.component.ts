@@ -970,7 +970,7 @@ CancelUpdates(event:any){
     if (this.ConfigCaloriesFat.tabCaloriesFat.length===0){
       this.initOutTab(this.ConfigCaloriesFat,'calories');
     } else {
-      this.fillConfig(this.outConfigCaloriesFat, this.ConfigCaloriesFat.fileType,'Calories');
+      this.fillConfig(this.outConfigCaloriesFat, this.ConfigCaloriesFat,'Calories');
       this.initTrackRecord();
     }
   }

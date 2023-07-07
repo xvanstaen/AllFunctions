@@ -34,6 +34,7 @@ import {ClassItem, DailyReport, mainDailyReport, ClassMeal, ClassDish} from '../
 
 import {ClassSubConv, mainConvItem, mainRecordConvert, mainClassUnit} from '../ClassConverter'
 import {mainClassConv, ClassConv, ClassUnit, ConvItem, recordConvert} from '../ClassConverter'
+import { BuiltinTypeName } from '@angular/compiler';
 
 export class classRecipe{
   ingr:string='';
@@ -42,6 +43,8 @@ export class classRecipe{
 }
 
 export class classRecordRecipe{
+  typeFr:string='';
+  typeEn:string='';
   name:string='';
   data:Array<any>=[];
   dataPerso:Array<any>=[];
@@ -71,6 +74,7 @@ export class classNutrition{
 
 export class classFileRecipe{
   fileType:string='';
+  listTypeRecipe:Array<any>=[];
   recipe:Array<classRecordRecipe>=[];
 }
 
@@ -108,6 +112,7 @@ returnData={
 posDivAfterTitle= new classPosDiv;
 posDivBeforeTitle= new classPosDiv;
 
+masterFile=new classFileRecipe;
 recipeFile=new classFileRecipe;
 initialRecipeFile=new classFileRecipe;
 
@@ -128,10 +133,16 @@ NbWaitHTTP:number=0;
 recipe:string='';
 recordRecipe:number=0;
 
+listTypeRecipe:Array<any>=[
+  {typeFr:"",
+  typeEn:"",
+  recipe:[]}
+]
+
+
 listActions:Array<string>=['Cancel','Delete','Add after', 'Add before', 'Copy','Copy ALL','Move after', 'Move before','Change value for all','Calculate nutrition facts'];
 tabRecipe:Array<any>=[];
-tabActionRecipe:Array<string>=['Cancel','Create','Duplicate','Delete','Translate','Change Name', 'Calculate nut. facts for all recipes','Transfer nut. facts to CalFat'];
-//tabLessActionRecipe:Array<string>=['Cancel','Translate','Change Name', 'Calculate nut. facts for all recipes','Transfer nut. facts to CalFat'];
+tabActionRecipe:Array<string>=['Cancel','Create','Rename','Duplicate','Delete','Translate', 'Calculate nut. facts for all recipes','Transfer nut. facts to CalFat'];
 recipeTable:Array<classFileRecipe>=[];
 tabActionComments:Array<string>=['Cancel','Translate','Zoom in - Std box', 'Zoom out - Std box','Zoom in - English box', 'Zoom out - English box', 'Zoom in - Ustens. box', 'Zoom out - Ustens. box','Zoom in - Perso box', 'Zoom out - Perso box',
    'Zoom in - Ustens. Perso box', 'Zoom out - Ustens. Perso box'];
@@ -162,6 +173,8 @@ isChangeValueForAll:boolean=false;
 isChangeValueForAllPerso:boolean=false;
 isDeleteRecipe:boolean=false;
 isDictionary:boolean=false;
+isChangeRecipeName:boolean=false;
+isSearchText:boolean=false;
 
 changeValue:number=0;
 
@@ -198,6 +211,8 @@ styleBoxAction:any;
 styleBoxOptionAction:any;
 styleBoxListRecipe:any;
 styleBoxOptionListRecipe:any;
+styleBoxListType:any;
+styleBoxOptionListType:any;
 styleBoxChangeAll:any;
 styleBoxOptionChangeAll:any;
 styleBoxChangeName:any;
@@ -208,6 +223,23 @@ theStdPersoDisplay:Array<string>=['Y','N'];
 eyeNutritionFact:Array<string>=['N','N'];
 
 tabFreEng:Array<any>=[];
+
+event={
+  target:{
+    value:"",
+    id:"",
+  }
+}
+
+tabSpecChar:Array<any>=[];
+specialChar:string=" ,.-'{}[]()/?*@!:;<>\|";
+tabWordsFre:Array<any>=[];
+tabWordsEng:Array<any>=[];
+returnChar={type:"\n"};
+strComments:string="";
+degreC:string="°C";
+wordsToConvert:Array<any>=[];
+tabSubstitution:Array<any>=[];
 
 ngOnInit(){
   this.googleBucketName=this.identification.recipe.bucket;
@@ -313,26 +345,53 @@ selLanguage(event:string){
   } 
 }
 radioSelect:number=-1;
+selectedTypeFr:string="";
+recordListType:number=-1;
 RadioSelection(event:any){
+  this.resetBooleans();
   this.findId(event.target.id);
   // const i=parseInt(event.target.id.substring(2));
   const val=this.idNb;
   this.radioSelect=this.idNb;
-  //const val=Number(event.target.id.substring(0,1));
-  if (  this.fileNb !== Number(event.target.id)){
-    this.recipeFile.recipe.splice(0,this.recipeFile.recipe.length);
-    this.initialRecipeFile.recipe.splice(0,this.initialRecipeFile.recipe.length);
-    this.fileNb = this.radioSelect;
-    //this.getRecord(this.googleBucketName, this.myListOfObjects.items[this.fileNb].name,1);
-    const nameOfFile=this.theListOfObjects[this.fileNb].header+this.theListOfObjects[this.fileNb].name+this.theListOfObjects[this.fileNb].json;
-    this.getRecord(this.googleBucketName, nameOfFile,1);
-    this.recordRecipe=0;
-    
-  } else {
-      // keep the file
+  //this.tabSearch.splice(0,this.tabSearch.length);
+  //this.textToSearch = "";
+  if (this.idText.substring(0,4)==="List"){
+
+  
+    //const val=Number(event.target.id.substring(0,1));
+    if (  this.fileNb !== Number(event.target.id)){
       this.recipeFile.recipe.splice(0,this.recipeFile.recipe.length);
-      this.fillFileRecord(this.initialRecipeFile,this.recipeFile);
+      this.initialRecipeFile.recipe.splice(0,this.initialRecipeFile.recipe.length);
+      this.fileNb = this.radioSelect;
+      //this.getRecord(this.googleBucketName, this.myListOfObjects.items[this.fileNb].name,1);
+      const nameOfFile=this.theListOfObjects[this.fileNb].header+this.theListOfObjects[this.fileNb].name+this.theListOfObjects[this.fileNb].json;
+      this.getRecord(this.googleBucketName, nameOfFile,1);
+      this.recordRecipe=0;
       
+    } else {
+        // keep the file
+        this.recipeFile.recipe.splice(0,this.recipeFile.recipe.length);
+        this.fillFileRecord(this.initialRecipeFile,this.recipeFile);
+        
+    }
+  } else if (this.idText.substring(0,4)==="Type"){
+
+    if (this.idText==="TypeAll") {
+      this.selectedTypeFr="ALL";
+      this.recordListType=-1;
+      this.radioSelect=-1;
+    } else {
+      this.selectedTypeFr=this.recipeFile.listTypeRecipe[this.idNb].Fr.trim();
+      this.recordListType=this.idNb;
+      // search the first record of the selected Type
+      for (this.recordRecipe=0; this.recordRecipe<this.recipeFile.recipe.length && this.recipeFile.recipe[this.recordRecipe].typeFr.trim()!==this.selectedTypeFr.trim(); this.recordRecipe++){}
+      
+    }
+      if (this.isSearchText===true){
+        this.event.target.id='search';
+        this.event.target.value=this.textToSearch;
+        this.searchText(this.event);
+      };
   }
 
 }
@@ -349,6 +408,9 @@ resetBooleans(){
   this.isChangeValueForAllPerso=false;
   this.isChangeRecipeName=false;
   this.isActionComments=false;
+  this.isListTypeFr=false;
+  this.isListTypeEn=false;
+  this.isIngrDropDown=false;
   
 }
 onAction(event:any){
@@ -357,55 +419,90 @@ onAction(event:any){
 
   this.findId(event.target.id);
   if (this.idText==='Action'){
-    this.prevDialog=this.idNb;
-    this.tabDialog[this.prevDialog]=true;
-    this.listActions[4]="Copy to perso";
-    this.listActions[5]="Copy ALL to perso";
+      this.prevDialog=this.idNb;
+      this.tabDialog[this.prevDialog]=true;
+      this.listActions[4]="Copy to perso";
+      this.listActions[5]="Copy ALL to perso";
   } else  if (this.idText==='ActionPerso'){
-    this.prevDialog=this.idNb;
-    this.tabDialog[this.prevDialog]=true;
-    this.listActions[4]="Copy to standard";
-    this.listActions[5]="Copy ALL to standard";
+      this.prevDialog=this.idNb;
+      this.tabDialog[this.prevDialog]=true;
+      this.listActions[4]="Copy to standard";
+      this.listActions[5]="Copy ALL to standard";
   } else if (event.target.id==='listRecipe'){
-  // else if (event.target.id==='listRecipe' && this.isRecipeModified===false){
-    this.tabRecipe.splice(0,this.tabRecipe.length);
-    this.tabRecipe.push({name:"",posRec:0});
-    this.tabRecipe[0].name='Cancel';
-    for (var i=0; i<this .recipeFile.recipe.length; i++){
-      this.tabRecipe.push({name:"",posRec:0});
-      this.tabRecipe[i+1].name = this .recipeFile.recipe[i].name;
-      this.tabRecipe[i+1].posRec=i+1;
-    }
-    this.tabRecipe.sort((a, b) => (a.name < b.name) ? -1 : 1);
-    var scrollY='hidden';
-    if (this.tabRecipe.length>9){
-      this.heightListRecipe=210;
-      scrollY='scroll';
+      this.tabRecipe.splice(0,this.tabRecipe.length);
 
-    } else { this.heightListRecipe = this.tabRecipe.length * 25 + 15;}
-    this.isListRecipe=true;
+/*
 
-    this.styleBoxListRecipe = {
-      'width': 205 + 'px',
-      'height': this.heightListRecipe + 'px',
-      'position': 'absolute',
-      'margin-left':'15%', 
-      'margin-top':'5px',
-      'display':'inline-block',
-      'z-index': '1'
-    }
-    this.styleBoxOptionListRecipe = {
-      'background-color':'lightgrey',
-      'width':205 + 'px',
-      'height':this.heightListRecipe + 'px',
-      'margin-top' :  '0px',
-      'margin-left':140 + 'px',
-      'overflow-x': 'hidden',
-      'overflow-y': scrollY,
-      'border':'1px blue solid',
-      'display':'inline-block'
+ for (var i=0; i<this.recipeFile.recipe.length; i++){
+      if (this.recipeFile.recipe[i].name.toLowerCase().indexOf(theText)!==-1 || theText===""){
+       
+        if (this.selectedTypeFr.toLowerCase()===this.recipeFile.recipe[i].typeFr.toLowerCase() || this.selectedTypeFr==="ALL" || this.selectedTypeFr===""){
+          this.tabSearch.push({name:"",posRec:0})
+          j++
+          this.tabSearch[j].name=this.recipeFile.recipe[i].name.trim();
+          this.tabSearch[j].posRec=i;
+        }
       }
+    }
+    this.tabSearch.sort((a, b) => (a.name < b.name) ? -1 : 1);
 
+
+*/
+      var j = 0;
+      for (var i=0; i<this .recipeFile.recipe.length; i++){
+        if (this.textToSearch!==""){
+          j=this.recipeFile.recipe[i].name.toLowerCase().normalize('NFD').indexOf(this.textToSearch.toLowerCase());
+          if (j!==-1){
+            if (this.selectedTypeFr.toLowerCase().normalize('NFD')===this.recipeFile.recipe[i].typeFr.toLowerCase().normalize('NFD') || this.selectedTypeFr==="ALL" || this.selectedTypeFr===""){
+              this.tabRecipe.push({name:"",posRec:0});
+              this.tabRecipe[this.tabRecipe.length-1].name = this.recipeFile.recipe[i].name.trim();
+              this.tabRecipe[this.tabRecipe.length-1].posRec=i;
+            }
+          }
+        } else { 
+            if (this.selectedTypeFr.toLowerCase().normalize('NFD')===this.recipeFile.recipe[i].typeFr.toLowerCase().normalize('NFD') || this.selectedTypeFr==="ALL" || this.selectedTypeFr===""){
+              this.tabRecipe.push({name:"",posRec:0});
+              this.tabRecipe[this.tabRecipe.length-1].name = this.recipeFile.recipe[i].name.trim();
+              this.tabRecipe[this.tabRecipe.length-1].posRec=i;
+            }
+        }
+      }
+      if (this.tabRecipe.length>1){
+          this.tabRecipe.sort((a, b) => (a.name < b.name) ? -1 : 1);
+          this.tabRecipe.splice(0,0,{name:"",posRec:0});
+          this.tabRecipe[0].name='Cancel';
+ 
+          var scrollY='hidden';
+          if (this.tabRecipe.length>9){
+            this.heightListRecipe=210;
+            scrollY='scroll';
+
+          } else { 
+            this.heightListRecipe = this.tabRecipe.length * 25 + 15;
+          }
+          this.isListRecipe=true;
+
+          this.styleBoxListRecipe = {
+            'width': 205 + 'px',
+            'height': this.heightListRecipe + 'px',
+            'position': 'absolute',
+            'margin-left':'15%', 
+            'margin-top':'5px',
+            'display':'inline-block',
+            'z-index': '1'
+          }
+          this.styleBoxOptionListRecipe = {
+            'background-color':'lightgrey',
+            'width':205 + 'px',
+            'height':this.heightListRecipe + 'px',
+            'margin-top' :  '0px',
+            'margin-left':140 + 'px',
+            'overflow-x': 'hidden',
+            'overflow-y': scrollY,
+            'border':'1px blue solid',
+            'display':'inline-block'
+            }
+          }
 
   } else if(event.target.id==='ActionRecipe'){
     this.isActionRecipe=true;
@@ -536,16 +633,18 @@ afterDropDown(event:any){
     if (event.target.textContent.trim()==="Cancel" ){
 
     } else {
-        this.recordRecipe=Number(event.target.value) - 1;
+        this.recordRecipe=this.tabRecipe[Number(event.target.value)].posRec ;
     }
   } else if (event.target.id.substring(0,7)==="selText"){
     this.findId(event.target.id);
     // search text is selected
-    //for (var i=0; i<this.recipeFile.recipe.length && this.recipeFile.recipe[i].name!==this.tabSearch[Number(event.target.value)]; i++){};
+
     for (var i=0; i<this.recipeFile.recipe.length && this.recipeFile.recipe[i].name!==this.tabSearch[Number(this.idNb)].name; i++){};
-    if (i<this.recipeFile.recipe.length){this.recordRecipe=this.tabSearch[Number(this.idNb)].posRec;};
-    this.tabSearch.splice(0,this.tabSearch.length);
-    this.textToSearch = "";
+    if (i<this.recipeFile.recipe.length){
+      this.recordRecipe=this.tabSearch[Number(this.idNb)].posRec;
+    };
+    //this.tabSearch.splice(0,this.tabSearch.length);
+    //this.textToSearch = "";
   
   } else if(event.target.id==='ActionRecipe'){
     this.isActionRecipe=false;
@@ -597,7 +696,7 @@ afterDropDown(event:any){
           this.fillInRecord(this.recipeFile.recipe[saveRecord],this.recipeFile.recipe[this.recordRecipe]);
       }
 // complete it
-    } if (this.tabActionRecipe[event.target.value]==="Change Name"){
+    } if (this.tabActionRecipe[event.target.value]==="Rename"){
       this.isChangeRecipeName=true;
       this.temporaryNameRecipe="";
      } if (this.tabActionRecipe[event.target.value]==="Calculate nut. facts for all recipes"){
@@ -647,14 +746,7 @@ dropdownComments(event:any){
    } 
 }
 
-event={
-  target:{
-    value:"",
-    id:"",
-  }
-}
 
-isChangeRecipeName:boolean=false;
 copyFromTo(toRecord:any, fromRecord:any){
   for (var i=0; i<fromRecord.length ; i++){
     toRecord[i].ingr=fromRecord[i].ingr;
@@ -667,7 +759,7 @@ onChangeName(event:any){
   if (event.target.id==='cancel'){
     this.isChangeRecipeName=false;
   } else if (event.target.id==='input'){
-    this.temporaryNameRecipe=event.target.value.trim();
+    this.temporaryNameRecipe=event.target.value.substring(0,1).toUpperCase()+event.target.value.substring(1).trim();
   } else if (event.target.id==='save'){
     this.recipeFile.recipe[this.recordRecipe].name=this.temporaryNameRecipe;
     this.isRecipeModified=true;
@@ -850,20 +942,7 @@ filterCalFat(ingr:string){
 }
 
 
-tabSpecChar:Array<any>=[];
-/*
-{pos:0,
- char:"",
-}
-*/
-specialChar:string=" ,.-'{}[]()/?*@!:;<>\|";
-tabWordsFre:Array<any>=[];
-tabWordsEng:Array<any>=[];
-returnChar={type:"\n"};
-strComments:string="";
-degreC:string="°C";
-wordsToConvert:Array<any>=[];
-tabSubstitution:Array<any>=[];
+
 
 translateComments(){
 var iSubstitution:number=-1;
@@ -1019,7 +1098,7 @@ convertFrEng(){
 
 nameRecipe(event:any){
   if (event.target.id==='input'){
-    this.temporaryNameRecipe=event.target.value;
+    this.temporaryNameRecipe=event.target.value.substring(0,1).toUpperCase()+event.target.value.substring(1).trim();
   }
   if (event.target.id==='save'){
     this.isCreateRecipeName=false;
@@ -1057,17 +1136,25 @@ findId(id:string){
   }
 }
 
+
 searchText(event:any){
+  this.resetBooleans();
   var j=-1;
   if (event.target.id==='search'){
-    this.textToSearch = event.target.value;
+    this.isSearchText=true;
+    this.textToSearch = event.target.value.substring(0,1).toUpperCase() + event.target.value.substring(1).trim();
+    var theText= event.target.value.toLowerCase();
+
     this.tabSearch.splice(0,this.tabSearch.length);
     for (var i=0; i<this.recipeFile.recipe.length; i++){
-      if (this.recipeFile.recipe[i].name.indexOf(this.textToSearch)!==-1 || this.textToSearch===""){
-        j++
-        this.tabSearch.push({name:"",posRec:0})
-        this.tabSearch[j].name=this.recipeFile.recipe[i].name;
-        this.tabSearch[j].posRec=i;
+      if (this.recipeFile.recipe[i].name.toLowerCase().normalize('NFD').indexOf(theText)!==-1 || theText===""){
+       
+        if (this.selectedTypeFr.toLowerCase().normalize('NFD')===this.recipeFile.recipe[i].typeFr.toLowerCase().normalize('NFD') || this.selectedTypeFr==="ALL" || this.selectedTypeFr===""){
+          this.tabSearch.push({name:"",posRec:0})
+          j++
+          this.tabSearch[j].name=this.recipeFile.recipe[i].name.trim();
+          this.tabSearch[j].posRec=i;
+        }
       }
     }
     this.tabSearch.sort((a, b) => (a.name < b.name) ? -1 : 1);
@@ -1077,6 +1164,7 @@ searchText(event:any){
       this.heightSearchDropdown=25*this.tabSearch.length;
     }
   } else if (event.target.id==='cancel'){
+    this.isSearchText=false;
     this.textToSearch = "";
     this.tabSearch.splice(0,this.tabSearch.length);
     this.resetBooleans();
@@ -1189,6 +1277,7 @@ zoomOut(event:any){
     this.recipeFile.recipe[this.recordRecipe].materielPersoBox=this.heightMaterielPerso;
   }
 }
+
 calculateZoom(inRecord:any, rate:number, zoom:string){
   var theHeight=0;
   if (inRecord===0){
@@ -1215,15 +1304,6 @@ calculateZoom(inRecord:any, rate:number, zoom:string){
   return(theHeight);
 }
 
-/*
-calculateHeight(){
-  this.heightMateriel=(this.recipeFile.recipe[this.recordRecipe].materiel.length / this.heightMatCommBox ) * 25 + 25;
-  this.heightComments=(this.recipeFile.recipe[this.recordRecipe].comments.length / this.heightMatCommBox ) * 25 + 25;
-  this.heightMaterielPerso=(this.recipeFile.recipe[this.recordRecipe].materielPerso.length / this.heightMatCommBox ) * 25 + 25;
-  this.heightCommentsPerso=(this.recipeFile.recipe[this.recordRecipe].commentsPerso.length / this.heightMatCommBox ) * 25 + 25;
-  this.heightCommentsEn=(this.recipeFile.recipe[this.recordRecipe].commentsEn.length / this.heightMatCommBox ) * 25 + 25;
-}
-*/
 selStdPer(event:any){
   if (event.target.id==='eyeStd'){
     if (this.theStdPersoDisplay[0]==='Y'){
@@ -1256,56 +1336,203 @@ selEyeNutFact(event:any){
   }
 }
 
+
 fillFileRecord(inFile:any,outFile:any){
   outFile.fileType=inFile.fileType;
+  for (var i=0; i<inFile.listTypeRecipe.length; i++){
+      outFile.listTypeRecipe.push({Fr:'',En:'',recipe:[]});
+      outFile.listTypeRecipe[i].Fr=inFile.listTypeRecipe[i].Fr;
+      outFile.listTypeRecipe[i].En=inFile.listTypeRecipe[i].En;
+      for (var j=0; j<inFile.listTypeRecipe[i].recipe.length; j++){
+        outFile.listTypeRecipe[i].recipe[j]=inFile.listTypeRecipe[i].recipe[j];
+      }
+  }
+
   for (var i=0; i<inFile.recipe.length; i++){
       const classRecord=new classRecordRecipe;
       outFile.recipe.push(classRecord);
-      this.fillInRecord(inFile.recipe[i],outFile.recipe[i]);
-      /*
-      outFile.recipe[i].name=inFile.recipe[i].name;
-      outFile.recipe[i].comments=inFile.recipe[i].comments;
-      outFile.recipe[i].commentsPerso=inFile.recipe[i].commentsPerso;
-      outFile.recipe[i].commentsEn=inFile.recipe[i].commentsEn;
-      outFile.recipe[i].commentsBox=inFile.recipe[i].commentsBox;
-      outFile.recipe[i].commentsPersoBox=inFile.recipe[i].commentsPersoBox;
-      outFile.recipe[i].commentsEnBox=inFile.recipe[i].commentsEnBox;
-      outFile.recipe[i].materiel=inFile.recipe[i].materiel;
-      outFile.recipe[i].materielPerso=inFile.recipe[i].materielPerso;
-      outFile.recipe[i].materielBox=inFile.recipe[i].materielBox;
-      outFile.recipe[i].materielPersoBox=inFile.recipe[i].materielPersoBox;
-      outFile.recipe[i].nutrition.calories=inFile.recipe[i].nutrition.calories;
-      outFile.recipe[i].nutrition.proteins=inFile.recipe[i].nutrition.proteins;
-      outFile.recipe[i].nutrition.carbs=inFile.recipe[i].nutrition.carbs;
-      outFile.recipe[i].nutrition.cholesterol=inFile.recipe[i].nutrition.cholesterol;
-      outFile.recipe[i].nutrition.satFat=inFile.recipe[i].nutrition.satFat;
-      outFile.recipe[i].nutrition.totalSat=inFile.recipe[i].nutrition.totalSat;
-      outFile.recipe[i].nutrition.totalWeight=inFile.recipe[i].nutrition.totalWeight;
-      outFile.recipe[i].nutritionPerso.calories=inFile.recipe[i].nutritionPerso.calories;
-      outFile.recipe[i].nutritionPerso.proteins=inFile.recipe[i].nutritionPerso.proteins;
-      outFile.recipe[i].nutritionPerso.carbs=inFile.recipe[i].nutritionPerso.carbs;
-      outFile.recipe[i].nutritionPerso.cholesterol=inFile.recipe[i].nutritionPerso.cholesterol;
-      outFile.recipe[i].nutritionPerso.satFat=inFile.recipe[i].nutritionPerso.satFat;
-      outFile.recipe[i].nutritionPerso.totalSat=inFile.recipe[i].nutritionPerso.totalSat;
-      outFile.recipe[i].nutritionPerso.totalWeight=inFile.recipe[i].nutritionPerso.totalWeight;
-
-      for (var j=0; j<inFile.recipe[i].data.length; j++){
-          const pushData=new classRecipe;
-          outFile.recipe[i].data.push(pushData);
-          outFile.recipe[i].data[j].ingr=inFile.recipe[i].data[j].ingr;
-          outFile.recipe[i].data[j].quantity=inFile.recipe[i].data[j].quantity;
-          outFile.recipe[i].data[j].unit=inFile.recipe[i].data[j].unit;      
-          const pushDataPerso=new classRecipe;
-          outFile.recipe[i].dataPerso.push(pushDataPerso);
-          outFile.recipe[i].dataPerso[j].ingr=inFile.recipe[i].dataPerso[j].ingr;
-          outFile.recipe[i].dataPerso[j].quantity=inFile.recipe[i].dataPerso[j].quantity;
-          outFile.recipe[i].dataPerso[j].unit=inFile.recipe[i].dataPerso[j].unit;   
-        }  
-        */     
+      this.fillInRecord(inFile.recipe[i],outFile.recipe[outFile.recipe.length-1]);
     }
   }
 
+
+onInputType(event:any){
+    this.resetBooleans();
+    const theValue=event.target.value.substring(0,1).toUpperCase()+event.target.value.substring(1).trim();
+    if (event.target.id==='Fr'){
+      this.createTabDropdownType(this.recipeFile.listTypeRecipe,'Fr',theValue);
+      this.updateTypeName(this.recipeFile,theValue,this.recipeFile.recipe[this.recordRecipe].typeFr.trim(),"Fr",this.recipeFile.recipe[this.recordRecipe].name.trim());
+      this.recipeFile.recipe[this.recordRecipe].typeFr=theValue;
+      if (this.tabDropdownType.length>1){
+        this.isListTypeFr=true;
+      }
+    } else if (event.target.id==='En'){
+      this.createTabDropdownType(this.recipeFile.listTypeRecipe,'En',theValue);
+      this.updateTypeName(this.recipeFile,theValue,this.recipeFile.recipe[this.recordRecipe].typeEn.trim(),"En",this.recipeFile.recipe[this.recordRecipe].name.trim());
+      this.recipeFile.recipe[this.recordRecipe].typeEn=theValue;
+      if (this.tabDropdownType.length>1){
+        this.isListTypeEn=true;
+      }
+    } 
+  }
+
+isListTypeFr:boolean=false;
+isListTypeEn:boolean=false;
+tabDropdownType:Array<any>=[];
+
+createTabDropdownType(record:any,lang:string,text:string){
+  var j=0;
+  this.tabDropdownType.splice(0, this.tabDropdownType.length);
+  this.tabDropdownType.push({name:'Cancel'});
+  var trouve=false;
+  if (lang==='Fr'){
+    for (var i=0; i<record.length; i++){
+      if (record[i].Fr.indexOf(text)!==-1){
+        for (var j=0; j<this.tabDropdownType.length && trouve===false; j++){
+          if (this.tabDropdownType[j].name.trim()===record[i].Fr.trim()){
+            trouve=true;
+          }
+        }
+        if (trouve===false){
+          this.tabDropdownType.push({name:''});
+          this.tabDropdownType[this.tabDropdownType.length-1].name=record[i].Fr.trim();
+        }
+      }
+    }
+  }
+else {
+    for (var i=0; i<record.length; i++){
+      if (record[i].En.indexOf(text)!==-1){
+        for (var j=0; j<this.tabDropdownType.length && trouve===false; j++){
+          if (this.tabDropdownType[j].name.trim()===record[i].En.trim()){
+            trouve=true;
+          }
+        }
+        if (trouve===false){
+          this.tabDropdownType.push({name:''});
+          this.tabDropdownType[this.tabDropdownType.length-1].name=record[i].En.trim();
+        }
+      }
+    }
+  }
+  if (this.tabDropdownType.length>8){
+    var theHeight=240;
+    var scrollY='scroll';
+  } else { 
+    theHeight=this.tabDropdownType.length * 30;
+    scrollY='hidden';
+  }
+
+  this.styleBoxListType = {
+
+    'position': 'absolute',
+    'margin-left':'10px', 
+    'margin-top':'5px',
+    'display':'inline-block',
+    'z-index': '1'
+  }
+  this.styleBoxOptionListType = {
+    'background-color':'lightgrey',
+    'width':150 + 'px',
+    'height':theHeight + 'px',
+    'margin-top' :  '0px',
+    'margin-left':10 + 'px',
+    'overflow-x': 'hidden',
+    'overflow-y': scrollY,
+    'border':'1px blue solid',
+    'display':'inline-block'
+    }
+
+}
+
+onDropdownListType(event:any){
+  if (event.target.textContent.trim()==='Cancel'){
+
+  } else if (this.isListTypeFr==true){
+    this.updateTypeName(this.recipeFile,event.target.textContent.trim(),this.recipeFile.recipe[this.recordRecipe].typeFr,"Fr",this.recipeFile.recipe[this.recordRecipe].name);
+    this.recipeFile.recipe[this.recordRecipe].typeFr=event.target.textContent.trim();
+  } else {
+    this.updateTypeName(this.recipeFile,event.target.textContent.trim(),this.recipeFile.recipe[this.recordRecipe].typeEn,"En",this.recipeFile.recipe[this.recordRecipe].name);
+    this.recipeFile.recipe[this.recordRecipe].typeEn=event.target.textContent.trim();
+  }
+  this.resetBooleans();
+}
+
+updateTypeName(inFile:any,newType:string,oldType:string,lang:string,recipeName:string){
+if (newType !== oldType){
+  if (lang==='Fr'){
+    for (var i=0; i<inFile.listTypeRecipe.length && inFile.listTypeRecipe[i].Fr!==oldType; i++){};
+    for (var j=0; j<inFile.listTypeRecipe.length && inFile.listTypeRecipe[j].Fr!==newType; j++){};
+  } else {
+    for (var i=0; i<inFile.listTypeRecipe.length && inFile.listTypeRecipe[i].En!==oldType; i++){};
+    for (var j=0; j<inFile.listTypeRecipe.length && inFile.listTypeRecipe[j].En!==newType; j++){};
+  }
+  
+  if (j<inFile.listTypeRecipe.length){// new type exists; add name of recipe if does not exist
+    for (var k=0; k<inFile.listTypeRecipe[j].recipe.length && inFile.listTypeRecipe[j].recipe[k]!==recipeName; k++){};
+    if (k===inFile.listTypeRecipe[j].recipe.length){ 
+      inFile.listTypeRecipe[j].recipe[k]=recipeName;
+    };
+    
+  } else {
+    // create a new type
+    if (i<inFile.listTypeRecipe.length){
+      inFile.listTypeRecipe.push({Fr:'',En:'',recipe:[]});
+      if (lang==='Fr'){
+          inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].Fr=newType;
+          inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].En=inFile.listTypeRecipe[i].En;
+      } else {
+          inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].Fr=inFile.listTypeRecipe[i].Fr;
+          inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].En=newType;
+      }
+      inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].recipe[0]=recipeName;
+    }
+      
+  }
+  // remove old info
+  if (inFile.listTypeRecipe[i].recipe.length===1){
+    inFile.listTypeRecipe.splice(i,1);
+  } else {
+    for (var k=0; k<inFile.listTypeRecipe[i].recipe.length && inFile.listTypeRecipe[i].recipe[k]!==recipeName; k++){};
+    inFile.listTypeRecipe[i].recipe.splice(k,1);
+  }
+}
+}
+
+
+updateFileType(inFile:any){
+    var iList=0;
+    inFile.listTypeRecipe.push({Fr:'',En:'',recipe:[]});
+    inFile.listTypeRecipe[iList].Fr=inFile.recipe[0].typeFr;
+    inFile.listTypeRecipe[iList].En=inFile.recipe[0].typeEn;
+    inFile.listTypeRecipe[iList].recipe[0]=inFile.recipe[0].name;
+    for (var ll=1; ll<inFile.recipe.length; ll++){
+
+        for (var mm=0; mm<inFile.listTypeRecipe.length && inFile.listTypeRecipe[mm].Fr!==inFile.recipe[ll].typeFr; mm++){};
+        if (mm<inFile.listTypeRecipe.length){
+          inFile.listTypeRecipe[mm].recipe[inFile.listTypeRecipe[mm].recipe.length]=inFile.recipe[ll].name;
+        } else {
+          inFile.listTypeRecipe.push({Fr:'',En:'',recipe:[]});
+          iList=inFile.listTypeRecipe.length-1;
+          inFile.listTypeRecipe[iList].Fr=inFile.recipe[ll].typeFr;
+          inFile.listTypeRecipe[iList].En=inFile.recipe[ll].typeEn;
+          inFile.listTypeRecipe[iList].recipe[0]=inFile.recipe[ll].name;
+        }
+    }
+}
+
+onRefresh(){
+  this.refreshFileType(this.recipeFile)
+}
+refreshFileType(inFile:any){
+  inFile.listTypeRecipe.splice(0,inFile.listTypeRecipe.length);
+  this.updateFileType(inFile);
+}
+
+
 fillInRecord(inRecord:any,outRecord:any){
+  outRecord.typeFr=inRecord.typeFr;
+  outRecord.typeEn=inRecord.typeEn;
   outRecord.name=inRecord.name;
   outRecord.comments=inRecord.comments;
   outRecord.commentsPerso=inRecord.commentsPerso;
@@ -1428,11 +1655,32 @@ getRecord(Bucket:string,GoogleObject:string, iWait:number){
                 this.EventHTTPReceived[iWait]=true;
                 if (iWait===1){
                   this.isFileRetrieved=true;
+                  this.initialRecipeFile.recipe.splice(0,this.initialRecipeFile.recipe.length);
                   this.initialRecipeFile.fileType=data.fileType;
+                  for (var i=0; i<data.listTypeRecipe.length; i++){
+                    this.initialRecipeFile.listTypeRecipe.push({Fr:"",En:"",recipe:[]});
+                    this.initialRecipeFile.listTypeRecipe[i].Fr=data.listTypeRecipe[i].Fr.trim();
+                    this.initialRecipeFile.listTypeRecipe[i].En=data.listTypeRecipe[i].En.trim();
+                    var k=-1;
+                    for (var j=0; j<data.listTypeRecipe[i].recipe.length; j++){
+                      if (data.listTypeRecipe[i].recipe[j]!==""){
+                        k++
+                        this.initialRecipeFile.listTypeRecipe[i].recipe[k]=data.listTypeRecipe[i].recipe[j].trim();
+                      }
+                    }
+                  }
+                  
                   for (var i=0; i<data.recipe.length; i++){
                     const classRecord=new classRecordRecipe;
                     this.initialRecipeFile.recipe.push(classRecord);
-                    this.initialRecipeFile.recipe[i].name=data.recipe[i].name;
+                    if (data.recipe[i].typeFr===undefined){
+                      this.initialRecipeFile.recipe[i].typeFr="Creme";
+                      this.initialRecipeFile.recipe[i].typeEn="Cream";
+                    } else {
+                      this.initialRecipeFile.recipe[i].typeFr=data.recipe[i].typeFr.trim();
+                      this.initialRecipeFile.recipe[i].typeEn=data.recipe[i].typeEn.trim();
+                    }
+                    this.initialRecipeFile.recipe[i].name=data.recipe[i].name.trim();
                     this.initialRecipeFile.recipe[i].comments=data.recipe[i].comments;
                     this.initialRecipeFile.recipe[i].commentsPerso=data.recipe[i].commentsPerso;
                     if (data.recipe[i].commentsEn===undefined){
@@ -1501,7 +1749,18 @@ getRecord(Bucket:string,GoogleObject:string, iWait:number){
                   this.heightCommentsEn=this.initialRecipeFile.recipe[0].commentsEnBox;
                   this.heightMateriel=this.initialRecipeFile.recipe[0].materielBox;
                   this.heightMaterielPerso=this.initialRecipeFile.recipe[0].materielPersoBox;
+
+                  if (this.initialRecipeFile.listTypeRecipe===undefined ||this.initialRecipeFile.listTypeRecipe.length===0 ){
+                  //if (data.listTypeRecipe===undefined ||data.listTypeRecipe.length===0 ){
+                    this.updateFileType(this.initialRecipeFile);
+                  } else {
+
+                  }
+                
+                  //this.refreshFileType(this.initialRecipeFile); 
                   this.fillFileRecord(this.initialRecipeFile,this.recipeFile);
+
+                  
                 } else if (iWait===2){
                   this.ConfigCaloriesFat=data;
                 } else if (iWait===3){
@@ -1613,10 +1872,12 @@ getRecord(Bucket:string,GoogleObject:string, iWait:number){
                   if (this.theListOfObjects.length===1){
                   //if (this.myListOfObjects.items.length===1){
                     this.fileNb=0;
-                    this.getRecord(this.googleBucketName, this.myListOfObjects.items[this.fileNb].name,1);
+                    const nameOfFile=this.theListOfObjects[this.fileNb].header+this.theListOfObjects[this.fileNb].name+this.theListOfObjects[this.fileNb].json;
+                    this.getRecord(this.googleBucketName, nameOfFile,1);
                     this.recordRecipe=0;
                   }
                   this.myListOfObjects=new Bucket_List_Info; 
+
             },
             error_handler => {
                   console.log('RECIPE RetrieveAllObjects() - error handler; HTTP='+HTTP_Address);
