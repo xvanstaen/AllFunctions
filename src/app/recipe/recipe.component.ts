@@ -139,10 +139,12 @@ listTypeRecipe:Array<any>=[
   recipe:[]}
 ]
 
+//tabButtons:Array<any>=[{En:"Save",Fr:"Sauver"},{En:"Cancel",Fr:"Annuler"},{En:"Confirm",Fr:"Confirmer"}
+//          ,{En:"Submit",Fr:"Soumettre"}]
 
 listActions:Array<string>=['Cancel','Delete','Add after', 'Add before', 'Copy','Copy ALL','Move after', 'Move before','Change value for all','Calculate nutrition facts'];
 tabRecipe:Array<any>=[];
-tabActionRecipe:Array<string>=['Cancel','Create','Rename','Duplicate','Delete','Translate', 'Calculate nut. facts for all recipes','Transfer nut. facts to CalFat'];
+tabActionRecipe:Array<string>=['Cancel','Create','Rename','Duplicate','Delete','Reinitialise','Translate', 'Calculate nut. facts for all recipes','Transfer nut. facts to CalFat'];
 recipeTable:Array<classFileRecipe>=[];
 tabActionComments:Array<string>=['Cancel','Translate','Zoom in - Std box', 'Zoom out - Std box','Zoom in - English box', 'Zoom out - English box', 'Zoom in - Ustens. box', 'Zoom out - Ustens. box','Zoom in - Perso box', 'Zoom out - Perso box',
    'Zoom in - Ustens. Perso box', 'Zoom out - Ustens. Perso box'];
@@ -250,7 +252,7 @@ ngOnInit(){
   this.getRecord(this.identification.configFitness.bucket,this.identification.configFitness.files.calories,2);
   this.getRecord(this.identification.configFitness.bucket,this.identification.configFitness.files.convertUnit,3);
   this.getRecord(this.identification.dictionary.bucket,this.identification.dictionary.fileName,4);
-  const HeightAction= 25 * this.tabActionRecipe.length +20;
+  const HeightAction= 25 * this.tabActionRecipe.length + 40;
   this.styleBoxAction = {
     'width': 150 + 'px',
     'height': HeightAction + 'px',
@@ -334,16 +336,13 @@ ngOnInit(){
 }
 yourLanguage:string="FR";
 selLanguage(event:string){
-
   if (event==='FR'){
     this.yourLanguage='FR';
-  
   } if (event==='UK'){
     this.yourLanguage='UK';
-    this.translateComments();
-
   } 
 }
+
 radioSelect:number=-1;
 selectedTypeFr:string="";
 recordListType:number=-1;
@@ -526,16 +525,21 @@ afterDropDown(event:any){
 
       } else if (event.target.textContent.trim()==="Delete" ){
         this.recipeFile.recipe[this.recordRecipe].data.splice(this.idNb,1);
+        this.tabUpdateRef[this.recordRecipe].splice(this.idNb,1);
       } else if (event.target.textContent.trim()==="Add after" ){
         const pushData=new classRecipe;
         this.recipeFile.recipe[this.recordRecipe].data.splice(this.idNb+1,0,pushData);
         const pushDataPerso=new classRecipe;
         this.recipeFile.recipe[this.recordRecipe].dataPerso.push(pushDataPerso);
+        this.tabUpdateRef[this.recordRecipe].splice(this.idNb+1,0,{init:0});
+        this.tabUpdateRef[this.recordRecipe+1].init=-1;
       } else if (event.target.textContent.trim()==="Add before" ){
         const pushData=new classRecipe;
         this.recipeFile.recipe[this.recordRecipe].data.splice(this.idNb,0,pushData);
         const pushDataPerso=new classRecipe;
         this.recipeFile.recipe[this.recordRecipe].dataPerso.push(pushDataPerso);
+        this.tabUpdateRef[this.recordRecipe].splice(this.idNb,0,{init:0});
+        this.tabUpdateRef[this.recordRecipe].init=-1;
       } else if (event.target.textContent.trim().substring(0,8)==="Copy ALL" ){
         this.copyFromTo(this.recipeFile.recipe[this.recordRecipe].dataPerso,this.recipeFile.recipe[this.recordRecipe].data);
       } else if (event.target.textContent.trim().substring(0,4)==="Copy" ){
@@ -695,6 +699,8 @@ afterDropDown(event:any){
       } else {
           this.fillInRecord(this.recipeFile.recipe[saveRecord],this.recipeFile.recipe[this.recordRecipe]);
       }
+      this.tabUpdateRef.push({init:0});
+      this.tabUpdateRef[this.tabUpdateRef.length-1].init=-1;
 // complete it
     } if (this.tabActionRecipe[event.target.value]==="Rename"){
       this.isChangeRecipeName=true;
@@ -704,7 +710,9 @@ afterDropDown(event:any){
      } if (this.tabActionRecipe[event.target.value]==="Transfer nut. facts to CalFat"){
       this.transferToCalFat();
      } else  if (this.tabActionRecipe[event.target.value]==="Translate"){
-      this.translateComments();
+      this.translateComments('FrToUk');
+     } else  if (this.tabActionRecipe[event.target.value]==="Reinitialise"){
+      this.reInitialieRecipe();
      }
   }
   //this.calculateHeight();
@@ -713,7 +721,7 @@ afterDropDown(event:any){
 dropdownComments(event:any){
   this.isActionComments=false;
   if (this.tabActionComments[event.target.value]==="Translate"){
-    this.translateComments();
+    this.translateComments('FrToUk');
    } else if (this.tabActionComments[event.target.value]==="Zoom in - Std box"){
     this.zoomIn(event);
    } else if (this.tabActionComments[event.target.value]==="Zoom out - Std box"){
@@ -928,11 +936,6 @@ filterCalFat(ingr:string){
       this.heightDropDown=this.tabListCalFat.length *  this.heightItemDropDown;
       this.scrollY='hidden';
     }
-    /***
-    this.posDivBeforeTitle=getPosDiv("posDivBeforeTitle");
-    this.posDivAfterTitle=getPosDiv("posAfterTitle");
-    this.marginTop=Math.trunc((this.selectedPositionClient.y - this.posDivAfterTitle.ClientRect.Top) / 25 );
-    ****/
     this.styleBox=getStyleDropDownContent(this.heightDropDown, 230 );
     this.styleBoxOption=getStyleDropDownBox(this.heightDropDown, 230, 0 , 0, this.scrollY);
   } else {
@@ -941,10 +944,38 @@ filterCalFat(ingr:string){
   
 }
 
-
-
-
-translateComments(){
+translateComments(lang:string){
+  if (this.dicFrEn.length===0){ // French To English
+    for (var i=0; i<this.tabFreEng.length; i++){
+      this.dicFrEn.push({outLang:"",inLang:"",nbWordsOut:0,nbWordsIn:0});
+      this.dicFrEn[i].outLang=this.tabFreEng[i].English;
+      this.dicFrEn[i].inLang=this.tabFreEng[i].French;
+      this.dicFrEn[i].nbWordsOut=this.tabFreEng[i].nbWordsEn;
+      this.dicFrEn[i].nbWordsIn=this.tabFreEng[i].nbWordsFr;
+    }
+    this.dicFrEn.sort((a, b) => (a.nbWordsIn > b.nbWordsIn) ? -1 : 1);
+  }  
+  if (this.dicEnFr.length===0){ // English To French
+    for (var i=0; i<this.tabFreEng.length; i++){
+      this.dicEnFr.push({outLang:"",inLang:"",nbWordsOut:0,nbWordsIn:0});
+      this.dicEnFr[i].outLang=this.tabFreEng[i].French;
+      this.dicEnFr[i].inLang=this.tabFreEng[i].English;
+      this.dicEnFr[i].nbWordsOut=this.tabFreEng[i].nbWordsFr;
+      this.dicEnFr[i].nbWordsIn=this.tabFreEng[i].nbWordsEn;
+    }
+    this.dicEnFr.sort((a, b) => (a.nbWordsIn > b.nbWordsIn) ? -1 : 1);
+  }
+  if (lang==='FrToUk'){
+    this.recipeFile.recipe[this.recordRecipe].commentsEn=this.processTranslation(this.dicFrEn,lang,  this.recipeFile.recipe[this.recordRecipe].comments);
+  } else {
+    this.recipeFile.recipe[this.recordRecipe].comments=this.processTranslation(this.dicEnFr,lang,  this.recipeFile.recipe[this.recordRecipe].commentsEn);
+  }
+}
+tabWordsIn:Array<any>=[];
+tabWordsOut:Array<any>=[];
+dicEnFr:Array<any>=[];
+dicFrEn:Array<any>=[];
+processTranslation(dico:any,lang:string,inComments:string){
 var iSubstitution:number=-1;
 var i=0;
 var j=0;
@@ -956,48 +987,42 @@ this.tabWordsFre.splice(0,this.tabWordsFre.length);
 this.tabWordsEng.splice(0,this.tabWordsEng.length);
 this.tabSubstitution.splice(0,this.tabSubstitution.length);
 
-this.tabFreEng.sort((a, b) => (a.nbWordsFr > b.nbWordsFr) ? -1 : 1);
 
-for (i=0; i<this.recipeFile.recipe[this.recordRecipe].comments.length && trouve===false; i++){
-  j = this.recipeFile.recipe[this.recordRecipe].comments.substring(i).indexOf("0C");
+for (i=0; i<inComments.length && trouve===false; i++){
+  j = inComments.substring(i).indexOf("0C");
   if (j!==-1){
-    this.recipeFile.recipe[this.recordRecipe].comments=this.recipeFile.recipe[this.recordRecipe].comments.substring(0,i+j)+this.degreC+
-    this.recipeFile.recipe[this.recordRecipe].comments.substring(i+j+2);
+    inComments=inComments.substring(0,i+j)+this.degreC+inComments.substring(i+j+2);
     i=i+j+2;
   } else {trouve=true;}
 }
+theComments=inComments;
 
-theComments=this.recipeFile.recipe[this.recordRecipe].comments;
+for (var i=0; i<dico.length; i++){
+    if (dico[i].nbWordsIn !== 1){ 
+      j=theComments.toLowerCase().indexOf(dico[i].inLang.toLowerCase().trim());
+      if (j!==-1){
+          iSubstitution++;
+          this.tabSubstitution.push({textIn:"", textOut:"",pos:0});
+          this.tabSubstitution[iSubstitution].textEn=dico[i].outLang.trim();;
+          this.tabSubstitution[iSubstitution].textFr=dico[i].inLang.trim();;
+          this.tabSubstitution[iSubstitution].pos=j;
+  
+          if (theComments.substring(j,j+1)===theComments.substring(j,j+1).toUpperCase()){
+            this.tabSubstitution[iSubstitution].textOut=dico[i].outLang.substring(0,1).toUpperCase() + dico[i].outLang.substring(1);
+          }
+          var text= theComments.substring(0,j) + allZ + theComments.substring(j+dico[i].inLang.trim().length);
+          theComments=text;
+      }
+    }
+  }
 
 
 // first: convert long sentences
-
-for (var i=0; i<this.tabFreEng.length; i++){
-  if (this.tabFreEng[i].nbWordsFr !== 1){ 
-    j=theComments.toLowerCase().indexOf(this.tabFreEng[i].French.toLowerCase().trim());
-    if (j!==-1){
-        iSubstitution++;
-        this.tabSubstitution.push({textFr:"", textEn:"",pos:0});
-        this.tabSubstitution[iSubstitution].textEn=this.tabFreEng[i].English.trim();;
-        this.tabSubstitution[iSubstitution].textFr=this.tabFreEng[i].French.trim();;
-        this.tabSubstitution[iSubstitution].pos=j;
-
-        if (theComments.substring(j,j+1)===theComments.substring(j,j+1).toUpperCase()){
-          this.tabSubstitution[iSubstitution].textEn=this.tabFreEng[i].English.substring(0,1).toUpperCase() + this.tabFreEng[i].English.substring(1);
-        }
-        var text= theComments.substring(0,j) + allZ + theComments.substring(j+this.tabFreEng[i].French.trim().length);
-        theComments=text;
-    }
-  }
-}
-
 var strComments=JSON.stringify(theComments);
 var lineBreak=JSON.stringify(this.returnChar);
 this.tabSubstitution.sort((a, b) => (a.pos < b.pos) ? -1 : 1);
 
-
-
-
+// search special characters
 for (i=1; i<strComments.length; i++){
   if (strComments.substring(i,i+2)!==lineBreak.substring(9,11)){
     j=this.specialChar.indexOf(strComments.substring(i,i+1));
@@ -1021,76 +1046,81 @@ for (i=1; i<strComments.length; i++){
     i++;
   }
 }
+if (this.tabSpecChar[this.tabSpecChar.length-1].pos < strComments.length-1){
+      this.tabSpecChar.push({pos:0,char:""});  
+      this.tabSpecChar[this.tabSpecChar.length-1].pos=strComments.length-1;
+      this.tabSpecChar[this.tabSpecChar.length-1].char="";
+}
 
 var tabMajuscule=[];
 j=-1;
 for (i=0; i<this.tabSpecChar.length; i++){
   j++;
   if (i===0){
-    this.tabWordsFre[j]=strComments.substring(1,this.tabSpecChar[i].pos);
+    this.tabWordsIn[j]=strComments.substring(1,this.tabSpecChar[i].pos);
   } else {
-    this.tabWordsFre[j]=strComments.substring(this.tabSpecChar[i-1].pos+this.tabSpecChar[i-1].char.length,this.tabSpecChar[i].pos);
+    this.tabWordsIn[j]=strComments.substring(this.tabSpecChar[i-1].pos+this.tabSpecChar[i-1].char.length,this.tabSpecChar[i].pos);
   }
-  if (this.tabWordsFre[j].substring(0,1)===this.tabWordsFre[j].substring(0,1).toUpperCase()){
+  if (this.tabWordsIn[j].substring(0,1)===this.tabWordsIn[j].substring(0,1).toUpperCase()){
     tabMajuscule[j]=true;
   } else { tabMajuscule[j]=false;}
 }
 if (strComments.length > this.tabSpecChar[this.tabSpecChar.length-1].pos+2){
   j++;
-  this.tabWordsFre[j]=strComments.substring(this.tabSpecChar[this.tabSpecChar.length-1].pos+2, strComments.length - 1);
+  this.tabWordsIn[j]=strComments.substring(this.tabSpecChar[this.tabSpecChar.length-1].pos+2, strComments.length - 1);
 }
 
 iSubstitution=-1;
-this.convertFrEng();
+this.convertFrEng(dico);
 
 var myText="";
 iSubstitution=-1;
-var EnText="";
-var FrLengthText:number=0;
+var InText="";
+var InLengthText:number=0;
 var newText=theComments;
 var k = 0;
-for (var i=0; i<this.tabWordsFre.length; i++){
-  j= newText.substring(k).indexOf(this.tabWordsFre[i]);
-  if (this.tabWordsEng[i]===allZ){
+for (var i=0; i<this.tabWordsIn.length; i++){
+  j= newText.substring(k).indexOf(this.tabWordsIn[i]);
+  if (this.tabWordsOut[i]===allZ){
     iSubstitution++;
-    EnText=this.tabSubstitution[iSubstitution].textEn;
-    FrLengthText==this.tabSubstitution[iSubstitution].textFr.length;
+    InText=this.tabSubstitution[iSubstitution].textOut;
+    InLengthText==this.tabSubstitution[iSubstitution].textIn.length;
   } else {
     
     if (tabMajuscule[i]===true){
-      EnText= this.tabWordsEng[i].substring(0,1).toUpperCase() + this.tabWordsEng[i].substring(1);
+      InText= this.tabWordsOut[i].substring(0,1).toUpperCase() + this.tabWordsOut[i].substring(1);
     } else {
-      EnText= this.tabWordsEng[i];
+      InText= this.tabWordsOut[i];
     }
-    FrLengthText=this.tabWordsFre[i].length;
+    InLengthText=this.tabWordsIn[i].length;
   }
   if (j!==-1){
     if (i!==0){
-      myText=newText.substring(0, j + k) + EnText + 
-      newText.substring(j+k+this.tabWordsFre[i].length);
+      myText=newText.substring(0, j + k) + InText + 
+      newText.substring(j+k+this.tabWordsIn[i].length);
     } else {
-      myText=EnText + 
-              newText.substring(j + k +this.tabWordsFre[i].length);
+      myText=InText + 
+              newText.substring(j + k +this.tabWordsIn[i].length);
     }
     newText=myText;
-    k = k + j + this.tabWordsEng[i].length;
+    k = k + j + this.tabWordsOut[i].length;
       
   }
 }
-this.recipeFile.recipe[this.recordRecipe].commentsEn=newText;
+return(newText);
 
 }
 
-convertFrEng(){
+convertFrEng(dico:any){
   var i = 0;
   var j = 0;
-  for (j=0; j<this.tabWordsFre.length; j++){
-    for (i=0; i<this.tabFreEng.length && this.tabFreEng[i].French.trim().toLowerCase()!==this.tabWordsFre[j].trim().toLowerCase(); i++){};
-    if (i<this.tabFreEng.length){
-      this.tabWordsEng[j]=this.tabFreEng[i].English;
+  for (j=0; j<this.tabWordsIn.length; j++){
+    for (i=0; i<dico.length && dico[i].inLang.trim().toLowerCase()!==this.tabWordsIn[j].trim().toLowerCase(); i++){};
+    if (i<dico.length){
+      this.tabWordsOut[j]=dico[i].outLang;
 
-    } else {
-      this.tabWordsEng[j]=this.tabWordsFre[j];
+    } else { // translation not found keep the word 
+      this.tabWordsOut[j]=this.tabWordsIn[j];
 
     }
   }
@@ -1099,8 +1129,7 @@ convertFrEng(){
 nameRecipe(event:any){
   if (event.target.id==='input'){
     this.temporaryNameRecipe=event.target.value.substring(0,1).toUpperCase()+event.target.value.substring(1).trim();
-  }
-  if (event.target.id==='save'){
+  } else if (event.target.id==='save'){
     this.isCreateRecipeName=false;
     this.recipeFile.recipe[this.recordRecipe].name=this.temporaryNameRecipe;
     this.isRecipeModified=true;
@@ -1355,23 +1384,52 @@ fillFileRecord(inFile:any,outFile:any){
     }
   }
 
+tabUpdateRef:Array<any>=[];
+reInitialieRecipe(){
+  if (this.tabUpdateRef[this.recordRecipe]!==-1){
+    this.fillInRecord(this.initialRecipeFile.recipe[this.tabUpdateRef[this.recordRecipe].init],this.recipeFile.recipe[this.recordRecipe]);
+  }
+  
+}
+
 
 onInputType(event:any){
     this.resetBooleans();
     const theValue=event.target.value.substring(0,1).toUpperCase()+event.target.value.substring(1).trim();
     if (event.target.id==='Fr'){
       this.createTabDropdownType(this.recipeFile.listTypeRecipe,'Fr',theValue);
+
       this.updateTypeName(this.recipeFile,theValue,this.recipeFile.recipe[this.recordRecipe].typeFr.trim(),"Fr",this.recipeFile.recipe[this.recordRecipe].name.trim());
       this.recipeFile.recipe[this.recordRecipe].typeFr=theValue;
       if (this.tabDropdownType.length>1){
         this.isListTypeFr=true;
       }
+      if (this.recipeFile.recipe[this.recordRecipe].typeEn===""){
+       
+        
+        for (var i=0; i<this.recipeFile.listTypeRecipe.length && this.recipeFile.listTypeRecipe[i].Fr!==this.recipeFile.recipe[this.recordRecipe].typeFr; i++){};
+        if (i<this.recipeFile.listTypeRecipe.length){
+          this.recipeFile.recipe[this.recordRecipe].typeEn="?";
+          this.recipeFile.listTypeRecipe[i].En="?";
+        }
+        
+      }
+      
     } else if (event.target.id==='En'){
       this.createTabDropdownType(this.recipeFile.listTypeRecipe,'En',theValue);
+     
       this.updateTypeName(this.recipeFile,theValue,this.recipeFile.recipe[this.recordRecipe].typeEn.trim(),"En",this.recipeFile.recipe[this.recordRecipe].name.trim());
       this.recipeFile.recipe[this.recordRecipe].typeEn=theValue;
       if (this.tabDropdownType.length>1){
         this.isListTypeEn=true;
+      }
+      if (this.recipeFile.recipe[this.recordRecipe].typeFr===""){
+        for (var i=0; i<this.recipeFile.listTypeRecipe.length && this.recipeFile.listTypeRecipe[i].En!==this.recipeFile.recipe[this.recordRecipe].typeEn; i++){};
+        if (i<this.recipeFile.listTypeRecipe.length){
+          this.recipeFile.recipe[this.recordRecipe].typeFr="?";
+          this.recipeFile.listTypeRecipe[i].Fr="?";
+        }
+
       }
     } 
   }
@@ -1451,52 +1509,73 @@ onDropdownListType(event:any){
   } else if (this.isListTypeFr==true){
     this.updateTypeName(this.recipeFile,event.target.textContent.trim(),this.recipeFile.recipe[this.recordRecipe].typeFr,"Fr",this.recipeFile.recipe[this.recordRecipe].name);
     this.recipeFile.recipe[this.recordRecipe].typeFr=event.target.textContent.trim();
+    
   } else {
     this.updateTypeName(this.recipeFile,event.target.textContent.trim(),this.recipeFile.recipe[this.recordRecipe].typeEn,"En",this.recipeFile.recipe[this.recordRecipe].name);
     this.recipeFile.recipe[this.recordRecipe].typeEn=event.target.textContent.trim();
+    
+    
   }
   this.resetBooleans();
 }
 
 updateTypeName(inFile:any,newType:string,oldType:string,lang:string,recipeName:string){
-if (newType !== oldType){
-  if (lang==='Fr'){
-    for (var i=0; i<inFile.listTypeRecipe.length && inFile.listTypeRecipe[i].Fr!==oldType; i++){};
-    for (var j=0; j<inFile.listTypeRecipe.length && inFile.listTypeRecipe[j].Fr!==newType; j++){};
-  } else {
-    for (var i=0; i<inFile.listTypeRecipe.length && inFile.listTypeRecipe[i].En!==oldType; i++){};
-    for (var j=0; j<inFile.listTypeRecipe.length && inFile.listTypeRecipe[j].En!==newType; j++){};
-  }
-  
-  if (j<inFile.listTypeRecipe.length){// new type exists; add name of recipe if does not exist
-    for (var k=0; k<inFile.listTypeRecipe[j].recipe.length && inFile.listTypeRecipe[j].recipe[k]!==recipeName; k++){};
-    if (k===inFile.listTypeRecipe[j].recipe.length){ 
-      inFile.listTypeRecipe[j].recipe[k]=recipeName;
-    };
+  if (oldType===""){
+
     
-  } else {
-    // create a new type
-    if (i<inFile.listTypeRecipe.length){
-      inFile.listTypeRecipe.push({Fr:'',En:'',recipe:[]});
-      if (lang==='Fr'){
-          inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].Fr=newType;
-          inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].En=inFile.listTypeRecipe[i].En;
-      } else {
-          inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].Fr=inFile.listTypeRecipe[i].Fr;
-          inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].En=newType;
-      }
-      inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].recipe[0]=recipeName;
+    if (lang==='Fr'){
+        
+        inFile.listTypeRecipe.push({Fr:'',En:'',recipe:[]});
+        inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].Fr=newType;
+        inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].En="";
+    } else {
+        inFile.listTypeRecipe.push({Fr:'',En:'',recipe:[]});
+        inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].Fr="";
+        inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].En=newType;
     }
-      
+    inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].recipe[0]=recipeName;
+  } else if (oldType!==""){ 
+    if (newType !== oldType){
+        if (lang==='Fr'){
+          for (var i=0; i<inFile.listTypeRecipe.length && inFile.listTypeRecipe[i].Fr!==oldType; i++){};
+          for (var j=0; j<inFile.listTypeRecipe.length && inFile.listTypeRecipe[j].Fr!==newType; j++){};
+        } else {
+          for (var i=0; i<inFile.listTypeRecipe.length && inFile.listTypeRecipe[i].En!==oldType; i++){};
+          for (var j=0; j<inFile.listTypeRecipe.length && inFile.listTypeRecipe[j].En!==newType; j++){};
+        }
+        
+        if (j<inFile.listTypeRecipe.length){// new type exists; add name of recipe if does not exist
+          for (var k=0; k<inFile.listTypeRecipe[j].recipe.length && inFile.listTypeRecipe[j].recipe[k]!==recipeName; k++){};
+          if (k===inFile.listTypeRecipe[j].recipe.length){ 
+            inFile.listTypeRecipe[j].recipe[k]=recipeName;
+          };
+          
+        } else {
+          // create a new type
+          if (i<inFile.listTypeRecipe.length){
+            inFile.listTypeRecipe.push({Fr:'',En:'',recipe:[]});
+            if (lang==='Fr'){
+                inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].Fr=newType;
+                inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].En=inFile.listTypeRecipe[i].En;
+            } else {
+                inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].Fr=inFile.listTypeRecipe[i].Fr;
+                inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].En=newType;
+            }
+            inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].recipe[0]=recipeName;
+          }
+            
+        }
+        // remove old info
+        if (i<inFile.listTypeRecipe.length){
+          if (inFile.listTypeRecipe[i].recipe.length===1){
+            inFile.listTypeRecipe.splice(i,1);
+          } else {
+            for (var k=0; k<inFile.listTypeRecipe[i].recipe.length && inFile.listTypeRecipe[i].recipe[k]!==recipeName; k++){};
+            inFile.listTypeRecipe[i].recipe.splice(k,1);
+          }
+        }
+      }
   }
-  // remove old info
-  if (inFile.listTypeRecipe[i].recipe.length===1){
-    inFile.listTypeRecipe.splice(i,1);
-  } else {
-    for (var k=0; k<inFile.listTypeRecipe[i].recipe.length && inFile.listTypeRecipe[i].recipe[k]!==recipeName; k++){};
-    inFile.listTypeRecipe[i].recipe.splice(k,1);
-  }
-}
 }
 
 
@@ -1658,6 +1737,7 @@ getRecord(Bucket:string,GoogleObject:string, iWait:number){
                   this.initialRecipeFile.recipe.splice(0,this.initialRecipeFile.recipe.length);
                   this.initialRecipeFile.fileType=data.fileType;
                   for (var i=0; i<data.listTypeRecipe.length; i++){
+                    
                     this.initialRecipeFile.listTypeRecipe.push({Fr:"",En:"",recipe:[]});
                     this.initialRecipeFile.listTypeRecipe[i].Fr=data.listTypeRecipe[i].Fr.trim();
                     this.initialRecipeFile.listTypeRecipe[i].En=data.listTypeRecipe[i].En.trim();
@@ -1671,6 +1751,8 @@ getRecord(Bucket:string,GoogleObject:string, iWait:number){
                   }
                   
                   for (var i=0; i<data.recipe.length; i++){
+                    this.tabUpdateRef.push({init:0});
+                    this.tabUpdateRef[this.tabUpdateRef.length-1].init=i;
                     const classRecord=new classRecordRecipe;
                     this.initialRecipeFile.recipe.push(classRecord);
                     if (data.recipe[i].typeFr===undefined){
@@ -1847,14 +1929,7 @@ getRecord(Bucket:string,GoogleObject:string, iWait:number){
                   this.nbCallGetRecord=0;
                   this.myListOfObjects=data;
                   this.EventHTTPReceived[iWait]=true;
-                  /*
-                  for (i=this.myListOfObjects.items.length-1; i>-1; i--){
-                        if (this.myListOfObjects.items[i].name.substring(0,lengthFile)!==this.identification.recipe.fileStartName){
-                          this.myListOfObjects.items.splice(i,1);
-                          // keep the files corresponding to the recipes of the user
-                        } 
-                  }
-                  */
+
                  var iObjects=-1;
                   for (i=this.myListOfObjects.items.length-1; i>-1; i--){
                     if (this.myListOfObjects.items[i].name.substring(0,lengthFile)===this.identification.recipe.fileStartName){

@@ -2,6 +2,8 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
+
+<div style="margin-top:40px;"></div>
 <div *ngIf="dictionaryOnly===true">
 <app-dictionary [configServer]="configServer" [identification]="identification" [XMVConfig]="XMVConfig" ></app-dictionary>
 </div>
@@ -38,13 +40,22 @@
 </div>
 
 <div *ngIf="EventHTTPReceived[0]===true  && recipeFile.listTypeRecipe.length>1" style="min-width:400px; max-width:500px; margin-top:5px;" >
+    <div style ="margin-left:10px; width:96%; display:inline-block; color:blue; background-color: lightgrey; border:solid 1px blue;">
+        <div class="flag " (click)="selLanguage('FR')"> <span><img   style="width:20px; height:20px; margin:7px;"  src="./assets/FlagFrance.png" ></span></div>
+        <div class="flag" (click)="selLanguage('UK')"> <span><img   style="width:20px; height:20px; margin:7px;"  src="./assets/FlagUK.png" ></span></div>
+    </div>
 
-    <div class="objectHeader" style="margin-left:10px; font-size:14px; width:96%; display:inline-block;">Select the type of recipe(s)</div>
+    <div class="objectHeader" style="margin-left:10px; font-size:14px; width:96%; display:inline-block;">Select the type of recipe(s)
+    
+    </div>
     <div style="margin-left:10px; ">
         <div   class="listObj even2" > 
             <div style="padding-left:15px; width:100%; display:inline-block; " [ngClass]="{'listObjSel':selectedTypeFr==='ALL'}"  (click)='RadioSelection($event)' 
-                        id="TypeAll" >0 - ALL
+                        id="TypeAll" >0 - 
+                        <span *ngIf="yourLanguage==='FR'">Tous (défaut)</span>
+                        <span *ngIf="yourLanguage==='UK'">All (default)</span>
             </div>
+            
         </div>
     </div>
     <div   *ngFor="let listType of recipeFile.listTypeRecipe; let i=index" >
@@ -52,12 +63,16 @@
         <div *ngIf="i % 2=== 0" style="margin-left:10px; " > 
             <div   class="listObj"   [ngClass]="{'even1': i % 4 === 0 , 'even2': i % 4 === 2 }"> 
                 <div style="padding-left:15px; width:100%; display:inline-block; " [ngClass]="{'listObjSel':i===radioSelect}"  (click)='RadioSelection($event)' 
-                            id="TypeA-{{i}}" >{{i+1}} - {{listType.Fr}}/{{listType.En}}
+                            id="TypeA-{{i}}" >{{i+1}} - 
+                            <span *ngIf="yourLanguage==='FR'"> {{listType.Fr.trim()}} </span>
+                            <span *ngIf="yourLanguage==='UK'"> {{listType.En.trim()}} </span>
                 </div>
             </div>
             <div  *ngIf=" i < recipeFile.listTypeRecipe.length-1"  class="listObj"   [ngClass]="{'even2': (i + 1) % 4 === 1 , 'even1': (i + 1) % 4 === 3}"> 
                 <div style="padding-left:15px; width:100%; display:inline-block;  " [ngClass]="{'listObjSel':i+1===radioSelect}"  (click)='RadioSelection($event)' 
-                            id="TypeB-{{i+1}}" >{{i+2}} - {{recipeFile.listTypeRecipe[i+1].Fr}}/ {{recipeFile.listTypeRecipe[i+1].En}}
+                            id="TypeB-{{i+1}}" >{{i+2}} - 
+                            <span *ngIf="yourLanguage==='FR'"> {{recipeFile.listTypeRecipe[i+1].Fr.trim()}} </span>
+                            <span *ngIf="yourLanguage==='UK'"> {{recipeFile.listTypeRecipe[i+1].En.trim()}} </span>
                 </div>
             </div>
         </div>  
@@ -123,9 +138,18 @@
     </div>
     <div *ngIf="isCreateRecipeName===false ">
         <!-- TITLE-->
+        <div class="titleHeader" style="width:100%; background-color:cyan;"> 
+        <span *ngIf="yourLanguage==='FR'">
+            Type de recette: 
+            <input type="text" (input)="onInputType($event)" id='Fr' class='theType' value="{{recipeFile.recipe[recordRecipe].typeFr}}">
+        </span>
+        <span *ngIf="yourLanguage==='UK'">
+            Type of recipe: 
+            <input type="text" (input)="onInputType($event)" id='En' class='theType' value="{{this.recipeFile.recipe[this.recordRecipe].typeEn}}">
+        </span>
+        </div>
         <div class="titleName"> 
-            <input type="text" (input)="onInputType($event)" id='Fr' class='type' value="{{recipeFile.recipe[recordRecipe].typeFr}}">
-            <input type="text" (input)="onInputType($event)" id='En' class='type' value="{{recipeFile.recipe[recordRecipe].typeEn}} ">
+ 
             <div class="dropdown" *ngIf="isListTypeFr===true || isListTypeEn===true">
                 <div [ngStyle]="styleBoxListType">
                     <div   [ngStyle]="styleBoxOptionListType"  >
@@ -334,7 +358,7 @@
                     
                     <div *ngIf="isActionComments===true && idText==='ActionComments'">
                         <div class="dropdown ">
-                            <div class="Straight-content" style="overflow-y:scroll;" [ngStyle]="{ 'width.px':180, 'height.px': theHeight  ,'margin-left.px': posLeftDropDown, 'margin-top.px':posTopDropDown }">
+                            <div class="Straight-content" style="overflow-y:scroll;" [ngStyle]="{ 'width.px':240, 'height.px': theHeight  ,'margin-left.px': posLeftDropDown, 'margin-top.px':posTopDropDown }">
                                 <div  class="StraightDropDown " style="overflow-y:scroll;" [ngStyle]="{ 'height.px': theHeight  - 60,'margin-left.px': 5}"  >
                                     <li *ngFor="let tab of tabActionComments; let m=index;" 
                                             class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
@@ -346,14 +370,14 @@
                     </div>
                 </div>
                 <div style ="width:100%; display:inline-block; color:blue; background-color: lightgrey; border:solid 1px blue;">
-                    <div class="flag " (click)="selLanguage('FR')"> <span><img   style="width:20px; height:20px; margin:7px;"  src="./assets/FlagFrance.png" ></span></div>
+                    <div class="flag " (click)="translateComments('UkToFr')"> <span><img   style="width:20px; height:20px; margin:7px;"  src="./assets/FlagFrance.png" ></span></div>
 
                     <textarea  class="input" (input)="modifInput($event)" style="overflow-y:scroll; display:inline-block; width:100%;  word-wrap: break-word; color:blue; background-color: lightgrey; border:solid 1px blue;" 
                     [ngStyle]="{'height.px':heightComments, 'max-height.px':maxHeightCommBox}" id="comments" value="{{recipeFile.recipe[recordRecipe].comments}}">
                     </textarea>
                 </div>
                 <div style ="width:100%; display:inline-block; color:blue; background-color: white; border:solid 1px blue;"> 
-                    <div class="flag" (click)="selLanguage('UK')"> <span><img   style="width:20px; height:20px; margin:7px;"  src="./assets/FlagUK.png" ></span></div>
+                    <div class="flag" (click)="translateComments('FrToUk')"> <span><img   style="width:20px; height:20px; margin:7px;"  src="./assets/FlagUK.png" ></span></div>
 
                     <textarea  class="input" (input)="modifInput($event)" style="overflow-y:scroll; display:inline-block; width:100%;  word-wrap: break-word; color:blue; background-color: lightgrey; border:solid 1px blue;" 
                     [ngStyle]="{'height.px':heightCommentsEn, 'max-height.px':maxHeightCommBox}" id="commentsEn" value="{{recipeFile.recipe[recordRecipe].commentsEn}}">
