@@ -144,12 +144,12 @@ listTypeRecipe:Array<any>=[
 
 listActions:Array<string>=['Cancel','Delete','Add after', 'Add before', 'Copy','Copy ALL','Move after', 'Move before','Change value for all','Calculate nutrition facts'];
 tabRecipe:Array<any>=[];
-tabActionRecipe:Array<string>=['Cancel','Create','Rename','Duplicate','Delete','Reinitialise','Translate', 'Calculate nut. facts for all recipes','Transfer nut. facts to CalFat'];
+tabActionRecipe:Array<string>=['Cancel','Create','Rename','Duplicate','Delete','Reinitialise','Translate FR to UK', 'Translate UK to FR','Calculate nut. facts for all recipes','Transfer nut. facts to CalFat'];
 recipeTable:Array<classFileRecipe>=[];
-tabActionComments:Array<string>=['Cancel','Translate','Zoom in - Std box', 'Zoom out - Std box','Zoom in - English box', 'Zoom out - English box', 'Zoom in - Ustens. box', 'Zoom out - Ustens. box','Zoom in - Perso box', 'Zoom out - Perso box',
+tabActionComments:Array<string>=['Cancel','Translate FR to UK', 'Translate UK to FR','Zoom in - Std box', 'Zoom out - Std box','Zoom in - English box', 'Zoom out - English box', 'Zoom in - Ustens. box', 'Zoom out - Ustens. box','Zoom in - Perso box', 'Zoom out - Perso box',
    'Zoom in - Ustens. Perso box', 'Zoom out - Ustens. Perso box'];
 
-tabActionCommentsPerso:Array<string>=['Cancel','Translate','Zoom in - Perso box', 'Zoom out - Perso box', 'Zoom in - Ustens. Perso box', 'Zoom out - Ustens. Perso box','Zoom in - Std box', 'Zoom out - Std box','Zoom in - English box', 'Zoom out - English box', 
+tabActionCommentsPerso:Array<string>=['Cancel','Translate FR to UK', 'Translate UK to FR','Zoom in - Perso box', 'Zoom out - Perso box', 'Zoom in - Ustens. Perso box', 'Zoom out - Ustens. Perso box','Zoom in - Std box', 'Zoom out - Std box','Zoom in - English box', 'Zoom out - English box', 
   'Zoom in - Ustens. box', 'Zoom out - Ustens. box'];
 
 tabDialog:Array<boolean>=[];
@@ -243,6 +243,13 @@ degreC:string="°C";
 wordsToConvert:Array<any>=[];
 tabSubstitution:Array<any>=[];
 
+isActionComments:boolean=false;
+
+margLeftChangeAll:number=0;
+currentValue:number=0;
+currentIngr:string="";
+yourLanguage:string="FR";
+
 ngOnInit(){
   this.googleBucketName=this.identification.recipe.bucket;
   this.listActions;
@@ -334,7 +341,7 @@ ngOnInit(){
           'display':'inline-block'
           }
 }
-yourLanguage:string="FR";
+
 selLanguage(event:string){
   if (event==='FR'){
     this.yourLanguage='FR';
@@ -343,14 +350,17 @@ selLanguage(event:string){
   } 
 }
 
+
 radioSelect:number=-1;
 selectedTypeFr:string="";
 recordListType:number=-1;
 RadioSelection(event:any){
+
+this.findId(event.target.id);
+// const i=parseInt(event.target.id.substring(2));
+const val=this.idNb;
+if (this.radioSelect!==this.idNb){
   this.resetBooleans();
-  this.findId(event.target.id);
-  // const i=parseInt(event.target.id.substring(2));
-  const val=this.idNb;
   this.radioSelect=this.idNb;
   //this.tabSearch.splice(0,this.tabSearch.length);
   //this.textToSearch = "";
@@ -381,9 +391,11 @@ RadioSelection(event:any){
       this.radioSelect=-1;
     } else {
       this.selectedTypeFr=this.recipeFile.listTypeRecipe[this.idNb].Fr.trim();
+  
       this.recordListType=this.idNb;
       // search the first record of the selected Type
-      for (this.recordRecipe=0; this.recordRecipe<this.recipeFile.recipe.length && this.recipeFile.recipe[this.recordRecipe].typeFr.trim()!==this.selectedTypeFr.trim(); this.recordRecipe++){}
+      for (this.recordRecipe=0; this.recordRecipe<this.recipeFile.recipe.length && (this.recipeFile.recipe[this.recordRecipe].typeFr.trim()!==this.selectedTypeFr.trim()
+        || this.recipeFile.recipe[this.recordRecipe].typeEn.trim()!==this.recipeFile.listTypeRecipe[this.idNb].En.trim()); this.recordRecipe++){}
       
     }
       if (this.isSearchText===true){
@@ -392,7 +404,7 @@ RadioSelection(event:any){
         this.searchText(this.event);
       };
   }
-
+}
 }
 
 resetBooleans(){
@@ -428,81 +440,7 @@ onAction(event:any){
       this.listActions[4]="Copy to standard";
       this.listActions[5]="Copy ALL to standard";
   } else if (event.target.id==='listRecipe'){
-      this.tabRecipe.splice(0,this.tabRecipe.length);
-
-/*
-
- for (var i=0; i<this.recipeFile.recipe.length; i++){
-      if (this.recipeFile.recipe[i].name.toLowerCase().indexOf(theText)!==-1 || theText===""){
-       
-        if (this.selectedTypeFr.toLowerCase()===this.recipeFile.recipe[i].typeFr.toLowerCase() || this.selectedTypeFr==="ALL" || this.selectedTypeFr===""){
-          this.tabSearch.push({name:"",posRec:0})
-          j++
-          this.tabSearch[j].name=this.recipeFile.recipe[i].name.trim();
-          this.tabSearch[j].posRec=i;
-        }
-      }
-    }
-    this.tabSearch.sort((a, b) => (a.name < b.name) ? -1 : 1);
-
-
-*/
-      var j = 0;
-      for (var i=0; i<this .recipeFile.recipe.length; i++){
-        if (this.textToSearch!==""){
-          j=this.recipeFile.recipe[i].name.toLowerCase().normalize('NFD').indexOf(this.textToSearch.toLowerCase());
-          if (j!==-1){
-            if (this.selectedTypeFr.toLowerCase().normalize('NFD')===this.recipeFile.recipe[i].typeFr.toLowerCase().normalize('NFD') || this.selectedTypeFr==="ALL" || this.selectedTypeFr===""){
-              this.tabRecipe.push({name:"",posRec:0});
-              this.tabRecipe[this.tabRecipe.length-1].name = this.recipeFile.recipe[i].name.trim();
-              this.tabRecipe[this.tabRecipe.length-1].posRec=i;
-            }
-          }
-        } else { 
-            if (this.selectedTypeFr.toLowerCase().normalize('NFD')===this.recipeFile.recipe[i].typeFr.toLowerCase().normalize('NFD') || this.selectedTypeFr==="ALL" || this.selectedTypeFr===""){
-              this.tabRecipe.push({name:"",posRec:0});
-              this.tabRecipe[this.tabRecipe.length-1].name = this.recipeFile.recipe[i].name.trim();
-              this.tabRecipe[this.tabRecipe.length-1].posRec=i;
-            }
-        }
-      }
-      if (this.tabRecipe.length>1){
-          this.tabRecipe.sort((a, b) => (a.name < b.name) ? -1 : 1);
-          this.tabRecipe.splice(0,0,{name:"",posRec:0});
-          this.tabRecipe[0].name='Cancel';
- 
-          var scrollY='hidden';
-          if (this.tabRecipe.length>9){
-            this.heightListRecipe=210;
-            scrollY='scroll';
-
-          } else { 
-            this.heightListRecipe = this.tabRecipe.length * 25 + 15;
-          }
-          this.isListRecipe=true;
-
-          this.styleBoxListRecipe = {
-            'width': 205 + 'px',
-            'height': this.heightListRecipe + 'px',
-            'position': 'absolute',
-            'margin-left':'15%', 
-            'margin-top':'5px',
-            'display':'inline-block',
-            'z-index': '1'
-          }
-          this.styleBoxOptionListRecipe = {
-            'background-color':'lightgrey',
-            'width':205 + 'px',
-            'height':this.heightListRecipe + 'px',
-            'margin-top' :  '0px',
-            'margin-left':140 + 'px',
-            'overflow-x': 'hidden',
-            'overflow-y': scrollY,
-            'border':'1px blue solid',
-            'display':'inline-block'
-            }
-          }
-
+      this.createDropDownRecipe();
   } else if(event.target.id==='ActionRecipe'){
     this.isActionRecipe=true;
   } else if(event.target.id==='ActionComments' || event.target.id==='ActionCommentsPerso'){
@@ -511,11 +449,67 @@ onAction(event:any){
   
 }
 
-isActionComments:boolean=false;
 
-margLeftChangeAll:number=0;
-currentValue:number=0;
-currentIngr:string="";
+createDropDownRecipe(){
+  this.tabRecipe.splice(0,this.tabRecipe.length);
+
+  var j = 0;
+  for (var i=0; i<this .recipeFile.recipe.length; i++){
+    if (this.textToSearch!==""){
+      j=this.recipeFile.recipe[i].name.toLowerCase().normalize('NFD').indexOf(this.textToSearch.toLowerCase());
+      if (j!==-1){
+        if (this.selectedTypeFr.toLowerCase().normalize('NFD')===this.recipeFile.recipe[i].typeFr.toLowerCase().normalize('NFD') || this.selectedTypeFr==="ALL" || this.selectedTypeFr===""){
+          this.tabRecipe.push({name:"",posRec:0});
+          this.tabRecipe[this.tabRecipe.length-1].name = this.recipeFile.recipe[i].name.trim();
+          this.tabRecipe[this.tabRecipe.length-1].posRec=i;
+        }
+      }
+    } else { 
+        if (this.selectedTypeFr.toLowerCase().normalize('NFD')===this.recipeFile.recipe[i].typeFr.toLowerCase().normalize('NFD') || this.selectedTypeFr==="ALL" || this.selectedTypeFr===""){
+          this.tabRecipe.push({name:"",posRec:0});
+          this.tabRecipe[this.tabRecipe.length-1].name = this.recipeFile.recipe[i].name.trim();
+          this.tabRecipe[this.tabRecipe.length-1].posRec=i;
+        }
+    }
+  }
+  if (this.tabRecipe.length>1){
+      this.tabRecipe.sort((a, b) => (a.name < b.name) ? -1 : 1);
+      this.tabRecipe.splice(0,0,{name:"",posRec:0});
+      this.tabRecipe[0].name='Cancel';
+      var scrollY='hidden';
+      if (this.tabRecipe.length>9){
+        this.heightListRecipe=210;
+        scrollY='scroll';
+
+      } else { 
+        this.heightListRecipe = this.tabRecipe.length * 25 + 15;
+      }
+      this.isListRecipe=true;
+
+      this.styleBoxListRecipe = {
+        'width': 205 + 'px',
+        'height': this.heightListRecipe + 'px',
+        'position': 'absolute',
+        'margin-left':'15%', 
+        'margin-top':'5px',
+        'display':'inline-block',
+        'z-index': '1'
+      }
+      this.styleBoxOptionListRecipe = {
+        'background-color':'lightgrey',
+        'width':205 + 'px',
+        'height':this.heightListRecipe + 'px',
+        'margin-top' :  '0px',
+        'margin-left':140 + 'px',
+        'overflow-x': 'hidden',
+        'overflow-y': scrollY,
+        'border':'1px blue solid',
+        'display':'inline-block'
+        }
+      }
+}
+
+
 afterDropDown(event:any){
   this.tabDialog[this.prevDialog]=false;
   this.resetBooleans();
@@ -642,13 +636,12 @@ afterDropDown(event:any){
   } else if (event.target.id.substring(0,7)==="selText"){
     this.findId(event.target.id);
     // search text is selected
-
-    for (var i=0; i<this.recipeFile.recipe.length && this.recipeFile.recipe[i].name!==this.tabSearch[Number(this.idNb)].name; i++){};
-    if (i<this.recipeFile.recipe.length){
-      this.recordRecipe=this.tabSearch[Number(this.idNb)].posRec;
-    };
-    //this.tabSearch.splice(0,this.tabSearch.length);
-    //this.textToSearch = "";
+    if (this.recordRecipe!==this.tabSearch[this.idNb].posRec){
+        for (var i=0; i<this.recipeFile.recipe.length && this.recipeFile.recipe[i].name!==this.tabSearch[Number(this.idNb)].name; i++){};
+        if (i<this.recipeFile.recipe.length){
+          this.recordRecipe=this.tabSearch[Number(this.idNb)].posRec;
+        };
+    }
   
   } else if(event.target.id==='ActionRecipe'){
     this.isActionRecipe=false;
@@ -698,7 +691,8 @@ afterDropDown(event:any){
           this.recipeFile.recipe[this.recordRecipe].materielPersoBox=this.minHeightCommBox;
       } else {
           this.fillInRecord(this.recipeFile.recipe[saveRecord],this.recipeFile.recipe[this.recordRecipe]);
-      }
+          this.isDuplicate=false;
+        }
       this.tabUpdateRef.push({init:0});
       this.tabUpdateRef[this.tabUpdateRef.length-1].init=-1;
 // complete it
@@ -709,52 +703,17 @@ afterDropDown(event:any){
       this.calculateNutritionForAllRecipe();
      } if (this.tabActionRecipe[event.target.value]==="Transfer nut. facts to CalFat"){
       this.transferToCalFat();
-     } else  if (this.tabActionRecipe[event.target.value]==="Translate"){
+     } else  if (this.tabActionRecipe[event.target.value]==="Translate FR to UK"){
       this.translateComments('FrToUk');
+     } else  if (this.tabActionRecipe[event.target.value]==="Translate UK to FR"){
+      this.translateComments('UkToFr');
      } else  if (this.tabActionRecipe[event.target.value]==="Reinitialise"){
       this.reInitialieRecipe();
      }
   }
   //this.calculateHeight();
 }
-
-dropdownComments(event:any){
-  this.isActionComments=false;
-  if (this.tabActionComments[event.target.value]==="Translate"){
-    this.translateComments('FrToUk');
-   } else if (this.tabActionComments[event.target.value]==="Zoom in - Std box"){
-    this.zoomIn(event);
-   } else if (this.tabActionComments[event.target.value]==="Zoom out - Std box"){
-    this.zoomOut(event);
-   } else if (this.tabActionComments[event.target.value]==="Zoom in - English box"){
-    this.event.target.id="commentsEn";
-    this.zoomIn(this.event);
-   } else if (this.tabActionComments[event.target.value]==="Zoom out - English box"){
-    this.event.target.id="commentsEn";
-    this.zoomOut(this.event);
-    
-   } else if (this.tabActionComments[event.target.value]==="Zoom in - Perso box"){
-    this.event.target.id="commentsPerso";
-    this.zoomIn(this.event);
-   } else if (this.tabActionComments[event.target.value]==="Zoom out - Perso box"){
-    this.event.target.id="commentsPerso";
-    this.zoomOut(this.event);
-   } else if (this.tabActionComments[event.target.value]==="Zoom in - Ustens. box"){
-    this.event.target.id="commentsUstens";
-    this.zoomIn(this.event);
-   } else if (this.tabActionComments[event.target.value]==="Zoom out - Ustens. box"){
-    this.event.target.id="commentsUstens";
-    this.zoomOut(this.event);
-   } else if (this.tabActionComments[event.target.value]==="Zoom in - Ustens. Perso box"){
-    this.event.target.id="commentsUstensPerso";
-    this.zoomIn(this.event);
-   } else if (this.tabActionComments[event.target.value]==="Zoom out - Ustens. Perso box"){
-    this.event.target.id="commentsUstensPerso";
-    this.zoomOut(this.event);
-   } 
-}
-
-
+isDuplicate:boolean=false;
 copyFromTo(toRecord:any, fromRecord:any){
   for (var i=0; i<fromRecord.length ; i++){
     toRecord[i].ingr=fromRecord[i].ingr;
@@ -770,6 +729,7 @@ onChangeName(event:any){
     this.temporaryNameRecipe=event.target.value.substring(0,1).toUpperCase()+event.target.value.substring(1).trim();
   } else if (event.target.id==='save'){
     this.recipeFile.recipe[this.recordRecipe].name=this.temporaryNameRecipe;
+    this.updateInListType(this.temporaryNameRecipe,'FR','Rename');
     this.isRecipeModified=true;
     this.isChangeRecipeName=false;
   }
@@ -965,9 +925,9 @@ translateComments(lang:string){
     }
     this.dicEnFr.sort((a, b) => (a.nbWordsIn > b.nbWordsIn) ? -1 : 1);
   }
-  if (lang==='FrToUk'){
+  if (lang==='FrToUk' && this.recipeFile.recipe[this.recordRecipe].comments!==''){
     this.recipeFile.recipe[this.recordRecipe].commentsEn=this.processTranslation(this.dicFrEn,lang,  this.recipeFile.recipe[this.recordRecipe].comments);
-  } else {
+  } else if (lang==='UkToFr' && this.recipeFile.recipe[this.recordRecipe].commentsEn!==''){
     this.recipeFile.recipe[this.recordRecipe].comments=this.processTranslation(this.dicEnFr,lang,  this.recipeFile.recipe[this.recordRecipe].commentsEn);
   }
 }
@@ -1127,11 +1087,29 @@ convertFrEng(dico:any){
 }
 
 nameRecipe(event:any){
+  var trouve=false;
   if (event.target.id==='input'){
     this.temporaryNameRecipe=event.target.value.substring(0,1).toUpperCase()+event.target.value.substring(1).trim();
   } else if (event.target.id==='save'){
     this.isCreateRecipeName=false;
     this.recipeFile.recipe[this.recordRecipe].name=this.temporaryNameRecipe;
+    if (this.isDuplicate===false){
+      for (var i=0; i<this.recipeFile.listTypeRecipe.length && trouve===false; i++){
+          if (this.recipeFile.listTypeRecipe[i].Fr===this.recipeFile.recipe[this.recordRecipe].typeFr && 
+                this.recipeFile.listTypeRecipe[i].En===this.recipeFile.recipe[this.recordRecipe].typeEn) {
+                  this.recipeFile.listTypeRecipe[i].recipe.push(this.temporaryNameRecipe);
+                  trouve=true;
+            }
+        }
+      this.isDuplicate=false;
+    } else {
+      this.updateTypeName(this.recipeFile,'','',"Fr",this.recipeFile.recipe[this.recordRecipe].name);
+    }
+    
+    
+   
+    //this.updateInListType(this.temporaryNameRecipe,'FR','Rename');
+    
     this.isRecipeModified=true;
   } else if (event.target.id==='clear'){
     this.temporaryNameRecipe="";
@@ -1148,9 +1126,9 @@ delRecipe(event:any){
   this.isDeleteRecipe=false;
   if (event.target.id==='YesDelConfirm'){
     this.isRecipeModified=true;
-    this.recipeFile.recipe.splice(this.recordRecipe,1);
+    this.updateInListType(this.recipeFile.recipe[this.recordRecipe].name,'FR','Delete');
+    this.recipeFile.recipe.splice(this.recordRecipe,1); // delete the whole recipe 
     this.recordRecipe=0;
-    // this.calculateHeight();
   }
 }
 
@@ -1175,14 +1153,18 @@ searchText(event:any){
     var theText= event.target.value.toLowerCase();
 
     this.tabSearch.splice(0,this.tabSearch.length);
+
     for (var i=0; i<this.recipeFile.recipe.length; i++){
-      if (this.recipeFile.recipe[i].name.toLowerCase().normalize('NFD').indexOf(theText)!==-1 || theText===""){
+      if (this.radioSelect===-1 || (this.radioSelect!==-1 && this.recipeFile.listTypeRecipe[this.radioSelect].En===this.recipeFile.recipe[i].typeEn && 
+        this.recipeFile.listTypeRecipe[this.radioSelect].Fr===this.recipeFile.recipe[i].typeFr)){
+        if (this.recipeFile.recipe[i].name.toLowerCase().normalize('NFD').indexOf(theText)!==-1 || theText===""){
        
-        if (this.selectedTypeFr.toLowerCase().normalize('NFD')===this.recipeFile.recipe[i].typeFr.toLowerCase().normalize('NFD') || this.selectedTypeFr==="ALL" || this.selectedTypeFr===""){
+       // if (this.selectedTypeFr.toLowerCase().normalize('NFD')===this.recipeFile.recipe[i].typeFr.toLowerCase().normalize('NFD') || this.selectedTypeFr==="ALL" || this.selectedTypeFr===""){
           this.tabSearch.push({name:"",posRec:0})
           j++
           this.tabSearch[j].name=this.recipeFile.recipe[i].name.trim();
           this.tabSearch[j].posRec=i;
+        //}
         }
       }
     }
@@ -1202,6 +1184,7 @@ searchText(event:any){
 isRecipeModified:boolean=false;
 
 modifInput(event:any){
+  this.resetBooleans();
   this.findId(event.target.id);
   this.isIngrDropDown=false;
   this.isRecipeModified=true;
@@ -1257,9 +1240,50 @@ heightMatCommBox:number=90;
 maxHeightCommBox:number=300;
 minHeightCommBox:number=40;
 zoomInRate:number=0.8;
-zoomOutRate:number=1.2;
+zoomOutRate:number=1.4;
+
+dropdownComments(event:any){
+  this.resetBooleans();
+  this.isActionComments=false;
+  if (this.tabActionComments[event.target.value]==="Translate FR to UK"){
+    this.translateComments('FrToUk');
+   } else if (this.tabActionComments[event.target.value]==="Translate UK to FR"){
+    this.translateComments('UkToFr');
+   } else if (this.tabActionComments[event.target.value]==="Zoom in - Std box"){
+    this.zoomIn(event);
+   } else if (this.tabActionComments[event.target.value]==="Zoom out - Std box"){
+    this.zoomOut(event);
+   } else if (this.tabActionComments[event.target.value]==="Zoom in - English box"){
+    this.event.target.id="commentsEn";
+    this.zoomIn(this.event);
+   } else if (this.tabActionComments[event.target.value]==="Zoom out - English box"){
+    this.event.target.id="commentsEn";
+    this.zoomOut(this.event);
+    
+   } else if (this.tabActionComments[event.target.value]==="Zoom in - Perso box"){
+    this.event.target.id="commentsPerso";
+    this.zoomIn(this.event);
+   } else if (this.tabActionComments[event.target.value]==="Zoom out - Perso box"){
+    this.event.target.id="commentsPerso";
+    this.zoomOut(this.event);
+   } else if (this.tabActionComments[event.target.value]==="Zoom in - Ustens. box"){
+    this.event.target.id="commentsUstens";
+    this.zoomIn(this.event);
+   } else if (this.tabActionComments[event.target.value]==="Zoom out - Ustens. box"){
+    this.event.target.id="commentsUstens";
+    this.zoomOut(this.event);
+   } else if (this.tabActionComments[event.target.value]==="Zoom in - Ustens. Perso box"){
+    this.event.target.id="commentsUstensPerso";
+    this.zoomIn(this.event);
+   } else if (this.tabActionComments[event.target.value]==="Zoom out - Ustens. Perso box"){
+    this.event.target.id="commentsUstensPerso";
+    this.zoomOut(this.event);
+   } 
+}
+
 
 zoomIn(event:any){
+  this.resetBooleans();
 if (event.target.id==="comments"){
   this.heightComments= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsBox, this.zoomInRate, "in");
   this.recipeFile.recipe[this.recordRecipe].commentsBox=this.heightComments;
@@ -1282,6 +1306,7 @@ else if (event.target.id==="commentsEn"){
 
 }
 zoomOut(event:any){
+  this.resetBooleans();
   if (event.target.id==="comments"){
     
     this.heightComments=this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsBox, this.zoomOutRate, "out");
@@ -1320,8 +1345,8 @@ calculateZoom(inRecord:any, rate:number, zoom:string){
       theHeight = this.minHeightCommBox;
     }
   } else if (zoom==="out"){
-    if (theHeight<this.maxHeightCommBox/2){
-      theHeight=inRecord * 1.4;
+    if (theHeight<this.maxHeightCommBox/2.5){
+      theHeight=inRecord * 1.8;
     } else {
     theHeight=inRecord * rate;
     
@@ -1392,48 +1417,85 @@ reInitialieRecipe(){
   
 }
 
-
 onInputType(event:any){
     this.resetBooleans();
     const theValue=event.target.value.substring(0,1).toUpperCase()+event.target.value.substring(1).trim();
     if (event.target.id==='Fr'){
-      this.createTabDropdownType(this.recipeFile.listTypeRecipe,'Fr',theValue);
-
       this.updateTypeName(this.recipeFile,theValue,this.recipeFile.recipe[this.recordRecipe].typeFr.trim(),"Fr",this.recipeFile.recipe[this.recordRecipe].name.trim());
       this.recipeFile.recipe[this.recordRecipe].typeFr=theValue;
       if (this.tabDropdownType.length>1){
         this.isListTypeFr=true;
       }
+      /**
       if (this.recipeFile.recipe[this.recordRecipe].typeEn===""){
-       
-        
         for (var i=0; i<this.recipeFile.listTypeRecipe.length && this.recipeFile.listTypeRecipe[i].Fr!==this.recipeFile.recipe[this.recordRecipe].typeFr; i++){};
         if (i<this.recipeFile.listTypeRecipe.length){
-          this.recipeFile.recipe[this.recordRecipe].typeEn="?";
-          this.recipeFile.listTypeRecipe[i].En="?";
+          this.recipeFile.recipe[this.recordRecipe].typeEn="";
+          this.recipeFile.listTypeRecipe[i].En="";
         }
-        
       }
-      
+      */
     } else if (event.target.id==='En'){
-      this.createTabDropdownType(this.recipeFile.listTypeRecipe,'En',theValue);
-     
       this.updateTypeName(this.recipeFile,theValue,this.recipeFile.recipe[this.recordRecipe].typeEn.trim(),"En",this.recipeFile.recipe[this.recordRecipe].name.trim());
       this.recipeFile.recipe[this.recordRecipe].typeEn=theValue;
       if (this.tabDropdownType.length>1){
         this.isListTypeEn=true;
       }
+      /**
       if (this.recipeFile.recipe[this.recordRecipe].typeFr===""){
         for (var i=0; i<this.recipeFile.listTypeRecipe.length && this.recipeFile.listTypeRecipe[i].En!==this.recipeFile.recipe[this.recordRecipe].typeEn; i++){};
         if (i<this.recipeFile.listTypeRecipe.length){
           this.recipeFile.recipe[this.recordRecipe].typeFr="?";
           this.recipeFile.listTypeRecipe[i].Fr="?";
         }
-
       }
+       */
     } 
+    this.createTabDropdownType(this.recipeFile.listTypeRecipe,event.target.id.toUpperCase(),theValue);
+    if (this.isSearchText===true){
+      this.event.target.id='search';
+      this.event.target.value=this.textToSearch;
+      this.searchText(this.event);
+    };
   }
 
+
+updateInListType(recipeName:string,lang:string,action:string){
+  var i=0;
+  var theValue="ALL";
+  if (lang==="FR"){
+    for (i=0; i<this.recipeFile.listTypeRecipe.length && this.recipeFile.listTypeRecipe[i].Fr!==this.recipeFile.recipe[this.recordRecipe].typeFr; i++){}
+  } else if (lang==="UK"){
+    for (i=0; i<this.recipeFile.listTypeRecipe.length && this.recipeFile.listTypeRecipe[i].En!==this.recipeFile.recipe[this.recordRecipe].typeEn; i++){}
+  }
+  if (i<this.recipeFile.listTypeRecipe.length){ 
+    if (action==="Delete"){
+        if (this.recipeFile.listTypeRecipe[i].recipe.length===1){ // only one recipe exists so delete the type
+            this.recipeFile.listTypeRecipe.splice(i,1);
+        } else { // more than one recipe exists
+
+            for (var k=0; k<this.recipeFile.listTypeRecipe[i].recipe.length && this.recipeFile.listTypeRecipe[i].recipe[k]!==recipeName; k++){};
+            this.recipeFile.listTypeRecipe[i].recipe.splice(k,1); // remove the recipe only
+            if (lang==="FR"){ theValue=this.recipeFile.listTypeRecipe[i].Fr}
+            else if (lang==="UK") {this.recipeFile.listTypeRecipe[i].En};
+        }
+    } else if (action==="Rename"){
+        for (var k=0; k<this.recipeFile.listTypeRecipe[i].recipe.length && this.recipeFile.listTypeRecipe[i].recipe[k]!==recipeName; k++){};
+        this.recipeFile.listTypeRecipe[i].recipe[k-1]=recipeName;
+        if (lang==="FR"){ theValue=this.recipeFile.listTypeRecipe[i].Fr}
+        else if (lang==="UK") {this.recipeFile.listTypeRecipe[i].En};
+    } 
+    this.createTabDropdownType(this.recipeFile.listTypeRecipe,lang,theValue);
+    if (this.isListRecipe===true){
+      this.createDropDownRecipe();
+    }
+    if (this.isSearchText===true){
+        this.event.target.id='search';
+        this.event.target.value=this.textToSearch;
+        this.searchText(this.event);
+      };
+  }
+}
 isListTypeFr:boolean=false;
 isListTypeEn:boolean=false;
 tabDropdownType:Array<any>=[];
@@ -1443,7 +1505,7 @@ createTabDropdownType(record:any,lang:string,text:string){
   this.tabDropdownType.splice(0, this.tabDropdownType.length);
   this.tabDropdownType.push({name:'Cancel'});
   var trouve=false;
-  if (lang==='Fr'){
+  if (lang==='FR'){
     for (var i=0; i<record.length; i++){
       if (record[i].Fr.indexOf(text)!==-1){
         for (var j=0; j<this.tabDropdownType.length && trouve===false; j++){
@@ -1473,12 +1535,17 @@ else {
       }
     }
   }
-  if (this.tabDropdownType.length>8){
+  var theHeight=0
+  scrollY='hidden';
+  if (this.tabDropdownType.length===2){
+      this.tabDropdownType.splice(0, this.tabDropdownType.length);
+      this.isListTypeFr=false;
+      this.isListTypeEn=false;
+  } else if (this.tabDropdownType.length>8){
     var theHeight=240;
     var scrollY='scroll';
   } else { 
     theHeight=this.tabDropdownType.length * 30;
-    scrollY='hidden';
   }
 
   this.styleBoxListType = {
@@ -1520,34 +1587,87 @@ onDropdownListType(event:any){
 }
 
 updateTypeName(inFile:any,newType:string,oldType:string,lang:string,recipeName:string){
+  var trouve=false;
+  var iType=0;
   if (oldType===""){
-
-    
     if (lang==='Fr'){
-        
-        inFile.listTypeRecipe.push({Fr:'',En:'',recipe:[]});
-        inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].Fr=newType;
-        inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].En="";
+        // search if En type exists
+        for (var i=0; i<inFile.listTypeRecipe.length && trouve===false; i++){
+          if (inFile.listTypeRecipe[i].En===inFile.recipe[this.recordRecipe].typeEn && inFile.listTypeRecipe[i].Fr===''){
+            trouve=true;
+            iType=i;
+          }
+        };
+        if (trouve===true){
+          inFile.listTypeRecipe[iType].Fr=newType;
+        } else {
+          inFile.listTypeRecipe.push({Fr:'',En:'',recipe:[]});
+          inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].Fr=newType;
+          inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].En="";
+        }
     } else {
-        inFile.listTypeRecipe.push({Fr:'',En:'',recipe:[]});
-        inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].Fr="";
-        inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].En=newType;
+      for (var i=0; i<inFile.listTypeRecipe.length && trouve===false; i++){
+        if (inFile.listTypeRecipe[i].Fr===inFile.recipe[this.recordRecipe].typeFr && inFile.listTypeRecipe[i].En===''){
+          trouve=true;
+          iType=i;
+        }
+      };
+      if (trouve===true){
+        inFile.listTypeRecipe[iType].En=newType;
+      } else {
+          inFile.listTypeRecipe.push({Fr:'',En:'',recipe:[]});
+          inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].Fr="";
+          inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].En=newType;
+      }
     }
     inFile.listTypeRecipe[inFile.listTypeRecipe.length-1].recipe[0]=recipeName;
   } else if (oldType!==""){ 
     if (newType !== oldType){
         if (lang==='Fr'){
-          for (var i=0; i<inFile.listTypeRecipe.length && inFile.listTypeRecipe[i].Fr!==oldType; i++){};
-          for (var j=0; j<inFile.listTypeRecipe.length && inFile.listTypeRecipe[j].Fr!==newType; j++){};
+          trouve=false;
+          for (var i=0; i<inFile.listTypeRecipe.length && trouve===false; i++){
+            if (inFile.listTypeRecipe[i].Fr===oldType
+            && inFile.listTypeRecipe[i].En===inFile.recipe[this.recordRecipe].typeEn){
+              trouve=true;
+            }
+          };
+          if (trouve===true){i--;}
+          trouve=false;
+          for (var j=0; j<inFile.listTypeRecipe.length && trouve===false; j++){
+              if (inFile.listTypeRecipe[j].Fr===newType 
+                && inFile.listTypeRecipe[i].En===inFile.recipe[this.recordRecipe].typeEn){
+                trouve=true;
+              }
+          };
+          if (trouve===true){j--;}
         } else {
-          for (var i=0; i<inFile.listTypeRecipe.length && inFile.listTypeRecipe[i].En!==oldType; i++){};
-          for (var j=0; j<inFile.listTypeRecipe.length && inFile.listTypeRecipe[j].En!==newType; j++){};
+          trouve=false;
+          for (var i=0; i<inFile.listTypeRecipe.length && trouve===false; i++){
+            if (inFile.listTypeRecipe[i].En===oldType
+            && inFile.listTypeRecipe[i].Fr===inFile.recipe[this.recordRecipe].typeFr){
+              trouve=true;
+            }
+          };
+          if (trouve===true){i--;}
+          trouve=false;
+          for (var j=0; j<inFile.listTypeRecipe.length && trouve===false; j++){
+            if (inFile.listTypeRecipe[j].En===newType && inFile.listTypeRecipe[i].En===inFile.recipe[this.recordRecipe].typeEn){
+              trouve=true;
+            }
+          };
+          if (trouve===true){j--;}
         }
         
-        if (j<inFile.listTypeRecipe.length){// new type exists; add name of recipe if does not exist
+        if (j<inFile.listTypeRecipe.length){// new type exists; 
+          if (inFile.recipe[this.recordRecipe].typeFr===""){
+            inFile.recipe[this.recordRecipe].typeFr=inFile.listTypeRecipe[j].Fr;
+          }
+          if (inFile.recipe[this.recordRecipe].typeEn===""){
+            inFile.recipe[this.recordRecipe].typeEn=inFile.listTypeRecipe[j].En;
+          }
           for (var k=0; k<inFile.listTypeRecipe[j].recipe.length && inFile.listTypeRecipe[j].recipe[k]!==recipeName; k++){};
-          if (k===inFile.listTypeRecipe[j].recipe.length){ 
-            inFile.listTypeRecipe[j].recipe[k]=recipeName;
+          if (k===inFile.listTypeRecipe[j].recipe.length){ // recipe does not exist
+            inFile.listTypeRecipe[j].recipe[k]=recipeName; //add name of recipe 
           };
           
         } else {
@@ -1578,6 +1698,14 @@ updateTypeName(inFile:any,newType:string,oldType:string,lang:string,recipeName:s
   }
 }
 
+onRefresh(){
+  this.refreshFileType(this.recipeFile)
+}
+
+refreshFileType(inFile:any){
+  inFile.listTypeRecipe.splice(0,inFile.listTypeRecipe.length);
+  this.updateFileType(inFile);
+}
 
 updateFileType(inFile:any){
     var iList=0;
@@ -1600,13 +1728,6 @@ updateFileType(inFile:any){
     }
 }
 
-onRefresh(){
-  this.refreshFileType(this.recipeFile)
-}
-refreshFileType(inFile:any){
-  inFile.listTypeRecipe.splice(0,inFile.listTypeRecipe.length);
-  this.updateFileType(inFile);
-}
 
 
 fillInRecord(inRecord:any,outRecord:any){
@@ -1697,20 +1818,12 @@ SaveRecord(){
 putRecord(GoogleBucket:string, GoogleObject:string, record:any){
     
     var file=new File ([JSON.stringify(record)],GoogleObject, {type: 'application/json'});
-    /**
-    if (GoogleObject==='ConsoleLog.json'){
-      const myTime=new Date();
-      GoogleObject='ConsoleLog.json-'+ myTime.toString().substring(4,21);
-      file=new File ([JSON.stringify(this.myConsole)],GoogleObject, {type: 'application/json'});
-      }  
-     */
     this.ManageGoogleService.uploadObject(this.configServer, GoogleBucket, file )
       .subscribe(res => {
               if (res.type===4){
                 this.message='File "'+ GoogleObject +'" is successfully stored in the cloud';
                 this.isRecipeModified=false;
                 this.IsSaveConfirmed=false;
-                //this.returnFile.emit(record);
               }
             },
             error_handler => {
@@ -1719,8 +1832,6 @@ putRecord(GoogleBucket:string, GoogleObject:string, record:any){
             } 
           )
       }
-
-
 
 getRecord(Bucket:string,GoogleObject:string, iWait:number){
   
