@@ -284,9 +284,6 @@ tabWordsOut:Array<any>=[];
 dicEnFr:Array<any>=[];
 dicFrEn:Array<any>=[];
 
-
-
-
 ngOnInit(){
   this.googleBucketName=this.identification.recipe.bucket;
   this.listActions;
@@ -482,9 +479,7 @@ onAction(event:any){
   } else if(event.target.id==='ActionComments' || event.target.id==='ActionCommentsPerso'){
     this.isActionComments=true;
   }
-  
 }
-
 
 createDropDownRecipe(){
   this.tabRecipe.splice(0,this.tabRecipe.length);
@@ -640,24 +635,23 @@ afterDropDownPerso(event:any){
   this.tabDialog[this.prevDialog]=false;
   this.resetBooleans();
   var i=0;
-  //if (event.target.id==='ActionPerso'){
-    if (event.target.textContent.trim()==="Cancel" ){
+  if (event.target.textContent.trim()==="Cancel" ){
 
-    } else if (event.target.textContent.trim()==="Delete" ){
+  } else if (event.target.textContent.trim()==="Delete" ){
       
-    } else if (event.target.textContent.trim()==="Add after" ){
+  } else if (event.target.textContent.trim()==="Add after" ){
       const pushDataPerso=new classRecipe;
       this.recipeFile.recipe[this.recordRecipe].dataPerso.splice(this.idNb+1,0,pushDataPerso);
       const pushData=new classRecipe;
       this.recipeFile.recipe[this.recordRecipe].data.push(pushData);
-    } else if (event.target.textContent.trim()==="Add before" ){
+  } else if (event.target.textContent.trim()==="Add before" ){
       const pushDataPerso=new classRecipe;
       this.recipeFile.recipe[this.recordRecipe].dataPerso.splice(this.idNb,0,pushDataPerso);
       const pushData=new classRecipe;
       this.recipeFile.recipe[this.recordRecipe].data.push(pushData);
-    } else if (event.target.textContent.trim().substring(0,8)==="Copy ALL" ){
+  } else if (event.target.textContent.trim().substring(0,8)==="Copy ALL" ){
         this.copyFromTo(this.recipeFile.recipe[this.recordRecipe].data,this.recipeFile.recipe[this.recordRecipe].dataPerso);
-    } else if (event.target.textContent.trim().substring(0,4)==="Copy" ){
+  } else if (event.target.textContent.trim().substring(0,4)==="Copy" ){
       for (var i=0; i<this.recipeFile.recipe[this.recordRecipe].data.length && 
         this.recipeFile.recipe[this.recordRecipe].data[i].ingr!==""; i++){}
       if (i===this.recipeFile.recipe[this.recordRecipe].data.length){
@@ -671,42 +665,40 @@ afterDropDownPerso(event:any){
       this.recipeFile.recipe[this.recordRecipe].data[i].quantity=this.recipeFile.recipe[this.recordRecipe].dataPerso[this.idNb].quantity;
       this.recipeFile.recipe[this.recordRecipe].data[i].unit=this.recipeFile.recipe[this.recordRecipe].dataPerso[this.idNb].unit;
 
-    } else if (event.target.textContent.trim()==="Move after" ){
+  } else if (event.target.textContent.trim()==="Move after" ){
       if (this.idNb<this.recipeFile.recipe[this.recordRecipe].dataPerso.length-1){
         var saveData=new classRecipe;
         saveData=this.recipeFile.recipe[this.recordRecipe].dataPerso[this.idNb];
         this.recipeFile.recipe[this.recordRecipe].dataPerso[this.idNb]=this.recipeFile.recipe[this.recordRecipe].dataPerso[this.idNb+1];
         this.recipeFile.recipe[this.recordRecipe].dataPerso[this.idNb+1]=saveData;
       }
-    } else if (event.target.textContent.trim()==="Move before" ){
+  } else if (event.target.textContent.trim()==="Move before" ){
       if (this.idNb>0){
         var saveData=new classRecipe;
         saveData=this.recipeFile.recipe[this.recordRecipe].dataPerso[this.idNb];
         this.recipeFile.recipe[this.recordRecipe].dataPerso[this.idNb]=this.recipeFile.recipe[this.recordRecipe].dataPerso[this.idNb-1];
         this.recipeFile.recipe[this.recordRecipe].dataPerso[this.idNb-1]=saveData;
       } 
-    } else if (event.target.textContent.trim()==="Change value for all" ){
+  } else if (event.target.textContent.trim()==="Change value for all" ){
       this.isChangeValueForAllPerso=true;
       this.currentValue=this.recipeFile.recipe[this.recordRecipe].dataPerso[this.idNb].quantity;
       this.currentIngr=this.recipeFile.recipe[this.recordRecipe].dataPerso[this.idNb].ingr;
       this.margLeftChangeAll=30;
-    } else if (event.target.textContent.trim()==="Calculate nutrition facts" ){
+  } else if (event.target.textContent.trim()==="Calculate nutrition facts" ){
         this.calculateNutrition('perso');
     }
-  //} 
-
 }
+
 afterDropDownRecipe(event:any){
   this.tabDialog[this.prevDialog]=false;
   this.resetBooleans();
   this.isCreateRecipeName=false;
   this.isDuplicate=false;
   var i=0;
-  //if(event.target.id==='ActionRecipe'){
-    this.isActionRecipe=false;
-    if (this.tabActionRecipe[event.target.value]==="Cancel"){
+  this.isActionRecipe=false;
+  if (this.tabActionRecipe[event.target.value]==="Cancel"){
 
-    } else if (this.tabActionRecipe[event.target.value]==="Delete"){
+  } else if (this.tabActionRecipe[event.target.value]==="Delete"){
       this.isDeleteRecipe=true;   
       this.delMsg=this.recipeFile.recipe[this.recordRecipe].name; 
       //this.styleBox=getStyleDropDownContent(90, 240);
@@ -730,16 +722,16 @@ afterDropDownRecipe(event:any){
         'border':'1px blue solid'
         }
 
-    } else if (this.tabActionRecipe[event.target.value]==="Create" ){
+  } else if (this.tabActionRecipe[event.target.value]==="Create" ){
       this.isRecipeModified=true;
       this.isCreateRecipeName=true;
 
-    } else if (this.tabActionRecipe[event.target.value]==="Duplicate"){
+  } else if (this.tabActionRecipe[event.target.value]==="Duplicate"){
       this.isRecipeModified=true;
       this.isCreateRecipeName=true;
       this.isDuplicate=true;
 
-    }else if (this.tabActionRecipe[event.target.value]==="Rename"){
+  } else if (this.tabActionRecipe[event.target.value]==="Rename"){
       this.isChangeRecipeName=true;
       this.temporaryNameRecipe="";
      } else  if (this.tabActionRecipe[event.target.value]==="Calculate nut. facts for all recipes"){
@@ -753,10 +745,7 @@ afterDropDownRecipe(event:any){
      } else  if (this.tabActionRecipe[event.target.value]==="Reinitialise"){
       this.reInitialieRecipe();
      }
-  //}
-
 }
-
 
 copyFromTo(toRecord:any, fromRecord:any){
   for (var i=0; i<fromRecord.length ; i++){
@@ -777,11 +766,9 @@ onChangeName(event:any){
     this.isRecipeModified=true;
     this.isChangeRecipeName=false;
   }
-
 }
 
 onChangeValues(event:any){
-
   var value = 0;
   if (event.target.id==="cancel"){this.resetBooleans();}
   else {
@@ -803,7 +790,6 @@ onChangeValues(event:any){
       }
     }
   }
-  
   this.isChangeValueForAll=false;
   this.isChangeValueForAllPerso=false;
   this.currentIngr="";
@@ -869,7 +855,6 @@ calculateNutrition(type:string){
 }
 
 processNutrition(infile:any){
-
 var myHealth=new DailyReport;
 myHealth.date=new Date();
 var j=0;
@@ -883,30 +868,13 @@ for (var i=0; i<infile.length; i++){
     myHealth.meal[0].dish[j].quantity=infile[i].quantity;
     myHealth.meal[0].dish[j].unit=infile[i].unit;
 }
-
 this.returnData = CalcFatCalories(this.ConfigCaloriesFat, myHealth, this.ConvertUnit);
-
 }
 
 /** 
 selectedPosition ={ 
   x: 0,
   y: 0} ;
-
-selectedPositionPage ={ 
-    x: 0,
-    y: 0} ;
-selectedPositionClient ={ 
-      x: 0,
-      y: 0} ;
-
-theEvent={
-    target:{
-      id:"",
-      value:0,
-      textContent:""
-    }
-}
 ***/
 
 // @HostListener('window:mouseup', ['$event'])
@@ -1315,71 +1283,29 @@ dropdownComments(event:any){
    } else if (this.tabActionComments[event.target.value]==="Translate UK to FR"){
     this.translateComments('UkToFr');
    } else if (this.tabActionComments[event.target.value]==="Zoom in - Std box"){
-    this.zoomIn(event);
+    this.recipeFile.recipe[this.recordRecipe].commentsBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsBox, this.zoomInRate, "in");
    } else if (this.tabActionComments[event.target.value]==="Zoom out - Std box"){
-    this.zoomOut(event);
+    this.recipeFile.recipe[this.recordRecipe].commentsBox=this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsBox, this.zoomOutRate, "out");
    } else if (this.tabActionComments[event.target.value]==="Zoom in - English box"){
-    this.event.target.id="commentsEn";
-    this.zoomIn(this.event);
+    this.recipeFile.recipe[this.recordRecipe].commentsEnBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsEnBox, this.zoomInRate, "in");
    } else if (this.tabActionComments[event.target.value]==="Zoom out - English box"){
-    this.event.target.id="commentsEn";
-    this.zoomOut(this.event);
-    
+    this.recipeFile.recipe[this.recordRecipe].commentsEnBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsEnBox, this.zoomOutRate, "out");
    } else if (this.tabActionComments[event.target.value]==="Zoom in - Perso box"){
-    this.event.target.id="commentsPerso";
-    this.zoomIn(this.event);
+    this.recipeFile.recipe[this.recordRecipe].commentsPersoBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsPersoBox, this.zoomInRate, "in");
    } else if (this.tabActionComments[event.target.value]==="Zoom out - Perso box"){
-    this.event.target.id="commentsPerso";
-    this.zoomOut(this.event);
+    this.recipeFile.recipe[this.recordRecipe].commentsPersoBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsPersoBox, this.zoomOutRate, "out");
    } else if (this.tabActionComments[event.target.value]==="Zoom in - Ustens. box"){
-    this.event.target.id="commentsUstens";
-    this.zoomIn(this.event);
+    this.recipeFile.recipe[this.recordRecipe].materielBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].materielBox, this.zoomInRate, "in")
    } else if (this.tabActionComments[event.target.value]==="Zoom out - Ustens. box"){
-    this.event.target.id="commentsUstens";
-    this.zoomOut(this.event);
+    this.recipeFile.recipe[this.recordRecipe].materielBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].materielBox, this.zoomOutRate, "out");
    } else if (this.tabActionComments[event.target.value]==="Zoom in - Ustens. Perso box"){
-    this.event.target.id="commentsUstensPerso";
-    this.zoomIn(this.event);
+    this.recipeFile.recipe[this.recordRecipe].materielPersoBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].materielPersoBox, this.zoomInRate, "in");
    } else if (this.tabActionComments[event.target.value]==="Zoom out - Ustens. Perso box"){
-    this.event.target.id="commentsUstensPerso";
-    this.zoomOut(this.event);
+    this.recipeFile.recipe[this.recordRecipe].materielPersoBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].materielPersoBox, this.zoomOutRate, "out");
    } 
 }
 
 
-zoomIn(event:any){
-  this.resetBooleans();
-  var height = 0;
-
-if (event.target.id==="comments"){
-  this.recipeFile.recipe[this.recordRecipe].commentsBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsBox, this.zoomInRate, "in");
-} else if (event.target.id==="commentsEn"){
-  this.recipeFile.recipe[this.recordRecipe].commentsEnBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsEnBox, this.zoomInRate, "in");
-} else if (event.target.id==="commentsPerso"){
-  this.recipeFile.recipe[this.recordRecipe].commentsPersoBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsPersoBox, this.zoomInRate, "in");
-} else if (event.target.id==="commentsUstens"){
-  this.recipeFile.recipe[this.recordRecipe].materielBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].materielBox, this.zoomInRate, "in");
-} else if (event.target.id==="commentsUstensPerso"){
-  this.recipeFile.recipe[this.recordRecipe].materielPersoBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].materielPersoBox, this.zoomInRate, "in");
-
-}
-
-}
-zoomOut(event:any){
-  var height=0;
-  this.resetBooleans();
-  if (event.target.id==="comments"){
-    this.recipeFile.recipe[this.recordRecipe].commentsBox=this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsBox, this.zoomOutRate, "out");
-  } else if (event.target.id==="commentsEn"){
-    this.recipeFile.recipe[this.recordRecipe].commentsEnBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsEnBox, this.zoomOutRate, "out");
-  } else if (event.target.id==="commentsPerso"){
-    this.recipeFile.recipe[this.recordRecipe].commentsPersoBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsPersoBox, this.zoomOutRate, "out");
-  } else if (event.target.id==="commentsUstens"){
-    this.recipeFile.recipe[this.recordRecipe].materielBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].materielBox, this.zoomOutRate, "out");
-  } else if (event.target.id==="commentsUstensPerso"){
-    this.recipeFile.recipe[this.recordRecipe].materielPersoBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].materielPersoBox, this.zoomOutRate, "out");
-  }
-}
 
 calculateZoom(inRecord:any, rate:number, zoom:string){
   var theHeight=0;
