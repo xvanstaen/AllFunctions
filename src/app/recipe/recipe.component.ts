@@ -130,6 +130,8 @@ id_Animation:Array<number>=[];
 TabLoop:Array<number>=[];
 NbWaitHTTP:number=0;
 
+nbCallGetRecord:number=0; 
+
 recipe:string='';
 recordRecipe:number=0;
 
@@ -152,35 +154,57 @@ tabActionComments:Array<string>=['Cancel','Translate FR to UK', 'Translate UK to
 tabActionCommentsPerso:Array<string>=['Cancel','Translate FR to UK', 'Translate UK to FR','Zoom in - Perso box', 'Zoom out - Perso box', 'Zoom in - Ustens. Perso box', 'Zoom out - Ustens. Perso box','Zoom in - Std box', 'Zoom out - Std box','Zoom in - English box', 'Zoom out - English box', 
   'Zoom in - Ustens. box', 'Zoom out - Ustens. box'];
 
+
+textToSearch:string='';
+tabSearch:Array<any>=[];
+tabListCalFat:Array<any>=[];
+tabDropdownType:Array<any>=[];
 tabDialog:Array<boolean>=[];
 prevDialog:number=0;
 
-heightActionRecipe:number=80;
-heightSearchDropdown:number=0;
-heightListRecipe:number=0;
-theHeight:number=0;
-posLeftDropDown:number=40;
-posTopDropDown:number=-25;
-
 fileNb:number=-1;
 
-isListOfObjectsRetrieved:boolean=false;
+isDictionary:boolean=false; // @input to activate the management of the dictionary
+
+isListOfObjectsRetrieved:boolean=false; // list of objects containing the name of the files 
 isFileRetrieved:boolean=false;
 isFileUpdated:boolean=false;
-isListRecipe:boolean=false;
 IsSaveConfirmed:boolean=false;
-isActionRecipe:boolean=false;
-isCreateRecipeName:boolean=false;
-isChangeValueForAll:boolean=false;
-isChangeValueForAllPerso:boolean=false;
-isDeleteRecipe:boolean=false;
-isDictionary:boolean=false;
-isChangeRecipeName:boolean=false;
-isSearchText:boolean=false;
+
+isActionComments:boolean=false; // used to trigger function dropdownComments()
+isActionRecipe:boolean=false; // used to trigger function tabActionRecipe()
+isListRecipe:boolean=false;
+
+isCreateRecipeName:boolean=false; // used to provide name of recipe on Create and Duplicate
+isChangeRecipeName:boolean=false; // used to trigger function onChangeName()
+isDeleteRecipe:boolean=false; // used to trigger function delRecipe()
+isDuplicate:boolean=false; // used to update listTypeRecipe[].recipe[] 
+
+isChangeValueForAll:boolean=false; // used to trigger the function onChangeValues()
+isChangeValueForAllPerso:boolean=false; // used to trigger the function onChangeValues()
+
+isRecipeModified:boolean=false; 
+
+isListTypeFr:boolean=false; //used to trigger function tabDropdownType()
+isListTypeEn:boolean=false; //used to trigger function tabDropdownType()
+
+isSearchText:boolean=false;  // used to trigger function searchText()
+
+isIngrDropDown:boolean=false; // used to trigger function modifInput()
 
 changeValue:number=0;
-
+temporaryNameRecipe:string="";
+posGramTabConvert:number=0;
+ingrType:string="";
+currentIngr:string="";
 translateComment:string="";
+margLeftChangeAll:number=0;
+currentValue:number=0;
+
+yourLanguage:string="FR"; // UK or FR
+theStdPersoDisplay:Array<string>=['Y','N'];
+
+eyeNutritionFact:Array<string>=['N','N'];
 
 SpecificForm=new FormGroup({
   FileName: new FormControl('', { nonNullable: true }),
@@ -189,18 +213,41 @@ SpecificForm=new FormGroup({
 
 idText:string='';
 idNb:number=0;
+event={
+  target:{
+    value:"",
+    id:"",
+  }
+}
 
-temporaryNameRecipe:string="";
+radioSelect:number=-1;
+selectedTypeFr:string="";
+recordListType:number=-1;
 
-textToSearch:string='';
-tabSearch:Array<any>=[];
+delMsg:string=""; // usedd to dislay name of the recipe to delete
 
-posGramTabConvert:number=0;
+tabUpdateRef:Array<any>=[]; // to be used when user cancels all updates
+message:string="";
 
-tabListCalFat:Array<any>=[];
-isIngrDropDown:boolean=false;
-ingrType:string="";
+searchScroll:string='hidden';
+heightListType:number=0;
+heightScroll:string='hidden';
 
+// Zoom-in & out of comments boxes
+
+heightMatCommBox:number=90;
+maxHeightCommBox:number=300;
+minHeightCommBox:number=40;
+zoomInRate:number=0.8;
+zoomOutRate:number=1.4;
+
+// Dropdown boxes
+heightActionRecipe:number=80;
+heightSearchDropdown:number=0;
+heightListRecipe:number=0;
+theHeight:number=0;
+posLeftDropDown:number=40;
+posTopDropDown:number=-25;
 heightDropDown:number=0;
 scrollY:string='hidden';
 maxHeightDropDown:number=200;
@@ -220,19 +267,9 @@ styleBoxOptionChangeAll:any;
 styleBoxChangeName:any;
 styleBoxOptionChangeName:any;
 
-theStdPersoDisplay:Array<string>=['Y','N'];
 
-eyeNutritionFact:Array<string>=['N','N'];
-
+// used by translate function
 tabFreEng:Array<any>=[];
-
-event={
-  target:{
-    value:"",
-    id:"",
-  }
-}
-
 tabSpecChar:Array<any>=[];
 specialChar:string=" ,.-'{}[]()/?*@!:;<>\|";
 tabWordsFre:Array<any>=[];
@@ -242,13 +279,13 @@ strComments:string="";
 degreC:string="°C";
 wordsToConvert:Array<any>=[];
 tabSubstitution:Array<any>=[];
+tabWordsIn:Array<any>=[];
+tabWordsOut:Array<any>=[];
+dicEnFr:Array<any>=[];
+dicFrEn:Array<any>=[];
 
-isActionComments:boolean=false;
 
-margLeftChangeAll:number=0;
-currentValue:number=0;
-currentIngr:string="";
-yourLanguage:string="FR";
+
 
 ngOnInit(){
   this.googleBucketName=this.identification.recipe.bucket;
@@ -351,9 +388,7 @@ selLanguage(event:string){
 }
 
 
-radioSelect:number=-1;
-selectedTypeFr:string="";
-recordListType:number=-1;
+
 RadioSelection(event:any){
 
 this.findId(event.target.id);
@@ -380,6 +415,7 @@ if (this.radioSelect!==this.idNb){
     } else {
         // keep the file
         this.recipeFile.recipe.splice(0,this.recipeFile.recipe.length);
+        this.recipeFile.listTypeRecipe.splice(0,this.recipeFile.listTypeRecipe.length);
         this.fillFileRecord(this.initialRecipeFile,this.recipeFile);
         
     }
@@ -422,8 +458,8 @@ resetBooleans(){
   this.isListTypeFr=false;
   this.isListTypeEn=false;
   this.isIngrDropDown=false;
-  
 }
+
 onAction(event:any){
   
   this.resetBooleans();
@@ -574,7 +610,37 @@ afterDropDown(event:any){
       } else if (event.target.textContent.trim()==="Calculate nutrition facts" ){
         this.calculateNutrition('std');
     }
-  } else if (event.target.id==='ActionPerso'){
+  } 
+}
+afterDropDownSel(event:any){
+  this.tabDialog[this.prevDialog]=false;
+  this.resetBooleans();
+  var i=0;
+  if (event.target.id==='selRecipe'){
+    if (event.target.textContent.trim()==="Cancel" ){
+
+    } else {
+        this.recordRecipe=this.tabRecipe[Number(event.target.value)].posRec ;
+    }
+  } else if (event.target.id.substring(0,7)==="selText"){
+    this.findId(event.target.id);
+    // search text is selected
+    if (this.recordRecipe!==this.tabSearch[this.idNb].posRec){
+        for (var i=0; i<this.recipeFile.recipe.length && this.recipeFile.recipe[i].name!==this.tabSearch[Number(this.idNb)].name; i++){};
+        if (i<this.recipeFile.recipe.length){
+          this.recordRecipe=this.tabSearch[Number(this.idNb)].posRec;
+        };
+    }
+  
+  } 
+}
+
+
+afterDropDownPerso(event:any){
+  this.tabDialog[this.prevDialog]=false;
+  this.resetBooleans();
+  var i=0;
+  //if (event.target.id==='ActionPerso'){
     if (event.target.textContent.trim()==="Cancel" ){
 
     } else if (event.target.textContent.trim()==="Delete" ){
@@ -627,23 +693,16 @@ afterDropDown(event:any){
     } else if (event.target.textContent.trim()==="Calculate nutrition facts" ){
         this.calculateNutrition('perso');
     }
-  } else if (event.target.id==='selRecipe'){
-    if (event.target.textContent.trim()==="Cancel" ){
+  //} 
 
-    } else {
-        this.recordRecipe=this.tabRecipe[Number(event.target.value)].posRec ;
-    }
-  } else if (event.target.id.substring(0,7)==="selText"){
-    this.findId(event.target.id);
-    // search text is selected
-    if (this.recordRecipe!==this.tabSearch[this.idNb].posRec){
-        for (var i=0; i<this.recipeFile.recipe.length && this.recipeFile.recipe[i].name!==this.tabSearch[Number(this.idNb)].name; i++){};
-        if (i<this.recipeFile.recipe.length){
-          this.recordRecipe=this.tabSearch[Number(this.idNb)].posRec;
-        };
-    }
-  
-  } else if(event.target.id==='ActionRecipe'){
+}
+afterDropDownRecipe(event:any){
+  this.tabDialog[this.prevDialog]=false;
+  this.resetBooleans();
+  this.isCreateRecipeName=false;
+  this.isDuplicate=false;
+  var i=0;
+  //if(event.target.id==='ActionRecipe'){
     this.isActionRecipe=false;
     if (this.tabActionRecipe[event.target.value]==="Cancel"){
 
@@ -671,37 +730,21 @@ afterDropDown(event:any){
         'border':'1px blue solid'
         }
 
-    } if (this.tabActionRecipe[event.target.value]==="Create" || this.tabActionRecipe[event.target.value]==="Duplicate"){
-      const saveRecord=this.recordRecipe;
-      const classRecord=new classRecordRecipe;
-      this.recipeFile.recipe.push(classRecord);
-      this.recordRecipe=this.recipeFile.recipe.length-1;
-      const pushData=new classRecipe;
-      this.recipeFile.recipe[this.recordRecipe].data.push(pushData);
-      const pushDataPerso=new classRecipe;
-      this.recipeFile.recipe[this.recordRecipe].dataPerso.push(pushDataPerso);
+    } else if (this.tabActionRecipe[event.target.value]==="Create" ){
       this.isRecipeModified=true;
       this.isCreateRecipeName=true;
-      if (this.tabActionRecipe[event.target.value]==="Create"){
-          this.recipeFile.recipe[this.recordRecipe].name="";
-          this.recipeFile.recipe[this.recordRecipe].commentsBox=this.minHeightCommBox;
-          this.recipeFile.recipe[this.recordRecipe].commentsPersoBox=this.minHeightCommBox;
-          this.recipeFile.recipe[this.recordRecipe].commentsEnBox=this.minHeightCommBox;
-          this.recipeFile.recipe[this.recordRecipe].materielBox=this.minHeightCommBox;
-          this.recipeFile.recipe[this.recordRecipe].materielPersoBox=this.minHeightCommBox;
-      } else {
-          this.fillInRecord(this.recipeFile.recipe[saveRecord],this.recipeFile.recipe[this.recordRecipe]);
-          this.isDuplicate=false;
-        }
-      this.tabUpdateRef.push({init:0});
-      this.tabUpdateRef[this.tabUpdateRef.length-1].init=-1;
-// complete it
-    } if (this.tabActionRecipe[event.target.value]==="Rename"){
+
+    } else if (this.tabActionRecipe[event.target.value]==="Duplicate"){
+      this.isRecipeModified=true;
+      this.isCreateRecipeName=true;
+      this.isDuplicate=true;
+
+    }else if (this.tabActionRecipe[event.target.value]==="Rename"){
       this.isChangeRecipeName=true;
       this.temporaryNameRecipe="";
-     } if (this.tabActionRecipe[event.target.value]==="Calculate nut. facts for all recipes"){
+     } else  if (this.tabActionRecipe[event.target.value]==="Calculate nut. facts for all recipes"){
       this.calculateNutritionForAllRecipe();
-     } if (this.tabActionRecipe[event.target.value]==="Transfer nut. facts to CalFat"){
+     } else if (this.tabActionRecipe[event.target.value]==="Transfer nut. facts to CalFat"){
       this.transferToCalFat();
      } else  if (this.tabActionRecipe[event.target.value]==="Translate FR to UK"){
       this.translateComments('FrToUk');
@@ -710,10 +753,11 @@ afterDropDown(event:any){
      } else  if (this.tabActionRecipe[event.target.value]==="Reinitialise"){
       this.reInitialieRecipe();
      }
-  }
-  //this.calculateHeight();
+  //}
+
 }
-isDuplicate:boolean=false;
+
+
 copyFromTo(toRecord:any, fromRecord:any){
   for (var i=0; i<fromRecord.length ; i++){
     toRecord[i].ingr=fromRecord[i].ingr;
@@ -823,6 +867,7 @@ calculateNutrition(type:string){
   } 
   this.isRecipeModified=true;
 }
+
 processNutrition(infile:any){
 
 var myHealth=new DailyReport;
@@ -931,10 +976,7 @@ translateComments(lang:string){
     this.recipeFile.recipe[this.recordRecipe].comments=this.processTranslation(this.dicEnFr,lang,  this.recipeFile.recipe[this.recordRecipe].commentsEn);
   }
 }
-tabWordsIn:Array<any>=[];
-tabWordsOut:Array<any>=[];
-dicEnFr:Array<any>=[];
-dicFrEn:Array<any>=[];
+
 processTranslation(dico:any,lang:string,inComments:string){
 var iSubstitution:number=-1;
 var i=0;
@@ -1091,44 +1133,77 @@ nameRecipe(event:any){
   if (event.target.id==='input'){
     this.temporaryNameRecipe=event.target.value.substring(0,1).toUpperCase()+event.target.value.substring(1).trim();
   } else if (event.target.id==='save'){
-    this.isCreateRecipeName=false;
-    this.recipeFile.recipe[this.recordRecipe].name=this.temporaryNameRecipe;
-    if (this.isDuplicate===false){
-      for (var i=0; i<this.recipeFile.listTypeRecipe.length && trouve===false; i++){
-          if (this.recipeFile.listTypeRecipe[i].Fr===this.recipeFile.recipe[this.recordRecipe].typeFr && 
-                this.recipeFile.listTypeRecipe[i].En===this.recipeFile.recipe[this.recordRecipe].typeEn) {
-                  this.recipeFile.listTypeRecipe[i].recipe.push(this.temporaryNameRecipe);
-                  trouve=true;
-            }
+    
+      const saveRecord=this.recordRecipe;
+      const classRecord=new classRecordRecipe;
+      this.recipeFile.recipe.push(classRecord);
+      this.recordRecipe=this.recipeFile.recipe.length-1;
+      const pushData=new classRecipe;
+      this.recipeFile.recipe[this.recordRecipe].data.push(pushData);
+      const pushDataPerso=new classRecipe;
+      this.recipeFile.recipe[this.recordRecipe].dataPerso.push(pushDataPerso);
+      
+      if (this.isCreateRecipeName===true && this.isDuplicate===false){
+          this.recipeFile.recipe[this.recordRecipe].name="";
+          this.recipeFile.recipe[this.recordRecipe].commentsBox=this.minHeightCommBox;
+          this.recipeFile.recipe[this.recordRecipe].commentsPersoBox=this.minHeightCommBox;
+          this.recipeFile.recipe[this.recordRecipe].commentsEnBox=this.minHeightCommBox;
+          this.recipeFile.recipe[this.recordRecipe].materielBox=this.minHeightCommBox;
+          this.recipeFile.recipe[this.recordRecipe].materielPersoBox=this.minHeightCommBox;
+      } else {
+          this.fillInRecord(this.recipeFile.recipe[saveRecord],this.recipeFile.recipe[this.recordRecipe]);
         }
+      this.tabUpdateRef.push({init:0});
+      this.tabUpdateRef[this.tabUpdateRef.length-1].init=-1;
+      this.recipeFile.recipe[this.recordRecipe].name=this.temporaryNameRecipe;
+      if (this.isDuplicate===false){
+        for (var i=0; i<this.recipeFile.listTypeRecipe.length && trouve===false; i++){
+            if (this.recipeFile.listTypeRecipe[i].Fr===this.recipeFile.recipe[this.recordRecipe].typeFr && 
+                  this.recipeFile.listTypeRecipe[i].En===this.recipeFile.recipe[this.recordRecipe].typeEn) {
+                    this.recipeFile.listTypeRecipe[i].recipe.push(this.temporaryNameRecipe);
+                    trouve=true;
+              }
+          }
+      } else {
+        this.updateTypeName(this.recipeFile,'','',"Fr",this.recipeFile.recipe[this.recordRecipe].name);
+      }
       this.isDuplicate=false;
-    } else {
-      this.updateTypeName(this.recipeFile,'','',"Fr",this.recipeFile.recipe[this.recordRecipe].name);
-    }
-    
-    
-   
-    //this.updateInListType(this.temporaryNameRecipe,'FR','Rename');
-    
-    this.isRecipeModified=true;
+      this.isCreateRecipeName=false;
+      this.isRecipeModified=true;
   } else if (event.target.id==='clear'){
-    this.temporaryNameRecipe="";
+      this.temporaryNameRecipe="";
   } else if (event.target.id==='cancel'){
-    this.recipeFile.recipe.splice(this.recordRecipe,1);
-    this.temporaryNameRecipe="";
-    this.recordRecipe=0;
-    this.resetBooleans();
+      this.recipeFile.recipe.splice(this.recordRecipe,1);
+      this.temporaryNameRecipe="";
+      this.recordRecipe=0;
+      this.resetBooleans();
   }
 }
 
-delMsg:string="";
 delRecipe(event:any){
   this.isDeleteRecipe=false;
   if (event.target.id==='YesDelConfirm'){
     this.isRecipeModified=true;
     this.updateInListType(this.recipeFile.recipe[this.recordRecipe].name,'FR','Delete');
+/*
+    for (var i=this.recordRecipe+1; i<this.tabUpdateRef.length; i++){
+        if (this.tabUpdateRef[i].init!==-1){
+          this.tabUpdateRef[i].init=this.tabUpdateRef[i].init-1;
+        }
+    }
+*/
+    this.tabUpdateRef.splice(this.recordRecipe,1);
     this.recipeFile.recipe.splice(this.recordRecipe,1); // delete the whole recipe 
     this.recordRecipe=0;
+    if (this.isSearchText===true){
+      this.event.target.id='search';
+      this.event.target.value=this.textToSearch;
+      this.searchText(this.event);
+      if (this.tabSearch.length>0){
+        this.recordRecipe=this.tabSearch[0].posRec;
+      }
+    } 
+
   }
 }
 
@@ -1150,14 +1225,14 @@ searchText(event:any){
   if (event.target.id==='search'){
     this.isSearchText=true;
     this.textToSearch = event.target.value.substring(0,1).toUpperCase() + event.target.value.substring(1).trim();
-    var theText= event.target.value.toLowerCase();
+    var theText= event.target.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
     this.tabSearch.splice(0,this.tabSearch.length);
 
     for (var i=0; i<this.recipeFile.recipe.length; i++){
       if (this.radioSelect===-1 || (this.radioSelect!==-1 && this.recipeFile.listTypeRecipe[this.radioSelect].En===this.recipeFile.recipe[i].typeEn && 
         this.recipeFile.listTypeRecipe[this.radioSelect].Fr===this.recipeFile.recipe[i].typeFr)){
-        if (this.recipeFile.recipe[i].name.toLowerCase().normalize('NFD').indexOf(theText)!==-1 || theText===""){
+        if (this.recipeFile.recipe[i].name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').indexOf(theText)!==-1 || theText===""){
        
        // if (this.selectedTypeFr.toLowerCase().normalize('NFD')===this.recipeFile.recipe[i].typeFr.toLowerCase().normalize('NFD') || this.selectedTypeFr==="ALL" || this.selectedTypeFr===""){
           this.tabSearch.push({name:"",posRec:0})
@@ -1170,18 +1245,22 @@ searchText(event:any){
     }
     this.tabSearch.sort((a, b) => (a.name < b.name) ? -1 : 1);
     if (this.tabSearch.length>9){
-      this.heightSearchDropdown=250;
+      this.heightSearchDropdown=200;
+      this.searchScroll="scroll";
+
     } else {
       this.heightSearchDropdown=25*this.tabSearch.length;
+      this.searchScroll="hidden";
     }
   } else if (event.target.id==='cancel'){
     this.isSearchText=false;
     this.textToSearch = "";
+    this.heightSearchDropdown=0;
+    this.searchScroll="hidden";
     this.tabSearch.splice(0,this.tabSearch.length);
     this.resetBooleans();
   }
 }
-isRecipeModified:boolean=false;
 
 modifInput(event:any){
   this.resetBooleans();
@@ -1227,20 +1306,6 @@ modifInput(event:any){
   
 }
 
-nbCallGetRecord:number=0;
-
-heightMaterielPerso:number=0;
-heightCommentsPerso:number=0;
-heightCommentsEn:number=0;
-heightMateriel:number=0;
-heightComments:number=0;
-
-heightMatCommBox:number=90;
-
-maxHeightCommBox:number=300;
-minHeightCommBox:number=40;
-zoomInRate:number=0.8;
-zoomOutRate:number=1.4;
 
 dropdownComments(event:any){
   this.resetBooleans();
@@ -1284,51 +1349,35 @@ dropdownComments(event:any){
 
 zoomIn(event:any){
   this.resetBooleans();
+  var height = 0;
+
 if (event.target.id==="comments"){
-  this.heightComments= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsBox, this.zoomInRate, "in");
-  this.recipeFile.recipe[this.recordRecipe].commentsBox=this.heightComments;
-  }
-
-else if (event.target.id==="commentsEn"){
-  this.heightCommentsEn= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsEnBox, this.zoomInRate, "in");
-  this.recipeFile.recipe[this.recordRecipe].commentsEnBox=this.heightCommentsEn;
-
+  this.recipeFile.recipe[this.recordRecipe].commentsBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsBox, this.zoomInRate, "in");
+} else if (event.target.id==="commentsEn"){
+  this.recipeFile.recipe[this.recordRecipe].commentsEnBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsEnBox, this.zoomInRate, "in");
 } else if (event.target.id==="commentsPerso"){
-  this.heightCommentsPerso= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsPersoBox, this.zoomInRate, "in");
-  this.recipeFile.recipe[this.recordRecipe].commentsPersoBox=this.heightCommentsPerso;
+  this.recipeFile.recipe[this.recordRecipe].commentsPersoBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsPersoBox, this.zoomInRate, "in");
 } else if (event.target.id==="commentsUstens"){
-  this.heightMaterielPerso= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].materielBox, this.zoomInRate, "in");
-  this.recipeFile.recipe[this.recordRecipe].materielBox=this.heightMateriel;
+  this.recipeFile.recipe[this.recordRecipe].materielBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].materielBox, this.zoomInRate, "in");
 } else if (event.target.id==="commentsUstensPerso"){
-  this.heightMaterielPerso= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].materielPersoBox, this.zoomInRate, "in");
-  this.recipeFile.recipe[this.recordRecipe].materielPersoBox=this.heightMateriel;
+  this.recipeFile.recipe[this.recordRecipe].materielPersoBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].materielPersoBox, this.zoomInRate, "in");
+
 }
 
 }
 zoomOut(event:any){
+  var height=0;
   this.resetBooleans();
   if (event.target.id==="comments"){
-    
-    this.heightComments=this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsBox, this.zoomOutRate, "out");
-    this.recipeFile.recipe[this.recordRecipe].commentsBox=this.heightComments;
-    }
-  
-  else if (event.target.id==="commentsEn"){
-   
-    this.heightCommentsEn= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsEnBox, this.zoomOutRate, "out");
-    this.recipeFile.recipe[this.recordRecipe].commentsEnBox=this.heightCommentsEn;
-  
+    this.recipeFile.recipe[this.recordRecipe].commentsBox=this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsBox, this.zoomOutRate, "out");
+  } else if (event.target.id==="commentsEn"){
+    this.recipeFile.recipe[this.recordRecipe].commentsEnBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsEnBox, this.zoomOutRate, "out");
   } else if (event.target.id==="commentsPerso"){
-    this.heightCommentsPerso= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsPersoBox, this.zoomOutRate, "out");
-    this.recipeFile.recipe[this.recordRecipe].commentsPersoBox=this.heightCommentsPerso;
-  
+    this.recipeFile.recipe[this.recordRecipe].commentsPersoBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].commentsPersoBox, this.zoomOutRate, "out");
   } else if (event.target.id==="commentsUstens"){
-    this.heightMateriel= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].materielBox, this.zoomOutRate, "out");
-    this.recipeFile.recipe[this.recordRecipe].materielBox=this.heightMateriel;
-
+    this.recipeFile.recipe[this.recordRecipe].materielBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].materielBox, this.zoomOutRate, "out");
   } else if (event.target.id==="commentsUstensPerso"){
-    this.heightMaterielPerso= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].materielPersoBox, this.zoomOutRate, "out");
-    this.recipeFile.recipe[this.recordRecipe].materielPersoBox=this.heightMaterielPerso;
+    this.recipeFile.recipe[this.recordRecipe].materielPersoBox= this.calculateZoom(this.recipeFile.recipe[this.recordRecipe].materielPersoBox, this.zoomOutRate, "out");
   }
 }
 
@@ -1338,21 +1387,18 @@ calculateZoom(inRecord:any, rate:number, zoom:string){
     theHeight = this.minHeightCommBox;
   } else
   if (zoom==="in"){
-     
     theHeight=inRecord * rate;
-   
     if (theHeight < this.minHeightCommBox){
       theHeight = this.minHeightCommBox;
     }
   } else if (zoom==="out"){
-    if (theHeight<this.maxHeightCommBox/2.5){
+    if (inRecord<this.maxHeightCommBox/2.5){
       theHeight=inRecord * 1.8;
     } else {
-    theHeight=inRecord * rate;
-    
-      if (theHeight > this.maxHeightCommBox){
+      theHeight=inRecord * rate;
+    }
+    if (theHeight > this.maxHeightCommBox){
         theHeight = this.maxHeightCommBox;
-      }
     }
   }
   return(theHeight);
@@ -1409,9 +1455,10 @@ fillFileRecord(inFile:any,outFile:any){
     }
   }
 
-tabUpdateRef:Array<any>=[];
 reInitialieRecipe(){
   if (this.tabUpdateRef[this.recordRecipe]!==-1){
+    this.recipeFile.recipe[this.recordRecipe].data.splice(0,this.recipeFile.recipe[this.recordRecipe].data.length);
+    this.recipeFile.recipe[this.recordRecipe].dataPerso.splice(0,this.recipeFile.recipe[this.recordRecipe].dataPerso.length);
     this.fillInRecord(this.initialRecipeFile.recipe[this.tabUpdateRef[this.recordRecipe].init],this.recipeFile.recipe[this.recordRecipe]);
   }
   
@@ -1426,30 +1473,12 @@ onInputType(event:any){
       if (this.tabDropdownType.length>1){
         this.isListTypeFr=true;
       }
-      /**
-      if (this.recipeFile.recipe[this.recordRecipe].typeEn===""){
-        for (var i=0; i<this.recipeFile.listTypeRecipe.length && this.recipeFile.listTypeRecipe[i].Fr!==this.recipeFile.recipe[this.recordRecipe].typeFr; i++){};
-        if (i<this.recipeFile.listTypeRecipe.length){
-          this.recipeFile.recipe[this.recordRecipe].typeEn="";
-          this.recipeFile.listTypeRecipe[i].En="";
-        }
-      }
-      */
     } else if (event.target.id==='En'){
       this.updateTypeName(this.recipeFile,theValue,this.recipeFile.recipe[this.recordRecipe].typeEn.trim(),"En",this.recipeFile.recipe[this.recordRecipe].name.trim());
       this.recipeFile.recipe[this.recordRecipe].typeEn=theValue;
       if (this.tabDropdownType.length>1){
         this.isListTypeEn=true;
       }
-      /**
-      if (this.recipeFile.recipe[this.recordRecipe].typeFr===""){
-        for (var i=0; i<this.recipeFile.listTypeRecipe.length && this.recipeFile.listTypeRecipe[i].En!==this.recipeFile.recipe[this.recordRecipe].typeEn; i++){};
-        if (i<this.recipeFile.listTypeRecipe.length){
-          this.recipeFile.recipe[this.recordRecipe].typeFr="?";
-          this.recipeFile.listTypeRecipe[i].Fr="?";
-        }
-      }
-       */
     } 
     this.createTabDropdownType(this.recipeFile.listTypeRecipe,event.target.id.toUpperCase(),theValue);
     if (this.isSearchText===true){
@@ -1496,9 +1525,7 @@ updateInListType(recipeName:string,lang:string,action:string){
       };
   }
 }
-isListTypeFr:boolean=false;
-isListTypeEn:boolean=false;
-tabDropdownType:Array<any>=[];
+
 
 createTabDropdownType(record:any,lang:string,text:string){
   var j=0;
@@ -1775,7 +1802,17 @@ fillInRecord(inRecord:any,outRecord:any){
 
 CancelRecord(){
     this.recipeFile.recipe.splice(0,this.recipeFile.recipe.length);
+    this.recipeFile.listTypeRecipe.splice(0,this.recipeFile.listTypeRecipe.length);
     this.fillFileRecord(this.initialRecipeFile,this.recipeFile);
+    this.recordRecipe=0;
+    if (this.isSearchText===true){
+      this.event.target.id='search';
+      this.event.target.value=this.textToSearch;
+      this.searchText(this.event);
+      if (this.tabSearch.length>0){
+        this.recordRecipe=this.tabSearch[0].posRec;
+      }
+    } 
     this.resetBooleans();
     this.isRecipeModified=false;
     this.isCreateRecipeName=false;
@@ -1784,8 +1821,7 @@ CancelRecord(){
 CancelSave(){
     this.resetBooleans();
   }
-
-message:string="";
+ 
 ConfirmSave(){
     this.resetBooleans();
     this.tabDialog[this.prevDialog]=false;
@@ -1890,7 +1926,7 @@ getRecord(Bucket:string,GoogleObject:string, iWait:number){
                       this.initialRecipeFile.recipe[i].commentsPersoBox=this.minHeightCommBox;
                       this.initialRecipeFile.recipe[i].commentsEnBox=this.minHeightCommBox;
                     }
-                    if (data.recipe[i].materielBoxBox!==undefined){
+                    if (data.recipe[i].materielBox!==undefined){
                       this.initialRecipeFile.recipe[i].materielBox=data.recipe[i].materielBox;
                       this.initialRecipeFile.recipe[i].materielPersoBox=data.recipe[i].materielPersoBox;
                     } else {
@@ -1929,19 +1965,6 @@ getRecord(Bucket:string,GoogleObject:string, iWait:number){
                     }
                     
                   }
-                  /*
-                  this.heightMateriel=(this.initialRecipeFile.recipe[0].materiel.length / this.heightMatCommBox ) * 25 + 25;
-                  this.heightMaterielPerso=(this.initialRecipeFile.recipe[0].materielPerso.length / this.heightMatCommBox ) * 25 + 25;
-                  
-                  this.heightComments=(this.initialRecipeFile.recipe[0].comments.length / this.heightMatCommBox ) * 25 + 25;
-                  this.heightCommentsPerso=(this.initialRecipeFile.recipe[0].commentsPerso.length / this.heightMatCommBox ) * 25 + 25;
-                  this.heightCommentsEn=(this.initialRecipeFile.recipe[0].commentsEn.length / this.heightMatCommBox ) * 25 + 25;
-                  */
-                  this.heightComments=this.initialRecipeFile.recipe[0].commentsBox;
-                  this.heightCommentsPerso=this.initialRecipeFile.recipe[0].commentsPersoBox;
-                  this.heightCommentsEn=this.initialRecipeFile.recipe[0].commentsEnBox;
-                  this.heightMateriel=this.initialRecipeFile.recipe[0].materielBox;
-                  this.heightMaterielPerso=this.initialRecipeFile.recipe[0].materielPersoBox;
 
                   if (this.initialRecipeFile.listTypeRecipe===undefined ||this.initialRecipeFile.listTypeRecipe.length===0 ){
                   //if (data.listTypeRecipe===undefined ||data.listTypeRecipe.length===0 ){

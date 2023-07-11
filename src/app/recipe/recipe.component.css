@@ -15,15 +15,15 @@
 
 .listObjSel{
   color:white;
-  background-color:rgb(113, 113, 247);
+  background-color:rgb(139, 139, 245);
 }
 
 .even1{
-  background-color:lightgrey;
+  background-color:rgb(160, 250, 250);
 }
 
 .even2{
-  background-color:rgb(175, 174, 174);
+  background-color:rgb(143, 229, 229);
 }
 
 .odd1{
@@ -150,25 +150,47 @@
     margin-left:5px; width:95%; padding:5px; color:white; background-color: blue;
   }
 
-  .recipeStraight-options:hover{
-    color:white;
-    background-color:blue;
-  }
+.typeRecipeSmallBox{
+  overflow:hidden;
+  max-height:115px;
+  height:115px;
+  display:inline-block;
+  width:98%;
+}
+
+.theBox{
+  display:inline-block;
+  border:green solid 1px;
+  width:98%;
+  max-height:115px;
+  margin-left:5px;
+}
+
+.typeRecipeLargeBox{
+  overflow-y:scroll;
+  overflow-x:hidden;
+  max-height:115px;
+  height:115px;
+  display:inline-block;
+  width:98%;
+}
 
   .recipeStraight-options{
     width:120px;
     font-size:12px;
-    height:50px;
+    height:40px;
+
     color:black;
 
-    padding:10px;
+    padding:5px;
     border:0px; 
     display:block;
     float:left;
-    
-    
   }
-
+  .recipeStraight-options:hover{
+    color:white;
+    background-color:blue;
+  }
   .changeAllItems{
     width:100%; color:blue; font-size:16px; margin-left:20px; margin-top:5px;
   }
