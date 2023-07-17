@@ -52,6 +52,7 @@ import { ColorPaletteComponent } from 'src/app/color-picker/color-palette/color-
 import { ColorSliderComponent } from 'src/app/color-picker/color-slider/color-slider.component';
 import { RecipeComponent } from './recipe/recipe.component';
 import { DictionaryComponent } from './dictionary/dictionary.component';
+import { CheckFileUpdateComponent } from './check-file-update/check-file-update.component';
 //import { NgxIntlTelInputComponent } from './ngx-intl-tel-input/ngx-intl-tel-input.component';
 
 @NgModule({
@@ -94,6 +95,7 @@ import { DictionaryComponent } from './dictionary/dictionary.component';
     ManageUrlTopicComponent,
     RecipeComponent,
     DictionaryComponent,
+    CheckFileUpdateComponent,
 
     
 

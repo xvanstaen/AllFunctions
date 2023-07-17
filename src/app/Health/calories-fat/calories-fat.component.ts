@@ -153,17 +153,16 @@ export class CaloriesFatComponent implements OnInit {
     x: 0,
     y: 0} ;
     
-
+titleHeight:number=0;
 @HostListener('window:mouseup', ['$event'])
 onMouseUp(event: MouseEvent) {
     this.selectedPosition = { x: event.pageX, y: event.pageY };
-    const i=this.HTMLCaloriesFat.title.height.indexOf('px');
-    const titleHeight=Number(this.HTMLCaloriesFat.title.height.substring(0,i));
+    
     //this.getPosDivTable();
     this.posDivTable=getPosDiv("posStartTable");
 
     // this allows to position the dropdown list where the click occured
-    this.posItemAction=Number(event.clientY)-Number(this.posDivTable.ClientRect.Top)+Number(titleHeight);
+    this.posItemAction=Number(event.clientY)-Number(this.posDivTable.ClientRect.Top)+Number(this.titleHeight);
     if (this.posItemAction>this.HTMLCaloriesFat.height/2 ){
       // this allows to position the dropdownlist at the middle of the window and then dropdownlist remains within the scrolling window
       this.posItemAction=this.HTMLCaloriesFat.height/2;
@@ -196,8 +195,8 @@ ngOnInit(): void {
 
   this.posDivTable=getPosDiv("posStartTable");
 
-  this.RecipetheHeight=Number(this.HTMLCaloriesFat.title.height.substring(0,this.HTMLCaloriesFat.title.height.indexOf('px')));
-  this.theHeight=Number(this.HTMLCaloriesFat.title.height.substring(0,this.HTMLCaloriesFat.title.height.indexOf('px')));
+   this.titleHeight=Number(this.HTMLCaloriesFat.title.height.substring(0,this.HTMLCaloriesFat.title.height.indexOf('px')));
+
 
   this.onWindowResize();
   this.device_type = navigator.userAgent;
@@ -756,17 +755,30 @@ onInputRecipe(event:any){
       this.isRecipeFoodInput=true;
       iTab=-1;
       for (var i=0; i<this.tabFood.length; i++){
+        if (this.tabFood[i].name.indexOf(event.target.value.toLowerCase().trim())!==-1){
+          iTab++;
+          this.tabInputRecipeFood.push({name:''});
+          this.tabInputRecipeFood[iTab].name=this.tabFood[i].name.toLowerCase().trim();
+        }
+
+/*
         if (this.tabFood[i].name.substring(0,event.target.value.trim().length)===event.target.value.toLowerCase().trim()){
           iTab++;
           this.tabInputRecipeFood.push({name:''});
           this.tabInputRecipeFood[iTab].name=this.tabFood[i].name.toLowerCase().trim();
         }
+*/
       }
       if (this.tabInputRecipeFood.length===1 && this.tabInputRecipeFood[0]=== event.target.value.toLowerCase().trim() && this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].lockData!=='Y'){
           this.searchFoodCalories(event.target.value.toLowerCase().trim(), this.TabOfId[0], this.TabOfId[1]);
           this.isRecipeFoodInput=false;
       }
-      this.sizeBoxRecipeFood=this.tabInputRecipeFood.length * this.heightItemOptionBox;      
+      if (this.tabInputRecipeFood.length>9){
+        this.sizeBoxRecipeFood= 9 * this.heightItemOptionBox; 
+      } else {
+        this.sizeBoxRecipeFood=(this.tabInputRecipeFood.length + 1) * this.heightItemOptionBox; 
+      }
+           
 
   } else if (event.target.id.substring(0,4)==='serv'){
     this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Serving=Number(event.target.value);

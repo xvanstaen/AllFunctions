@@ -209,8 +209,8 @@ var i=0;
     tabChar[2].pos=m;
     tabChar.sort((a, b) => (a.pos < b.pos) ? -1 : 1);
 
-    for (i=0; i<tabChar.length && tabChar[i].pos===-1;i++){};
-    if (i<tabChar.length) {j=tabChar[i-1].pos}
+    for (k=0; k<tabChar.length && tabChar[k].pos===-1;k++){};
+    if (k<tabChar.length) {j=tabChar[k-1].pos}
     else {j=-1;}
 
 

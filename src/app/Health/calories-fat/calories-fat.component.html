@@ -83,8 +83,8 @@
 </div>
    <!-- ================== DROPDOWN LIST : action =============== -->
 <div class="dropdown" *ngIf="dialogueCalFat[1]===true && isDeleteRecipe===false && isDeleteRecipeFood===false">
-    <div class="Straight-content"  >
-        <div  class="StraightDropDown "  style="height:240px; width:140px; overflow-y:hidden;" [ngStyle]="{ 'margin-top.px': selectedPosition.y - 560 ,'margin-left.px': 50}"  >
+    <div class="Straight-content"  > <!-- selectedPosition.y - 560  -->
+        <div  class="StraightDropDown "  style="height:240px; width:140px; overflow-y:hidden;" [ngStyle]="{ 'margin-top.px': titleHeight + 10 ,'margin-left.px': 50}"  >
             <li *ngFor="let theTab of TabActionRecipe; let m=index;" [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
                     class="Straight-options "   style=" width:140px; "
                         (click)="onAction($event)" id="RecipeSelAction-{{TabOfId[0]}}-{{TabOfId[1]}}-{{m}}" value="{{m}}">
@@ -98,7 +98,7 @@
     <!-- ================== DROPDOWN LIST : recipe =============== -->
 <div class="dropdown "  *ngIf="filterRecipe===true">
         <div class="Straight-content"  >
-            <div  class="StraightDropDown StraightDropDownOverflow" [ngStyle]="{  'margin-top.px': RecipetheHeight  ,'margin-left.px':130, 'width.px':130}" >
+            <div  class="StraightDropDown StraightDropDownOverflow" [ngStyle]="{  'margin-top.px': titleHeight  ,'margin-left.px':130, 'width.px':130}" >
                 <li *ngFor="let food of tabRecipe; let m=index;" 
                         class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
                             (click)="onFilter($event)" id="RecipeSel" [value]="food.name"> {{food.name}} 
@@ -110,7 +110,7 @@
     <!-- ================== DROPDOWN LIST : food =============== -->
 <div class="dropdown "  *ngIf="filterRecipeFood===true">
     <div class="Straight-content"  >
-        <div  class="StraightDropDown StraightDropDownOverflow" [ngStyle]="{  'margin-top.px': RecipetheHeight  ,'margin-left.px':260, 'width.px':130}" >
+        <div  class="StraightDropDown StraightDropDownOverflow" [ngStyle]="{  'margin-top.px': titleHeight  ,'margin-left.px':260, 'width.px':130}" >
             <li *ngFor="let food of tabInputRecipeFood; let m=index;" 
                     class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
                         (click)="onFilter($event)" id="RecipeSelFood" [value]="food.name"> {{food.name}} 
@@ -122,11 +122,11 @@
 <!--  GENERATE AUTOMATICALLY A DROPDOWN WINDOW WITH EXISTING FOOD STARTING WITHT THE SAME LETTERS  --- REFER TO tabInputFood-->
 <div class="dropdown " *ngIf="isRecipeFoodInput===true && tabInputRecipeFood.length>0">
 
-    <div class="Straight-content"  >
-        <div  class="StraightDropDown StraightDropDownOverflow" [ngStyle]="{  'margin-top.px': selectedPosition.y - 560  ,'margin-left.px':260, 'width.px':130, 'height.px':sizeBoxRecipeFood}" >
+    <div class="Straight-content"  > <!-- slectPosition.y - 560-->
+        <div  class="StraightDropDown StraightDropDownOverflow" [ngClass]="{'yesScroll':tabInputRecipeFood.length > 9, 'noScroll':tabInputRecipeFood.length < 10}" [ngStyle]="{  'margin-top.px': titleHeight + 10  ,'margin-left.px':260, 'width.px':130, 'height.px':sizeBoxRecipeFood}" >
     
             <li *ngFor="let tabFood of tabInputRecipeFood; let m=index;" 
-                    class="Straight-options"  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
+                    class="Straight-options"  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0, 'yesScroll':tabInputRecipeFood.length > 9, 'noScroll':tabInputRecipeFood.length < 10}" 
                         (click)="onSelRecipeFood($event)" id="selRecipeFood-{{TabOfId[0]}}-{{TabOfId[1]}}-{{TabOfId[2]}}-{{m}}" value="{{tabFood.name}}">
                        {{tabFood.name}}
             </li>
@@ -332,7 +332,7 @@
         <!-- ================== DROPDOWN LIST : type =============== -->
 <div class="dropdown " *ngIf="filterType===true">
         <div class="Straight-content"  >
-            <div  class="StraightDropDown StraightDropDownOverflow" [ngStyle]="{ 'margin-top.px': theHeight  ,'margin-left.px': 60, 'width.px':130}"  >
+            <div  class="StraightDropDown StraightDropDownOverflow" [ngStyle]="{ 'margin-top.px': titleHeight  ,'margin-left.px': 60, 'width.px':130}"  >
                 <li *ngFor="let type of tabType; let m=index;" 
                         class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
                             (click)="onFilter($event)" id="selType" [value]="type.name">{{type.name}}     
@@ -343,7 +343,7 @@
      <!-- ================== DROPDOWN LIST : food =============== -->
 <div class="dropdown "  *ngIf="filterFood===true">
         <div class="Straight-content"  >
-            <div  class="StraightDropDown StraightDropDownOverflow" [ngStyle]="{  'margin-top.px': theHeight  ,'margin-left.px':130, 'width.px':130}" >
+            <div  class="StraightDropDown StraightDropDownOverflow" [ngStyle]="{  'margin-top.px': titleHeight  ,'margin-left.px':130, 'width.px':130}" >
                 <li *ngFor="let food of tabFood; let m=index;" 
                         class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
                             (click)="onFilter($event)" id="selFood" [value]="food.name"> {{food.name}} 

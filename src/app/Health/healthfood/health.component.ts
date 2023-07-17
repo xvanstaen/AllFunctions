@@ -35,11 +35,12 @@ import {classConfHTMLFitHealth, classConfTableAll} from '../classConfHTMLTableAl
 import {CalcFatCalories} from '../CalcFatCalories';
 import { classConfigChart, classchartHealth } from '../classConfigChart';
 import { classAxis,  classLegendChart, classPluginTitle , classTabFormChart, classFileParamChart} from '../classChart';
-
+import { classFileSystem, classAccessFile, classReturnCheckFileUpdate }  from '../../classFileSystem';
 
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import {AccessConfigService} from 'src/app/CloudServices/access-config.service';
+
 
 
 @Component({
@@ -252,6 +253,9 @@ selectedPosition ={
 posDivCalFat= new classPosDiv;
 posDivReportHealth= new classPosDiv;
 posDivAfterTitle= new classPosDiv;
+
+inData=new classAccessFile;
+tabLock:Array<boolean>=[];
   
 titleHeight:number=0;
 posItem:number=0;
@@ -283,6 +287,9 @@ onWindowResize() {
 ngOnInit(): void {
   //this.getPosDivOthers();
   //this.getPosDivAfterTitle();
+  for (var i=0; i<7; i++){
+    this.tabLock[i]=true;
+  }
   this.posDivCalFat=getPosDiv("posTopAppCalFat");
   this.posDivAfterTitle=getPosDiv("posTopAppReportHealth");
   this.posDivAfterTitle=getPosDiv("posAfterTitle");
@@ -336,8 +343,8 @@ ngOnInit(): void {
   this.searchOneDateHealth=0;
   this.theEvent.target.id='New';
   this.CreateDay(this.theEvent);
-  //this.GetRecord(this.XMVConfig.BucketFitness,this.Google_Object_Health,0);
-  //this.GetRecord(this.XMVConfig.BucketFitness,this.Google_Object_Calories,1);
+ 
+  this.lockFile(0); // fileHealth
   if (this.InHealthAllData.fileType!==''){
     this.FillHealthAllInOut(this.HealthAllData,this.InHealthAllData);
     this.initTrackRecord();
@@ -413,6 +420,29 @@ ngOnInit(): void {
     this.SelRadio(theSelection.trim());
   }
 }
+
+lockFile(iWait:number){
+this.inData.action='lock';
+this.inData.bucket=this.identification.fitness.bucket;
+this.inData.object=this.identification.fitness.files.fileHealth;
+this.inData.user=this.identification.UserId;
+this.inData.iWait=iWait;
+}
+
+returnLockFile(event:classReturnCheckFileUpdate){
+  if (event.iWait===0){
+
+  }
+
+}
+
+unlockFile(iWait:number){
+  this.inData.action='unlock';
+  this.inData.bucket=this.identification.fitness.bucket;
+  this.inData.object=this.identification.fitness.files.fileHealth;
+  this.inData.user=this.identification.UserId;
+  this.inData.iWait=iWait;
+  }
 
 
 calculateHeight(){

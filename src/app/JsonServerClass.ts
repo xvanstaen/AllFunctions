@@ -211,6 +211,8 @@ export class XMVConfig{
   BucketContact:string="";
   BucketConfig:string="";
   BucketFitness:string='';
+  BucketSystemFile:string='';
+  ObjectSystemFile:string='';
   Max_Nb_Bucket_Wedding:number=6;
   TabBucketPhoto:Array<string>=[];
   GetOneBucketOnly:boolean=false;
