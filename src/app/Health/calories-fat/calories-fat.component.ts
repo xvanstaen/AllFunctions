@@ -30,7 +30,7 @@ import {mainClassConv, ClassConv, ClassUnit, ConvItem, recordConvert} from '../.
 
 import {classConfCaloriesFat} from '../classConfHTMLTableAll';
 
-
+import { strDateTime } from '../../MyStdFunctions';
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import {AccessConfigService} from 'src/app/CloudServices/access-config.service';
@@ -1018,6 +1018,7 @@ SaveFile(event:any){
     //this.tabFood[0].name='cancel';
     this.tabNewRecord.splice(0, this.tabNewRecord.length);
     this.initTrackRecord();
+    this.outConfigCaloriesFat.updatedAt=strDateTime();
     this.myEmit.emit(this.SpecificForm.controls['FileName'].value);
     this.myEmit.emit(this.outConfigCaloriesFat);
   }

@@ -4,7 +4,7 @@
 <body>
 
 
-<div style=" max-width: 440px; ">
+<div  *ngIf="isIdRetrieved===true && this.isConfigServerRetrieved===true" style=" max-width: 440px; ">
     <span style="width:94%; background-color: cyan; margin-left:10px; border:solid 2px red; display:inline-block; ">
         <span style="width:100%; color:#0000ff; font-size:22px; display:inline-block; text-align: center; padding-top:10px; height:50px;"> Select the apps </span>
         <br>

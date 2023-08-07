@@ -53,6 +53,8 @@ import { ColorSliderComponent } from 'src/app/color-picker/color-slider/color-sl
 import { RecipeComponent } from './recipe/recipe.component';
 import { DictionaryComponent } from './dictionary/dictionary.component';
 import { CheckFileUpdateComponent } from './check-file-update/check-file-update.component';
+import { TestServerJSComponent } from './test-server-js/test-server-js.component';
+import { TestHttpOAComponent } from './test-http-oa/test-http-oa.component';
 //import { NgxIntlTelInputComponent } from './ngx-intl-tel-input/ngx-intl-tel-input.component';
 
 @NgModule({
@@ -96,6 +98,8 @@ import { CheckFileUpdateComponent } from './check-file-update/check-file-update.
     RecipeComponent,
     DictionaryComponent,
     CheckFileUpdateComponent,
+    TestServerJSComponent,
+    TestHttpOAComponent,
 
     
 

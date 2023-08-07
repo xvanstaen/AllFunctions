@@ -21,13 +21,14 @@ import { configServer, XMVConfig } from '../../JsonServerClass';
 import { environment } from 'src/environments/environment';
 import { LoginIdentif, msgConsole } from '../../JsonServerClass';
 import {classPosDiv, getPosDiv} from '../../getPosDiv';
+import { strDateTime } from '../../MyStdFunctions';
 
 import {manage_input} from '../../manageinput';
 import {eventoutput, thedateformat} from '../../apt_code_name';
-import {msginLogConsole} from '../../consoleLog'
+import {msginLogConsole} from '../../consoleLog';
 
-import { mainClassCaloriesFat, mainDailyReport} from '../ClassHealthCalories'
-import {mainConvItem, mainRecordConvert, mainClassUnit, mainClassConv} from '../../ClassConverter'
+import { mainClassCaloriesFat, mainDailyReport} from '../ClassHealthCalories';
+import {mainConvItem, mainRecordConvert, mainClassUnit, mainClassConv} from '../../ClassConverter';
 import { classConfigChart, classchartHealth } from '../classConfigChart';
 import {classPosSlider} from '../../JsonServerClass';
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
@@ -1381,8 +1382,6 @@ fnSelectChart(){
 }
 
 SaveCancel(event:string){
-    var error=0;
-    var saveError='';
     this.error_msg='';
     if (event==='save'){
       this.fillInTabOfCharts(this.selectedChart-1);

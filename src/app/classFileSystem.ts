@@ -4,14 +4,14 @@ export class classFileSystem{
     object:string="";
     byUser:string="";
     lock:boolean=false;
-    from:string="";
-    to:string=""; // may not be needed
+    createdAt:string="";
+    updatedAt:string=""; 
 }
 
 export class classUpdate{
     byUser:string="";
-    from:string="";
-    to:string=""; // may not be needed
+    createdAt:string="";
+    updatedAt:string=""; 
 }
 
 // input data to componenet check-file-update
@@ -21,14 +21,21 @@ export class classAccessFile{
     object:string='';
     user:string="";
     iWait:number=0;
+    status:number=0;
+    lock:number=0;
+    createdAt:string="";
+    updatedAt:string=""; 
+    timeoutFileSystem={
+        hh:0,
+        mn:0,
+        bufferTO:{
+            hh:0,
+            mn:0
+        },
+        bufferInput:{
+            hh:0,
+            mn:0
+        }
+      }
   }
-export class classReturnCheckFileUpdate{
-    error:number=0; 
-    lock:boolean=false;
-    action:string=""; // 'lock' or 'unlock'
-    bucket:string=''; 
-    object:string='';
-    iWait:number=0;
-    user:string="";
 
-  }

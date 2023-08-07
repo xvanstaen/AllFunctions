@@ -28,6 +28,7 @@ import {  getStyleDropDownContent, getStyleDropDownBox, classDropDown } from '..
 import {classPosDiv, getPosDiv} from '../getPosDiv';
 import {CalcFatCalories} from '../Health/CalcFatCalories';
 import {classConfHTMLFitHealth, classConfTableAll} from '../Health/classConfHTMLTableAll';
+import { strDateTime } from '../MyStdFunctions';
 
 import {ClassCaloriesFat, mainClassCaloriesFat} from '../Health/ClassHealthCalories';
 import {ClassItem, DailyReport, mainDailyReport, ClassMeal, ClassDish} from '../Health/ClassHealthCalories';
@@ -74,6 +75,7 @@ export class classNutrition{
 
 export class classFileRecipe{
   fileType:string='';
+  updatedAt:string='';
   listTypeRecipe:Array<any>=[];
   recipe:Array<classRecordRecipe>=[];
 }
@@ -1763,6 +1765,7 @@ calculateNutritionForAllRecipe(){
     this.calculateNutrition('all');
 
   }
+  this.recipeFile.updatedAt=strDateTime();
   this.putRecord(this.googleBucketName, this.SpecificForm.controls['FileName'].value, this.recipeFile);
   this.recordRecipe=saveRecipeRecord;
   this.message='Nutrition facts calculated and saved for all recipes';
@@ -1771,6 +1774,7 @@ calculateNutritionForAllRecipe(){
 
 SaveRecord(){
     this.calculateNutrition('all');
+    this.recipeFile.updatedAt=strDateTime();
     this.putRecord(this.googleBucketName, this.SpecificForm.controls['FileName'].value, this.recipeFile);
     this.resetBooleans();
     this.isRecipeModified=false;
@@ -1969,6 +1973,7 @@ getRecord(Bucket:string,GoogleObject:string, iWait:number){
       this.ConfigCaloriesFat.tabCaloriesFat[i].Content[j].Fat.Saturated=this.recipeFile.recipe[this.recordRecipe].nutrition.satFat;
       this.ConfigCaloriesFat.tabCaloriesFat[i].Content[j].Fat.Total=this.recipeFile.recipe[this.recordRecipe].nutrition.totalSat;
       this.ConfigCaloriesFat.tabCaloriesFat[i].Content[j].Name=this.recipeFile.recipe[this.recordRecipe].name.toLowerCase().trim();
+      this.ConfigCaloriesFat.updatedAt=strDateTime();
       this.putRecord(this.identification.configFitness.bucket,this.identification.configFitness.files.calories,this.ConfigCaloriesFat);
     }
  

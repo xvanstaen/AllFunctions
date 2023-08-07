@@ -8,6 +8,9 @@ import { LoginIdentif ,XMVConfig, configServer } from './JsonServerClass';
 import { environment } from 'src/environments/environment';
 
 import {mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from './ClassConverter';
+import { classAccessFile } from './classFileSystem';
+
+import { fnAddTime } from './MyStdFunctions'
 
 @Component({
   selector: 'app-root',
@@ -39,10 +42,12 @@ export class AppComponent {
   selHealthFunction:number=0;
 
   ngOnInit(){
-      this.RetrieveConfig();
+
+
+    this.RetrieveConfig();
   }
   
-
+inData=new classAccessFile;
   RetrieveConfig(){
       var test_prod='prod';
       const InitconfigServer=new configServer;
@@ -63,14 +68,17 @@ export class AppComponent {
         for (let i=0; i<data.length; i++){
             if (data[i].title==="configServer" && data[i].test_prod===test_prod){
                 this.configServer = data[i];
+
+                this.configServer.baseUrl='http://localhost:8080';
             
             } else if (data[i].title==="configPhoto" && data[i].test_prod===test_prod){
                 this.XMVConfig = data[i];
             }
 
         }
+        
         this.getRecord('manage-login','Fitness.json',0);
-        this.isConfigServerRetrieved=true;
+       
         },
         error => {
           console.log('error to retrieve the configuration file ;  error = ', error.status);
@@ -128,10 +136,15 @@ export class AppComponent {
         .subscribe((data ) => {    
           this.identification=data;
           this.isIdRetrieved=true;
+          this.isConfigServerRetrieved=true;
       },
-        error_handler => {
+        err=> {
+          console.log('error to access the file ' + GoogleObject + '  error status=' + err.status + ' '+ err.message );
       })
   }
+
+
+
            
 }
 

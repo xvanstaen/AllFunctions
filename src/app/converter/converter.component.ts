@@ -33,7 +33,7 @@ import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.servic
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import {AccessConfigService} from 'src/app/CloudServices/access-config.service';
 
-
+import { strDateTime } from '../MyStdFunctions';
 
 @Component({
   selector: 'app-converter',
@@ -1281,9 +1281,13 @@ SaveConvert(){
     if (this.theTabOfUnits.fileType===''){
         this.theTabOfUnits.fileType=this.identification.configFitness.fileType.tabOfUnits;
       }
+    this.ConvertUnit.updatedAt=strDateTime();
     this.SaveNewRecord(this.identification.configFitness.bucket,this.identification.configFitness.files.convertUnit, this.ConvertUnit,0);
+    this.ConvToDisplay.updatedAt=strDateTime();
     this.SaveNewRecord(this.identification.configFitness.bucket,this.identification.configFitness.files.convToDisplay, this.ConvToDisplay,1);
+    this.theTabOfUnits.updatedAt=strDateTime();
     this.SaveNewRecord(this.identification.configFitness.bucket,this.identification.configFitness.files.tabOfUnits, this.theTabOfUnits,2);
+    this.WeightRefTable.updatedAt=strDateTime();
     this.SaveNewRecord(this.identification.configFitness.bucket,this.identification.configFitness.files.weightReference, this.WeightRefTable,3);
    
   }
@@ -1314,32 +1318,64 @@ GetRecord(Bucket:string,GoogleObject:string, iWait:number){
                     this.EventHTTPReceived[iWait]=true;
                     if (GoogleObject=== this.identification.configFitness.files.tabOfUnits){ // 'ConvertTabOfUnits.json'){
                       this.theTabOfUnits=data;
+                      this.theTabOfUnits.fileType=data.fileType;
+                      this.theTabOfUnits.tabClassUnit=data.tabClassUnit;
+                      if (data.updatedAt!==undefined){
+                        this.theTabOfUnits.updatedAt=data.updatedAt;
+                      } else {
+                        this.theTabOfUnits.updatedAt='';
+                      }
 
                       this.returnFile.emit(this.theTabOfUnits);
                       if (this.ConvToDisplay.tabConvItem.length!==0){this.sortTabUnits()}
 
                     } else if (GoogleObject===this.identification.configFitness.files.convToDisplay) {//'ConvToDisplay.json'){
                       this.ConvToDisplay=data;
-                      if (this.ConvToDisplay.fileType===''){
+                      if (data.fileType!==''){
+                        this.ConvToDisplay.fileType='';
+                      } else {
                         this.ConvToDisplay.fileType=this.identification.configFitness.fileType.convToDisplay;
                       }
+                      if (data.updatedAt!==undefined){
+                        this.ConvToDisplay.updatedAt=data.updatedAt;
+                      } else {
+                        this.ConvToDisplay.updatedAt='';
+                      }
+                      this.ConvToDisplay.tabConvItem =data.tabConvItem;
                       this.returnFile.emit(this.ConvToDisplay);
                       if (this.theTabOfUnits.tabClassUnit.length!==0){this.sortTabUnits(); }
                     } else if (GoogleObject===this.identification.configFitness.files.convertUnit) {//'ConvertUnit.json'){
-                      this.ConvertUnit=data;
-                      if (this.ConvertUnit.fileType===''){
+                      
+                      if (data.fileType!==''){
+                        this.ConvertUnit.fileType==data.ileType;
+                      } else {
                         this.ConvertUnit.fileType=this.identification.configFitness.fileType.convertUnit;
                       }
+                      if (data.updatedAt!==undefined){
+                        this.ConvertUnit.updatedAt=data.updatedAt;
+                      } else {
+                        this.ConvertUnit.updatedAt='';
+                      }
+                      this.ConvertUnit.tabConv =data.tabConv;
                       this.returnFile.emit(this.ConvertUnit);
                       this.ManageConvert();
 
                     } else if (GoogleObject===this.identification.configFitness.files.weightReference ){
-                      this.WeightRefTable=data;
-                      if (this.WeightRefTable.fileType===''){
-                        this.WeightRefTable.fileType=this.identification.configFitness.fileType.weightReference;
-                      }
-                      this.returnFile.emit(this.WeightRefTable);
+                 
+                        if (data.fileType!==''){
+                          this.WeightRefTable.fileType=this.identification.configFitness.fileType.weightReference;
+                        } else {
+                          this.WeightRefTable.fileType='';
+                        }
+                        if (data.updatedAt!==undefined){
+                          this.WeightRefTable.updatedAt=data.updatedAt;
+                        } else {
+                          this.WeightRefTable.updatedAt='';
+                        }
+                        this.WeightRefTable.tabRecordConvert =data.tabRecordConvert;
+                        this.returnFile.emit(this.WeightRefTable);
                     }
+
 
                   },
                   error_handler => {

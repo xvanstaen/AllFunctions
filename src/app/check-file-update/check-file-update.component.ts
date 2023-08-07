@@ -12,8 +12,8 @@ import { Observable } from 'rxjs';
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import { configServer, XMVConfig, LoginIdentif, msgConsole } from '../JsonServerClass';
-import { classFileSystem, classAccessFile, classReturnCheckFileUpdate }  from '../classFileSystem';
-
+import { classFileSystem, classAccessFile }  from '../classFileSystem';
+import { convertDate } from 'src/app/MyStdFunctions'
 
 
 
@@ -37,16 +37,22 @@ export class CheckFileUpdateComponent {
   @Input() configServer=new configServer;
   @Input() XMVConfig=new XMVConfig;
 
-  @Output() returnValue= new EventEmitter<classReturnCheckFileUpdate>();
+  @Output() returnValue= new EventEmitter<classAccessFile>();
 
-  status=new classReturnCheckFileUpdate;
-  fileSystem:Array<classFileSystem>=[];;
+  status=new classAccessFile;
+  fileSystem:Array<classFileSystem>=[];
 
   ngOnInit(){
+    this.status.action=this.inData.action;
+    this.status.bucket=this.inData.bucket;
+    this.status.object=this.inData.object;
+    this.status.iWait=this.inData.iWait;
+    this.status.user=this.inData.user;
+    this.status.status=0;
 
     this.ManageGoogleService.getContentObject(this.configServer, this.XMVConfig.BucketSystemFile, this.XMVConfig.ObjectSystemFile)
     .subscribe((data ) => {   
-      this.status.error=0;
+      
       for (var i=0; i<data.length && (data[i].object!==this.inData.object || data[i].bucket!==this.inData.bucket); i++){}
       if (this.inData.action==="lock"){
           if (i===data.length ){
@@ -54,28 +60,30 @@ export class CheckFileUpdateComponent {
             this.createRecord();
             this.saveFile();
           } else { // record already exists and already locked
-            this.status.error=300;
-            this.status.lock=true;
+            this.status.status=300;
+            this.status.lock=2;
             this.returnValue.emit(this.status);
           }
         } else if (this.inData.action==="unlock"){
           if (i===data.length ){
             // record is not found so cannot be unlocked
             // should log an error
-            this.status.error=400;
-            this.status.lock=false;
+            this.status.status=400;
+            this.status.lock=0;
             this.returnValue.emit(this.status);
           } else { // record is found; delete it
             this.fileSystem.splice(i,1);
+            this.status.lock=0;
             this.saveFile();
           }
         }
     
     },
     error_handler => {
-
-      this.status.error=500; // record not found 
-      this.returnValue.emit(this.status);
+      this.createRecord();
+      this.saveFile();
+      //this.status.error=500; // record not found 
+      //this.returnValue.emit(this.status);
     }
     )
   }
@@ -87,10 +95,11 @@ export class CheckFileUpdateComponent {
     this.fileSystem[this.fileSystem.length-1].object=this.inData.object;
     this.fileSystem[this.fileSystem.length-1].byUser=this.inData.user;
     this.fileSystem[this.fileSystem.length-1].lock=true;
-    const myTime=new Date();
-    const myDate= myTime.toString().substring(4,25);
-    this.fileSystem[this.fileSystem.length-1].from=myDate;
-    this.fileSystem[this.fileSystem.length-1].to=myDate;
+    const theDate=new Date();
+    const myTime=theDate.toString().substring(16,23);
+    const myDate=convertDate(theDate,"YYYYMMDD") + myTime;
+    this.fileSystem[this.fileSystem.length-1].createdAt=myDate;
+    this.fileSystem[this.fileSystem.length-1].updatedAt=myDate;
   }
 
 
@@ -100,21 +109,21 @@ export class CheckFileUpdateComponent {
     this.ManageGoogleService.uploadObject(this.configServer, this.XMVConfig.BucketSystemFile, file )
       .subscribe(res => {
               if (res.type===4){
-                this.status.error=0;
+                this.status.status=0;
                 if (this.inData.action==="unlock"){
-                  this.status.lock=false;
+                  this.status.lock=0;
                 } else {
-                  this.status.lock=true;
+                  this.status.lock=1;
                 }
                 this.returnValue.emit(this.status);
               }
             },
             error_handler => {
-              this.status.error=404;
+              this.status.status=404;
               if (this.inData.action==="unlock"){
-                this.status.lock=true;
+                this.status.lock=1;
               } else {
-                this.status.lock=false;
+                this.status.lock=0;
               }
               this.returnValue.emit(this.status);
             } 

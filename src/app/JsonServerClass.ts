@@ -268,6 +268,19 @@ export class configServer{
   GoogleProjectId:string= '';
   Mongo_Google:string= '';
   baseUrl:string= '';
+  timeoutFileSystem={
+    hh:0,
+    mn:0,
+    bufferTO:{
+      hh:0,
+      mn:0
+    },
+    bufferInput:{
+        hh:0,
+        mn:0
+    }
+  }
+
 }
 
 export class classPosSlider{

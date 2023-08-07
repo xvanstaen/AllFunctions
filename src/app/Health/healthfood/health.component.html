@@ -94,8 +94,14 @@
     <div class="skipLine">&nbsp;</div>
 </div>
 
+<div *ngIf="EventHTTPReceived[0]===true && tabLock[0].lock === 2">
+    <div style="font-size:16px; color:red; margin-left:20px; display:inline-block; width:100%; margin-top:5px;">
+        Sorry, this file is locked by another user - updates are not possible
+    </div>
+</div>
 
-<div *ngIf="EventHTTPReceived[0]===true && isDisplaySpecific===true" style="margin-left:20px; width:90%; border: blue 2px double; background-color: silver;">
+<div *ngIf="EventHTTPReceived[0]===true && isDisplaySpecific===true && tabLock[0].lock !== 2" style="margin-left:20px; width:90%; border: blue 2px double; background-color: silver;">
+   
     <span class="error" *ngIf="errorFn==='Sel'">{{error_msg}}</span>
     <div class="skipLine">&nbsp;</div>
     <div [formGroup]="TheSelectDisplays" style="display:inline-block; color:white; background:blue; width:80%; height:40px; margin-left:20px; border:solid 0px blue; ">
@@ -190,7 +196,9 @@
 </div>
 
 <!--   CREATION OF A DAY  -->
-<div *ngIf="isCreateNew===true" style="margin-left:20px; background-color: rgb(162, 249, 205); border:double 1px green; width:90%">
+
+<div *ngIf="isCreateNew===true && this.tabLock[0].lock !== 2"
+style="margin-left:20px; background-color: rgb(162, 249, 205); border:double 1px green; width:90%">
     <div class="skipLine">&nbsp;</div>
     <div  style="display:block; color:white; background:blue; width:80%; height:40px; margin-left:20px; border:solid 0px blue; text-align: center; font-size:16px; padding-top:8px;">
     Create your record
@@ -306,6 +314,7 @@
     <!--
     <div style="font-size:12px; color:red; width:100%;">{{error_msg}}</div>
     -->
+  
     <div id="ListAll">&nbsp;</div> 
     <div *ngIf="isDeleteConfirmed===true">
         <div class="msg"  >
@@ -431,7 +440,6 @@
         </div>
     </div>
 
-
     <!-----   MANAGEMENT OF ALL HEALTH DATA  -->
     <div [ngStyle]="{ 'min-width.px': confTableAll.minwidth ,  'width.px': confTableAll.width, 'color':confTableAll.color, 
                 'height.px': confTableAll.height, 'background-color':confTableAll.background}"
@@ -458,7 +466,7 @@
                             
                             <span   class="tReadOnly  widthAction boxAction" [ngClass]="{'rowEven': i % 2===0, 'rowOdd': i % 2 !==0, 'rowNew': tabNewRecordAll[i].nb===1}" 
                                                     id="openAction-{{i}}-{{k}}-{{j}}" (click)="onAction($event)">
-                                <span  id="openAction-{{i}}-{{k}}-{{j}}" class="circle" (click)="onAction($event)">A</span>
+                                <span  id="openAction-{{i}}-{{k}}-{{j}}" class="circle" (click)="onNoAction($event)">A</span>
                             </span>
 
                             <input type="date" class="trow widthDate " *ngIf="k===0 && j===0" id="dateAll-{{i}}"  (input)="onInputDailyAll($event)" value="{{ myDaily.date}}" [ngClass]="{'rowEven': i % 2===0, 'rowOdd': i % 2 !==0, 'rowNew': tabNewRecordAll[i].nb===1}">
@@ -532,7 +540,7 @@
     </div>
 
     <div class="skipLine">&nbsp;</div>
-    <div *ngIf="isAllDataModified===true">
+    <div *ngIf="isAllDataModified===true && tabLock[0].lock !==2">
     
         <span *ngIf="IsSaveConfirmedAll===false">
             <div class="msg"  style="margin-left:10px;">
@@ -541,7 +549,11 @@
                 <button id='All_13' class="sizeButtons" style='width:100px;' (click)="CancelUpdateAll($event)"> Cancel changes</button>
             </div>
         </span>
-        
+        <span *ngIf="this.isMustSaveFile === true">
+            <div class="msg"  style="margin-left:10px;">
+                Save your modifications before timeout
+            </div>
+        </span>
         <span *ngIf="IsSaveConfirmedAll===true">
             <form  [formGroup]="SpecificForm" >
                 <div class="msg"   style="margin-left:10px;">
@@ -562,5 +574,13 @@
 <div class="skipLine">&nbsp;</div>
 <div class="skipLine">&nbsp;</div>
 <div class="skipLine">&nbsp;</div>
+
+<!--
+<div *ngIf="isCheckFile===true">
+    <app-check-file-update [inData]="inData" [configServer]="configServer" [XMVConfig]="XMVConfig"
+    (returnValue)="returnLockFile($event)" >
+    </app-check-file-update>
+</div>
+-->
 </body>
 
