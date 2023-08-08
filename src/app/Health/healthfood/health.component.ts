@@ -303,9 +303,6 @@ ngOnInit(): void {
     this.EventHTTPReceived[i]=false;
   }
 
-  this.inData.timeoutFileSystem.hh=this.configServer.timeoutFileSystem.hh;
-  this.inData.timeoutFileSystem.mn=this.configServer.timeoutFileSystem.mn;
-
   this.posDivCalFat=getPosDiv("posTopAppCalFat");
   this.posDivAfterTitle=getPosDiv("posTopAppReportHealth");
   this.posDivAfterTitle=getPosDiv("posAfterTitle");
@@ -505,10 +502,13 @@ fileSystem={
   modifiedAt:''
 }
 
+reportCheckLockLimit(event:any){
+  this.checkLockLimit(event.iWait, event.isDataModified, event.isSaveFile);
+}
 
-checkLockLimit(iWait:number){ 
-    var valueCheck={action:'',lockValue:0, lockAction:'' }
-    valueCheck=fnCheckLockLimit(this.configServer, this.tabLock, iWait, this.lastInputAt, this.isAllDataModified, this.isSaveHealth);
+checkLockLimit(iWait:number, isDataModified:boolean, isSaveFile:boolean){ 
+    var valueCheck={action:'',lockValue:0, lockAction:'' };
+    valueCheck=fnCheckLockLimit(this.configServer, this.tabLock, iWait, this.lastInputAt, isDataModified, isSaveFile);
 
 
     if (iWait===0 && this.tabLock[iWait].lock===2){
@@ -522,11 +522,13 @@ checkLockLimit(iWait:number){
             this.checkFile(iWait); ;
         } else if (valueCheck.action==='changeTabLock'){
             this.tabLock[iWait].lock=valueCheck.lockValue;
-        } else if (iWait===0 && valueCheck.action==='ProcessSaveHealth'){
+        } else if (iWait===0 && valueCheck.action==='ProcessSave'){
             this.ProcessSaveHealth(this.theEvent);
+        } else if (iWait===5 && valueCheck.action==='ProcessSave'){
+          this.processSaveParamChart();
         } else if (iWait===0 && valueCheck.action==='ConfirmSave'){
             this.isMustSaveFile=true;
-            this.theEvent.target.id='All'; // ===== change value of target.id if created record or if selRecord
+            this.theEvent.target.id='All'; // ===== change value of target.id if created record or if selRecord  
             this.ConfirmSave(this.theEvent);
         } 
     }
@@ -779,7 +781,7 @@ onInputDaily(event:any){
   
   this.lastInputAt=strDateTime();
 
-  this.checkLockLimit(0);
+  this.checkLockLimit(0, this.isAllDataModified, this.isSaveHealth);
   if (this.tabLock[0].lock !== 2){
     this.resetBooleans();
     this.error_msg='';
@@ -840,7 +842,7 @@ onInputDailyAll(event:any){
   //this.lastInputAt=convertDate(aDate,"YYYYMMDD") + myTime;
   this.lastInputAt=strDateTime();
   this.isAllDataModified=true;
-  this.checkLockLimit(0);
+  this.checkLockLimit(0, this.isAllDataModified, this.isSaveHealth);
   if (this.tabLock[0].lock !== 2){
     this.resetBooleans();
     //this.offsetHeight= event.currentTarget.offsetHeight;
@@ -949,7 +951,7 @@ onAction(event:any){
   this.dialogue[this.prevDialogue]=false;
   if (this.tabLock[0].lock === 0 && event.target.id.substring(0,10)!=='openAction'){
     this.isAllDataModified=true;
-    this.checkLockLimit(0);
+    this.checkLockLimit(0, this.isAllDataModified, this.isSaveHealth);
   }
   else if (this.tabLock[0].lock !== 2){  
       if (event.target.id.substring(0,10)==='openAction'){
@@ -1565,8 +1567,22 @@ GetRecord(Bucket:string,GoogleObject:string, iWait:number){
                       this.error_msg = 'TIMEOUT - Your updates are lost as in the meantime the file was updated by another user ';
                       this.resetBooleans();
                   }
-              } 
-              if (iWait!==7){
+              }  else if (iWait===8){
+                if (this.tabLock[5].updatedAt >= data.updatedAt ){
+                  // file has not been updated by another user
+                 if (this.isSaveParamChart===true){
+                      this.ProcessSaveHealth(this.theEvent);
+                  } else if (this.tabLock[5].lock===1 ){
+                      this.updateLockFile(5); // extend the timeout as no modification has been made by any other user after timeout
+                  }
+                } else { // updates made by another user after timeout
+                    this.fileParamChart.data.splice(0,this.fileParamChart.data.length);
+                    this.fileParamChart.data=data.data;
+                    this.tabLock[5].lock=0;
+
+                }
+            } 
+              if (iWait!==7 && iWait!==8){
                 this.returnFile.emit(data);
               }
               this.EventHTTPReceived[iWait]=true;
@@ -1644,14 +1660,22 @@ CancelUpdateAll(event:any){
 
 }
 
-
+isSaveParamChart:boolean=false;
 saveParamChart(event:any){
+  this.isSaveParamChart=true;
+  this.fileParamChart.data=event;
+  this.checkLockLimit(5,true,true);
+}
+
+
+processSaveParamChart(){
   this.fileParamChart.fileType=this.identification.fitness.fileType.myChart;
   this.fileParamChart.updatedAt=strDateTime();
-  this.fileParamChart.data=event;
+  // this.fileParamChart.data=event;
   this.SaveNewRecord(this.identification.fitness.bucket, this.identification.fitness.files.myChartConfig, this.fileParamChart, 5);
 }
 
+isSaveCaloriesFat:boolean=false;
 SaveCaloriesFat(event:any){
   // save this file
  // if (Array.isArray(event)===false){
@@ -1683,6 +1707,7 @@ SaveCaloriesFat(event:any){
   }
 }
 
+isSaveRecipeFile:boolean=false;
 SaveRecipeFile(event:any){
   // save this file
  // if (Array.isArray(event)===false){
@@ -1711,9 +1736,10 @@ SaveRecipeFile(event:any){
 
   }
 }
+
 ConfirmSave(event:any){
   if (this.isMustSaveFile===false){
-      this.checkLockLimit(0);
+      this.checkLockLimit(0,true,false);
   }
   if (this.tabLock[0].lock === 1){
 
@@ -1818,8 +1844,7 @@ isSaveHealth:boolean=false;
 SaveHealth(event:any){
   this.isSaveHealth=true;
   this.theEvent.target.id=event.target.id;
-  this.checkLockLimit(0);
-
+  this.checkLockLimit(0,true,true);
 }
 
 ProcessSaveHealth(event:any){
@@ -2142,6 +2167,8 @@ updateSystemFile(iWait:number){
   inData.createdAt=this.tabLock[iWait].createdAt;
   inData.updatedAt=this.tabLock[iWait].updatedAt;
   inData.iWait=iWait;
+  inData.timeoutFileSystem.hh=this.configServer.timeoutFileSystem.hh;
+  inData.timeoutFileSystem.mn=this.configServer.timeoutFileSystem.mn;
   this.ManageGoogleService.updateFileSystem(this.configServer, this.XMVConfig.BucketSystemFile, this.XMVConfig.ObjectSystemFile, inData, this.tabLock )
   .subscribe(
     data  => {  
@@ -2165,26 +2192,39 @@ updateSystemFile(iWait:number){
           
         } else if (inData.action==='check' && data.createdAt !== undefined){ // inData is returned
             if (data.status===800 ){ // no record/fileSystem is empty 
-            
-                if (this.isMustSaveFile === true || this.isSaveHealth === true || (this.tabLock[0].lock === 1 && this.isAllDataModified === true)){
-                    // must check if file has been updated
-                    if (inData.iWait===0){
-                      this.GetRecord(this.identification.fitness.bucket,this.identification.fitness.files.fileHealth,7);
-                    }
-                } 
-            } else if (data.status===810){ // record found and belongs to same user
-              if (this.isSaveHealth === true && inData.iWait===0){
-                this.ProcessSaveHealth(this.theEvent);
-              } else if (this.isMustSaveFile === true && inData.iWait===0){
-                  this.ConfirmSave(this.theEvent);
+              if (inData.iWait===0){
+
+                  if (this.isMustSaveFile === true || this.isSaveHealth === true || (this.tabLock[0].lock === 1 && this.isAllDataModified === true)){
+                      // must check if file has been updated
+                        this.GetRecord(this.identification.fitness.bucket,this.identification.fitness.files.fileHealth,7);
+                    }       
+              } else if (inData.iWait===5 && this.tabLock[5].lock === 1){
+                  this.GetRecord(this.identification.fitness.bucket,this.identification.fitness.files.myChartConfig,8);
               }
+            } else if (data.status===810){ // record found and belongs to same user
+                if (inData.iWait===0){
+                  if (this.isSaveHealth === true){
+                    this.ProcessSaveHealth(this.theEvent);
+                  } else if (this.isMustSaveFile === true){
+                      this.ConfirmSave(this.theEvent);
+                  }
+                } else if (inData.iWait===5){
+                    this.processSaveParamChart();
+                }
+  
               } else if (data.status===820){ // record found and belongs to other user
                 if (inData.iWait===0){
                     this.HealthAllData.tabDailyReport.splice(0,this.HealthAllData.tabDailyReport.length);
                     this.GetRecord(this.identification.fitness.bucket,this.identification.fitness.files.fileHealth,0);
-                    this.tabLock[inData.iWait].lock=2;
+                    
                     this.resetBooleans();
+                } if (inData.iWait===5){
+                  this.fileParamChart.data.splice(this.fileParamChart.data.length);
+                  this.GetRecord(this.identification.fitness.bucket,this.identification.fitness.files.myChartConfig,5);
+                  
+                 
                 }
+                this.tabLock[inData.iWait].lock=2;
             }
 
         } else {

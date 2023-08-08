@@ -16,10 +16,10 @@ import { BucketList, Bucket_List_Info } from '../../JsonServerClass';
 
 // configServer is needed to use ManageGoogleService
 // it is stored in MangoDB and accessed via ManageMangoDBService
-import { configServer, XMVConfig } from '../../JsonServerClass';
+
 
 import { environment } from 'src/environments/environment';
-import { LoginIdentif, msgConsole } from '../../JsonServerClass';
+
 import {classPosDiv, getPosDiv} from '../../getPosDiv';
 import { strDateTime } from '../../MyStdFunctions';
 
@@ -31,11 +31,13 @@ import { mainClassCaloriesFat, mainDailyReport} from '../ClassHealthCalories';
 import {mainConvItem, mainRecordConvert, mainClassUnit, mainClassConv} from '../../ClassConverter';
 import { classConfigChart, classchartHealth } from '../classConfigChart';
 import {classPosSlider} from '../../JsonServerClass';
+
+import { configServer, XMVConfig, LoginIdentif, msgConsole } from '../../JsonServerClass';
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import {AccessConfigService} from 'src/app/CloudServices/access-config.service';
 import { classAxis, classLegendChart, classPluginTitle , classTabFormChart, classFileParamChart, classReturnColor} from '../classChart';
-
+import { classFileSystem, classAccessFile}  from '../../classFileSystem';
 
 
 @Component({
@@ -75,17 +77,22 @@ export class ReportHealthComponent implements OnInit {
   @Input() HealthAllData=new mainDailyReport;
   @Input() ConfigChartHealth=new classchartHealth;
   @Input() INFileParamChart=new classFileParamChart;
+  @Input() configServer=new configServer;
+  @Input() XMVConfig=new XMVConfig;
+  //inData=new classAccessFile;
+  @Input()  tabLock:Array<classAccessFile>=[]; //0=unlocked; 1=locked by user; 2=locked by other user; 3=must be checked;
+  
   posSlider=new classPosSlider;
   posPalette=new classPosSlider;
   paramChange:number=0; // used to trigger the change on slider position
   @Output() returnFile= new EventEmitter<any>();
+  @Output() reportCheckLockLimit= new EventEmitter<any>();
 
   @ViewChild('baseChart', { static: true })
 
   // DEBUG
   debugPhone:boolean=false;
 
-  FileParamChart=new classFileParamChart;
   current_Chart:number=0;
   tabParamChart:Array<classTabFormChart>=[];
   initTabParamChart:Array<classTabFormChart>=[];
@@ -624,31 +631,35 @@ changeCanvas(i:number){
 
 selectedChart:number=0;
 SelChart(event:any){
-  if (this.selectedChart!==0){
-   
-    this.selected_canvasColor='';
-    this.selected_legendColor='';
-    this.selected_boxColor='';
-    this.selected_chartTitleColor='';
-    this.selected_colorTitle="";
-    this.fillInTabOfCharts(this.selectedChart-1);
 
+  if (this.tabLock[5].lock!==2){
+    if (this.selectedChart!==0){
+    
+      this.selected_canvasColor='';
+      this.selected_legendColor='';
+      this.selected_boxColor='';
+      this.selected_chartTitleColor='';
+      this.selected_colorTitle="";
+      this.fillInTabOfCharts(this.selectedChart-1);
+
+    }
+    if (event.target.id==='Chart1'){
+        this.selectedChart=1;
+    } else if (event.target.id==='Chart2'){
+        this.selectedChart=2;
+    } else if (event.target.id==='Chart3'){
+      this.selectedChart=3;
+    } else if (event.target.id==='Chart4'){
+      this.selectedChart=4;
+    }
+    this.fillInFormFromTab(this.selectedChart-1);
+    if (this.debugPhone === true){
+      this.posDivPosSlider=getPosDiv("posDivSlider");
+      //this.getPosDivPosSlider();
+    }
+  } else {
+    this.reportCheckLockLimit.emit({iWait:5,isDataModified:false,isSaveFile:false});
   }
-  if (event.target.id==='Chart1'){
-      this.selectedChart=1;
-  } else if (event.target.id==='Chart2'){
-      this.selectedChart=2;
-  } else if (event.target.id==='Chart3'){
-    this.selectedChart=3;
-  } else if (event.target.id==='Chart4'){
-    this.selectedChart=4;
-  }
-  this.fillInFormFromTab(this.selectedChart-1);
-  if (this.debugPhone === true){
-    this.posDivPosSlider=getPosDiv("posDivSlider");
-    //this.getPosDivPosSlider();
-  }
-  
   
 }
 
@@ -2333,6 +2344,7 @@ testLineChart(){
 
 }
 
+
 ngOnChanges(changes: SimpleChanges) { 
  
   var i=0;
@@ -2340,6 +2352,11 @@ ngOnChanges(changes: SimpleChanges) {
         const j=changes[propName];
         if (propName==='INFileParamChart'){
             const b=this.INFileParamChart.data;
+          } else if (propName==='tabLock'){
+            if (changes[propName].firstChange===false){
+                console.log('report chart ==> ngOnChange tabLock[5]=' + this.tabLock[5])
+            }
+            
           } 
         }
     // //this.LogMsgConsole('$$$$$ onChanges '+' to '+to+' from '+from + ' ---- JSON.stringify(j) '+ JSON.stringify(j)); 

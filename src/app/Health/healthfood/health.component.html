@@ -69,9 +69,9 @@
     </app-calories-fat>
     <div class="skipLine">&nbsp;</div>
 </div>
-<div id='posTopAppReportHealth' *ngIf="isDisplayChart===true && EventHTTPReceived[4]===true && EventHTTPReceived[0]===true && EventHTTPReceived[5]===true">
-    <app-report-health [identification]="identification"  [INFileParamChart]="fileParamChart"
-    [ConfigChartHealth]="ConfigChart.chartHealth"  [HealthAllData]="HealthAllData" (returnFile)="saveParamChart($event)">
+<div id='posTopAppReportHealth' *ngIf="isDisplayChart===true && EventHTTPReceived[4]===true && EventHTTPReceived[0]===true && EventHTTPReceived[5]===true && tabLock[5].lock!==3">
+    <app-report-health [identification]="identification"  [XMVConfig]="XMVConfig" [configServer]="configServer"  [INFileParamChart]="fileParamChart" [tabLock]="tabLock"
+    [ConfigChartHealth]="ConfigChart.chartHealth"  [HealthAllData]="HealthAllData" (returnFile)="saveParamChart($event)" (reportCheckLockLimit)="reportCheckLockLimit($event)">
     </app-report-health>
     <div class="skipLine">&nbsp;</div>
 </div>

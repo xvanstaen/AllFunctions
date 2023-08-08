@@ -210,7 +210,9 @@
 </div>
 </div>
 <div class="skipLine">&nbsp;</div>
-
+<div *ngIf="tabLock[5].lock===2">
+    <div class="msg">File is locked by another user; you cannot update the parameters</div>
+</div>
 <div style="width:95%; max-width:410px; margin-left:20px; border:solid 2px blue; display:inline-block;">
   
  

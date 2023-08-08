@@ -156,7 +156,7 @@
               // ConfirmSave(theEvent);
               if (isSaveFile===true){
                 //ProcessSaveHealth(theEvent);
-                returnValue.action="ProcessSaveHealth";
+                returnValue.action="ProcessSave";
               } else {
                 returnValue.action="ConfirmSave";
               }
@@ -166,7 +166,7 @@
                                     && tabLock[iWait].lock === 1 && isRecordModified === true){
               //updateLockFile(iWait);
               returnValue.action="updateSystemFile";
-              returnValue.lockAction="updateLockFile";
+              returnValue.lockAction="updatedAt";
 
             } else  if (Number(currentTime) > Number(timeOutValue) ){ // timeout is reached
                 
@@ -180,15 +180,15 @@
                 } else if (tabLock[iWait].lock===0 && isRecordModified === true) {
                     //lockFile(iWait); // user is trying to do something but file was not locked
                     returnValue.action="updateSystemFile";
-                    returnValue.lockAction="lockFile";
+                    returnValue.lockAction="lock";
                 } else if (tabLock[iWait].lock===2) {
                     //lockFile(iWait); // check if file can now be locked by this user - may have been unlocked in the meantime by other user
                     returnValue.action="updateSystemFile";
-                    returnValue.lockAction="lockFile";
+                    returnValue.lockAction="lock";
                 } 
             } else  if (isSaveFile===true){
                 //ProcessSaveHealth(theEvent);
-                returnValue.action="ProcessSaveHealth";
+                returnValue.action="ProcessSave";
             } 
           
         
