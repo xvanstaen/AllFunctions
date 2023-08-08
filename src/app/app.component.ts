@@ -69,7 +69,7 @@ inData=new classAccessFile;
             if (data[i].title==="configServer" && data[i].test_prod===test_prod){
                 this.configServer = data[i];
 
-                this.configServer.baseUrl='http://localhost:8080';
+               // this.configServer.baseUrl='http://localhost:8080';
             
             } else if (data[i].title==="configPhoto" && data[i].test_prod===test_prod){
                 this.XMVConfig = data[i];
