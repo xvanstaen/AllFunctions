@@ -28,6 +28,7 @@ export class BioData{
       phone:string='';
       firstname:string='';
       surname:string='';
+      IpAddress:string='';
       apps:Array<string>=[];
       ownBuckets:Array<any>=[{name:""}];
       fitness={
@@ -268,6 +269,7 @@ export class configServer{
   GoogleProjectId:string= '';
   Mongo_Google:string= '';
   baseUrl:string= '';
+  IpAddress:string= '';
   timeoutFileSystem={
     hh:0,
     mn:0,

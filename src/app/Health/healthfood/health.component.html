@@ -62,16 +62,16 @@
 <div *ngIf="error_msg!=='' && errorFn==='Copy'" class="error">{{error_msg}}</div>
 
 
-<div id='posTopAppCalFat' *ngIf="isMgtCaloriesFat===true && EventHTTPReceived[1]===true && EventHTTPReceived[6]===true">
+<div id='posTopAppCalFat' *ngIf="isMgtCaloriesFat===true && EventHTTPReceived[1]===true && EventHTTPReceived[6]===true  && tabLock[1].lock!==3">
     <app-calories-fat [identification]="identification" [XMVConfig]="XMVConfig" [configServer]="configServer"  [posDivCalFat]="posDivCalFat" [inFileRecipe]="fileRecipe"
-    [ConfigCaloriesFat]="ConfigCaloriesFat"  [HTMLCaloriesFat]="ConfigHTMLFitHealth.ConfigCalFat.confCaloriesFat" (myEmit)="SaveCaloriesFat($event)"
-    (myEmitRecipe)="SaveRecipeFile($event)">
+    [ConfigCaloriesFat]="ConfigCaloriesFat"  [HTMLCaloriesFat]="ConfigHTMLFitHealth.ConfigCalFat.confCaloriesFat"  [tabLock]="tabLock[1]" (myEmit)="SaveCaloriesFat($event)"
+    (myEmitRecipe)="SaveRecipeFile($event)" (reportCheckLockLimit)="reportCheckLockLimit($event)" (cancelSaveOther)="CancelSaveOthers($event)">
     </app-calories-fat>
     <div class="skipLine">&nbsp;</div>
 </div>
 <div id='posTopAppReportHealth' *ngIf="isDisplayChart===true && EventHTTPReceived[4]===true && EventHTTPReceived[0]===true && EventHTTPReceived[5]===true && tabLock[5].lock!==3">
-    <app-report-health [identification]="identification"  [XMVConfig]="XMVConfig" [configServer]="configServer"  [INFileParamChart]="fileParamChart" [tabLock]="tabLock"
-    [ConfigChartHealth]="ConfigChart.chartHealth"  [HealthAllData]="HealthAllData" (returnFile)="saveParamChart($event)" (reportCheckLockLimit)="reportCheckLockLimit($event)">
+    <app-report-health [identification]="identification"  [XMVConfig]="XMVConfig" [configServer]="configServer"  [INFileParamChart]="fileParamChart" [tabLock]="tabLock[5]"
+    [ConfigChartHealth]="ConfigChart.chartHealth"  [HealthAllData]="HealthAllData" (returnFile)="saveParamChart($event)" (reportCheckLockLimit)="reportCheckLockLimit($event)"  (cancelSaveOther)="CancelSaveOthers($event)">
     </app-report-health>
     <div class="skipLine">&nbsp;</div>
 </div>

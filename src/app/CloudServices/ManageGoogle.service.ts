@@ -119,6 +119,8 @@ export class ManageGoogleService {
         const http_get=config.baseUrl+'/updateFileSystem/'+config.GoogleProjectId+'/'+object+'/'+JSON.stringify(inData)+'/'+JSON.stringify(tabLock)+'?bucket='+bucket;
         return this.http.get<any>(http_get);                       
     }
+
+
         
 
 }

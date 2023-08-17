@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, AfterViewInit,SimpleChanges,
   Output, Input, HostListener, EventEmitter, ElementRef, } from '@angular/core';
 import { FormGroup,UntypedFormControl, FormControl, Validators} from '@angular/forms';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
@@ -24,6 +25,7 @@ export class AppComponent {
     private ManageGoogleService: ManageGoogleService,
     private ManageMangoDB: ManageMangoDBService,
     private elementRef: ElementRef,
+    private http: HttpClient,
    
     ) {}
 
@@ -42,7 +44,10 @@ export class AppComponent {
   selHealthFunction:number=0;
 
   ngOnInit(){
-
+      // getIpAddres
+      this.http.get("http://api.ipify.org/?format=json").subscribe((res:any)=>{
+        this.IpAddress = res.ip;
+      });
 
     this.RetrieveConfig();
   }
@@ -69,7 +74,8 @@ inData=new classAccessFile;
             if (data[i].title==="configServer" && data[i].test_prod===test_prod){
                 this.configServer = data[i];
 
-               // this.configServer.baseUrl='http://localhost:8080';
+               this.configServer.baseUrl='http://localhost:8080';
+               this.configServer.IpAddress=this.IpAddress;
             
             } else if (data[i].title==="configPhoto" && data[i].test_prod===test_prod){
                 this.XMVConfig = data[i];
@@ -88,6 +94,7 @@ inData=new classAccessFile;
 
   selectApps:number=0;
   dictionaryOnly:boolean=false;
+  IpAddress:string="";
   onInput(event:any){
       this.selectApps=Number(event.target.value);
       this.dictionaryOnly=false;
@@ -101,8 +108,11 @@ inData=new classAccessFile;
       }  else if (this.selectApps===15){
         this.dictionaryOnly=true;
       }else{
-        this.selHealthFunction=0;
+        this.selHealthFunction=0
       } 
+
+
+    
   }
 
   isAppsSelected:boolean=false;
@@ -137,6 +147,7 @@ inData=new classAccessFile;
           this.identification=data;
           this.isIdRetrieved=true;
           this.isConfigServerRetrieved=true;
+          this.identification.IpAddress=this.IpAddress;
       },
         err=> {
           console.log('error to access the file ' + GoogleObject + '  error status=' + err.status + ' '+ err.message );

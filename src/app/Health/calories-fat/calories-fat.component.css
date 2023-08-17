@@ -162,7 +162,13 @@ div{
     color: blue;
   }
 
-  
+.disableRow{
+  border:0px solid blue;
+}
+
+.disableRow:read-only{
+  border:0px solid blue;
+}
 
 /**
 .theAction{
