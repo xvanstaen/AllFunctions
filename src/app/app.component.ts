@@ -54,7 +54,8 @@ export class AppComponent {
   
 inData=new classAccessFile;
   RetrieveConfig(){
-      var test_prod='prod';
+      // var test_prod='prod';
+      var test_prod='test';  // this is for allFunctions only so that test BackendServer is used
       const InitconfigServer=new configServer;
       InitconfigServer.baseUrl='https://localhost:8080';
       InitconfigServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
@@ -74,7 +75,7 @@ inData=new classAccessFile;
             if (data[i].title==="configServer" && data[i].test_prod===test_prod){
                 this.configServer = data[i];
 
-               this.configServer.baseUrl='http://localhost:8080';
+               //this.configServer.baseUrl='http://localhost:8080';
                this.configServer.IpAddress=this.IpAddress;
             
             } else if (data[i].title==="configPhoto" && data[i].test_prod===test_prod){
