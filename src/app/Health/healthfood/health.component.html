@@ -61,6 +61,8 @@
 
 <div *ngIf="error_msg!=='' && errorFn==='Copy'" class="error">{{error_msg}}</div>
 
+<div style="margin-left:25px; font-size:14px; color:blue; dislay: inline-block; background-color: cyan;">{{message}}</div>
+
 
 <div id='posTopAppCalFat' *ngIf="isMgtCaloriesFat===true && EventHTTPReceived[1]===true && EventHTTPReceived[6]===true  && tabLock[1].lock!==3">
     <app-calories-fat [identification]="identification" [XMVConfig]="XMVConfig" [configServer]="configServer"  [posDivCalFat]="posDivCalFat" [inFileRecipe]="fileRecipe"
@@ -96,7 +98,9 @@
 
 <div *ngIf="EventHTTPReceived[0]===true && tabLock[0].lock === 2">
     <div style="font-size:16px; color:red; margin-left:20px; display:inline-block; width:100%; margin-top:5px;">
-        Sorry, this file is locked by another user - updates are not possible
+       <span >
+            Sorry, this file is locked by another user - updates are not possible
+       </span> 
     </div>
 </div>
 

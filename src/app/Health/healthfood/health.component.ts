@@ -290,6 +290,8 @@ onWindowResize() {
 ngOnInit(): void {
   //this.getPosDivOthers();
   //this.getPosDivAfterTitle();
+  this.message=' ngOnInit ';
+  this.GetRecord(this.XMVConfig.BucketSystemFile, this.XMVConfig.ObjectSystemFile,10);
 
   for (var i=0; i<7; i++){
     const thePush=new classAccessFile;
@@ -473,7 +475,7 @@ resetBooleans(){
     this.IsSaveConfirmedAll=false;
     this.isAllDataModified=false;
     this.tabNewRecordAll.splice(0,this.tabNewRecordAll.length);
-    this.initTrackRecord();
+    // this.initTrackRecord();
     this.isAllDataModified = false;
     this.isMustSaveFile=false;
     this.isSaveHealth=false;
@@ -1459,6 +1461,9 @@ alignRecord(){
 }
 
 GetRecord(Bucket:string,GoogleObject:string, iWait:number){
+  if (iWait===10){
+    this.message=this.message+ ' GetRecord ' + GoogleObject;
+  }
 
     this.EventHTTPReceived[iWait]=false;
     this.NbWaitHTTP++;
@@ -1605,8 +1610,15 @@ GetRecord(Bucket:string,GoogleObject:string, iWait:number){
                     this.tabLock[1].lock=0;
 
                 }
+              } else if (iWait===10){
+                const theFileSystem=JSON.stringify(data);
+                if (data.length===0) { 
+                  this.message = this.message + ' file is empty = ' + theFileSystem;
+                } else {
+                  this.message= this.message + ' file system = ' + theFileSystem;
+                }
               }
-            if (iWait!==7 && iWait!==8 && iWait!==9){
+            if (iWait!==7 && iWait!==8 && iWait!==9 && iWait!==10){
                 this.returnFile.emit(data);
               }
             this.EventHTTPReceived[iWait]=true;
@@ -2232,9 +2244,18 @@ updateSystemFile(iWait:number){
   inData.IpAddress=this.tabLock[iWait].IpAddress;
   inData.createdAt=this.tabLock[iWait].createdAt;
   inData.updatedAt=this.tabLock[iWait].updatedAt;
-  inData.iWait=iWait;
+  inData.iWait=iWait; 
   inData.timeoutFileSystem.hh=this.configServer.timeoutFileSystem.hh;
   inData.timeoutFileSystem.mn=this.configServer.timeoutFileSystem.mn;
+  this.message= this.message + ' updateSystemFile ';
+  this.GetRecord(this.XMVConfig.BucketSystemFile, this.XMVConfig.ObjectSystemFile,10);
+  /*
+  const theError=JSON.stringify(inData);
+  const theconfigServer=JSON.stringify(this.configServer);
+  this.error_msg='inData==> ' + theError + 
+  "  configServer ==> " + theconfigServer +
+  "  ---- BucketSystemFile=" + this.XMVConfig.BucketSystemFile + "  ObjectSystemFile=" + this.XMVConfig.ObjectSystemFile;
+  */
   this.ManageGoogleService.updateFileSystem(this.configServer, this.XMVConfig.BucketSystemFile, this.XMVConfig.ObjectSystemFile, inData, this.tabLock )
   .subscribe(
     data  => {  
@@ -2242,11 +2263,12 @@ updateSystemFile(iWait:number){
         if (Array.isArray(data)=== true && data[inData.iWait].createdAt !== undefined){ // tabLock is returned
           console.log('server response: ' + data[inData.iWait].object + ' createdAt=' + data[inData.iWait].createdAt + '  & updatedAt=' + data[inData.iWait].updatedAt + '  & lock value =' + data[inData.iWait].lock);
           // record is locked by another user; no actions can take place for this user so reset
+          this.error_msg = this.error_msg + " data returned: lock=" + data[inData.iWait].lock +  "  & status=" + data[inData.iWait].status ;
           if (data[inData.iWait].lock ===2 && this.tabLock[inData.iWait].lock === 1) {
             if (inData.iWait===0){
-              this.reAccessHealthFile();
               this.tabLock[inData.iWait].lock=2;
               this.resetBooleans();
+              this.reAccessHealthFile();
             } else {
               this.tabLock[inData.iWait].status=300;
               if (inData.iWait===5){
@@ -2321,14 +2343,15 @@ updateSystemFile(iWait:number){
         } 
     },
     err => {
-      console.log('Google updateFileSystem general error='+err.status + '  specific error=' +err.error.error + ' & message=' + err.error.message);
-      
+      console.log('Google updateFileSystem general error='+err.status + '  specific error= ' +err.error.error + ' & message= ' + err.error.message);
+      this.error_msg = this.error_msg + '   update FileSystem ='+err.status + '  specific error= ' +err.error.error + ' & message= ' + err.error.message;
       if (err.status===300 || err.error.error === 720){ // 300 record already locked; 720 updatedAt on record locked by another user
         this.tabLock[inData.iWait].lock=2;
-        this.resetBooleans();
+        
         if (err.error.error === 720){
           this.tabLock[inData.iWait].status=720;
           if (inData.iWait===0){
+            this.resetBooleans();
             this.reAccessHealthFile();
           } else if (inData.iWait===1){
             this.reAccessConfigCal();
