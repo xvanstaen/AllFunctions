@@ -1,4 +1,4 @@
-
+    import { classFileSystem, classAccessFile }  from 'src/app/classFileSystem';
 
     export function convertDate(theDate:Date, theFormat:string) {
         var formattedDate:string=theFormat;
@@ -196,3 +196,185 @@
  
     return(returnValue);
 }
+
+
+export function checkData(fileSystem:Array<classFileSystem>, iWait:number, tabLock:Array<classAccessFile>){
+    //console.log('start checkData');
+    if (fileSystem.length > 0 ){
+        for (var i=0; i<fileSystem.length && (fileSystem[i].object!==tabLock[iWait].object || fileSystem[i].bucket!==tabLock[iWait].bucket); i++){}
+        if (tabLock[iWait].action==="lock"){
+            if (i===fileSystem. length ){
+                // record is not locked so create a new record and flag lock to true
+                createRecord(fileSystem,tabLock[iWait]);
+  
+                console.log('create record & tabLock = ' + JSON.stringify(tabLock[iWait]) );
+                //const status=saveFile(config, fileSystem, object, bucket);
+                return (fileSystem);
+            } else { // record already exists and already locked
+                console.log('record in file system ' + JSON.stringify(fileSystem[i]) + ' already exists and is locked - Error 300');
+                // check wheter it has been locked form more than 1 hour
+                // if yes then lock it for this user
+                return(validateLock(fileSystem,tabLock[iWait],i));
+            }
+        } else if (tabLock[iWait].action==="unlock"){
+            if (i===fileSystem.length ){
+                // record is not found so cannot be unlocked
+                console.log('record not found, so cannot be unlocked - Error 700');
+                return(700);
+            } else { // record is found; delete it
+              if (tabLock[iWait].createdAt === fileSystem[i].createdAt) {
+                fileSystem.splice(i,1);
+                return (fileSystem);
+              } else {
+                console.log('record found but createdAt is different ,  so cannot be unlocked - Error 710');
+                return(710);
+              }
+            }
+        } else if (tabLock[iWait].action==="updatedAt"){
+          if (tabLock[iWait].createdAt === fileSystem[i].createdAt) {
+                return(updatedAt(fileSystem,iWait,i));
+          } else {
+            console.log('record found but createdAt is different ,  so cannot be updated - Error 720');
+                return(720);
+          }
+        } else if (tabLock[iWait].action==="check" || tabLock[iWait].action==="check&update"){
+          if (i===fileSystem.length ){ // no record found
+              if (tabLock[iWait].action==="check"){
+                console.log('check file = no record found; return inData.status 800');
+                tabLock[iWait].createdAt='';
+                tabLock[iWait].updatedAt='';
+                tabLock[iWait].status=800;
+              } else {
+                createRecord(fileSystem,tabLock[iWait]);
+                console.log('create record & tabLock = ' + JSON.stringify(tabLock[iWait]) );
+                return (fileSystem);
+              }
+              
+          } else {
+            if (tabLock[iWait].createdAt === fileSystem[i].createdAt && tabLock[iWait].updatedAt === fileSystem[i].updatedAt){
+              if (tabLock[iWait].action==="check"){  
+                tabLock[iWait].status=810; 
+                    console.log('check file = record found and locked by same user; return inData.status 810');
+                // same user is locking the file
+              } else {
+                return(updatedAt(fileSystem,iWait,i));
+              }
+            } else { 
+                tabLock[iWait].status=820; 
+                console.log('check file = record found and locked by another user; return inData.status 820');
+            }
+          } 
+          return(tabLock[iWait]);
+        } else {
+          console.log('wrong inData.action ==> return err-730');
+          return(730);} // wrong action
+    } else { 
+        if (tabLock[iWait].action==="lock"){
+            console.log('fileSystem is empty; createRecord');
+            createRecord(fileSystem,tabLock[iWait]);
+            console.log('create record & tabLock = ' + JSON.stringify(tabLock[iWait]) );
+            return (fileSystem);
+        } else if (tabLock[iWait].action==="check"  || tabLock[iWait].action==="check&update"){
+            if (tabLock[iWait].action==="check"){
+              console.log('check file = fileSystem is empty; return inData.status 800');
+              tabLock[iWait].createdAt='';
+              tabLock[iWait].updatedAt='';
+              tabLock[iWait].status=800;
+              return(tabLock[iWait]);
+            } else {
+              createRecord(fileSystem,tabLock[iWait]);
+              console.log('create record & tabLock = ' + JSON.stringify(tabLock[iWait]) );
+              return (fileSystem);
+            }
+        } else {
+          console.log('fileSystem is empty;');
+          return('err-0'); 
+        }
+        
+    }
+  }
+  
+  export  function createRecord(fileSystem:Array<classFileSystem>, inData:classAccessFile){
+  
+    const recordSystem=new classFileSystem;
+  
+    fileSystem.push(recordSystem);
+    fileSystem[fileSystem.length-1].bucket=inData.bucket;
+    fileSystem[fileSystem.length-1].object=inData.object;
+    fileSystem[fileSystem.length-1].byUser=inData.user;
+    fileSystem[fileSystem.length-1].IpAddress=inData.IpAddress;
+    fileSystem[fileSystem.length-1].lock=true;
+    const aDate=new Date();
+    const theDate=aDate.toUTCString();
+    //console.log('theDate=',theDate);
+    const myTime=theDate.substring(17,19)+theDate.substring(20,22)+theDate.substring(23,25);
+    const myDate=convertDate(aDate,"YYYYMMDD") + myTime;
+    //console.log('created & updatedAt=' +myDate);
+    fileSystem[fileSystem.length-1].createdAt=myDate;
+    fileSystem[fileSystem.length-1].updatedAt=myDate;
+  }
+  
+export function validateLock(fileSystem:Array<classFileSystem>, inData:classAccessFile, record:number){
+    var stringHour='';
+    var stringMin='';
+    var stringDay='';
+    var stringMonth='';
+    var addDay=0;
+    var addHour=0;
+    
+    var theMin=Number(fileSystem[record].updatedAt.substring(10,12)) + Number(inData.timeoutFileSystem.mn); // add xx minutes
+    if (Math.trunc(theMin / 60) > 0){
+      addHour =  Math.trunc(theMin / 60);
+      theMin= theMin % 60;
+    }
+    if (theMin<10){
+        stringMin ='0'+ theMin.toString();
+    } else { 
+        stringMin = theMin.toString();
+    }
+    var theHour=Number(fileSystem[record].updatedAt.substring(8,10)) + Number(inData.timeoutFileSystem.hh) + addHour; // add xx hours;
+    if (Math.trunc(theHour / 24) > 0){
+      addDay =  Math.trunc(theHour / 24);
+      theHour= theHour % 24;
+    }
+    if (theHour<10){
+        stringHour ='0'+ theHour.toString();
+    } else { 
+        stringHour = theHour.toString();
+    }
+  
+    const theTime = stringHour + stringMin + fileSystem[record].updatedAt.substring(12);
+    const theDay = Number(fileSystem[record].updatedAt.substring(6,8)) + addDay;
+    if (theDay < 10){
+      stringDay = "0" + theDay;
+    } else {
+      stringDay = theDay.toString();
+    }
+    const refDate=fileSystem[record].updatedAt.substring(0,6) + stringDay + theTime;
+  
+    const aDate = new Date();
+    const theDate = aDate.toUTCString();
+    const myTime = theDate.substring(17,19)+theDate.substring(20,22)+theDate.substring(23,25);
+    const myDate = convertDate(aDate,"YYYYMMDD") + myTime;
+
+    if (Number(myDate) > Number(refDate)){
+        fileSystem[record].createdAt=myDate;
+        fileSystem[record].updatedAt=myDate;
+        fileSystem[record].bucket=inData.bucket;
+        fileSystem[record].object=inData.object;
+        fileSystem[record].byUser=inData.user;
+        fileSystem[fileSystem.length-1].IpAddress=inData.IpAddress;
+        return(fileSystem);
+    } else {
+        return(300);
+    }
+  }
+  
+  export  function updatedAt(fileSystem:Array<classFileSystem>, iWait:number,iRecord:number){
+    const aDate=new Date();
+    const theDate=aDate.toUTCString();
+    const myTime=theDate.substring(17,19)+theDate.substring(20,22)+theDate.substring(23,25);
+    const myDate=convertDate(aDate,"YYYYMMDD") + myTime;
+    fileSystem[iRecord].updatedAt=myDate;
+    return(fileSystem);
+  }

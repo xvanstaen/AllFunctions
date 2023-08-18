@@ -40,8 +40,6 @@ import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.servic
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import {AccessConfigService} from 'src/app/CloudServices/access-config.service';
 
-import { onUpdateFileSystem, createRecord } from 'src/app/updateFileSystem';
-
 import { fnAddTime, convertDate, strDateTime, fnCheckLockLimit } from '../../MyStdFunctions';
 
 @Component({
@@ -57,7 +55,6 @@ export class HealthComponent implements OnInit {
     private scroller: ViewportScroller,
     private ManageMangoDBService: ManageMangoDBService,
     private ManageGoogleService: ManageGoogleService,
-    private onUpdateFileSystem: onUpdateFileSystem,
     private datePipe: DatePipe,
     @Inject(LOCALE_ID) private locale: string,
     ) { }
@@ -290,8 +287,8 @@ onWindowResize() {
 ngOnInit(): void {
   //this.getPosDivOthers();
   //this.getPosDivAfterTitle();
-  this.message=' ngOnInit ';
-  this.GetRecord(this.XMVConfig.BucketSystemFile, this.XMVConfig.ObjectSystemFile,10);
+
+
 
   for (var i=0; i<7; i++){
     const thePush=new classAccessFile;
@@ -475,7 +472,7 @@ resetBooleans(){
     this.IsSaveConfirmedAll=false;
     this.isAllDataModified=false;
     this.tabNewRecordAll.splice(0,this.tabNewRecordAll.length);
-    // this.initTrackRecord();
+    this.initTrackRecord();
     this.isAllDataModified = false;
     this.isMustSaveFile=false;
     this.isSaveHealth=false;
@@ -543,6 +540,8 @@ checkLockLimit(iWait:number, isDataModified:boolean, isSaveFile:boolean){
             this.theEvent.target.id='All'; // ===== change value of target.id if created record or if selRecord  
             this.ConfirmSave(this.theEvent);
         } 
+    } else if (this.isConfirmSaveA===true){
+      this.ConfirmSave(this.theEvent);
     }
 
 
@@ -1482,7 +1481,12 @@ GetRecord(Bucket:string,GoogleObject:string, iWait:number){
                 if (this.InHealthAllData.fileType===''){
                   this.FillHealthAllInOut(this.InHealthAllData, this.HealthAllData);
                 }
-                this.initTrackRecord();
+                this.resetBooleans();
+                if (this.tabLock[0].lock===1){
+                  this.tabNewRecordAll.splice(0,this.tabNewRecordAll.length);
+                  this.initTrackRecord();
+                }
+
                 this.SpecificForm.controls['FileName'].setValue(this.identification.fitness.files.fileHealth);
                 
               } else if (iWait===1){
@@ -1610,15 +1614,8 @@ GetRecord(Bucket:string,GoogleObject:string, iWait:number){
                     this.tabLock[1].lock=0;
 
                 }
-              } else if (iWait===10){
-                const theFileSystem=JSON.stringify(data);
-                if (data.length===0) { 
-                  this.message = this.message + ' file is empty = ' + theFileSystem;
-                } else {
-                  this.message= this.message + ' file system = ' + theFileSystem;
-                }
-              }
-            if (iWait!==7 && iWait!==8 && iWait!==9 && iWait!==10){
+              } 
+            if (iWait!==7 && iWait!==8 && iWait!==9 ){
                 this.returnFile.emit(data);
               }
             this.EventHTTPReceived[iWait]=true;
@@ -1781,13 +1778,21 @@ SaveRecipeFile(event:any){
 
   }
 }
+isConfirmSaveA:boolean=false;
+ConfirmSaveA(event:any){
+  this.theEvent.target.id=event.target.id;
+  if (this.isMustSaveFile===false){
+    this.isConfirmSaveA=true;
+      this.checkLockLimit(0,true,false);
+  } else if (this.tabLock[0].lock === 1){
+    this. ConfirmSave(event);
+  }
+}
 
 ConfirmSave(event:any){
-  if (this.isMustSaveFile===false){
-      this.checkLockLimit(0,true,false);
-  }
+  
   if (this.tabLock[0].lock === 1){
-
+    this.isConfirmSaveA=false;
     this.SpecificForm.controls['FileName'].setValue(this.identification.fitness.files.fileHealth);
     this.error_msg='';
     if (event.target.id.substring(0,3)==='Cre'){
@@ -2202,7 +2207,7 @@ ngOnDestroy(){
       if (this.tabLock[i].lock===1) { 
         trouve=true;
         this.tabLock[0].action='onDestroy';
-        this.updateSystemFile(0);
+        this.updateSystemFileOld(0);
       }
     }
   } 
@@ -2235,7 +2240,7 @@ updateLockFile(iWait:number){
 
 
 
-updateSystemFile(iWait:number){
+updateSystemFileOld(iWait:number){
   var inData=new classAccessFile;
   inData.action=this.tabLock[iWait].action;
   inData.bucket=this.tabLock[iWait].bucket;
@@ -2247,8 +2252,8 @@ updateSystemFile(iWait:number){
   inData.iWait=iWait; 
   inData.timeoutFileSystem.hh=this.configServer.timeoutFileSystem.hh;
   inData.timeoutFileSystem.mn=this.configServer.timeoutFileSystem.mn;
-  this.message= this.message + ' updateSystemFile ';
-  this.GetRecord(this.XMVConfig.BucketSystemFile, this.XMVConfig.ObjectSystemFile,10);
+  //this.message= this.message + ' updateSystemFile ';
+  //this.GetRecord(this.XMVConfig.BucketSystemFile, this.XMVConfig.ObjectSystemFile,10);
   /*
   const theError=JSON.stringify(inData);
   const theconfigServer=JSON.stringify(this.configServer);
@@ -2367,6 +2372,116 @@ updateSystemFile(iWait:number){
       }
 
     } )
+}
+
+
+saveIWait:number=0;
+isTriggerFileSystem:boolean=false;
+updateSystemFile(iWait:number){
+  this.saveIWait=iWait;
+  this.isTriggerFileSystem=true;
+}
+
+returnFromFileSystem(data:any){
+this.isTriggerFileSystem=false;
+const iWait=this.saveIWait;
+  if (Array.isArray(data)=== true)  { // tabLock is returned
+    console.log('server response: ' + data[iWait].object + ' createdAt=' + data[iWait].createdAt + '  & updatedAt=' + data[iWait].updatedAt + '  & lock value =' + data[iWait].lock);
+    // record is locked by another user; no actions can take place for this user so reset
+    if (data[iWait].createdAt !== undefined){
+        this.error_msg = this.error_msg + " data returned: lock=" + data[iWait].lock +  "  & status=" + data[iWait].status ;
+        if (data[iWait].lock ===2 && this.tabLock[iWait].lock === 1) {
+          if (iWait===0){
+            this.tabLock[iWait].lock=2;
+            
+            this.reAccessHealthFile();
+          } else {
+            this.tabLock[iWait].status=300;
+            if (iWait===5){
+              this.reAccessChartFile();
+            } else if (iWait===1){
+              this.reAccessConfigCal();
+            }
+          }
+
+        } else if (this.tabLock[iWait].action==='check&update' && data[iWait].status===0 && this.isMustSaveFile===true){
+          this.ConfirmSave(this.theEvent);
+
+        }
+        this.tabLock[iWait]=data[iWait];
+      } else { console.log(' something wrong happened with process on file system');}
+    
+  } else if ((this.tabLock[iWait].action==='check' || this.tabLock[iWait].action==='check&update') && data.createdAt !== undefined){ // inData is returned
+
+      if (data.status===810 || data.status===800){ // record found and belongs to same user or record not found or file empty
+        if (data.status === 800){ // no file system or no record then lock this user
+          this.lockFile(iWait); // ====> the process below has to be reviewed 
+        }  
+        this.tabLock[iWait].status=data.status;
+        if (iWait===0){
+            if (this.isSaveHealth === true){
+              this.ProcessSaveHealth(this.theEvent);
+            } else if (this.isMustSaveFile === true){
+                this.ConfirmSave(this.theEvent);
+            } else if (data.status === 810){
+              this.updateLockFile(iWait);
+            }  
+        } else if (iWait===1 ){
+              if( this.isSaveCaloriesFat === true){
+                this.processSaveCaloriesFat(this.saveEvent);
+              } else if (data.status === 810){
+                this.updateLockFile(iWait);
+              }
+          } else if (iWait===5){
+              if( this.isSaveParamChart === true){
+                this.processSaveParamChart();
+              } else if (data.status === 810){
+                this.updateLockFile(iWait);
+              }
+          }
+
+        } else if (data.status===820){ // record found and belongs to other user
+            this.tabLock[iWait].lock=2;
+            if (iWait===0){
+              this.reAccessHealthFile();
+            } else if (iWait===1){
+              this.reAccessConfigCal();
+            } else if (iWait===5){
+              this.tabLock[iWait].status=data.status;
+              this.reAccessChartFile();
+            }
+           
+        }
+
+  } else if (data.error!== undefined){
+        if (data.error===300 || data.error === 720){ // 300 record already locked; 720 updatedAt on record locked by another user
+          this.tabLock[iWait].lock=2;
+          
+          if (data.error === 720){
+            this.tabLock[iWait].status=720;
+            if (iWait===0){
+              this.reAccessHealthFile();
+            } else if (iWait===1){
+              this.reAccessConfigCal();
+            } else if (iWait===5){
+              this.reAccessChartFile();
+            } 
+          } else {
+            this.tabLock[iWait].status=300;
+          }
+      } else if (data.error===700 || data.error===710){ // requested to unlock record which does not exist or is locked by another user
+          this.tabLock[iWait].lock=0;
+          this.tabLock[iWait].status=data.error;
+
+      } else {
+          console.log('which type of data is it????');
+          const a = data;
+          this.tabLock[iWait].status=999;
+      } 
+  } else {
+    console.log('which type of data is it???? : ' + data);
+    this.tabLock[iWait].status=999;
+  } 
 }
 
 

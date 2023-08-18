@@ -3,6 +3,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head> 
 <body>
+    <div *ngIf="isTriggerFileSystem===true">
+        <app-file-system-service [identification]="identification" [XMVConfig]="XMVConfig" [configServer]="configServer" 
+          [tabLock]="tabLock" [iWait]="tabLock[saveIWait].iWait" (returnStatus)="returnFromFileSystem($event)">
+        </app-file-system-service>
+    </div>
 
     <div class="skipLine">&nbsp;</div>
     <div id='posTopHealth' [formGroup]="TheSelectDisplays" style="display:block; background-color:lightgrey; width:90%; max-width:410px; height:280px; margin-left:20px; border:solid 2px blue; ">
@@ -177,7 +182,7 @@
             <div class="skipLine">&nbsp;</div>  
             <div class="posConfirm">
                 <span *ngIf="IsSaveConfirmedSel===false">
-                    <button id='Sel-1' class="sizeButtons" (click)="ConfirmSave($event)"> Save</button>
+                    <button id='Sel-1' class="sizeButtons" (click)="ConfirmSaveA($event)"> Save</button>
                     <button id='Sel-2' class="sizeButtons" (click)="CancelRecord($event)"> Cancel</button>
                 </span>
             </div>
@@ -292,7 +297,7 @@ style="margin-left:20px; background-color: rgb(162, 249, 205); border:double 1px
     <div class="skipLine">&nbsp;</div>
     <div class="posConfirm">
         <div *ngIf="IsSaveConfirmedCre===false">
-            <button id='Cre_12' class="sizeButtons" (click)="ConfirmSave($event)"> Save</button>
+            <button id='Cre_12' class="sizeButtons" (click)="ConfirmSaveA($event)"> Save</button>
             <button id='Cre_22' class="sizeButtons" (click)="CancelRecord($event)"> Cancel</button>
         </div>
     </div>  
@@ -549,7 +554,7 @@ style="margin-left:20px; background-color: rgb(162, 249, 205); border:double 1px
         <span *ngIf="IsSaveConfirmedAll===false">
             <div class="msg"  style="margin-left:10px;">
                     File has been modified
-                <button id='All_12' class="sizeButtons" (click)="ConfirmSave($event)"> Save</button>
+                <button id='All_12' class="sizeButtons" (click)="ConfirmSaveA($event)"> Save</button>
                 <button id='All_13' class="sizeButtons" style='width:100px;' (click)="CancelUpdateAll($event)"> Cancel changes</button>
             </div>
         </span>

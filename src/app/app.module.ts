@@ -55,6 +55,7 @@ import { DictionaryComponent } from './dictionary/dictionary.component';
 import { CheckFileUpdateComponent } from './check-file-update/check-file-update.component';
 import { TestServerJSComponent } from './test-server-js/test-server-js.component';
 import { TestHttpOAComponent } from './test-http-oa/test-http-oa.component';
+import { FileSystemServiceComponent } from './file-system-service/file-system-service.component';
 //import { NgxIntlTelInputComponent } from './ngx-intl-tel-input/ngx-intl-tel-input.component';
 
 @NgModule({
@@ -100,6 +101,7 @@ import { TestHttpOAComponent } from './test-http-oa/test-http-oa.component';
     CheckFileUpdateComponent,
     TestServerJSComponent,
     TestHttpOAComponent,
+    FileSystemServiceComponent,
 
     
 
