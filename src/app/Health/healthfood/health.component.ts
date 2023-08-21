@@ -2228,7 +2228,7 @@ updateSystemFileOld(iWait:number){
         if (Array.isArray(data)=== true && data[inData.iWait].createdAt !== undefined){ // tabLock is returned
           console.log('server response: ' + data[inData.iWait].object + ' createdAt=' + data[inData.iWait].createdAt + '  & updatedAt=' + data[inData.iWait].updatedAt + '  & lock value =' + data[inData.iWait].lock);
           // record is locked by another user; no actions can take place for this user so reset
-          this.error_msg = this.error_msg + " data returned: lock=" + data[inData.iWait].lock +  "  & status=" + data[inData.iWait].status ;
+          // this.error_msg = this.error_msg + " data returned: lock=" + data[inData.iWait].lock +  "  & status=" + data[inData.iWait].status ;
           if (data[inData.iWait].lock ===2 && this.tabLock[inData.iWait].lock === 1) {
             if (inData.iWait===0){
               this.tabLock[inData.iWait].lock=2;

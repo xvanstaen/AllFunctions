@@ -65,9 +65,9 @@
 </div>
 
 <div *ngIf="error_msg!=='' && errorFn==='Copy'" class="error">{{error_msg}}</div>
-
+<!--
 <div style="margin-left:25px; font-size:14px; color:blue; dislay: inline-block; background-color: cyan;">{{message}}</div>
-
+-->
 
 <div id='posTopAppCalFat' *ngIf="isMgtCaloriesFat===true && EventHTTPReceived[1]===true && EventHTTPReceived[6]===true  && tabLock[1].lock!==3">
     <app-calories-fat [identification]="identification"  [configServer]="configServer"  [posDivCalFat]="posDivCalFat" [inFileRecipe]="fileRecipe"
