@@ -5,7 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
-import { LoginIdentif ,XMVConfig, configServer } from './JsonServerClass';
+import { LoginIdentif , configServer } from './JsonServerClass';
 import { environment } from 'src/environments/environment';
 
 import {mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from './ClassConverter';
@@ -33,7 +33,7 @@ export class AppComponent {
       // import configuration files
       // access MongoDB
   configServer=new configServer;
-  XMVConfig=new XMVConfig;
+  //XMVConfig=new XMVConfig;
   isConfigServerRetrieved:boolean=false;
   identification=new LoginIdentif;
   ConvertUnit=new mainClassConv;
@@ -61,6 +61,7 @@ inData=new classAccessFile;
       InitconfigServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
       
       InitconfigServer.GoogleProjectId='ConfigDB';
+      //this.ManageMangoDB.findConfig(InitconfigServer, 'configServer', '')
       this.ManageMangoDB.findConfigbyURL(InitconfigServer, 'configServer', '')
       .subscribe(
         data => {
@@ -75,12 +76,12 @@ inData=new classAccessFile;
             if (data[i].title==="configServer" && data[i].test_prod===test_prod){
                 this.configServer = data[i];
 
-               //this.configServer.baseUrl='http://localhost:8080';
+               this.configServer.baseUrl='http://localhost:8080';
                this.configServer.IpAddress=this.IpAddress;
             
-            } else if (data[i].title==="configPhoto" && data[i].test_prod===test_prod){
-                this.XMVConfig = data[i];
-            }
+            } //else if (data[i].title==="configPhoto" && data[i].test_prod===test_prod){
+                //this.XMVConfig = data[i];
+            //}
 
         }
         

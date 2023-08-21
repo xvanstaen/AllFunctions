@@ -15,7 +15,7 @@ import { BucketList, Bucket_List_Info  } from '../../JsonServerClass';
 // it is stored in MangoDB and accessed via ManageMangoDBService
 
 import {msginLogConsole} from '../../consoleLog'
-import { configServer, XMVConfig, LoginIdentif, msgConsole } from '../../JsonServerClass';
+import { configServer, LoginIdentif, msgConsole } from '../../JsonServerClass';
 import {classPosDiv, getPosDiv} from '../../getPosDiv';
 
 import { environment } from 'src/environments/environment';
@@ -61,7 +61,6 @@ export class HealthComponent implements OnInit {
 
   @Output() returnFile= new EventEmitter<any>();
 
-  @Input() XMVConfig=new XMVConfig;
   @Input() configServer = new configServer;
   @Input() identification= new LoginIdentif;
   @Input() InHealthAllData=new mainDailyReport;
@@ -301,6 +300,11 @@ ngOnInit(): void {
     this.tabLock[i].IpAddress=this.configServer.IpAddress;
   }
 
+  this.tabLock[0].objectName=this.identification.fitness.files.fileHealth+this.identification.UserId;
+  this.tabLock[1].objectName=this.identification.configFitness.files.calories;
+  this.tabLock[5].objectName=this.identification.fitness.files.myChartConfig+this.identification.UserId;;
+  
+
   for (var i=0; i<this.maxEventHTTPrequest; i++){
     this.EventHTTPReceived[i]=false;
   }
@@ -512,7 +516,6 @@ checkLockLimit(iWait:number, isDataModified:boolean, isSaveFile:boolean){
     var valueCheck={action:'',lockValue:0, lockAction:'' };
     valueCheck=fnCheckLockLimit(this.configServer, this.tabLock, iWait, this.lastInputAt, isDataModified, isSaveFile);
 
-
     if (iWait===0 && this.tabLock[iWait].lock===2){
       this.isAllDataModified = false;
     }
@@ -526,7 +529,6 @@ checkLockLimit(iWait:number, isDataModified:boolean, isSaveFile:boolean){
             } else {
               this.checkFile(iWait); 
             }
-            
         } else if (valueCheck.action==='changeTabLock'){
             this.tabLock[iWait].lock=valueCheck.lockValue;
         } else if (iWait===0 && valueCheck.action==='ProcessSave'){
@@ -543,50 +545,6 @@ checkLockLimit(iWait:number, isDataModified:boolean, isSaveFile:boolean){
     } else if (this.isConfirmSaveA===true){
       this.ConfirmSave(this.theEvent);
     }
-
-
-    /***
-    if (this.tabLock[0].lock!==3){
-        //const aDate = new Date();
-        //const theDate = aDate.toUTCString();
-        //const myDate=convertDate(aDate,"YYYYMMDD");
-        //const currentTime=  myDate +  theDate.substring(17,19)+theDate.substring(20,22)+theDate.substring(23,25);
-        const currentTime=strDateTime();
-
-        const timeOutValue=fnAddTime(this.tabLock[0].updatedAt,this.configServer.timeoutFileSystem.hh,this.configServer.timeoutFileSystem.mn);
-        const bufferTimeOutValue=fnAddTime(this.tabLock[0].updatedAt,this.configServer.timeoutFileSystem.bufferTO.hh,this.configServer.timeoutFileSystem.bufferTO.mn);
-        const bufferLastInput=fnAddTime(this.tabLock[0].updatedAt,this.configServer.timeoutFileSystem.bufferInput.hh,this.configServer.timeoutFileSystem.bufferInput.mn);
-        
-        if (this.tabLock[0].lock===2){
-          this.isAllDataModified = false;
-        }
-        //console.log('===> checkLockLimit():  timeOutValue= ' + timeOutValue, '  currentTime= ' + currentTime + '  bufferLastInput=' + bufferLastInput );
-        
-        if (Number(currentTime) <= Number(timeOutValue) && Number(this.lastInputAt) >=Number(bufferTimeOutValue) 
-                                && this.tabLock[0].lock === 1 && this.isAllDataModified === true){
-          this.isMustSaveFile=true;
-          this.theEvent.target.id='All'; // ===== change value of target.id if created record or if selRecord
-          this.ConfirmSave(this.theEvent);
-
-        } else if (Number(currentTime) <= Number(timeOutValue) && Number(this.lastInputAt) >= Number(bufferLastInput)
-                                && this.tabLock[0].lock === 1 && this.isAllDataModified === true){
-          this.updateLockFile(0);
-        } else  if (Number(currentTime) > Number(timeOutValue) ){ // timeout is reached
-            
-          if (this.tabLock[0].lock === 1 && this.isAllDataModified === true){
-            this.checkFile(0); // check if it is possible to still trigger the changes 
-          } else if (this.tabLock[0].lock === 1){
-              this.tabLock[0].lock = 0; // user has not done anything until timeout;  
-          } else if (this.tabLock[0].lock===0 && this.isAllDataModified === true) {
-              this.lockFile(0); // user is trying to do something but file was not locked
-          } else if (this.tabLock[0].lock===2) {
-              this.lockFile(0); // check if file can now be locked by this user - may have been unlocked in the meantime by other user
-          }
-        } else  if (this.isSaveHealth===true){
-            this.ProcessSaveHealth(this.theEvent);
-        }
-      }
-      *****/
 }
 
 dateRangeSelection(event:any){
@@ -793,6 +751,7 @@ onInputDaily(event:any){
   this.lastInputAt=strDateTime();
 
   this.checkLockLimit(0, this.isAllDataModified, this.isSaveHealth);
+
   if (this.tabLock[0].lock !== 2){
     this.resetBooleans();
     this.error_msg='';
@@ -854,6 +813,7 @@ onInputDailyAll(event:any){
   this.lastInputAt=strDateTime();
   this.isAllDataModified=true;
   this.checkLockLimit(0, this.isAllDataModified, this.isSaveHealth);
+
   if (this.tabLock[0].lock !== 2){
     this.resetBooleans();
     //this.offsetHeight= event.currentTarget.offsetHeight;
@@ -950,197 +910,195 @@ onNoAction(event:any){
 
 onAction(event:any){
 
-  
-  //const aDate=new Date();
-  //const theDate=aDate.toUTCString();
-  //const myTime=theDate.substring(17,19)+theDate.substring(20,22)+theDate.substring(23,25);
-  //this.lastInputAt=convertDate(aDate,"YYYYMMDD") + myTime;
-
   this.lastInputAt=strDateTime();
+  this.checkLockLimit(0, this.isAllDataModified, this.isSaveHealth);
   this.resetBooleans();
-  this.findIds(event.target.id);
-  this.dialogue[this.prevDialogue]=false;
-  if (this.tabLock[0].lock === 0 && event.target.id.substring(0,10)!=='openAction'){
-    this.isAllDataModified=true;
-    this.checkLockLimit(0, this.isAllDataModified, this.isSaveHealth);
-  }
-  else if (this.tabLock[0].lock !== 2){  
-      if (event.target.id.substring(0,10)==='openAction'){
-        this.prevDialogue=6;
-        this.dialogue[this.prevDialogue]=true;
-        this.sizeBox.heightOptions=this.sizeBox.heightItem  * (this.NewTabAction.length) + 10;
-        this.sizeBox.heightContent=this.sizeBox.heightOptions;
-        this.findPosItem(this.sizeBox.heightOptions);
+  if (this.tabLock[0].lock !== 2){
 
-        this.styleBox=getStyleDropDownContent(this.sizeBox.heightContent, this.sizeBox.widthContent);
-        // this.styleBoxOption=getStyleDropDownBox(this.sizeBox.heightOptions, this.sizeBox.widthOptions,  60, this.selectedPosition.y - this.posDivAfterTitle.Client.Top - 279, this.sizeBox.scrollY);
-        this.styleBoxOption=getStyleDropDownBox(this.sizeBox.heightOptions, this.sizeBox.widthOptions,  60, this.posItem, this.sizeBox.scrollY);
+    this.findIds(event.target.id);
+    this.dialogue[this.prevDialogue]=false;
+    if (this.tabLock[0].lock === 0 && event.target.id.substring(0,10)!=='openAction'){
+      this.isAllDataModified=true;
+      this.checkLockLimit(0, this.isAllDataModified, this.isSaveHealth);
+    }
+    else {  
+        if (event.target.id.substring(0,10)==='openAction'){
+          this.prevDialogue=6;
+          this.dialogue[this.prevDialogue]=true;
+          this.sizeBox.heightOptions=this.sizeBox.heightItem  * (this.NewTabAction.length) + 10;
+          this.sizeBox.heightContent=this.sizeBox.heightOptions;
+          this.findPosItem(this.sizeBox.heightOptions);
 
-      } else  if (event.target.id.substring(0,9)==='selAction'){
-          if (event.target.textContent.indexOf('cancel')!==-1){
-          } else {
-            this.isAllDataModified=true;
-           
-            this.findAction(event.target.textContent);
-            if (this.myType.trim()==="date" ){
-              if (this.myAction==="insert after"){
-                this.theEvent.target.id='AllDateA-'+this.TabOfId[0];
-                this.CreateDay(this.theEvent);
-              } else if (this.myAction==="insert before"){
-                this.theEvent.target.id='AllDateB-'+this.TabOfId[0];
-                this.CreateDay(this.theEvent);
-              } else if (this.myAction==="delete"){
-                this.theEvent.target.id='DelAllDate-'+this.TabOfId[0];
-                this.delMsg=' date=' + this.HealthAllData.tabDailyReport[this.TabOfId[0]].date;
-                this.posDelConfirm=this.posDelDate;
-                this.isDeleteItem=true;
-                
-              } 
+          this.styleBox=getStyleDropDownContent(this.sizeBox.heightContent, this.sizeBox.widthContent);
+          // this.styleBoxOption=getStyleDropDownBox(this.sizeBox.heightOptions, this.sizeBox.widthOptions,  60, this.selectedPosition.y - this.posDivAfterTitle.Client.Top - 279, this.sizeBox.scrollY);
+          this.styleBoxOption=getStyleDropDownBox(this.sizeBox.heightOptions, this.sizeBox.widthOptions,  60, this.posItem, this.sizeBox.scrollY);
 
-            } else if (this.myType.trim()==="meal" ){
-              if (this.myAction==="insert after"){
-                this.theEvent.target.id='AllMealA-'+this.TabOfId[0]+'-'+this.TabOfId[1];
-                this.CreateMeal(this.theEvent);
+        } else  if (event.target.id.substring(0,9)==='selAction'){
+            if (event.target.textContent.indexOf('cancel')!==-1){
+            } else {
+              this.isAllDataModified=true;
+            
+              this.findAction(event.target.textContent);
+              if (this.myType.trim()==="date" ){
+                if (this.myAction==="insert after"){
+                  this.theEvent.target.id='AllDateA-'+this.TabOfId[0];
+                  this.CreateDay(this.theEvent);
+                } else if (this.myAction==="insert before"){
+                  this.theEvent.target.id='AllDateB-'+this.TabOfId[0];
+                  this.CreateDay(this.theEvent);
+                } else if (this.myAction==="delete"){
+                  this.theEvent.target.id='DelAllDate-'+this.TabOfId[0];
+                  this.delMsg=' date=' + this.HealthAllData.tabDailyReport[this.TabOfId[0]].date;
+                  this.posDelConfirm=this.posDelDate;
+                  this.isDeleteItem=true;
+                  
+                } 
 
-              } else if (this.myAction==="insert before"){
-                this.theEvent.target.id='AllMealB-'+this.TabOfId[0]+'-'+this.TabOfId[1];
-                this.CreateMeal(this.theEvent);
+              } else if (this.myType.trim()==="meal" ){
+                if (this.myAction==="insert after"){
+                  this.theEvent.target.id='AllMealA-'+this.TabOfId[0]+'-'+this.TabOfId[1];
+                  this.CreateMeal(this.theEvent);
 
-              } else if (this.myAction==="delete"){
-                this.theEvent.target.id='DelAllMeal-'+this.TabOfId[0]+'-'+this.TabOfId[1];
-                this.delMsg=' meal=' + this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].name;
-                this.posDelConfirm=this.posDelMeal;
-                this.isDeleteItem=true;
-                
-              } 
+                } else if (this.myAction==="insert before"){
+                  this.theEvent.target.id='AllMealB-'+this.TabOfId[0]+'-'+this.TabOfId[1];
+                  this.CreateMeal(this.theEvent);
 
-            } else if (this.myType.trim()==="food" ){
-              if (this.myAction==="insert before"){
-                this.theEvent.target.id='AllIngrB-'+this.TabOfId[0]+'-'+this.TabOfId[1]+'-'+this.TabOfId[2];
-                this.CreateIngredient(this.theEvent);
+                } else if (this.myAction==="delete"){
+                  this.theEvent.target.id='DelAllMeal-'+this.TabOfId[0]+'-'+this.TabOfId[1];
+                  this.delMsg=' meal=' + this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].name;
+                  this.posDelConfirm=this.posDelMeal;
+                  this.isDeleteItem=true;
+                  
+                } 
 
-              } else if (this.myAction==="insert after"){
-                this.theEvent.target.id='AllIngrA-'+this.TabOfId[0]+'-'+this.TabOfId[1]+'-'+this.TabOfId[2];
-                this.CreateIngredient(this.theEvent);
+              } else if (this.myType.trim()==="food" ){
+                if (this.myAction==="insert before"){
+                  this.theEvent.target.id='AllIngrB-'+this.TabOfId[0]+'-'+this.TabOfId[1]+'-'+this.TabOfId[2];
+                  this.CreateIngredient(this.theEvent);
 
-              } else if (this.myAction==="delete"){
-                this.theEvent.target.id='DelAll-'+this.TabOfId[0]+'-'+this.TabOfId[1]+'-'+this.TabOfId[2];
-                this.isDeleteItem=true;
-                this.delMsg=
-                ' ingredient ' + this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name
-                + ' of meal ' + this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].name;;
-                this.posDelConfirm=this.posDelIngr;
-              } 
+                } else if (this.myAction==="insert after"){
+                  this.theEvent.target.id='AllIngrA-'+this.TabOfId[0]+'-'+this.TabOfId[1]+'-'+this.TabOfId[2];
+                  this.CreateIngredient(this.theEvent);
+
+                } else if (this.myAction==="delete"){
+                  this.theEvent.target.id='DelAll-'+this.TabOfId[0]+'-'+this.TabOfId[1]+'-'+this.TabOfId[2];
+                  this.isDeleteItem=true;
+                  this.delMsg=
+                  ' ingredient ' + this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name
+                  + ' of meal ' + this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].name;;
+                  this.posDelConfirm=this.posDelIngr;
+                } 
+              }
             }
+        }
+        else if (event.target.id.substring(0,15)==='CreDialogueDate'){
+          this.prevDialogue=0;
+          this.dialogue[this.prevDialogue]=true;
+        } else if (event.target.id.substring(0,15)==='CreDialogueMeal'){
+          this.prevDialogue=1;
+          this.dialogue[this.prevDialogue]=true;
+        } else if (event.target.id.substring(0,15)==='CreDialogueIngr'){
+          this.prevDialogue=2;
+          this.dialogue[this.prevDialogue]=true;
+        } else if (event.target.id.substring(0,15)==='SelDialogueDate'){
+          this.prevDialogue=3;
+          this.dialogue[this.prevDialogue]=true;
+        } else if (event.target.id.substring(0,15)==='SelDialogueMeal'){
+          this.prevDialogue=4;
+          this.dialogue[this.prevDialogue]=true;
+        } else if (event.target.id.substring(0,15)==='SelDialogueIngr'){
+          this.prevDialogue=5;
+          this.dialogue[this.prevDialogue]=true;
+        } else if (event.target.id.substring(0,7)==='SelMeal'){
+          if (event.target.textContent==='insert after'){
+            this.theEvent.target.id='SelMealA-'+this.TabOfId[0];
+            this.CreateMeal(this.theEvent);
+
+          } else if (event.target.textContent==='insert before'){
+            this.theEvent.target.id='SelMealB-'+this.TabOfId[0];
+            this.CreateMeal(this.theEvent);
+            
+          } else if (event.target.textContent==='delete'){
+            this.theEvent.target.id='DelSelMeal-'+this.TabOfId[0];
+            this.DeleteMeal(this.theEvent);
+            
           }
-      }
-      else if (event.target.id.substring(0,15)==='CreDialogueDate'){
-        this.prevDialogue=0;
-        this.dialogue[this.prevDialogue]=true;
-      } else if (event.target.id.substring(0,15)==='CreDialogueMeal'){
-        this.prevDialogue=1;
-        this.dialogue[this.prevDialogue]=true;
-      } else if (event.target.id.substring(0,15)==='CreDialogueIngr'){
-        this.prevDialogue=2;
-        this.dialogue[this.prevDialogue]=true;
-      } else if (event.target.id.substring(0,15)==='SelDialogueDate'){
-        this.prevDialogue=3;
-        this.dialogue[this.prevDialogue]=true;
-      } else if (event.target.id.substring(0,15)==='SelDialogueMeal'){
-        this.prevDialogue=4;
-        this.dialogue[this.prevDialogue]=true;
-      } else if (event.target.id.substring(0,15)==='SelDialogueIngr'){
-        this.prevDialogue=5;
-        this.dialogue[this.prevDialogue]=true;
-      } else if (event.target.id.substring(0,7)==='SelMeal'){
-        if (event.target.textContent==='insert after'){
-          this.theEvent.target.id='SelMealA-'+this.TabOfId[0];
-          this.CreateMeal(this.theEvent);
+        } else if (event.target.id.substring(0,7)==='SelIngr'){
+          if (event.target.textContent==='insert after'){
+            this.theEvent.target.id='SelIngrA-'+this.TabOfId[0]+'-'+this.TabOfId[1];
+            this.CreateIngredient(this.theEvent);
 
-        } else if (event.target.textContent==='insert before'){
-          this.theEvent.target.id='SelMealB-'+this.TabOfId[0];
-          this.CreateMeal(this.theEvent);
-          
-        } else if (event.target.textContent==='delete'){
-          this.theEvent.target.id='DelSelMeal-'+this.TabOfId[0];
-          this.DeleteMeal(this.theEvent);
-          
+          } else if (event.target.textContent==='insert before'){
+            this.theEvent.target.id='SelIngrB-'+this.TabOfId[0]+'-'+this.TabOfId[1];
+            this.CreateIngredient(this.theEvent);
+            
+          } else if (event.target.textContent==='delete'){
+            this.theEvent.target.id='DelSelIngr-'+this.TabOfId[0]+'-'+this.TabOfId[1];
+            this.DeleteIngredient(this.theEvent);
+            
+          }
+        }   else if (event.target.id.substring(0,7)==='CreMeal'){
+          if (event.target.textContent==='insert after'){
+            this.theEvent.target.id='CreMealA-'+this.TabOfId[0]+'-'+this.TabOfId[1];
+            this.CreateMeal(this.theEvent);
+
+          } else if (event.target.textContent==='insert before'){
+            this.theEvent.target.id='CreMealB-'+this.TabOfId[0]+'-'+this.TabOfId[1];
+            this.CreateMeal(this.theEvent);
+            
+          } else if (event.target.textContent==='delete'){
+            this.theEvent.target.id='DelCreMeal-'+this.TabOfId[0]+'-'+this.TabOfId[1];
+            this.DeleteMeal(this.theEvent);
+            
+          }
+        } else if (event.target.id.substring(0,7)==='CreIngr'){
+          if (event.target.textContent==='insert after'){
+            this.theEvent.target.id='CreIngrA-'+this.TabOfId[0]+'-'+this.TabOfId[1]+'-'+this.TabOfId[2];
+            this.CreateIngredient(this.theEvent);
+
+          } else if (event.target.textContent==='insert before'){
+            this.theEvent.target.id='CreIngrB-'+this.TabOfId[0]+'-'+this.TabOfId[1]+'-'+this.TabOfId[2];
+            this.CreateIngredient(this.theEvent);
+            
+          } else if (event.target.textContent==='delete'){
+            this.theEvent.target.id='DelCreIngr-'+this.TabOfId[0]+'-'+this.TabOfId[1]+'-'+this.TabOfId[2];
+            this.DeleteIngredient(this.theEvent);
+            
+          }
+        } else if (event.target.id.substring(0,10)==='ActionDate'){
+          if (event.target.textContent==='insert after'){
+            this.theEvent.target.id='DateA-'+this.TabOfId[0];
+            this.CreateDay(this.theEvent);
+
+          } else if (event.target.textContent==='insert before'){
+            this.theEvent.target.id='DateB-'+this.TabOfId[0];
+            this.CreateDay(this.theEvent);
+            
+          } else if (event.target.textContent==='delete'){
+            this.theEvent.target.id='DelDate-'+this.TabOfId[0];
+            this.DeleteDay(this.theEvent);
+            
+          }
         }
-      } else if (event.target.id.substring(0,7)==='SelIngr'){
-        if (event.target.textContent==='insert after'){
-          this.theEvent.target.id='SelIngrA-'+this.TabOfId[0]+'-'+this.TabOfId[1];
-          this.CreateIngredient(this.theEvent);
 
-        } else if (event.target.textContent==='insert before'){
-          this.theEvent.target.id='SelIngrB-'+this.TabOfId[0]+'-'+this.TabOfId[1];
-          this.CreateIngredient(this.theEvent);
-          
-        } else if (event.target.textContent==='delete'){
-          this.theEvent.target.id='DelSelIngr-'+this.TabOfId[0]+'-'+this.TabOfId[1];
-          this.DeleteIngredient(this.theEvent);
-          
+
+        if (this.prevDialogue < 6){
+          this.sizeBox.heightOptions=this.sizeBox.heightItem  * (this.TabAction.length + 1) ;
+          this.sizeBox.heightContent=this.sizeBox.heightOptions;
+
+          this.styleBox=getStyleDropDownContent(this.sizeBox.heightContent, this.sizeBox.widthContent);
+          this.styleBoxOption=getStyleDropDownBox(this.sizeBox.heightOptions, this.sizeBox.widthOptions,  30, 0,this.sizeBox.scrollY);
+
+
+        } else if (this.isDeleteItem===true){
+          this.sizeBox.heightOptions=90 ;
+          this.sizeBox.heightContent=90;
+
+          this.styleBox=getStyleDropDownContent(this.sizeBox.heightContent, 240);
+          //this.styleBoxOption=getStyleDropDownBox(this.sizeBox.heightOptions, 240,  60, this.selectedPosition.y - this.posDivAfterTitle.Client.Top - this.posDelConfirm, this.sizeBox.scrollY);
+          this.styleBoxOption=getStyleDropDownBox(this.sizeBox.heightOptions, 240,  60, this.posItem, this.sizeBox.scrollY);
+
         }
-      }   else if (event.target.id.substring(0,7)==='CreMeal'){
-        if (event.target.textContent==='insert after'){
-          this.theEvent.target.id='CreMealA-'+this.TabOfId[0]+'-'+this.TabOfId[1];
-          this.CreateMeal(this.theEvent);
-
-        } else if (event.target.textContent==='insert before'){
-          this.theEvent.target.id='CreMealB-'+this.TabOfId[0]+'-'+this.TabOfId[1];
-          this.CreateMeal(this.theEvent);
-          
-        } else if (event.target.textContent==='delete'){
-          this.theEvent.target.id='DelCreMeal-'+this.TabOfId[0]+'-'+this.TabOfId[1];
-          this.DeleteMeal(this.theEvent);
-          
-        }
-      } else if (event.target.id.substring(0,7)==='CreIngr'){
-        if (event.target.textContent==='insert after'){
-          this.theEvent.target.id='CreIngrA-'+this.TabOfId[0]+'-'+this.TabOfId[1]+'-'+this.TabOfId[2];
-          this.CreateIngredient(this.theEvent);
-
-        } else if (event.target.textContent==='insert before'){
-          this.theEvent.target.id='CreIngrB-'+this.TabOfId[0]+'-'+this.TabOfId[1]+'-'+this.TabOfId[2];
-          this.CreateIngredient(this.theEvent);
-          
-        } else if (event.target.textContent==='delete'){
-          this.theEvent.target.id='DelCreIngr-'+this.TabOfId[0]+'-'+this.TabOfId[1]+'-'+this.TabOfId[2];
-          this.DeleteIngredient(this.theEvent);
-          
-        }
-      } else if (event.target.id.substring(0,10)==='ActionDate'){
-        if (event.target.textContent==='insert after'){
-          this.theEvent.target.id='DateA-'+this.TabOfId[0];
-          this.CreateDay(this.theEvent);
-
-        } else if (event.target.textContent==='insert before'){
-          this.theEvent.target.id='DateB-'+this.TabOfId[0];
-          this.CreateDay(this.theEvent);
-          
-        } else if (event.target.textContent==='delete'){
-          this.theEvent.target.id='DelDate-'+this.TabOfId[0];
-          this.DeleteDay(this.theEvent);
-          
-        }
-      }
-
-
-      if (this.prevDialogue < 6){
-        this.sizeBox.heightOptions=this.sizeBox.heightItem  * (this.TabAction.length + 1) ;
-        this.sizeBox.heightContent=this.sizeBox.heightOptions;
-
-        this.styleBox=getStyleDropDownContent(this.sizeBox.heightContent, this.sizeBox.widthContent);
-        this.styleBoxOption=getStyleDropDownBox(this.sizeBox.heightOptions, this.sizeBox.widthOptions,  30, 0,this.sizeBox.scrollY);
-
-
-      } else if (this.isDeleteItem===true){
-        this.sizeBox.heightOptions=90 ;
-        this.sizeBox.heightContent=90;
-
-        this.styleBox=getStyleDropDownContent(this.sizeBox.heightContent, 240);
-        //this.styleBoxOption=getStyleDropDownBox(this.sizeBox.heightOptions, 240,  60, this.selectedPosition.y - this.posDivAfterTitle.Client.Top - this.posDelConfirm, this.sizeBox.scrollY);
-        this.styleBoxOption=getStyleDropDownBox(this.sizeBox.heightOptions, 240,  60, this.posItem, this.sizeBox.scrollY);
-
       }
   }
 }
@@ -2220,6 +2178,7 @@ unlockFile(iWait:number){
   }
 
 lockFile(iWait:number){
+  console.log('=== lockFile ' + this.tabLock[iWait].objectName )
   this.tabLock[iWait].action='lock';
   this.updateSystemFile(iWait);
 }
@@ -2252,16 +2211,17 @@ updateSystemFileOld(iWait:number){
   inData.iWait=iWait; 
   inData.timeoutFileSystem.hh=this.configServer.timeoutFileSystem.hh;
   inData.timeoutFileSystem.mn=this.configServer.timeoutFileSystem.mn;
+
   //this.message= this.message + ' updateSystemFile ';
-  //this.GetRecord(this.XMVConfig.BucketSystemFile, this.XMVConfig.ObjectSystemFile,10);
+  //this.GetRecord(this.configServer.objectFileSystem, this.configServer.objectFileSystem,10);
   /*
   const theError=JSON.stringify(inData);
   const theconfigServer=JSON.stringify(this.configServer);
   this.error_msg='inData==> ' + theError + 
   "  configServer ==> " + theconfigServer +
-  "  ---- BucketSystemFile=" + this.XMVConfig.BucketSystemFile + "  ObjectSystemFile=" + this.XMVConfig.ObjectSystemFile;
+  "  ---- BucketSystemFile=" + this.configServer.objectFileSystem + "  ObjectSystemFile=" + this.configServer.objectFileSystem;
   */
-  this.ManageGoogleService.updateFileSystem(this.configServer, this.XMVConfig.BucketSystemFile, this.XMVConfig.ObjectSystemFile, inData, this.tabLock )
+  this.ManageGoogleService.updateFileSystem(this.configServer, this.configServer.bucketFileSystem, 'fileName', inData, this.tabLock )
   .subscribe(
     data  => {  
       console.log('Google updateFileSystem status returned');
@@ -2374,23 +2334,25 @@ updateSystemFileOld(iWait:number){
     } )
 }
 
-
+callUpdateSystemFile:number=0;
 saveIWait:number=0;
 isTriggerFileSystem:boolean=false;
 updateSystemFile(iWait:number){
   this.saveIWait=iWait;
   this.isTriggerFileSystem=true;
+  this.callUpdateSystemFile++
 }
 
 returnFromFileSystem(data:any){
-this.isTriggerFileSystem=false;
-const iWait=this.saveIWait;
-  if (Array.isArray(data)=== true)  { // tabLock is returned
-    console.log('server response: ' + data[iWait].object + ' createdAt=' + data[iWait].createdAt + '  & updatedAt=' + data[iWait].updatedAt + '  & lock value =' + data[iWait].lock);
+//this.isTriggerFileSystem=false;
+//const iWait=this.saveIWait;
+const iWait=data.iWait;
+  if (data.status!== undefined && Array.isArray(data.status)=== true)  { // tabLock is returned
+    console.log('server response: ' + data.status[iWait].object + ' createdAt=' + data.status[iWait].createdAt + '  & updatedAt=' + data.status[iWait].updatedAt + '  & lock value =' + data.status[iWait].lock);
     // record is locked by another user; no actions can take place for this user so reset
-    if (data[iWait].createdAt !== undefined){
-        this.error_msg = this.error_msg + " data returned: lock=" + data[iWait].lock +  "  & status=" + data[iWait].status ;
-        if (data[iWait].lock ===2 && this.tabLock[iWait].lock === 1) {
+    if (data.status[iWait].createdAt !== undefined){
+        this.error_msg = this.error_msg + " data returned: lock=" + data.status[iWait].lock +  "  & status=" + data.status[iWait].status ;
+        if (data.status[iWait].lock ===2 && this.tabLock[iWait].lock === 1) {
           if (iWait===0){
             this.tabLock[iWait].lock=2;
             
@@ -2404,14 +2366,14 @@ const iWait=this.saveIWait;
             }
           }
 
-        } else if (this.tabLock[iWait].action==='check&update' && data[iWait].status===0 && this.isMustSaveFile===true){
+        } else if (this.tabLock[iWait].action==='check&update' && data.status[iWait].status===0 && this.isMustSaveFile===true){
           this.ConfirmSave(this.theEvent);
 
         }
-        this.tabLock[iWait]=data[iWait];
+        this.tabLock[iWait]=data.status[iWait];
       } else { console.log(' something wrong happened with process on file system');}
     
-  } else if ((this.tabLock[iWait].action==='check' || this.tabLock[iWait].action==='check&update') && data.createdAt !== undefined){ // inData is returned
+  } else if (data.status!== undefined && Array.isArray(data.status)=== false && (this.tabLock[iWait].action==='check' || this.tabLock[iWait].action==='check&update') && data.createdAt !== undefined){ // tabLock[iWait] is returned
 
       if (data.status===810 || data.status===800){ // record found and belongs to same user or record not found or file empty
         if (data.status === 800){ // no file system or no record then lock this user
@@ -2454,6 +2416,7 @@ const iWait=this.saveIWait;
         }
 
   } else if (data.error!== undefined){
+        console.log(data.message);
         if (data.error===300 || data.error === 720){ // 300 record already locked; 720 updatedAt on record locked by another user
           this.tabLock[iWait].lock=2;
           

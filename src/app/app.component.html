@@ -32,7 +32,7 @@
 <div id="posTopMain" ></div>
 <div *ngIf="isAppsSelected===true && isIdRetrieved===true && this.isConfigServerRetrieved===true">
     <div *ngIf="selectApps===1 ">
-        <app-xmv-company [configServer]="configServer" [INidentification]="identification" [XMVConfig]="XMVConfig" [isConfigServerRetrieved]="isConfigServerRetrieved"
+        <app-xmv-company [configServer]="configServer" [INidentification]="identification"  [isConfigServerRetrieved]="isConfigServerRetrieved"
         [InConvertUnit]="ConvertUnit" [InConvToDisplay]="ConvToDisplay" [IntheTabOfUnits]="theTabOfUnits"  [InWeightRefTable]="WeightRefTable" 
         >
     </app-xmv-company>
@@ -43,7 +43,7 @@
         <app-routing-app [selectApps]="selectApps"> </app-routing-app>
     </div>
     <div *ngIf="selectApps===10">
-        <app-converter  [identification]="identification" [XMVConfig]="XMVConfig" [configServer]="configServer" [convertOnly]="convertOnly" 
+        <app-converter  [identification]="identification"  [configServer]="configServer" [convertOnly]="convertOnly" 
         [InConvertUnit]="ConvertUnit" [InConvToDisplay]="ConvToDisplay" [IntheTabOfUnits]="theTabOfUnits"  [InWeightRefTable]="WeightRefTable" (returnFile)="ReceiveFiles($event)"     
         >
         </app-converter>
@@ -51,14 +51,14 @@
     
     <div *ngIf="selectApps>10  &&  selectApps<14">
         
-        <app-health  [identification]="identification" [XMVConfig]="XMVConfig" [configServer]="configServer"  [triggerFunction]="selHealthFunction"
+        <app-health  [identification]="identification"  [configServer]="configServer"  [triggerFunction]="selHealthFunction"
         (returnFile)="ReceiveFiles($event)"     
         >
         </app-health>
     </div>  
 
     <div *ngIf="selectApps===14 || selectApps===15">
-        <app-recipe  [identification]="identification" [XMVConfig]="XMVConfig" [configServer]="configServer"  
+        <app-recipe  [identification]="identification"  [configServer]="configServer"  
          [InConvToDisplay]="ConvToDisplay"     [dictionaryOnly]="dictionaryOnly"
         >
         </app-recipe>

@@ -14,7 +14,7 @@ import { BucketList, Bucket_List_Info} from '../../JsonServerClass';
 
 // configServer is needed to use ManageGoogleService
 // it is stored in MangoDB and accessed via ManageMangoDBService
-import { configServer, XMVConfig, LoginIdentif} from '../../JsonServerClass';
+import { configServer, LoginIdentif} from '../../JsonServerClass';
 import {classPosDiv, getPosDiv} from '../../getPosDiv';
 import { environment } from 'src/environments/environment';
 import {manage_input} from '../../manageinput';
@@ -53,7 +53,6 @@ export class CaloriesFatComponent implements OnInit {
     @Inject(LOCALE_ID) private locale: string,
     ) { }
 
-  @Input() XMVConfig=new XMVConfig;
   @Input() configServer = new configServer;
   @Input() identification= new LoginIdentif;
   @Input() ConfigCaloriesFat=new mainClassCaloriesFat;

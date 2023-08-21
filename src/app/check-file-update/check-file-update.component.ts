@@ -11,7 +11,7 @@ import { FormGroup, FormControl, Validators, FormBuilder, FormArray} from '@angu
 import { Observable } from 'rxjs';
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { configServer, XMVConfig, LoginIdentif, msgConsole } from '../JsonServerClass';
+import { configServer, LoginIdentif, msgConsole } from '../JsonServerClass';
 import { classFileSystem, classAccessFile }  from '../classFileSystem';
 import { convertDate } from 'src/app/MyStdFunctions'
 
@@ -35,7 +35,6 @@ export class CheckFileUpdateComponent {
 
   @Input() inData=new classAccessFile;
   @Input() configServer=new configServer;
-  @Input() XMVConfig=new XMVConfig;
 
   @Output() returnValue= new EventEmitter<classAccessFile>();
 
@@ -50,7 +49,7 @@ export class CheckFileUpdateComponent {
     this.status.user=this.inData.user;
     this.status.status=0;
 
-    this.ManageGoogleService.getContentObject(this.configServer, this.XMVConfig.BucketSystemFile, this.XMVConfig.ObjectSystemFile)
+    this.ManageGoogleService.getContentObject(this.configServer, this.configServer.bucketFileSystem, this.configServer.objectFileSystem)
     .subscribe((data ) => {   
       
       for (var i=0; i<data.length && (data[i].object!==this.inData.object || data[i].bucket!==this.inData.bucket); i++){}
@@ -104,9 +103,9 @@ export class CheckFileUpdateComponent {
 
 
   saveFile(){
-    var file=new File ([JSON.stringify(this.fileSystem)],this.XMVConfig.ObjectSystemFile, {type: 'application/json'});
+    var file=new File ([JSON.stringify(this.fileSystem)],this.configServer.objectFileSystem, {type: 'application/json'});
     
-    this.ManageGoogleService.uploadObject(this.configServer, this.XMVConfig.BucketSystemFile, file )
+    this.ManageGoogleService.uploadObject(this.configServer, this.configServer.bucketFileSystem, file )
       .subscribe(res => {
               if (res.type===4){
                 this.status.status=0;

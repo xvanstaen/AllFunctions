@@ -201,19 +201,8 @@ export class  BucketExchange{
   Nb_Buckets_processed:number=0;
 }
 
-export class XMVConfig{
+export class configPhoto{
   title:string= '';
-  SourceJson_Google_Mongo:string= '';
-  test_prod:string= '';
-  GoogleProjectId:string= '';
-  DB_Object:string= '';
-  BucketLogin:string="";
-  BucketConsole:string="";
-  BucketContact:string="";
-  BucketConfig:string="";
-  BucketFitness:string='';
-  BucketSystemFile:string='';
-  ObjectSystemFile:string='';
   Max_Nb_Bucket_Wedding:number=6;
   TabBucketPhoto:Array<string>=[];
   GetOneBucketOnly:boolean=false;
@@ -227,7 +216,7 @@ export class XMVConfig{
   maxPhotosWidth900:number=6;
   maxWidth:number=1200;
   maxPhotosmaxWidth:number=9;
-  UserSpecific:Array<UserParam>=[];
+
 }
 
 
@@ -270,6 +259,9 @@ export class configServer{
   Mongo_Google:string= '';
   baseUrl:string= '';
   IpAddress:string= '';
+  UserSpecific:Array<UserParam>=[];
+  bucketFileSystem:string='';
+  objectFileSystem:string='';
   timeoutFileSystem={
     hh:0,
     mn:0,
@@ -281,8 +273,13 @@ export class configServer{
         hh:0,
         mn:0
     }
-  }
-
+  };
+  BucketConfig:string='';
+  BucketConsole:string='';
+  BucketContact:string='';
+  BucketLogin:string='';
+  BucketFitness:string='';
+  BucketRecipe:string='';
 }
 
 export class classPosSlider{
@@ -291,7 +288,7 @@ export class classPosSlider{
   VerHor:string='';
   div={
     top:0,
-    left:0,
+    left:0
   }
 }
 

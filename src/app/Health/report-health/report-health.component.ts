@@ -32,7 +32,7 @@ import {mainConvItem, mainRecordConvert, mainClassUnit, mainClassConv} from '../
 import { classConfigChart, classchartHealth } from '../classConfigChart';
 import {classPosSlider} from '../../JsonServerClass';
 
-import { configServer, XMVConfig, LoginIdentif, msgConsole } from '../../JsonServerClass';
+import { configServer,  LoginIdentif, msgConsole } from '../../JsonServerClass';
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import {AccessConfigService} from 'src/app/CloudServices/access-config.service';
@@ -78,7 +78,7 @@ export class ReportHealthComponent implements OnInit {
   @Input() ConfigChartHealth=new classchartHealth;
   @Input() INFileParamChart=new classFileParamChart;
   @Input() configServer=new configServer;
-  @Input() XMVConfig=new XMVConfig;
+
   //inData=new classAccessFile;
   @Input()  tabLock= new classAccessFile; //.lock ++> 0=unlocked; 1=locked by user; 2=locked by other user; 3=must be checked;
   

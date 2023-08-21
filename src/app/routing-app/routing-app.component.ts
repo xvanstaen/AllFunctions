@@ -14,7 +14,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 //import { throwError } from 'rxjs';
 
 import { configServer } from '../JsonServerClass';
-import { XMVConfig } from '../JsonServerClass';
+
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
 
@@ -33,7 +33,6 @@ export class RoutingAppComponent implements OnInit {
 
   @Input() selectApps:number=0;
   @Input() configServer=new configServer;
-  @Input()  XMVConfig=new XMVConfig;
 
   EventHTTPReceived:Array<boolean>=[];
   id_Animation:Array<number>=[];

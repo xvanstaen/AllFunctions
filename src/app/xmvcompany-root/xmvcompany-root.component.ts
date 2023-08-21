@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
 import { configServer } from '../JsonServerClass';
-import { XMVConfig } from '../JsonServerClass';
+
 import { environment } from 'src/environments/environment';
 @Component({
   selector: 'app-xmvcompany-root',
@@ -19,7 +19,7 @@ export class XmvcompanyRootComponent implements OnInit {
       // access MongoDB
 
   configServer=new configServer;
-  XMVConfig=new XMVConfig;
+
   isConfigServerRetrieved:boolean=false;
 
   ngOnInit(){
@@ -47,9 +47,9 @@ export class XmvcompanyRootComponent implements OnInit {
           if (data[i].title==="configServer" && data[i].test_prod===test_prod){
               this.configServer = data[i];
           
-          } else if (data[i].title==="configPhoto" && data[i].test_prod===test_prod){
-              this.XMVConfig = data[i];
-          }
+          } //else if (data[i].title==="configPhoto" && data[i].test_prod===test_prod){
+              //this.XMVConfig = data[i];
+          //}
 
       }
       this.isConfigServerRetrieved=true;

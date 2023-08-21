@@ -15,7 +15,7 @@ import { Bucket_List_Info } from '../JsonServerClass';
 
 // configServer is needed to use ManageGoogleService
 // it is stored in MangoDB and accessed via ManageMangoDBService
-import { configServer, XMVConfig, LoginIdentif  } from '../JsonServerClass';
+import { configServer, LoginIdentif  } from '../JsonServerClass';
 import { msgConsole } from '../JsonServerClass';
 import {msginLogConsole} from '../consoleLog'
 import { environment } from 'src/environments/environment';
@@ -53,7 +53,6 @@ export class ConverterComponent implements OnInit {
       ) { }
   
   
-    @Input() XMVConfig=new XMVConfig;
     @Input() configServer = new configServer;
     @Input() identification= new LoginIdentif;
     @Input() convertOnly:boolean=false;

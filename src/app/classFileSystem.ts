@@ -25,6 +25,7 @@ export class classAccessFile{
     iWait:number=0;
     status:number=0;
     lock:number=0;
+    objectName:string='';
     createdAt:string="";
     updatedAt:string=""; 
     timeoutFileSystem={

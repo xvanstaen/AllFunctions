@@ -4,7 +4,7 @@
 </head> 
 <body>
     <div *ngIf="isTriggerFileSystem===true">
-        <app-file-system-service [identification]="identification" [XMVConfig]="XMVConfig" [configServer]="configServer" 
+        <app-file-system-service [identification]="identification" [configServer]="configServer" [callUpdateSystemFile]="callUpdateSystemFile"
           [tabLock]="tabLock" [iWait]="tabLock[saveIWait].iWait" (returnStatus)="returnFromFileSystem($event)">
         </app-file-system-service>
     </div>
@@ -70,14 +70,14 @@
 
 
 <div id='posTopAppCalFat' *ngIf="isMgtCaloriesFat===true && EventHTTPReceived[1]===true && EventHTTPReceived[6]===true  && tabLock[1].lock!==3">
-    <app-calories-fat [identification]="identification" [XMVConfig]="XMVConfig" [configServer]="configServer"  [posDivCalFat]="posDivCalFat" [inFileRecipe]="fileRecipe"
+    <app-calories-fat [identification]="identification"  [configServer]="configServer"  [posDivCalFat]="posDivCalFat" [inFileRecipe]="fileRecipe"
     [ConfigCaloriesFat]="ConfigCaloriesFat"  [HTMLCaloriesFat]="ConfigHTMLFitHealth.ConfigCalFat.confCaloriesFat"  [tabLock]="tabLock[1]" (myEmit)="SaveCaloriesFat($event)"
     (myEmitRecipe)="SaveRecipeFile($event)" (reportCheckLockLimit)="reportCheckLockLimit($event)" (cancelSaveOther)="CancelSaveOthers($event)">
     </app-calories-fat>
     <div class="skipLine">&nbsp;</div>
 </div>
 <div id='posTopAppReportHealth' *ngIf="isDisplayChart===true && EventHTTPReceived[4]===true && EventHTTPReceived[0]===true && EventHTTPReceived[5]===true && tabLock[5].lock!==3">
-    <app-report-health [identification]="identification"  [XMVConfig]="XMVConfig" [configServer]="configServer"  [INFileParamChart]="fileParamChart" [tabLock]="tabLock[5]"
+    <app-report-health [identification]="identification"  [configServer]="configServer"  [INFileParamChart]="fileParamChart" [tabLock]="tabLock[5]"
     [ConfigChartHealth]="ConfigChart.chartHealth"  [HealthAllData]="HealthAllData" (returnFile)="saveParamChart($event)" (reportCheckLockLimit)="reportCheckLockLimit($event)"  (cancelSaveOther)="CancelSaveOthers($event)">
     </app-report-health>
     <div class="skipLine">&nbsp;</div>
@@ -586,7 +586,7 @@ style="margin-left:20px; background-color: rgb(162, 249, 205); border:double 1px
 
 <!--
 <div *ngIf="isCheckFile===true">
-    <app-check-file-update [inData]="inData" [configServer]="configServer" [XMVConfig]="XMVConfig"
+    <app-check-file-update [inData]="inData" [configServer]="configServer" 
     (returnValue)="returnLockFile($event)" >
     </app-check-file-update>
 </div>

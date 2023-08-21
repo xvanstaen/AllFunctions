@@ -15,7 +15,7 @@ import { BucketList, Bucket_List_Info  } from '../JsonServerClass';
 // it is stored in MangoDB and accessed via ManageMangoDBService
 
 import {msginLogConsole} from '../consoleLog'
-import { configServer, XMVConfig, LoginIdentif, msgConsole } from '../JsonServerClass';
+import { configServer,LoginIdentif, msgConsole } from '../JsonServerClass';
 
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
@@ -37,7 +37,7 @@ export class TestServerJSComponent {
     private datePipe: DatePipe,
     @Inject(LOCALE_ID) private locale: string,
     ) { }
-  @Input() XMVConfig=new XMVConfig;
+
   @Input() configServer = new configServer;
   @Input() identification= new LoginIdentif;
   

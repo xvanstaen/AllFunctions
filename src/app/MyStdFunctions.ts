@@ -192,6 +192,9 @@
             } 
           
         
+    } else {
+      returnValue.action="updateSystemFile";
+      returnValue.lockAction="lock";
     }
  
     return(returnValue);
@@ -207,7 +210,7 @@ export function checkData(fileSystem:Array<classFileSystem>, iWait:number, tabLo
                 // record is not locked so create a new record and flag lock to true
                 createRecord(fileSystem,tabLock[iWait]);
   
-                console.log('create record & tabLock = ' + JSON.stringify(tabLock[iWait]) );
+                //console.log('file=' +tabLock[iWait].objectName + ' ==> create record & tabLock ' + JSON.stringify(tabLock[iWait]) );
                 //const status=saveFile(config, fileSystem, object, bucket);
                 return (fileSystem);
             } else { // record already exists and already locked
@@ -240,13 +243,13 @@ export function checkData(fileSystem:Array<classFileSystem>, iWait:number, tabLo
         } else if (tabLock[iWait].action==="check" || tabLock[iWait].action==="check&update"){
           if (i===fileSystem.length ){ // no record found
               if (tabLock[iWait].action==="check"){
-                console.log('check file = no record found; return inData.status 800');
+                console.log('check file = no record found on file ' +tabLock[iWait].objectName + '; return inData.status 800');
                 tabLock[iWait].createdAt='';
                 tabLock[iWait].updatedAt='';
                 tabLock[iWait].status=800;
               } else {
                 createRecord(fileSystem,tabLock[iWait]);
-                console.log('create record & tabLock = ' + JSON.stringify(tabLock[iWait]) );
+                //console.log('create record & tabLock = ' + JSON.stringify(tabLock[iWait]) );
                 return (fileSystem);
               }
               
@@ -270,24 +273,24 @@ export function checkData(fileSystem:Array<classFileSystem>, iWait:number, tabLo
           return(730);} // wrong action
     } else { 
         if (tabLock[iWait].action==="lock"){
-            console.log('fileSystem is empty; createRecord');
+            console.log('fileSystem' +tabLock[iWait].objectName + ' is empty; createRecord');
             createRecord(fileSystem,tabLock[iWait]);
-            console.log('create record & tabLock = ' + JSON.stringify(tabLock[iWait]) );
+            //console.log('create record & tabLock = ' + JSON.stringify(tabLock[iWait]) );
             return (fileSystem);
         } else if (tabLock[iWait].action==="check"  || tabLock[iWait].action==="check&update"){
             if (tabLock[iWait].action==="check"){
-              console.log('check file = fileSystem is empty; return inData.status 800');
+              console.log('check file = fileSystem ' +tabLock[iWait].objectName + 'is empty; return inData.status 800');
               tabLock[iWait].createdAt='';
               tabLock[iWait].updatedAt='';
               tabLock[iWait].status=800;
               return(tabLock[iWait]);
             } else {
               createRecord(fileSystem,tabLock[iWait]);
-              console.log('create record & tabLock = ' + JSON.stringify(tabLock[iWait]) );
+              //console.log('create record & tabLock = ' + JSON.stringify(tabLock[iWait]) );
               return (fileSystem);
             }
         } else {
-          console.log('fileSystem is empty;');
+          console.log('fileSystem ' +tabLock[iWait].objectName + 'is empty;');
           return('err-0'); 
         }
         
@@ -322,6 +325,7 @@ export function validateLock(fileSystem:Array<classFileSystem>, inData:classAcce
     var addDay=0;
     var addHour=0;
     
+    
     var theMin=Number(fileSystem[record].updatedAt.substring(10,12)) + Number(inData.timeoutFileSystem.mn); // add xx minutes
     if (Math.trunc(theMin / 60) > 0){
       addHour =  Math.trunc(theMin / 60);
@@ -351,7 +355,12 @@ export function validateLock(fileSystem:Array<classFileSystem>, inData:classAcce
       stringDay = theDay.toString();
     }
     const refDate=fileSystem[record].updatedAt.substring(0,6) + stringDay + theTime;
-  
+    
+
+    const refDateB = fnAddTime(fileSystem[record].updatedAt, inData.timeoutFileSystem.hh, inData.timeoutFileSystem.mn);
+    console.log('refDate=' + refDate + ' =?' + refDateB);
+
+    
     const aDate = new Date();
     const theDate = aDate.toUTCString();
     const myTime = theDate.substring(17,19)+theDate.substring(20,22)+theDate.substring(23,25);
