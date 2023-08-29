@@ -80,7 +80,6 @@ export class AdminJsonComponent {
     myHeader=new HttpHeaders(); 
     bucket_data:string='';
     
-    ListOfBucket=new BucketList;
     SelectedBucketInfo=new OneBucketInfo;
 
     TabBuckets=[{name:''}];
@@ -103,6 +102,7 @@ export class AdminJsonComponent {
     @Input() WeddingPhotos:Array<StructurePhotos>=[];
 
     @Input() configServer=new configServer;
+
    
     //SelectedconfigServer=new configServer;
     SelectedconfigPhoto=new configPhoto;
@@ -164,9 +164,9 @@ ngOnInit(){
           for (i=0; i<this.identification.apps.length; i++){
             if (this.identification.apps[i]==='Bucket')     {this.TabAppsAutho[0]='Y';}
             else if (this.identification.apps[i]==='Photos'){this.TabAppsAutho[1]='Y';}
-            else if (this.identification.apps[i]==='27Aug'){this.TabAppsAutho[2]='Y';}
+            else if (this.identification.apps[i]===''){this.TabAppsAutho[2]='Y';}
             else if (this.identification.apps[i]==='Contact'){this.TabAppsAutho[3]='Y';}
-            else if (this.identification.apps[i]==='Login'){this.TabAppsAutho[4]='Y';}
+            else if (this.identification.apps[i]==='UserInfo'){this.TabAppsAutho[4]='Y';}
             else if (this.identification.apps[i]==='Console'){this.TabAppsAutho[5]='Y';}
             else if (this.identification.apps[i]==='Config'){this.TabAppsAutho[6]='Y';}
             else if (this.identification.apps[i]==='Fitness'){this.TabAppsAutho[7]='Y';}
@@ -191,23 +191,23 @@ Process(event:string){
   } else
   if (event==='Photos'){
     this.GoToComponent=1;
-  } else if (event==='27Aug'){
-    this.GoToComponent=2;
+  } else if (event===''){ // previously 27Aug
+    //this.GoToComponent=2;
   
   } else if (event==='Contact'){
     this.GoToComponent=3;
-  } else if (event==='Login'){
-    this.ActionMessage='Administration of Logins';
+  } else if (event==='UserInfo'){ 
+    this.ActionMessage='Administration of User info ';
     this.GoToComponent=4; 
     this.NbRefresh_Bucket=0;
-    this.Google_Bucket_Name=this.ListOfBucket.Login;
+    this.Google_Bucket_Name=this.configServer.BucketUserInfo;
   } else if (event==='Console'){
     this.GoToComponent=5;
     this.ActionMessage='Administration of Log Console';
-    this.Google_Bucket_Name=this.ListOfBucket.Console;
+    this.Google_Bucket_Name=this.configServer.BucketConsole;
   } else if (event==='Config'){
     this.ActionMessage='Administration of Configuration parameters';
-    this.Google_Bucket_Name=this.ListOfBucket.Config;
+    this.Google_Bucket_Name=this.configServer.BucketConfig;
     this.GoToComponent=6;
     this.scroller.scrollToAnchor('targetConfig');
   }   else if (event==='Fitness'){
@@ -226,8 +226,8 @@ Process(event:string){
     } else if (event==='ConvFn'){
       this.GoToComponent=10;
       this.convertOnly=true;
-  }  else if (event==='Refresh_Login'){
-    this.NbRefresh_Bucket++; 
+  }  else if (event==='Refresh_UserInfo'){ 
+     this.NbRefresh_Bucket++; 
   }
 }
 
@@ -333,7 +333,7 @@ TextInput(event:any){
 }
 
 UpdateconfigPhoto(){
-  if (this.IsFieldModified[1]===true){this.ModifconfigServer.BucketLogin=this.ModifiedField[1]};
+  //if (this.IsFieldModified[1]===true){this.ModifconfigServer.BucketLogin=this.ModifiedField[1]};
   if (this.IsFieldModified[2]===true){this.ModifconfigServer.BucketConsole=this.ModifiedField[2]};
   if (this.IsFieldModified[3]===true){this.ModifconfigServer.BucketContact=this.ModifiedField[3]};
   if (this.IsFieldModified[4]===true){this.ModifconfigServer.SourceJson_Google_Mongo=this.ModifiedField[4]};
@@ -408,11 +408,13 @@ BackToSaveFile(event:any){
       }
     }
      this.RecordToWrite.id=99;
-     this.RecordToWrite.key=0;
-     this.RecordToWrite.method='AES';
      this.RecordToWrite.UserId='the user';
-     this.RecordToWrite.psw='thepassword';
      this.RecordToWrite.phone='0000000';
+
+     // this.RecordToWrite.key=0;
+     // this.RecordToWrite.method='AES';
+     // this.RecordToWrite.psw='thepassword';
+     
      // update the file
      this.http.post(HTTP_Address, data_raw , {'headers':this.myHeader} )
        .subscribe(res => {

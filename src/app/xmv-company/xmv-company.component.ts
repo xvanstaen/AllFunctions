@@ -7,8 +7,7 @@ import { Router, RouterModule } from '@angular/router';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { LoginIdentif } from '../JsonServerClass';
-import { configServer } from '../JsonServerClass';
+import { LoginIdentif, configServer } from '../JsonServerClass';
 
 import {mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from '../ClassConverter';
 import {mainClassCaloriesFat, mainDailyReport} from '../Health/ClassHealthCalories';
@@ -112,12 +111,12 @@ export class XmvCompanyComponent implements OnInit, OnChanges, AfterViewChecked 
     if (this.INidentification.UserId!==''){
         this.identification=this.INidentification;
     } else {
-        this.identification.id=0;
-        this.identification.key=2;
-        this.identification.method="AES";
+        this.identification.id=0;       
         this.identification.UserId="";
-        this.identification.psw="";
         this.identification.phone="";
+        //this.identification.key=2;
+        //this.identification.method="AES";
+        //this.identification.psw="";
     }
   }
 

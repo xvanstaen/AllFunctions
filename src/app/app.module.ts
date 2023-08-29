@@ -7,6 +7,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { MatDialogModule} from '@angular/material/dialog';
 import  { NgChartsModule } from 'ng2-charts';
 
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
@@ -26,13 +27,14 @@ import { XMVCompanyOfferComponent } from './xmv-company/xmvcompany-offer/xmvcomp
 import { XMVCompanyProfileComponent } from './xmv-company/xmvcompany-profile/xmvcompany-profile.component';
 import { RespondContactComponent } from './Special-Services/Respond-Contact.component';
 import { LoginComponent } from './Login/login.component';
-import { Event27AugComponent}  from './Special-Services/Event-27AUG2022.component';
-import { Event02JULComponent}  from './Special-Services/Event-02JUL2022.component';
+
 import { WeddingPhotosComponent}  from './Special-Services/WeddingPhotos.component';
 import { GetImagesComponent}  from './Special-Services/GetImages.component';
 import { AdminJsonComponent}  from './Special-Services/AdminJson.component';
-import { AdminLoginComponent}  from './Special-Services/AdminLogin.component';
 import { AdminConsoleComponent}  from './Special-Services/AdminConsole.component';
+
+import { AdminUserInfoComponent } from './Special-Services/AdminUserInfo.component';
+
 import { ListBucketContentComponent}  from './Special-Services/ListBucketContent.component';
 import { ChangeSaveFileNameComponent}  from './Special-Services/ChangeSaveFileName.component';
 import { OneCalendarComponent } from './one-calendar/one-calendar.component';
@@ -70,13 +72,11 @@ import { TestHttpOAComponent } from './test-http-oa/test-http-oa.component';
     XmvcompanyRootComponent,
     RespondContactComponent,
     LoginComponent,
-    Event27AugComponent,
-    Event02JULComponent,
     WeddingPhotosComponent,
     GetImagesComponent,
     AdminJsonComponent,
-    AdminLoginComponent,
     AdminConsoleComponent,
+    AdminUserInfoComponent,
     ListBucketContentComponent,
     ChangeSaveFileNameComponent,
     FitnessStatComponent,

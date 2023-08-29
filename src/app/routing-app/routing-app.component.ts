@@ -4,7 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { Subscription, Observable } from 'rxjs';
 import { FileSaverModule } from 'ngx-filesaver';
 import { FormGroup,UntypedFormControl, FormControl, Validators} from '@angular/forms';
-import { encrypt, decrypt} from '../EncryptDecryptServices';
+
 import * as CryptoJS from 'crypto-js';  
 import { Injectable } from '@angular/core';
 import { interval, lastValueFrom } from 'rxjs';
@@ -39,25 +39,9 @@ export class RoutingAppComponent implements OnInit {
   TabLoop:Array<number>=[];
   NbWaitHTTP:number=0;
 
-  Google_Bucket_Access_Root:string='https://storage.googleapis.com/storage/v1/b/';
-  Google_Bucket_Access_RootPOST:string='https://storage.googleapis.com/upload/storage/v1/b/';
+
   Error_Access_Server:string='';
-  Encrypt:string='';
-  Decrypt:string='LIM!12monica#Chin';
-  Crypto_Method:string='AES';
-  Crypto_Error:string='';
-  Crypto_Key:number=2;
-  Crypto_Record:number=0;
-  Server_Type:string='Google';
-  Bucket_Name:string='manage-login';
-  Object_Name:string='XMVIT-Admin';
-  Encrypt_Data={
-    id: 3,
-    encrypted:'',
-    decrypted:'',
-    key:0,
-    method:''
-  }
+
 
   UserId_Data:any={
     id: 0,
@@ -95,11 +79,11 @@ export class RoutingAppComponent implements OnInit {
 
   Length_Array:number=0;
 
-  public uploadFileName: string='';
-  public uploadFileContent:string='';
-  public readFileContent:string=''
+  uploadFileName: string='';
+  uploadFileContent:string='';
+  readFileContent:string=''
 
-  public myreader = new FileReader() ;
+  myreader = new FileReader() ;
   i:number=0;
   myMSG:string='';
 
@@ -127,7 +111,6 @@ export class RoutingAppComponent implements OnInit {
   isDisplayTelephone:boolean=false;
   isDisplaySlider:boolean=false;
   isDisplayColorPicker:boolean=false;
-  isDisplayEncrypt:boolean=false;
   isDisplayCSSTable:boolean=false;
   isDisplayUploadFile:boolean=false;
   isDisplaySaveDownload:boolean=false;
@@ -137,7 +120,6 @@ export class RoutingAppComponent implements OnInit {
     Telephone: new FormControl('N', { nonNullable: true }),
     Slider: new FormControl('N', { nonNullable: true }),
     ColorPicker: new FormControl('N', { nonNullable: true }),
-    Encrypt: new FormControl('N', { nonNullable: true }),
     CSSTable: new FormControl('N', { nonNullable: true }),
     UploadFile: new FormControl('N', { nonNullable: true }),
     SaveDownload: new FormControl('N', { nonNullable: true }),
@@ -248,9 +230,9 @@ displayCSSTable(){
         }
       } else if (i==='5'){
         if (NoYes==='Y'){
-          this.isDisplayEncrypt=true;
+          
         } else {
-          this.isDisplayEncrypt=false;
+          
         }
       } 
       else if (i==='6'){
@@ -275,112 +257,8 @@ displayCSSTable(){
       }
   }
 
-onCrypt(event:any){
-  // const key= "MTIzNDU2Nzg5MEFCQ0RFRkdISUpLTE1O";
-  /*
-  const IV = "MTIzNDU2Nzg=";
-  const keyHex = CryptoJS.enc.Utf8.parse(key);
-  const iv = CryptoJS.enc.Utf8.parse(IV);
-  const mode = CryptoJS.mode.CBC;
-  */
-  this.Crypto_Error='';
-  if (this.Crypto_Key<1 || this.Crypto_Key>3){
-    this.Crypto_Error='Crypto key must be 1, 2 or 3';
-  } else if (event==='Encrypt'){
-      // ==== DES native
-      //this.Encrypt = CryptoJS.TripleDES.encrypt(this.Decrypt, keyHex, { iv, mode }).toString();
-      // ==== DES function
-      //this.Encrypt=encrypt(this.Decrypt,key,'DES');
-      // ==== AES native
-      //this.Encrypt=CryptoJS.AES.encrypt(this.Decrypt, key).toString();
-      // ==== AES function
-      //this.Encrypt=encrypt(this.Decrypt,key,'AES');
-      if (this.Decrypt===''){
-        this.Crypto_Error="Decrypt field is empty";
-      } else
-      if (this.Crypto_Method==='AES' || this.Crypto_Method==='DES'){
-        this.Encrypt=encrypt(this.Decrypt,this.Crypto_Key,this.Crypto_Method);
-        } else { this.Crypto_Error="Wrong method for crypto. Must be either 'AES' or 'DES'" 
-      } 
-      console.log(this.Decrypt, " , ", this.Encrypt);
-  } else { 
-      if (this.Encrypt===''){
-        this.Crypto_Error="Encrypt field is empty";
-      } else
-      if (this.Crypto_Method==='AES' || this.Crypto_Method==='DES'){
-        this.Decrypt=decrypt(this.Encrypt,this.Crypto_Key,this.Crypto_Method);
-        } else { this.Crypto_Error="Wrong method for crypto. Must be either 'AES' or 'DES'"
-      } 
-      console.log(this.Decrypt, " , ", this.Encrypt);
-    }
 
 
-}
-onClear(){
-  this.Decrypt='';
-  this.Encrypt='';
-}
-
-
-onSave(event:any){
-  this.Error_Access_Server='';
-  
-  
-  if (this.Server_Type==="Google"){
-    this.HTTPstring=this.Google_Bucket_Access_RootPOST + this.Bucket_Name + "/o?name=" + this.Object_Name  + '.json&uploadType=media';
-    this.UserId_Data.id=0;
-    // this.UserId_Data.key=this.Crypto_Key.toString();
-    this.UserId_Data.key=this.Crypto_Key;
-    this.UserId_Data.method=this.Crypto_Method;
-    this.UserId_Data.psw=this.Encrypt;
-    this.UserId_Data.UserId=this.Object_Name;
-    this.UserId_Data.phone='+6582680480';
-    console.log("Before HTTP ", this.Decrypt, " , ", this.Encrypt);
-    this.http.post(this.HTTPstring,this.UserId_Data )
-    .subscribe(res => {
-          alert('Uploaded Successfully='+this.Decrypt);
-        },
-        error_handler => {
-          alert(error_handler.message + '  '+ error_handler.statusText)
-          })
-    }
-  else{
-    this.Encrypt_Data.id=0;
-    this.Encrypt_Data.encrypted=this.Encrypt;
-    this.Encrypt_Data.decrypted=this.Decrypt;
-    this.Encrypt_Data.method=this.Crypto_Method;
-    this.Encrypt_Data.key=this.Crypto_Key;
-    this.HTTPstring='http://localhost:3000/myEncryption/';
-    this.http.post(this.HTTPstring,this.Encrypt_Data )
-    .subscribe(res => {
-          alert('Uploaded Successfully='+this.Decrypt);
-        },
-        error_handler => {
-          alert(error_handler.message + '  '+ error_handler.statusText)
-          })
-  }
- 
-}
-
-onRead(){
-  this.Error_Access_Server='';
-  this.HTTPstring='http://localhost:3000/myEncryption/'+this.Crypto_Record;
-  this.Crypto_Error='';
-
-    this.http.get<any>(this.HTTPstring)
-    .subscribe(data => {
-      this.Encrypt_Data=data;
-      this.Encrypt=this.Encrypt_Data.encrypted;
-      this.Crypto_Method=this.Encrypt_Data.method;
-      this.Crypto_Key=Number(this.Encrypt_Data.key);
-      this.Decrypt=decrypt(this.Encrypt,this.Crypto_Key,this.Crypto_Method);
-          },
-      error_handler => {
-        // this.Crypto_Error='Server error';
-        this.Server_Error(error_handler);
-      }
-    );
-}
 
 Server_Error(error:HttpErrorResponse){
   this.Error_Access_Server='Cannot access server for '+ error.url;
@@ -597,6 +475,7 @@ GetRecord(Bucket:string,GoogleObject:string, iWait:number){
     this.waitHTTP(this.TabLoop[iWait],30000,iWait);
     this.ManageGoogleService.getContentObject(this.configServer, Bucket, GoogleObject )
         .subscribe((data ) => { 
+          this.EventHTTPReceived[iWait]=true;
           const a = data;
          }
         );

@@ -1418,9 +1418,6 @@ alignRecord(){
 }
 
 GetRecord(Bucket:string,GoogleObject:string, iWait:number){
-  if (iWait===10){
-    this.message=this.message+ ' GetRecord ' + GoogleObject;
-  }
 
     this.EventHTTPReceived[iWait]=false;
     this.NbWaitHTTP++;
@@ -2308,29 +2305,35 @@ updateSystemFileOld(iWait:number){
         } 
     },
     err => {
-      console.log('Google updateFileSystem general error='+err.status + '  specific error= ' +err.error.error + ' & message= ' + err.error.message);
-      this.error_msg = this.error_msg + '   update FileSystem ='+err.status + '  specific error= ' +err.error.error + ' & message= ' + err.error.message;
-      if (err.status===300 || err.error.error === 720){ // 300 record already locked; 720 updatedAt on record locked by another user
-        this.tabLock[inData.iWait].lock=2;
-        
-        if (err.error.error === 720){
-          this.tabLock[inData.iWait].status=720;
-          if (inData.iWait===0){
-            this.resetBooleans();
-            this.reAccessHealthFile();
-          } else if (inData.iWait===1){
-            this.reAccessConfigCal();
-          } else if (inData.iWait===5){
-            this.reAccessChartFile();
-          } 
-        } else {
-          this.tabLock[inData.iWait].status=300;
-        }
-      } else if (err.error.error===700 || err.error.error===710){ // requested to unlock record which does not exist or is locked by another user
-        this.tabLock[inData.iWait].lock=0;
-        this.tabLock[inData.iWait].status=err.error.error;
-      }
+      if (err.status===900){
+        // destroy is fine
+      } else {
 
+
+
+          console.log('Google updateFileSystem general error='+err.status + '  specific error= ' +err.error.error + ' & message= ' + err.error.message);
+          this.error_msg = this.error_msg + '   update FileSystem ='+err.status + '  specific error= ' +err.error.error + ' & message= ' + err.error.message;
+          if (err.status===300 || err.error.error === 720){ // 300 record already locked; 720 updatedAt on record locked by another user
+            this.tabLock[inData.iWait].lock=2;
+            
+            if (err.error.error === 720){
+              this.tabLock[inData.iWait].status=720;
+              if (inData.iWait===0){
+                this.resetBooleans();
+                this.reAccessHealthFile();
+              } else if (inData.iWait===1){
+                this.reAccessConfigCal();
+              } else if (inData.iWait===5){
+                this.reAccessChartFile();
+              } 
+            } else {
+              this.tabLock[inData.iWait].status=300;
+            }
+          } else if (err.error.error===700 || err.error.error===710){ // requested to unlock record which does not exist or is locked by another user
+            this.tabLock[inData.iWait].lock=0;
+            this.tabLock[inData.iWait].status=err.error.error;
+          }
+      }
     } )
 }
 

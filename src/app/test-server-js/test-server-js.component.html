@@ -1,1 +1,107 @@
+<div class="skipLine"></div>
+<div style="margin-left:20px; ">
+        <form [formGroup]="theForm" >
+            <label class="label">server or HTTP</label> <input type="text" class="theInput" formControlName="server">
+            <span class="theLine">
+                <label class="label">srcBucket</label> <input type="text" class="theInput" formControlName="srcBucket">
+                <label class="label">destBucket</label> <input type="text" class="theInput" formControlName="destBucket">
+            </span>
+            <span class="theLine">
+                <label class="label">srcObject</label> <input type="text" class="theInput" formControlName="srcObject">
+                <label class="label">destObject</label> <input type="text" class="theInput" formControlName="destObject">
+            </span>
+            <span class="theLine">
+                <label class="label">content</label> <input type="text" class="theInput" formControlName="fileContent">
+            </span>
+        </form>
+        <button class="sizeButtons" id="2" (click)="onAction()">action</button> 
 
+        <button class="sizeButtons" id="1" (click)="reinitialise()">Reinitialise</button> 
+</div>
+<div *ngIf="actionDropdown===true">
+    <div class="dropdown " >
+        <div class="Straight-content">
+            <div  class="StraightDropDown "  >
+                <li *ngFor="let action of tabAction; let m=index;" 
+                        class="Straight-options "  [ngClass]=" {'colorEven': m % 2 ===0, 'colorOdd': m % 2 !==0}" 
+                            (click)="selectAction($event)" id="selectedAction" [value]="action" >{{action}}
+                </li>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="skipLine"></div>
+<div *ngIf="isConfirmedSave===true">
+    <div class="skipLine"></div>
+    <span style='font-size:20px; font-style: italic; width:100%; display:inline-block;'> Do you confirm action to SAVE</span>
+    
+    <button class="sizeButtons" id="Save" (click)="confirmSave($event)">Save</button> 
+    <button class="sizeButtons" id="Cancel" (click)="confirmSave($event)">Cancel</button> 
+</div>
+
+<div *ngIf="currentAction!=='listBuckets' && currentAction!=='listObjects' && currentAction!=='' && currentAction!=='getMetadata' && currentAction!=='getListMetadata'" class="response">
+    <div class="skipLine"></div>
+    <span style='font-size:20px; font-style: italic; width:100%; display:inline-block; padding-top:15px; margin-left:150px;'> Response on action {{currentAction}}</span> 
+    <span *ngIf="returnFileContent!==''" style='font-size:10px; font-style: normal;'>{{returnFileContent}} </span>
+    <span *ngIf="error!==''" style='font-size:10px; font-style: normal;'>{{error}} </span>
+</div>
+<div *ngIf="currentAction==='listBuckets' && EventHTTPReceived[0]===true" class="response">
+    <div class="skipLine"></div>
+    <span style='font-size:20px; font-style: italic; width:100%; display:inline-block; padding-top:15px; margin-left:150px;'> Response  on action {{currentAction}}</span> 
+    <li style="list-style-type: none;" *ngFor="let listBucket of  TabBuckets; let i=index"  >
+        <span  style="font-size:12px; width:45%; padding-left:10px; display:inline-block;" [ngClass]="{'even': i % 2 ===0, 'odd': i % 2 !==0}">{{listBucket.name}}</span>
+    </li>
+</div>
+<div *ngIf="currentAction==='listObjects'  && EventHTTPReceived[1]===true" class="response">
+    <div class="skipLine"></div>
+    <span style='font-size:20px; font-style: italic; width:100%; display:inline-block; padding-top:15px; margin-left:150px;'> Response  on action {{currentAction}}</span> 
+    <div style=' width:100%; display:inline-block; border: solid 2px blue; overflow-y:scroll; height:300px;'>
+        <li style="list-style-type: none;" *ngFor="let listObject of  myListOfObjects.items; let i=index"  >
+            <span [ngClass]="{'even': i % 2 ===0, 'odd': i % 2 !==0}" style='font-size:12px; font-style: italic; width:100%; display:inline-block; padding-left:10px;'>{{listObject.name}}</span>
+            <span [ngClass]="{'even': i % 2 ===0, 'odd': i % 2 !==0}" style='font-size:12px; font-style: italic; width:100%; display:inline-block; padding-left:10px;'>{{listObject.mediaLink}}</span>
+        </li>
+    </div>
+</div>
+<div *ngIf="currentAction==='getMetadata'  && EventHTTPReceived[4]===true" class="response">
+    <div style=' width:100%; display:inline-block; border: solid 2px blue;'>
+
+        <span style='font-size:20px; font-style: italic; width:100%; display:inline-block; padding-top:15px; margin-left:150px;'> Response  on action {{currentAction}}</span> 
+        <div class="skipLine"></div>
+        <span class="theLine"><span class='label'>Bucket</span><span class='theMetadata'>{{oneMetadata.bucket}}</span></span>
+        <span class="theLine"><span class='label'>Object</span><span class='theMetadata'>{{oneMetadata.name}}</span></span>
+        <span class="theLine"><span class='label'>contentType</span><span class='theMetadata'>{{oneMetadata.contentType}}</span></span>
+        <span class="theLine"><span class='label'>cacheControl</span><span class='theMetadata'>{{oneMetadata.cacheControl}}</span></span>
+        <span class="theLine"> <span class='label'>generation</span><span class='theMetadata'>{{oneMetadata.generation}}</span></span>
+        <span class="theLine"><span class='label'>id</span><span class='theMetadata'>{{oneMetadata.id}}</span></span>
+        <span class="theLine"><span class='label'>mediaLink</span><span class='theMetadata'>{{oneMetadata.mediaLink}}</span></span>
+        <span class="theLine"><span class='label'>size</span><span class='theMetadata'>{{oneMetadata.size}}</span></span>
+        <div class="skipLine"></div>
+    </div>
+</div>
+<div *ngIf="currentAction==='getListMetadata'  && EventHTTPReceived[3]===true" class="response">
+    <div style='font-size:20px; font-style: italic; width:100%; display:inline-block; padding-top:15px; margin-left:150px;' > Response  on action {{currentAction}}</div> 
+    <div class="skipLine"></div>
+    <div style=' width:100%; display:inline-block; border: solid 2px blue; overflow-y:scroll; height:300px;'>
+        
+
+        <li *ngFor="let Metadata of myListOfObjects.items; let i=index; ">
+           
+            <span style=' width:100%; display:inline-block; border: solid 2px red; '  [ngClass]="{'even': i % 2 ===0, 'odd': i % 2 !==0}">
+                <div class="skipLine"></div>
+                <span class="theLine"> <span class='label'>Bucket</span><span class='theMetadata'>{{Metadata.bucket}}</span></span>
+                <span class="theLine"><span class='label'>Object</span><span class='theMetadata'>{{Metadata.name}}</span></span>
+                <span class="theLine"><span class='label'>contentType</span><span class='theMetadata'>{{Metadata.contentType}}</span></span>
+                <span class="theLine"><span class='label'>cacheControl</span><span class='theMetadata'>{{Metadata.cacheControl}}</span></span>
+                <span class="theLine"><span class='label'>generation</span><span class='theMetadata'>{{Metadata.generation}}</span></span>
+                <span class="theLine"><span class='label'>id</span><span class='theMetadata'>{{Metadata.id}}</span></span>
+                <span class="theLine"><span class='label'>mediaLink</span><span class='theMetadata'>{{Metadata.mediaLink}}</span></span>
+                <span class="theLine"><span class='label'>size</span><span class='theMetadata'>{{Metadata.size}}</span></span>
+                <div class="skipLine"></div>
+            </span>
+        </li>
+    </div>
+</div>
+<div class="skipLine"></div>
+<div class="skipLine"></div>
+<div class="skipLine"></div>

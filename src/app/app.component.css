@@ -56,3 +56,16 @@
 .options{
   width:40%; display:inline-block; margin-left:8%;
 }
+
+
+.label{
+  width:150px; color:blue; font-size:14px; display:inline-block; text-align: left; padding-left:10px;
+}
+
+.theInput{
+  width:300px; color:blue; font-size:14px; display:inline-block; background-color: lightgrey;
+}
+
+.theInput:hover {
+  background-color: cyan;
+}

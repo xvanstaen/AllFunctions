@@ -9,7 +9,7 @@ import { ViewportScroller } from "@angular/common";
 import { FormGroup, FormControl, Validators, FormBuilder, FormArray} from '@angular/forms';
 import { Observable } from 'rxjs';
 
-import { BucketList , Bucket_List_Info} from '../../JsonServerClass';
+import { BucketList , Bucket_List_Info, OneBucketInfo} from '../../JsonServerClass';
 
 
 // configServer is needed to use ManageGoogleService
@@ -1408,29 +1408,31 @@ GetAllObjects(){
   var i=0;
   this.error_msg='';
   this.HTTP_Address=this.Google_Bucket_Access_Root+ this.Google_Bucket_Name + "/o"  ;
-  console.log('RetrieveAllObjects()'+this.Google_Bucket_Name);
-  this.http.get<Bucket_List_Info>(this.HTTP_Address )
+  console.log('RetrieveAllObjects() '+this.Google_Bucket_Name);
+  // this.http.get<Bucket_List_Info>(this.HTTP_Address )
+  this.ManageGoogleService.getListMetaObjects(this.configServer,this.identification.fitness.bucket)
           .subscribe((data ) => {
                 console.log('RetrieveAllObjects() - data received');
-                this.myListOfObjects=data;
+                
                 if (this.ChartFileList.length!==0){
                   this.ChartFileList.clear();
                 }
-                for (i=this.myListOfObjects.items.length-1; i>-1; i--){
-                      if (this.myListOfObjects.items[i].name.substring(0,this.identification.fitness.files.fileStartLength)!==this.identification.fitness.files.fileStartName){
-                        this.myListOfObjects.items.splice(i,1);
-                      } else {
-                        this.FillFSelected.selected='N';
-                        this.ChartFileList.push(this.FormChart()); 
-                        // this.ChartFileList.push(this.FormChart);              
-                        this.ChartFileList.controls[this.ChartFileList.length-1].setValue(this.FillFSelected);
-                      }
+                for (var i=0; i<data.length; i++){
+                  if (data[i].items.name.substring(0,this.identification.fitness.files.fileStartLength)===this.identification.fitness.files.fileStartName){
+                    this.FillFSelected.selected='N';
+                    this.ChartFileList.push(this.FormChart()); 
+                    this.ChartFileList.controls[this.ChartFileList.length-1].setValue(this.FillFSelected);
+                    const KindAllObj=new OneBucketInfo;
+                    this.myListOfObjects.items.push(KindAllObj);
+                    this.myListOfObjects.items[this.myListOfObjects.items.length-1]=data[i].items;
+                  }
                 }
+
                 this.DisplayListOfObjects=true; 
           },
           error_handler => {
-                console.log('RetrieveAllObjects() - error handler; HTTP='+this.HTTP_Address);
-                this.error_msg='HTTP_Address='+this.HTTP_Address;
+                console.log('RetrieveAllObjects() - error handler; HTTP= '+this.HTTP_Address);
+                this.error_msg='HTTP_Address= '+this.HTTP_Address;
                 this.Error_Access_Server='RetrieveAllObjects()==> ' + error_handler.message + ' error status==> '+ error_handler.statusText+'   name=> '+ error_handler.name + '   Error url==>  '+ error_handler.url;
           } 
     )
@@ -1652,7 +1654,7 @@ SaveNewRecord(){
             for (i=0; i<this.myListOfObjects.items.length && this.myListOfObjects.items[i].name !== this.Google_Object_Name; i++ ){
             }
             if (i===this.myListOfObjects.items.length){
-                  const KindAllObj=new Bucket_List_Info;
+                  const KindAllObj=new OneBucketInfo;
                   this.myListOfObjects.items.push(KindAllObj);
                   this.myListOfObjects.items[this.myListOfObjects.items.length-1].name=this.Google_Object_Name;
                   this.FillFSelected.selected='N';

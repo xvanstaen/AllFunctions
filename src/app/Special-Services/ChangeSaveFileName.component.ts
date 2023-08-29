@@ -4,7 +4,6 @@ import { HttpHeaders } from '@angular/common/http';
 import { Router} from '@angular/router';
 import { ViewportScroller } from "@angular/common";
 import { FormGroup, FormControl, Validators, FormBuilder, FormArray} from '@angular/forms';
-import { encrypt, decrypt} from '../EncryptDecryptServices';
 
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';

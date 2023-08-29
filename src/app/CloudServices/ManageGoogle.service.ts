@@ -7,6 +7,7 @@ import { BioData } from '../JsonServerClass';
 import { ThisReceiver } from '@angular/compiler';
 import { configServer } from '../JsonServerClass';
 import { classFileSystem, classAccessFile }  from 'src/app/classFileSystem';
+
 // const baseUrl = 'http://localhost:8080/api/tutorials';
 // const baseUrl = 'http://localhost:8080';
 // const baseUrl ='https://test-server-359505.uc.r.appspot.com'; OKOK
@@ -41,7 +42,7 @@ export class ManageGoogleService {
 
     getListObjects(config:configServer, bucket:string): Observable<any> {
         //return this.http.get<any>(`${this.baseUrl}?bucket=${bucket}`);
-        const http_get=config.baseUrl+'/files/'+config.GoogleProjectId+'?bucket='+bucket;
+        const http_get=config.baseUrl+'/listFiles/'+config.GoogleProjectId+'?bucket='+bucket;
         return this.http.get<any>(http_get);
                                 
     }
@@ -121,6 +122,49 @@ export class ManageGoogleService {
     }
 
 
-        
+    getTokenOAuth2(config:configServer): Observable<any> {
+        const http_get=config.baseUrl+'/requestTokenOAuth2/'+config.GoogleProjectId;
+        return this.http.get<any>(http_get);                      
+    }   
+    
+    getDefaultCredentials(config:configServer): Observable<any> {
+        const http_get=config.baseUrl+'/requestDefaultCredentials/'+config.GoogleProjectId;
+        return this.http.get<any>(http_get);                      
+    }  
 
+    getRefreshToken(config:configServer): Observable<any> {
+        const http_get=config.baseUrl+'/refreshToken/'+config.GoogleProjectId;
+        return this.http.get<any>(http_get);                      
+    }   
+ 
+    revokeToken(config:configServer): Observable<any> {
+        const http_get=config.baseUrl+'/revokeToken/'+config.GoogleProjectId;
+        return this.http.get<any>(http_get);                      
+    }  
+
+    getInfoToken(config:configServer,accessToken:string): Observable<any> {
+        const http_get=config.baseUrl+'/checkAccessToken/'+config.GoogleProjectId+'/'+accessToken;
+        return this.http.get<any>(http_get);                      
+    }  
+    
+    getCredentials(config:configServer,bucket:string,object:string): Observable<any> {
+        const http_get=config.baseUrl+'/getCredentials/'+config.GoogleProjectId+'/'+object+'?bucket='+bucket;
+        return this.http.get<any>(http_get);                      
+    }  
+
+    checkLogin(config:configServer,userId:string,psw:string): Observable<any> {
+        const http_get=config.baseUrl+'/checkLogin/'+config.GoogleProjectId+'/'+userId+'/'+psw; // "/"+myArray+"/"+encodeURIComponent(JSON.stringify(TableCryptKey.theFour))
+        return this.http.get<any>(http_get);                      
+    }  
+
+    encryptFn(config:configServer,data:string,key:number,method:string,authoriz:string): Observable<any> {
+        //const myArray=encodeURIComponent(JSON.stringify(TableCryptKey.tab));
+        const http_get=config.baseUrl+'/encryptFn/'+config.GoogleProjectId+'/'+encodeURIComponent(data)+'/'+key.toString()+'/'+method+'/'+authoriz;
+        return this.http.get<any>(http_get);                      
+    }  
+
+    decryptFn(config:configServer,data:string,key:number,method:string,authoriz:string): Observable<any> {
+        const http_get=config.baseUrl+'/decryptFn/'+config.GoogleProjectId+'/'+encodeURIComponent(data)+'/'+key.toString()+'/'+method+'/'+authoriz;
+        return this.http.get<any>(http_get);                      
+    }  
 }
