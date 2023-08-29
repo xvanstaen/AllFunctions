@@ -105,7 +105,7 @@ inData=new classAccessFile;
             if (data[i].title==="configServer" && data[i].test_prod===test_prod){
                 this.configServer = data[i];
 
-               this.configServer.baseUrl='http://localhost:8080';
+               //this.configServer.baseUrl='http://localhost:8080';
                this.configServer.IpAddress=this.IpAddress;
                console.log('configServer is retrieved');
                //this.getTokenOAuth2();
