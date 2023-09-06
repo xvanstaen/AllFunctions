@@ -11,12 +11,14 @@ export class ManageMangoDBService {
   constructor(private   http: HttpClient) { }
 
   
-  findConfig(configServer:configServer,Collection:string,title: any ): Observable<any> {
-    return this.http.get<any>(`${configServer.baseUrl}/config/${configServer.GoogleProjectId}/${Collection}`);
+  findConfig(configServer:configServer,Collection:string ): Observable<any> {
+    const http_get=configServer.baseUrl+'/config/'+configServer.GoogleProjectId+'/'+configServer.test_prod+'/'+Collection;
+    return this.http.get<any>(http_get); 
+
   }
 
   findConfigbyURL(configServer:configServer,Collection:string,searchString: any ): Observable<any> {
-    return this.http.get<any>(`${configServer.baseUrl}/config/${configServer.GoogleProjectId}/${Collection}?baseUrl=${searchString}`);
+    return this.http.get<any>(`${configServer.baseUrl}/config/${configServer.GoogleProjectId}/${configServer.test_prod}/${Collection}?baseUrl=${searchString}`);
   }
 
 

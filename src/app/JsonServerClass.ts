@@ -28,6 +28,8 @@ export class BioData{
       firstname:string='';
       surname:string='';
       IpAddress:string='';
+      userServerId:number=0;
+      credentialDate:string='';
       apps:Array<string>=[];
       ownBuckets:Array<any>=[{name:""}];
       fitness={
@@ -240,6 +242,7 @@ export class configServer{
   baseUrl:string= '';
   IpAddress:string= '';
   UserSpecific:Array<UserParam>=[];
+  credentialDate:string='';
   bucketFileSystem:string='';
   objectFileSystem:string='';
   timeoutFileSystem={
@@ -260,6 +263,7 @@ export class configServer{
   BucketUserInfo:string='';
   BucketFitness:string='';
   BucketRecipe:string='';
+  filesToCache=[];
 }
 
 export class classPosSlider{
@@ -273,7 +277,8 @@ export class classPosSlider{
 }
 
 export class   classCredentials {
-  access_token:string=""; id_token:string=""; refresh_token:string=""; token_type:string=""}
+  access_token:string=""; id_token:string=""; refresh_token:string=""; token_type:string="";
+  userServerId:number=-1; creationDate:string=""}
 
 
 

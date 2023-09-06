@@ -3,6 +3,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head> 
 <body>
+<div *ngIf="theResetServer===true">{{error_msg}}</div>
+
+<div *ngIf="theResetServer===false">
     <div *ngIf="isTriggerFileSystem===true">
         <app-file-system-service [identification]="identification" [configServer]="configServer" [callUpdateSystemFile]="callUpdateSystemFile"
           [tabLock]="tabLock" [iWait]="tabLock[saveIWait].iWait" (returnStatus)="returnFromFileSystem($event)">
@@ -591,5 +594,6 @@ style="margin-left:20px; background-color: rgb(162, 249, 205); border:double 1px
     </app-check-file-update>
 </div>
 -->
+</div>
 </body>
 

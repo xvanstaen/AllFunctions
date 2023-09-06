@@ -15,6 +15,7 @@ import { classAccessFile } from './classFileSystem';
 
 
 import { fnAddTime } from './MyStdFunctions'
+import { isArray } from 'chart.js/dist/helpers/helpers.core';
 
 @Component({
   selector: 'app-root',
@@ -69,9 +70,6 @@ export class AppComponent {
         
       }
     );
-
-    
-    
       console.log('getIpAddress');
       this.http.get("http://api.ipify.org/?format=json").subscribe((res:any)=>{
         this.IpAddress = res.ip;
@@ -83,43 +81,45 @@ export class AppComponent {
 inData=new classAccessFile;
   RetrieveConfig(){
     console.log('RetrieveConfig()');
+        if (environment.production === false){
+          test_prod='test';
+      }
       // var test_prod='prod';
       var test_prod='test';  // this is for allFunctions only so that test BackendServer is used
-      const InitconfigServer=new configServer;
-      InitconfigServer.baseUrl='https://localhost:8080';
+      var InitconfigServer=new configServer;
+      //InitconfigServer.baseUrl='http://localhost:8080';
       InitconfigServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
-      
+      InitconfigServer.test_prod=test_prod;
       InitconfigServer.GoogleProjectId='ConfigDB';
-      //this.ManageMangoDB.findConfig(InitconfigServer, 'configServer', '')
-      this.ManageMangoDB.findConfigbyURL(InitconfigServer, 'configServer', '')
+      this.ManageMangoDB.findConfig(InitconfigServer, 'configServer')
+     // this.ManageMangoDB.findConfigbyURL(InitconfigServer, 'configServer', '')
       .subscribe(
         data => {
          // test if data is an array if (Array.isArray(data)===true){}
          //     this.configServer=data[0];
        
-         if (environment.production === false){
-            test_prod='test';
-         }
-        
-        for (let i=0; i<data.length; i++){
-            if (data[i].title==="configServer" && data[i].test_prod===test_prod){
-                this.configServer = data[i];
 
-               //this.configServer.baseUrl='http://localhost:8080';
-               this.configServer.IpAddress=this.IpAddress;
-               console.log('configServer is retrieved');
-               //this.getTokenOAuth2();
-               if (this.credentials.access_token===""){
-                    this.getDefaultCredentials();
-               } 
-            
-            } 
+        if (Array.isArray(data) === false){
+          this.configServer = data;
+        } else {
 
-        }
-       
+ 
+          for (let i=0; i<data.length; i++){
+              if (data[i].title==="configServer" && data[i].test_prod===test_prod){
+                  this.configServer = data[i];
+              } }
+            }
+
+    // this.configServer.baseUrl='http://localhost:8080';
+          this.configServer.IpAddress=this.IpAddress;
+          console.log('configServer is retrieved');
+          //this.getTokenOAuth2();
+          if (this.credentials.access_token===""){
+                this.getDefaultCredentials();
+          } 
         },
         error => {
-          console.log('error to retrieve the configuration file ;  error = ', error.status);
+          console.log('error to retrieve the configuration file ;  error = ', error);
          
         });
   }
@@ -147,11 +147,8 @@ inData=new classAccessFile;
   }
 
   theNumber:string="";
-
   isIdRetrieved:boolean=false;
   
-
-
   getDefaultCredentials(){
 
     this.ManageGoogleService.getDefaultCredentials(this.configServer  )
@@ -161,11 +158,15 @@ inData=new classAccessFile;
           this.credentials.id_token=data.credentials.id_token
           this.credentials.refresh_token=data.credentials.refresh_token
           this.credentials.token_type=data.credentials.token_type;
-
+          this.credentials.userServerId=data.credentials.userServerId;
+          this.credentials.creationDate=data.credentials.creationDate;
           // this.getInfoToken(); // this is a test
 
           this.isCredentials=true;
-         
+          if (this.isResetServer===true){
+            this.isResetServer=false;
+            this.getLogin(this.theForm.controls['userId'].value,this.theForm.controls['psw'].value);
+          };
         },
         err => {
           console.log('return from requestToken() with error = '+ JSON.stringify(err));
@@ -209,8 +210,19 @@ inData=new classAccessFile;
   }
 
   errorMsg:string="";
-  valiadateIdentification(){
+
+  isResetServer:boolean=false;
+
+  resetServer(){
+    this.isCredentials=false;
+    this.isResetServer=true;
+    this.isIdRetrieved=false;
+    this.getDefaultCredentials();
+  }
+
+  validateIdentification(){
     this.errorMsg="";
+
     if (this.theForm.controls['userId'].value !== '' && this.theForm.controls['psw'].value){
       if (this.isCredentials===true){
         this.getLogin(this.theForm.controls['userId'].value,this.theForm.controls['psw'].value);
@@ -258,6 +270,8 @@ inData=new classAccessFile;
             this.isIdRetrieved=true;
             this.isConfigServerRetrieved=true;
             this.identification.IpAddress=this.IpAddress;
+            this.identification.userServerId=this.credentials.userServerId;
+            this.identification.credentialDate=this.credentials.creationDate;
             this.errorMsg="";
       },
         err=> {

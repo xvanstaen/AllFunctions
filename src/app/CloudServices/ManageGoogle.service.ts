@@ -37,30 +37,30 @@ export class ManageGoogleService {
 // @Inject is not used
 
     getListBuckets(config:configServer): Observable<any> {
-        return this.http.get<any>(config.baseUrl+'/lBucket/'+config.GoogleProjectId);                       
+        return this.http.get<any>(config.baseUrl+'/lBucket/'+config.GoogleProjectId+'/'+config.test_prod);                       
     }
 
     getListObjects(config:configServer, bucket:string): Observable<any> {
         //return this.http.get<any>(`${this.baseUrl}?bucket=${bucket}`);
-        const http_get=config.baseUrl+'/listFiles/'+config.GoogleProjectId+'?bucket='+bucket;
+        const http_get=config.baseUrl+'/listFiles/'+config.GoogleProjectId+'/'+config.test_prod+'?bucket='+bucket;
         return this.http.get<any>(http_get);
                                 
     }
 
     getListMetaObjects(config:configServer, bucket:string): Observable<any> {
         //return this.http.get<any>(`${this.baseUrl}?bucket=${bucket}`);
-        const http_get=config.baseUrl+'/filesmeta/'+config.GoogleProjectId+'?bucket='+bucket;
+        const http_get=config.baseUrl+'/filesmeta/'+config.GoogleProjectId+'/'+config.test_prod+'?bucket='+bucket;
         return this.http.get<any>(http_get);
                                 
     }
 
     getContentObject(config:configServer, bucket:string, object:string): Observable<any> {
-        const http_get=config.baseUrl+'/files/'+config.GoogleProjectId+'/'+object+'?bucket='+bucket;
+        const http_get=config.baseUrl+'/files/'+config.GoogleProjectId+'/'+config.test_prod+'/'+object+'?bucket='+bucket;
         return this.http.get<any>(http_get);                       
     }
     
     getMetaObject(config:configServer, bucket:string, object:string): Observable<any> {
-        const http_get=config.baseUrl+'/meta/'+config.GoogleProjectId+'/'+object+'?bucket='+bucket;
+        const http_get=config.baseUrl+'/meta/'+config.GoogleProjectId+'/'+config.test_prod+'/'+object+'?bucket='+bucket;
         return this.http.get<any>(http_get);                      
     }
 
@@ -75,7 +75,7 @@ export class ManageGoogleService {
         var formData: FormData = new FormData();
         formData.append('metadata', JSON.stringify(newMetadata));
         formData.append('file', file);
-        const http_post=config.baseUrl+'/upload/'+config.GoogleProjectId+'/'+cacheControl+'/'+contentType+'?bucket='+bucket;
+        const http_post=config.baseUrl+'/upload/'+config.GoogleProjectId+'/'+config.test_prod+'/'+cacheControl+'/'+contentType+'?bucket='+bucket;
         const req = new HttpRequest('POST', http_post, formData,  {
         // headers: this.myHeader,
         reportProgress: false,
@@ -87,84 +87,90 @@ export class ManageGoogleService {
 
     updateMetadata(config:configServer, bucket:string, objectN:string, newMetaData:any): Observable<HttpEvent<any>> {
 
-            const http_post=config.baseUrl+'/updateMeta/'+config.GoogleProjectId+'/'+objectN+'/'+newMetaData+'?bucket='+bucket;
+            const http_post=config.baseUrl+'/updateMeta/'+config.GoogleProjectId+'/'+config.test_prod+'/'+objectN+'/'+newMetaData+'?bucket='+bucket;
             const req = new HttpRequest('POST', http_post, objectN);
             return this.http.request(req);
         }
 
     deleteObject(config:configServer, bucket:string, objectN:string): Observable<HttpEvent<any>> {
 
-            const http_post=config.baseUrl+'/delete/'+config.GoogleProjectId+'/'+objectN+'?bucket='+bucket;
+            const http_post=config.baseUrl+'/delete/'+config.GoogleProjectId+'/'+config.test_prod+'/'+objectN+'?bucket='+bucket;
             //const req = new HttpRequest('GET', objectN);
             return this.http.get<any>(http_post);
         }
     
     renameObject(config:configServer, bucket:string, SRCobject:string, DESTobject:string): Observable<HttpEvent<any>> {
-            const http_post=config.baseUrl+'/rename/'+config.GoogleProjectId+'/'+SRCobject+'/'+DESTobject+'?bucket='+bucket;
+            const http_post=config.baseUrl+'/rename/'+config.GoogleProjectId+'/'+config.test_prod+'/'+SRCobject+'/'+DESTobject+'?bucket='+bucket;
             //const req = new HttpRequest('GET', objectN);
             return this.http.get<any>(http_post);
         }
     
     moveObject(config:configServer, bucket:string, DESTbucket:string,  SRCobject:string, DESTobject:string): Observable<HttpEvent<any>> {
-            const http_post=config.baseUrl+'/move/'+config.GoogleProjectId+'/'+DESTbucket+'/'+ SRCobject+'/'+ DESTobject+'?bucket='+bucket;
+            const http_post=config.baseUrl+'/move/'+config.GoogleProjectId+'/'+config.test_prod+'/'+DESTbucket+'/'+ SRCobject+'/'+ DESTobject+'?bucket='+bucket;
             //const req = new HttpRequest('GET', objectN);
             return this.http.get<any>(http_post);
         }
     copyObject(config:configServer, bucket:string, DESTbucket:string, SRCobject:string, DESTobject:string): Observable<HttpEvent<any>> {
-            const http_post=config.baseUrl+'/copy/'+config.GoogleProjectId+'/'+DESTbucket+'/'+SRCobject+'/'+DESTobject+'?bucket='+bucket;
+            const http_post=config.baseUrl+'/copy/'+config.GoogleProjectId+'/'+config.test_prod+'/'+DESTbucket+'/'+SRCobject+'/'+DESTobject+'?bucket='+bucket;
             //const req = new HttpRequest('GET', objectN);
             return this.http.get<any>(http_post);
         }
 
-    updateFileSystem(config:configServer, bucket:string, object:string, inData:classAccessFile, tabLock:Array<classAccessFile>): Observable<any> {
-        const http_get=config.baseUrl+'/updateFileSystem/'+config.GoogleProjectId+'/'+object+'/'+JSON.stringify(inData)+'/'+JSON.stringify(tabLock)+'?bucket='+bucket;
+    onFileSystem(config:configServer, bucket:string, object:string, tabLock:Array<classAccessFile>, iWait:string): Observable<any> {
+        const http_get=config.baseUrl+'/onFileSystem/'+config.GoogleProjectId+'/'+config.test_prod+'/'+object+'/'+JSON.stringify(tabLock)+'/'+iWait+'?bucket='+bucket;
         return this.http.get<any>(http_get);                       
     }
 
 
     getTokenOAuth2(config:configServer): Observable<any> {
-        const http_get=config.baseUrl+'/requestTokenOAuth2/'+config.GoogleProjectId;
+        const http_get=config.baseUrl+'/requestTokenOAuth2/'+config.GoogleProjectId+'/'+config.test_prod;
         return this.http.get<any>(http_get);                      
     }   
     
     getDefaultCredentials(config:configServer): Observable<any> {
-        const http_get=config.baseUrl+'/requestDefaultCredentials/'+config.GoogleProjectId;
+        const http_get=config.baseUrl+'/requestDefaultCredentials/'+config.GoogleProjectId+'/'+config.test_prod;
         return this.http.get<any>(http_get);                      
     }  
 
     getRefreshToken(config:configServer): Observable<any> {
-        const http_get=config.baseUrl+'/refreshToken/'+config.GoogleProjectId;
+        const http_get=config.baseUrl+'/refreshToken/'+config.GoogleProjectId+'/'+config.test_prod;
         return this.http.get<any>(http_get);                      
     }   
  
     revokeToken(config:configServer): Observable<any> {
-        const http_get=config.baseUrl+'/revokeToken/'+config.GoogleProjectId;
+        const http_get=config.baseUrl+'/revokeToken/'+config.GoogleProjectId+'/'+config.test_prod;
         return this.http.get<any>(http_get);                      
     }  
 
     getInfoToken(config:configServer,accessToken:string): Observable<any> {
-        const http_get=config.baseUrl+'/checkAccessToken/'+config.GoogleProjectId+'/'+accessToken;
+        const http_get=config.baseUrl+'/checkAccessToken/'+config.GoogleProjectId+'/'+config.test_prod+'/'+accessToken;
         return this.http.get<any>(http_get);                      
     }  
     
     getCredentials(config:configServer,bucket:string,object:string): Observable<any> {
-        const http_get=config.baseUrl+'/getCredentials/'+config.GoogleProjectId+'/'+object+'?bucket='+bucket;
+        const http_get=config.baseUrl+'/getCredentials/'+config.GoogleProjectId+'/'+config.test_prod+'/'+object+'?bucket='+bucket;
         return this.http.get<any>(http_get);                      
     }  
 
     checkLogin(config:configServer,userId:string,psw:string): Observable<any> {
-        const http_get=config.baseUrl+'/checkLogin/'+config.GoogleProjectId+'/'+userId+'/'+psw; // "/"+myArray+"/"+encodeURIComponent(JSON.stringify(TableCryptKey.theFour))
+        const http_get=config.baseUrl+'/checkLogin/'+config.GoogleProjectId+'/'+config.test_prod+'/'+userId+'/'+psw; // "/"+myArray+"/"+encodeURIComponent(JSON.stringify(TableCryptKey.theFour))
         return this.http.get<any>(http_get);                      
     }  
 
     encryptFn(config:configServer,data:string,key:number,method:string,authoriz:string): Observable<any> {
         //const myArray=encodeURIComponent(JSON.stringify(TableCryptKey.tab));
-        const http_get=config.baseUrl+'/encryptFn/'+config.GoogleProjectId+'/'+encodeURIComponent(data)+'/'+key.toString()+'/'+method+'/'+authoriz;
+        const http_get=config.baseUrl+'/encryptFn/'+config.GoogleProjectId+'/'+config.test_prod+'/'+encodeURIComponent(data)+'/'+key.toString()+'/'+method+'/'+authoriz;
         return this.http.get<any>(http_get);                      
     }  
 
     decryptFn(config:configServer,data:string,key:number,method:string,authoriz:string): Observable<any> {
-        const http_get=config.baseUrl+'/decryptFn/'+config.GoogleProjectId+'/'+encodeURIComponent(data)+'/'+key.toString()+'/'+method+'/'+authoriz;
+        const http_get=config.baseUrl+'/decryptFn/'+config.GoogleProjectId+'/'+config.test_prod+'/'+encodeURIComponent(data)+'/'+key.toString()+'/'+method+'/'+authoriz;
+      
         return this.http.get<any>(http_get);                      
     }  
+
+    resetCacheFile(config:configServer): Observable<any> {
+        const http_get=config.baseUrl+'/resetCacheFile/'+config.GoogleProjectId+'/'+config.test_prod;
+        return this.http.get<any>(http_get);                       
+    }
 }
