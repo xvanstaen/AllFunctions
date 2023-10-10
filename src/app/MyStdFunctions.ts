@@ -154,7 +154,7 @@
           theSeconds=seconds.toString();;
         } 
       
-        return (year+theMonth+theDay+theHour+theMinutes+theSeconds);
+        return (year.toString()+theMonth+theDay+theHour+theMinutes+theSeconds);
       }
       
       export function defineMyDate(){
@@ -201,7 +201,7 @@
         }
       
       
-        return (year+theMonth+theDay+theHour+theMinutes+theSeconds+theMilliseconds);
+        return (year.toString()+theMonth+theDay+theHour+theMinutes+theSeconds+theMilliseconds);
       
       
       }
@@ -254,7 +254,8 @@
                     
                 } else if (tabLock[iWait].lock === 1){
                     //tabLock[iWait].lock = 0; // user has not done anything until timeout;  
-                    returnValue.action="changeTabLock";
+                    // returnValue.action="changeTabLock"; // WHY DOING THAT?
+                    returnValue.action="checkFile";
                 } else if (tabLock[iWait].lock===0 && isRecordModified === true) {
                     //lockFile(iWait); // user is trying to do something but file was not locked
                     returnValue.action="updateSystemFile";

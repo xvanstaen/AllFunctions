@@ -33,7 +33,7 @@ export class XmvcompanyRootComponent implements OnInit {
     InitconfigServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
     
     InitconfigServer.GoogleProjectId='ConfigDB';
-    this.ManageMangoDBService.findConfigbyURL(InitconfigServer, 'configServer', '')
+    this.ManageMangoDBService.findConfigbyString(InitconfigServer, 'configServer', '')
     .subscribe(
       data => {
        // test if data is an array if (Array.isArray(data)===true){}

@@ -105,7 +105,7 @@ export class CheckFileUpdateComponent {
   saveFile(){
     var file=new File ([JSON.stringify(this.fileSystem)],this.configServer.objectFileSystem, {type: 'application/json'});
     
-    this.ManageGoogleService.uploadObject(this.configServer, this.configServer.bucketFileSystem, file )
+    this.ManageGoogleService.uploadObject(this.configServer, this.configServer.bucketFileSystem, file , this.configServer.objectFileSystem)
       .subscribe(res => {
               if (res.type===4){
                 this.status.status=0;

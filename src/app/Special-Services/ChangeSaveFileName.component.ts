@@ -80,7 +80,7 @@ export class ChangeSaveFileNameComponent {
         const HTTP_Address=this.Google_Bucket_Access_RootPOST + this.SelectedBucketInfo.bucket+ "/o?name=" + this.FileName   + "&uploadType=media" ;
         
         var file=new File ([JSON.stringify(FileToSave)],this.FileName,{type: 'application/json'});
-        this.ManageGoogleService.uploadObject(this.configServer, this.SelectedBucketInfo.bucket, file )
+        this.ManageGoogleService.uploadObject(this.configServer, this.SelectedBucketInfo.bucket, file ,this.FileName)
           .subscribe(
             (res) => {
               if (res.type===4){

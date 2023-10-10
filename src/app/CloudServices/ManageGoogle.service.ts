@@ -65,7 +65,7 @@ export class ManageGoogleService {
     }
 
 
-    uploadObject(config:configServer, bucket:string, file: File): Observable<HttpEvent<any>> {
+    uploadObject(config:configServer, bucket:string, file: File, object:string): Observable<HttpEvent<any>> {
         const newMetadata = {
             cacheControl: 'public,max-age=0,no-cache,no-store',
             contentType: 'application/json'
@@ -75,7 +75,7 @@ export class ManageGoogleService {
         var formData: FormData = new FormData();
         formData.append('metadata', JSON.stringify(newMetadata));
         formData.append('file', file);
-        const http_post=config.baseUrl+'/upload/'+config.GoogleProjectId+'/'+config.test_prod+'/'+cacheControl+'/'+contentType+'?bucket='+bucket;
+        const http_post=config.baseUrl+'/upload/'+config.GoogleProjectId+'/'+object+'/'+config.test_prod+'/'+cacheControl+'/'+contentType+'?bucket='+bucket;
         const req = new HttpRequest('POST', http_post, formData,  {
         // headers: this.myHeader,
         reportProgress: false,
@@ -121,6 +121,10 @@ export class ManageGoogleService {
         return this.http.get<any>(http_get);                       
     }
 
+    resetFS(config:configServer, bucket:string, object:string, tabLock:Array<classAccessFile>, iWait:string): Observable<any> {
+        const http_get=config.baseUrl+'/resetFS/'+config.GoogleProjectId+'/'+config.test_prod+'/'+object+'/'+JSON.stringify(tabLock)+'/'+iWait+'?bucket='+bucket;
+        return this.http.get<any>(http_get);                       
+    }
 
     getTokenOAuth2(config:configServer): Observable<any> {
         const http_get=config.baseUrl+'/requestTokenOAuth2/'+config.GoogleProjectId+'/'+config.test_prod;

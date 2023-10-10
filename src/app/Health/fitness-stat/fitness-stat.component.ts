@@ -1642,7 +1642,7 @@ SaveNewRecord(){
   this.NewPerformanceFitness.user_id=this.identification.id;
   var file=new File ([JSON.stringify(this.NewPerformanceFitness)],this.Google_Object_Name, {type: 'application/json'});
 
-  this.ManageGoogleService.uploadObject(this.configServer, this.Google_Bucket_Name, file )
+  this.ManageGoogleService.uploadObject(this.configServer, this.Google_Bucket_Name, file, this.Google_Object_Name )
   //this.http.post(this.HTTP_Address,  this.Table_User_Data[this.identification.id] , {'headers':this.myHeader} )
   .subscribe(res => {
     //**this.LogMsgConsole('Individual Record is updated: '+ this.Table_User_Data[this.identification.id].UserId );
@@ -1687,7 +1687,7 @@ SaveConfigFtiness(){
   this.EventHTTPSave=false;
   var file=new File ([JSON.stringify(this.MyConfigFitness)],this.SpecificForm.controls['FileName'].value, {type: 'application/json'});
                     
-  this.ManageGoogleService.uploadObject(this.configServer, this.Google_Bucket_Name, file )
+  this.ManageGoogleService.uploadObject(this.configServer, this.Google_Bucket_Name, file , this.SpecificForm.controls['FileName'].value)
   //this.http.post(this.HTTP_Address,  this.Table_User_Data[this.identification.id] , {'headers':this.myHeader} )
   .subscribe(res => {
     //**this.LogMsgConsole('Individual Record is updated: '+ this.Table_User_Data[this.identification.id].UserId );
@@ -1759,7 +1759,7 @@ RetrieveConfig(){
     this.configServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
     
     this.configServer.GoogleProjectId='ConfigDB';
-    this.ManageMangoDBService.findConfigbyURL(this.configServer, 'configServer', '')
+    this.ManageMangoDBService.findConfigbyString(this.configServer, 'configServer', '')
     .subscribe(
       data => {
      

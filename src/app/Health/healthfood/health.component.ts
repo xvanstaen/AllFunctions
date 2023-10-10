@@ -2003,7 +2003,7 @@ SaveNewRecord(GoogleBucket:string, GoogleObject:string, record:any, iWait:number
       GoogleObject='ConsoleLog.json-'+ myTime.toString().substring(4,21);
       file=new File ([JSON.stringify(this.myConsole)],GoogleObject, {type: 'application/json'});
       }  
-    this.ManageGoogleService.uploadObject(this.configServer, GoogleBucket, file )
+    this.ManageGoogleService.uploadObject(this.configServer, GoogleBucket, file , GoogleObject)
       .subscribe(res => {
               if (res.type===4){
                 this.error_msg='File "'+ GoogleObject +'" is successfully stored in the cloud';
@@ -2243,13 +2243,13 @@ updateLockFile(iWait:number){
 }
 
 onFileSystem(iWait:number){
-  var theAction='this.tabLock[iWait].action';
+  var theAction=this.tabLock[iWait].action;
 
   this.ManageGoogleService.onFileSystem(this.configServer, this.configServer.bucketFileSystem, 'fileSystem', this.tabLock, iWait.toString() )
   .subscribe(
     data  => {  
         if (theAction === 'onDestroy'){
-          console.log('onDestroy ==> '+ JSON.stringify(data));
+          // console.log('onDestroy ==> '+ JSON.stringify(data));
           this.tabLock[iWait].status=0;
         } else {
           this.returnOnFileSystem(data,iWait);
@@ -2293,10 +2293,25 @@ returnOnFileSystem(data:any, iWait:number){
     // record is locked by another user; no actions can take place for this user so reset
     if (data.tabLock[iWait].createdAt !== undefined){
         this.error_msg = this.error_msg + " data returned: lock=" + data.tabLock[iWait].lock +  "  & status=" + data.tabLock[iWait].status ;
-        if (data.tabLock[iWait].lock ===2 && this.tabLock[iWait].lock === 1) {
+        console.log(this.error_msg);
+        if (data.tabLock[iWait].lock ===1 && this.tabLock[iWait].lock === 2) {
+            // file is now locked for this user; need to retrieve the file to ensure we have the latest version
+            this.tabLock[iWait]=data.tabLock[iWait];
+            this.onInputAction="";
+            if (iWait===0){
+              this.reAccessHealthFile();
+            } else if (iWait===1){
+              this.reAccessConfigCal();
+            } else if (iWait===5){
+              this.tabLock[iWait].status=data.status.tabLockItem;
+              this.reAccessChartFile();
+            }
+
+
+        } else  if (data.tabLock[iWait].lock ===2 && this.tabLock[iWait].lock === 1) {
+          // file is now locked by another user
+          this.tabLock[iWait].lock=data.tabLock[iWait];;
           if (iWait===0){
-            this.tabLock[iWait].lock=2;
-            
             this.reAccessHealthFile();
           } else {
             this.tabLock[iWait].status=300;
@@ -2322,7 +2337,7 @@ returnOnFileSystem(data:any, iWait:number){
             this.onInputAction=""; 
             this.onInputDailyA(this.theEvent);
           } else { 
-            console.log(' something wrong happened with process on file system');
+            console.log('File is locked; no specific action; process continues');
             this.onInputAction=""; 
           }
         }
@@ -2468,6 +2483,7 @@ getChartFiles(){
 }
 
 reAccessHealthFile(){
+  console.log('reAccessHealthFile');
   this.HealthAllData.tabDailyReport.splice(0,this.HealthAllData.tabDailyReport.length);
   this.GetRecord(this.identification.fitness.bucket,this.identification.fitness.files.fileHealth,0);
 }

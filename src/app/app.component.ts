@@ -60,6 +60,8 @@ export class AppComponent {
   ngOnInit(){
     //const snapshotParam = this.route.snapshot.paramMap.get("animal");
     //console.log('snapshotParam=' + JSON.stringify(snapshotParam))
+
+    /*
     this.route.queryParams
       .subscribe(params => {
         console.log(params); 
@@ -70,6 +72,8 @@ export class AppComponent {
         
       }
     );
+    */
+
       console.log('getIpAddress');
       this.http.get("http://api.ipify.org/?format=json").subscribe((res:any)=>{
         this.IpAddress = res.ip;
@@ -87,8 +91,8 @@ inData=new classAccessFile;
       // var test_prod='prod';
       var test_prod='test';  // this is for allFunctions only so that test BackendServer is used
       var InitconfigServer=new configServer;
-      //InitconfigServer.baseUrl='http://localhost:8080';
-      InitconfigServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
+      InitconfigServer.baseUrl='http://localhost:8080';
+      //InitconfigServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
       InitconfigServer.test_prod=test_prod;
       InitconfigServer.GoogleProjectId='ConfigDB';
       this.ManageMangoDB.findConfig(InitconfigServer, 'configServer')
@@ -110,7 +114,7 @@ inData=new classAccessFile;
               } }
             }
 
-    // this.configServer.baseUrl='http://localhost:8080';
+  this.configServer.baseUrl='http://localhost:8080';
           this.configServer.IpAddress=this.IpAddress;
           console.log('configServer is retrieved');
           //this.getTokenOAuth2();
@@ -150,7 +154,7 @@ inData=new classAccessFile;
   isIdRetrieved:boolean=false;
   
   getDefaultCredentials(){
-
+console.log('getDefaultCredentials()');
     this.ManageGoogleService.getDefaultCredentials(this.configServer  )
     .subscribe(
         (data ) => {
@@ -210,7 +214,6 @@ inData=new classAccessFile;
   }
 
   errorMsg:string="";
-
   isResetServer:boolean=false;
 
   resetServer(){

@@ -404,7 +404,7 @@ export class TestServerJSComponent {
       var file=new File ([JSON.stringify(myObject)], srcobject, {type: 'application/json'});
       this.EventHTTPReceived[8]=false;
       this.waitHTTP(this.TabLoop[8], this.maxLoop, 8);
-      this.ManageGoogleService.uploadObject(this.configServer, srcbucket, file )
+      this.ManageGoogleService.uploadObject(this.configServer, srcbucket, file ,srcobject)
         .subscribe(data => {
           if (data.type===4 && data.status===200 ){
               console.log(JSON.stringify(data));
