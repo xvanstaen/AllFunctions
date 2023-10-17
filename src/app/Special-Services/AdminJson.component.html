@@ -241,9 +241,11 @@
   <ng-template #CompoEight>
     <div *ngIf="GoToComponent===8; else CompoNine">
 
-    <app-health  [identification]="identification"  [configServer]="configServer" [ConfigChart]="ConfigChart"
-    [InHealthAllData]="HealthAllData" [InConfigHTMLFitHealth]='ConfigHTMLFitHealth' [InConfigCaloriesFat]="ConfigCaloriesFat" [InConvertUnit]="ConvertUnit" (returnFile)="ReceiveFiles($event)" >
-    </app-health>
+    <app-health [credentials]="credentials" [identification]="identification"  [configServer]="configServer" [ConfigChart]="ConfigChart"
+    [InHealthAllData]="HealthAllData" [InConfigHTMLFitHealth]='ConfigHTMLFitHealth' [InConfigCaloriesFat]="ConfigCaloriesFat" [InConvertUnit]="ConvertUnit" 
+     (resetServer)="fnResetServer()"  (newCredentials)="fnNewCredentials($event)">
+    
+  </app-health> <!-- (returnFile)="ReceiveFiles($event)" -->
    
     </div>
   </ng-template>

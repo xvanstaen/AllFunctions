@@ -50,9 +50,9 @@
 <div *ngIf="isAppsSelected===true && isIdRetrieved===true && this.isConfigServerRetrieved===true">
     <div *ngIf="selectApps===1 ">
         <app-xmv-company [configServer]="configServer" [INidentification]="identification"  [isConfigServerRetrieved]="isConfigServerRetrieved"
-        [InConvertUnit]="ConvertUnit" [InConvToDisplay]="ConvToDisplay" [IntheTabOfUnits]="theTabOfUnits"  [InWeightRefTable]="WeightRefTable" 
-        >
-    </app-xmv-company>
+            [InConvertUnit]="ConvertUnit" [InConvToDisplay]="ConvToDisplay" [IntheTabOfUnits]="theTabOfUnits"  [InWeightRefTable]="WeightRefTable" 
+            [credentials]="credentials" (resetServer)="fnResetServer()"  (newCredentials)="fnNewCredentials($event)">
+        </app-xmv-company>
     </div>
    
     <div *ngIf="selectApps>1 && selectApps<10" style="float:none;">
@@ -61,15 +61,15 @@
     </div>
     <div *ngIf="selectApps===10">
         <app-converter  [identification]="identification"  [configServer]="configServer" [convertOnly]="convertOnly" 
-        [InConvertUnit]="ConvertUnit" [InConvToDisplay]="ConvToDisplay" [IntheTabOfUnits]="theTabOfUnits"  [InWeightRefTable]="WeightRefTable" (returnFile)="ReceiveFiles($event)"     
+            [InConvertUnit]="ConvertUnit" [InConvToDisplay]="ConvToDisplay" [IntheTabOfUnits]="theTabOfUnits"  [InWeightRefTable]="WeightRefTable" (returnFile)="ReceiveFiles($event)"     
         >
         </app-converter>
     </div>  
     
     <div *ngIf="selectApps>10  &&  selectApps<14">
         
-        <app-health  [identification]="identification"  [configServer]="configServer"  [triggerFunction]="selHealthFunction"
-        (returnFile)="ReceiveFiles($event)"  (resetServer)="resetServer()"
+        <app-health  [identification]="identification"  [configServer]="configServer"  [triggerFunction]="selHealthFunction" [credentials]="credentials"
+            (returnFile)="ReceiveFiles($event)"  (resetServer)="fnResetServer()"  (newCredentials)="fnNewCredentials($event)"
         >
         </app-health>
     </div>  

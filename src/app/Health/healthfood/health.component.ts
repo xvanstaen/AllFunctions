@@ -15,7 +15,7 @@ import { BucketList, Bucket_List_Info  } from '../../JsonServerClass';
 // it is stored in MangoDB and accessed via ManageMangoDBService
 
 import {msginLogConsole} from '../../consoleLog'
-import { configServer, LoginIdentif, msgConsole } from '../../JsonServerClass';
+import { configServer, LoginIdentif, msgConsole, classCredentials } from '../../JsonServerClass';
 import {classPosDiv, getPosDiv} from '../../getPosDiv';
 
 import { environment } from 'src/environments/environment';
@@ -61,6 +61,7 @@ export class HealthComponent implements OnInit {
 
   @Output() returnFile= new EventEmitter<any>();
   @Output() resetServer= new EventEmitter<any>();
+  @Output() newCredentials= new EventEmitter<any>();
 
   @Input() configServer = new configServer;
   @Input() identification= new LoginIdentif;
@@ -71,6 +72,8 @@ export class HealthComponent implements OnInit {
   @Input() InConfigChart=new classConfigChart;
   @Input() InFileParamChart=new classFileParamChart;
   @Input() triggerFunction:number=0;
+
+  @Input() credentials=new classCredentials;
   
   fileParamChart=new classFileParamChart;
   ConfigChart=new classConfigChart;
@@ -250,7 +253,7 @@ sizeBoxContentMeal:number=0;
 sizeBoxMeal:number=0;
 sizeBoxContentFood:number=0;
 sizeBoxFood:number=0;
-
+ 
 mousedown:boolean=false;
 selectedPosition ={ 
   x: 0,
@@ -1309,7 +1312,8 @@ FillHealthAllInOut(outFile:any, inFile:any){
     outFile.updatedAt=inFile.updatedAt;
   } else {outFile.updatedAt='';}
   for (var i=0; i<inFile.tabDailyReport.length; i++){
-    if (inFile.tabDailyReport[i].meal.length!==0){
+   // if (inFile.tabDailyReport[i].meal.length!==0){
+  
         iOut++
     
         const theDaily=new DailyReport;
@@ -1335,11 +1339,21 @@ FillHealthAllInOut(outFile:any, inFile:any){
                       outFile.tabDailyReport[iOut].meal[jOut].dish[lOut].quantity=inFile.tabDailyReport[i].meal[j].dish[k].quantity;
                       outFile.tabDailyReport[iOut].meal[jOut].dish[lOut].unit=inFile.tabDailyReport[i].meal[j].dish[k].unit;
                       outFile.tabDailyReport[iOut].meal[jOut].dish[lOut].calFat=inFile.tabDailyReport[i].meal[j].dish[k].calFat;
-                    }    
+                    }   else {
+                      const theIngr=new ClassDish;
+                      outFile.tabDailyReport[iOut].meal[jOut].dish.push(theIngr);
+                      lOut++
+                    }
                 }
+            } else {
+                const theMeal=new ClassMeal;
+                outFile.tabDailyReport[iOut].meal.push(theMeal);
+                jOut++
+                const theIngr=new ClassDish;
+                outFile.tabDailyReport[iOut].meal[jOut].dish.push(theIngr);
             }
           }
-      }
+  //    }
     }
 
 }
@@ -1613,7 +1627,7 @@ GetRecord(Bucket:string,GoogleObject:string, iWait:number){
                 }
               } 
             if (iWait!==7 && iWait!==8 && iWait!==9 ){
-                this.returnFile.emit(data);
+                // this.returnFile.emit(data); // not needed as files are stored in cache of backend server
               }
             this.EventHTTPReceived[iWait]=true;
   
@@ -1708,9 +1722,14 @@ processSaveParamChart(){
 
 isSaveCaloriesFat:boolean=false;
 saveEvent:any;
+errCalcCalFat:string='';
+calfatNameFile:string='';
 SaveCaloriesFat(event:any){
   this.isSaveCaloriesFat=true;
   this.saveEvent=event;
+  if (event.fileType===undefined){
+    this.calfatNameFile=event;
+  }
   this.checkLockLimit(1,true,true);
 
 }
@@ -1718,8 +1737,9 @@ SaveCaloriesFat(event:any){
 processSaveCaloriesFat(event:any){
   // save this file
  // if (Array.isArray(event)===false){
+
   if (event.fileType===undefined){
-    this.SpecificForm.controls['FileName'].setValue(event);
+    //this.SpecificForm.controls['FileName'].setValue(event);
   } else if (event.tabCaloriesFat.length!==0) {
       this.ConfigCaloriesFat.tabCaloriesFat.splice(0, this.ConfigCaloriesFat.tabCaloriesFat.length);
       for (var i=0; i<event.tabCaloriesFat.length; i++){
@@ -1740,18 +1760,21 @@ processSaveCaloriesFat(event:any){
       this.ConfigCaloriesFat.fileType=this.identification.configFitness.fileType.calories;
     }
     this.ConfigCaloriesFat.updatedAt=strDateTime();
-    this.SaveNewRecord(this.identification.configFitness.bucket, this.SpecificForm.controls['FileName'].value, this.ConfigCaloriesFat, 1);
+    // this.SaveNewRecord(this.identification.configFitness.bucket, this.SpecificForm.controls['FileName'].value, this.ConfigCaloriesFat, 1);
+    this.SaveNewRecord(this.identification.configFitness.bucket, this.calfatNameFile, this.ConfigCaloriesFat, 1);
     this.CreateDropDownCalFat();
 
   }
 }
 
 isSaveRecipeFile:boolean=false;
+recipeNameFile:string='';
 SaveRecipeFile(event:any){
   // save this file
  // if (Array.isArray(event)===false){
   if (event.fileType===undefined){
-    this.SpecificForm.controls['FileName'].setValue(event);
+    //this.SpecificForm.controls['FileName'].setValue(event);
+    this.recipeNameFile=event;
   } else if (event.tabCaloriesFat.length!==0) {
       this.fileRecipe.tabCaloriesFat.splice(0, this.fileRecipe.tabCaloriesFat.length);
       for (var i=0; i<event.tabCaloriesFat.length; i++){
@@ -1770,14 +1793,17 @@ SaveRecipeFile(event:any){
       this.fileRecipe.fileType=this.identification.fitness.fileType.recipe;
     }
     this.fileRecipe.updatedAt=strDateTime();
-    this.SaveNewRecord(this.identification.fitness.bucket, this.SpecificForm.controls['FileName'].value, this.fileRecipe, 6);
-
+    // this.SaveNewRecord(this.identification.fitness.bucket, this.SpecificForm.controls['FileName'].value, this.fileRecipe, 6);
+    this.SaveNewRecord(this.identification.fitness.bucket, this.recipeNameFile, this.fileRecipe, 6);
 
   }
 }
 isConfirmSaveA:boolean=false;
+
 ConfirmSaveA(event:any){
   this.theEvent.target.id=event.target.id;
+  this.theEvent.target.value=event.target.value;
+  this.theEvent.target.textContent=event.target.textContent;
   if (this.isMustSaveFile===false){
     this.isConfirmSaveA=true;
       this.checkLockLimit(0,true,false);
@@ -1895,7 +1921,6 @@ CancelSave(){
   this.errorFn='';
   }
 
-errCalcCalFat:string='';
 
 isSaveHealth:boolean=false;
 SaveHealth(event:any){
@@ -2022,7 +2047,7 @@ SaveNewRecord(GoogleBucket:string, GoogleObject:string, record:any, iWait:number
                   this.updateLockFile(iWait);
 
                 }
-                this.returnFile.emit(record);
+                // this.returnFile.emit(record); // not needed as files are stored in cache of backend server
               }
             },
             error_handler => {
@@ -2242,9 +2267,10 @@ updateLockFile(iWait:number){
     this.onFileSystem(iWait);
 }
 
+iWaitSave:number=0;
 onFileSystem(iWait:number){
   var theAction=this.tabLock[iWait].action;
-
+  this.iWaitSave=iWait;
   this.ManageGoogleService.onFileSystem(this.configServer, this.configServer.bucketFileSystem, 'fileSystem', this.tabLock, iWait.toString() )
   .subscribe(
     data  => {  
@@ -2269,19 +2295,24 @@ onFileSystem(iWait:number){
      } })
 }
 
-callUpdateSystemFile:number=0;
-saveIWait:number=0;
-isTriggerFileSystem:boolean=false;
+
 nbRecall:number=0;
+
+/*
+callUpdateSystemFile:number=0;
+isTriggerFileSystem:boolean=false;
+saveIWait:number=0;
 
 updateSystemFile(iWait:number){
   this.saveIWait=iWait;
   this.isTriggerFileSystem=true;
   this.callUpdateSystemFile++
 }
-returnFromFileSystem(data:any){
 
+returnFromFileSystem(data:any){
+// must not be deleted; what's the purpose?
 }
+*/
 
 theResetServer:boolean=false;
 returnOnFileSystem(data:any, iWait:number){
@@ -2290,10 +2321,14 @@ returnOnFileSystem(data:any, iWait:number){
 
   if (data.status!== undefined && data.status===200 && data.tabLock !== undefined)  { // tabLock is returned
     console.log('server response: ' + data.tabLock[iWait].object + ' createdAt=' + data.tabLock[iWait].createdAt + '  & updatedAt=' + data.tabLock[iWait].updatedAt + '  & lock value =' + data.tabLock[iWait].lock);
+    if (data.tabLock[iWait].credentialDate !== this.credentials.creationDate) { // server was reinitialised
+      this.getDefaultCredentials(iWait, false); // update credentials only 
+    }
     // record is locked by another user; no actions can take place for this user so reset
+    this.nbCallCredentials=0;
     if (data.tabLock[iWait].createdAt !== undefined){
         this.error_msg = this.error_msg + " data returned: lock=" + data.tabLock[iWait].lock +  "  & status=" + data.tabLock[iWait].status ;
-        console.log(this.error_msg);
+          console.log(this.error_msg);
         if (data.tabLock[iWait].lock ===1 && this.tabLock[iWait].lock === 2) {
             // file is now locked for this user; need to retrieve the file to ensure we have the latest version
             this.tabLock[iWait]=data.tabLock[iWait];
@@ -2346,6 +2381,7 @@ returnOnFileSystem(data:any, iWait:number){
   } else if (data.status!== undefined && data.status.tabLockItem !== undefined && (this.tabLock[iWait].action==='check' || this.tabLock[iWait].action==='check&update') && data.status.tabLockItem.createdAt !== undefined){ // tabLock[iWait] is returned
 
       if (data.status.tabLockItem.status ===810 || data.status.tabLockItem.status===800){ // record found and belongs to same user or record not found or file empty
+        this.nbCallCredentials=0;
         if (data.status.tabLockItem.status === 800){ // no file system or no record then lock this user
           this.lockFile(iWait); // ====> the process below has to be reviewed 
         }  
@@ -2383,6 +2419,7 @@ returnOnFileSystem(data:any, iWait:number){
           }
 
         } else if (data.status.tabLockItem.status===820){ // record found and belongs to other user
+            this.nbCallCredentials=0;  
             this.tabLock[iWait].lock=2;
             this.onInputAction="";
             if (iWait===0){
@@ -2399,6 +2436,7 @@ returnOnFileSystem(data:any, iWait:number){
   } else if (data.status!== undefined){
         
         if (data.status===300 || data.status === 720){ // 300 record already locked; 720 updatedAt on record locked by another user
+          this.nbCallCredentials=0;
           this.tabLock[iWait].lock=2;
           this.onInputAction="";
           if (data.status === 720){
@@ -2414,6 +2452,8 @@ returnOnFileSystem(data:any, iWait:number){
             this.tabLock[iWait].status=300;
           }
       } else if (data.status===700 || data.status===710){ // requested to unlock record which does not exist or is locked by another user
+          this.nbCallCredentials=0;
+          this.nbCallCredentials=0;
           this.tabLock[iWait].lock=0;
           this.tabLock[iWait].status=data.status;
           this.onInputAction="";
@@ -2421,6 +2461,7 @@ returnOnFileSystem(data:any, iWait:number){
       } else if (data.status===666){
           console.log("server cannot process file system because is processed by another user; try once more in 2 seconds");
           this.nbRecall++;
+          this.nbCallCredentials=0;
           var theDate=new Date();
           var seconds= theDate.getUTCSeconds();
           var myRefTime =seconds+2; // wait 2 seconds
@@ -2441,12 +2482,32 @@ returnOnFileSystem(data:any, iWait:number){
             }
           }
       } else if (data.status===955){
-        this.error_msg = data.message;
+        this.error_msg = data.msg;
         this.theResetServer=true;
-        this.resetServer.emit(this.theResetServer);
-        this.tabLock[iWait].status=955;
-      }  else {
-          console.log('which type of data is it????' + JSON.stringify(data));
+        this.tabLock[iWait].lock=2;
+        
+        this.getDefaultCredentials(iWait, true); // update credentials & check File.updatedAt 
+
+      }  else if (data.status===956){
+        this.error_msg = data.msg;
+        this.theResetServer=true;
+        this.tabLock[iWait].lock=2;
+        this.onInputAction="";
+        // record is locked by another user
+        this.tabLock[iWait].status=720;
+        if (iWait===0){
+          this.reAccessHealthFile();
+        } else if (iWait===1){
+            this.reAccessConfigCal();
+        } else if (iWait===5){
+            this.reAccessChartFile();
+        } 
+
+        this.getDefaultCredentials(iWait, false); // update credentials only 
+
+      } else {
+          console.log('which type of data is it????' + JSON.stringify(data) +  '  on action ' + + this.tabLock[iWait].action);
+          this.nbCallCredentials=0;
           this.tabLock[iWait].status=999;
           this.onInputAction="";
           if (this.tabLock[iWait].action==='lock'){
@@ -2464,6 +2525,98 @@ returnOnFileSystem(data:any, iWait:number){
   } 
 }
 
+
+msgCredentials:string='';
+nbCallCredentials:number=0;
+getDefaultCredentials(iWait:number, checkFile:boolean){
+  console.log('getDefaultCredentials()');
+  var newCredentials=new classCredentials;
+  this.ManageGoogleService.getDefaultCredentials(this.configServer  )
+  .subscribe(
+      (data ) => {
+        newCredentials.access_token=data.credentials.access_token;
+        newCredentials.id_token=data.credentials.id_token
+        newCredentials.refresh_token=data.credentials.refresh_token
+        newCredentials.token_type=data.credentials.token_type;
+        newCredentials.userServerId=data.credentials.userServerId;
+        newCredentials.creationDate=data.credentials.creationDate;
+        this.identification.userServerId=data.credentials.userServerId;
+        this.identification.credentialDate=data.credentials.creationDate;
+        // this.getInfoToken(); // this is a test
+        this.newCredentials.emit(newCredentials);
+        for (var i=0; i<7; i++){
+          this.tabLock[i].userServerId=this.identification.userServerId;
+          this.tabLock[i].credentialDate=this.identification.credentialDate;
+          this.tabLock[i].createdAt='';
+          this.tabLock[i].updatedAt='';
+        }
+        this.theResetServer=false;
+        this.msgCredentials='';
+        if (checkFile===true){
+          // check whether the last update was performed by the same user
+          this.ManageGoogleService.getContentObject(this.configServer, this.tabLock[iWait].bucket, this.tabLock[iWait].object )
+          .subscribe((data ) => {   
+
+              if ((iWait===0 && this.HealthAllData.updatedAt===data.updatedAt) || (iWait === 1 && this.ConfigCaloriesFat.updatedAt===data.updatedAt)
+                    || (iWait === 1 && this.fileParamChart.updatedAt===data.updatedAt)){
+                // this means that current user was the one who updated the file
+                if (this.nbCallCredentials ===0 ){
+                  this.nbCallCredentials++
+                  this.onFileSystem(iWait);
+                } else {
+                  this.nbCallCredentials=0;
+                  this.msgCredentials='Server has been reinitialised - file is retrieved';
+                  console.log(this.msgCredentials);
+                  if (iWait===0){
+                    this.reAccessHealthFile();
+                  } else if (iWait===1){
+                    this.reAccessConfigCal();
+                  } else if (iWait===5){
+                    this.reAccessChartFile();
+                  } 
+                }
+              } else {
+                this.msgCredentials='Server has been reinitialised - file is retrieved';
+                console.log(this.msgCredentials);
+                if (iWait===0){
+                  this.reAccessHealthFile();
+                } else if (iWait===1){
+                  this.reAccessConfigCal();
+                } else if (iWait===5){
+                  this.reAccessChartFile();
+                } 
+              }
+          },
+            err => {
+              this.msgCredentials='PB with Server which was reinitialised - relaunch the application';
+              console.log(this.msgCredentials);
+              this.resetServer.emit();
+            }
+          )
+
+        }
+      },
+      err => {
+        console.log('return from requestToken() with error = '+ JSON.stringify(err));
+        this.msgCredentials='problem to retrieve credentials data ==>   '+ JSON.stringify(err);
+        this.resetServer.emit();
+        });
+}
+
+firstLoop:boolean=true;
+ngOnChanges(changes: SimpleChanges) { 
+    if (this.firstLoop===true){
+      this.firstLoop=false;
+    } else {
+      for (const propName in changes){
+        const j=changes[propName];
+        if (propName==='credentials'){
+          console.log('credentials have been updated');
+        }
+      }
+    }
+
+}
 
 getChartFiles(){
   if (this.InConfigChart.fileType===''){

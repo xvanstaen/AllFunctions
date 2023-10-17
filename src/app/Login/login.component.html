@@ -73,9 +73,10 @@
     <app-AdminJson [identification]="Encrypt_Data"  [configServer]="configServer" [LoginTable_User_Data]="Table_User_Data" 
           [LoginTable_DecryptPSW]="Table_DecryptPSW" [ConfigChart]="ConfigChart" 
           [HealthAllData]="HealthAllData" [ConfigCaloriesFat]="ConfigCaloriesFat" [MyConfigFitness]="MyConfigFitness"
-          [ConvertUnit]="ConvertUnit"  [ConfigHTMLFitHealth]='ConfigHTMLFitHealth' [ConvToDisplay]="ConvToDisplay" [theTabOfUnits]="theTabOfUnits"  [WeightRefTable]="WeightRefTable" (returnFile)="ReceiveFiles($event)"  
+          [ConvertUnit]="ConvertUnit"  [ConfigHTMLFitHealth]='ConfigHTMLFitHealth' [ConvToDisplay]="ConvToDisplay" [theTabOfUnits]="theTabOfUnits"  [WeightRefTable]="WeightRefTable"
+          [credentials]="credentials" (resetServer)="fnResetServer()"  (newCredentials)="fnNewCredentials($event)" 
           >
-    </app-AdminJson>
+    </app-AdminJson> <!-- (returnFile)="ReceiveFiles($event)" -->
   </div> 
 </ng-template>
 

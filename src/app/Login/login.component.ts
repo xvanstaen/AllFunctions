@@ -5,10 +5,8 @@ import { HttpClient,  HttpHeaders } from '@angular/common/http';
 import { Router} from '@angular/router';
 import { FormGroup, FormControl, Validators} from '@angular/forms';
 
-import { EventAug } from '../JsonServerClass';
-import {Bucket_List_Info} from '../JsonServerClass';
+import { XMVTestProd, configServer, LoginIdentif , classCredentials, EventAug, Bucket_List_Info } from '../JsonServerClass';
 
-import { XMVTestProd, configServer, LoginIdentif } from '../JsonServerClass';
 
 import { environment } from 'src/environments/environment';
 import {mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from '../ClassConverter';
@@ -53,6 +51,7 @@ export class LoginComponent {
     @Input() MyConfigFitness=new ConfigFitness;
   
     @Input() HealthAllData=new mainDailyReport; 
+    @Input() credentials = new classCredentials;
 
     ConfigTestProd=new XMVTestProd;
 
@@ -148,6 +147,9 @@ getLogin(object:string,psw:string){
         .subscribe((data ) => {    
             this.Encrypt_Data=data;
             this.routing_code=1;
+            this.Encrypt_Data.userServerId=this.credentials.userServerId;
+            this.Encrypt_Data.credentialDate=this.credentials.creationDate;
+            this.Encrypt_Data.IpAddress=this.configServer.IpAddress;
             this.my_output2.emit(this.routing_code.toString());
       },
         err=> {
@@ -234,6 +236,36 @@ ReceiveFiles(event:any){
 //ngOnChanges(changes: SimpleChanges) {   
       //console.log('onChanges login.ts');
 //  }
+
+
+firstLoop:boolean=true;
+ngOnChanges(changes: SimpleChanges) { 
+    if (this.firstLoop===true){
+      this.firstLoop=false;
+    } else {
+      for (const propName in changes){
+        const j=changes[propName];
+        if (propName==='credentials'){
+            this.Encrypt_Data.userServerId=this.credentials.userServerId;
+            this.Encrypt_Data.credentialDate=this.credentials.creationDate;
+        }
+      }
+    }
+}
+
+
+@Output() resetServer= new EventEmitter<any>();
+@Output() newCredentials= new EventEmitter<any>();
+
+fnResetServer(){
+      this.resetServer.emit();
+  }
+
+fnNewCredentials(credentials:any){
+  this.Encrypt_Data.userServerId=credentials.userServerId;
+  this.Encrypt_Data.credentialDate=credentials.creationDate;
+  this.newCredentials.emit(credentials);
+}
 
 
 }

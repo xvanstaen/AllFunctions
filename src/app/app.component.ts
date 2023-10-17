@@ -9,7 +9,7 @@ import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service'
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
 import { LoginIdentif , configServer } from './JsonServerClass';
 import { environment } from 'src/environments/environment';
-import { classCredentials} from './JsonServerClass'
+import { classCredentials} from './JsonServerClass';
 import {mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from './ClassConverter';
 import { classAccessFile } from './classFileSystem';
 
@@ -49,8 +49,9 @@ export class AppComponent {
   convertOnly:boolean=true;
   selHealthFunction:number=0;
   credentials = new classCredentials;
-  myParams={code:"", scope:""};
   isCredentials:boolean=false;
+  myParams={code:"", scope:""};
+
   theForm: FormGroup = new FormGroup({ 
     userId: new FormControl({value:'', disabled:false}, { nonNullable: true }),
     psw: new FormControl({value:'', disabled:false}, { nonNullable: true }),
@@ -91,7 +92,7 @@ inData=new classAccessFile;
       // var test_prod='prod';
       var test_prod='test';  // this is for allFunctions only so that test BackendServer is used
       var InitconfigServer=new configServer;
-      InitconfigServer.baseUrl='http://localhost:8080';
+  InitconfigServer.baseUrl='http://localhost:8080';
       //InitconfigServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
       InitconfigServer.test_prod=test_prod;
       InitconfigServer.GoogleProjectId='ConfigDB';
@@ -154,7 +155,7 @@ inData=new classAccessFile;
   isIdRetrieved:boolean=false;
   
   getDefaultCredentials(){
-console.log('getDefaultCredentials()');
+    console.log('getDefaultCredentials()');
     this.ManageGoogleService.getDefaultCredentials(this.configServer  )
     .subscribe(
         (data ) => {
@@ -216,11 +217,15 @@ console.log('getDefaultCredentials()');
   errorMsg:string="";
   isResetServer:boolean=false;
 
-  resetServer(){
+  fnResetServer(){
     this.isCredentials=false;
     this.isResetServer=true;
     this.isIdRetrieved=false;
     this.getDefaultCredentials();
+  }
+
+  fnNewCredentials(credentials:any){
+    this.credentials=credentials;
   }
 
   validateIdentification(){

@@ -7,20 +7,11 @@ import { HttpHeaders } from '@angular/common/http';
 import { FormGroup, FormControl, Validators} from '@angular/forms';
 import { Router} from '@angular/router';
 import { ViewportScroller } from "@angular/common";
-import { EventAug } from '../JsonServerClass';
-import {Bucket_List_Info} from '../JsonServerClass';
-import { StructurePhotos } from '../JsonServerClass';
-import { BucketExchange } from '../JsonServerClass';
-import { configPhoto } from '../JsonServerClass';
-import { msginLogConsole } from '../consoleLog';
-import { LoginIdentif } from '../JsonServerClass';
-import { BucketList } from '../JsonServerClass';
-import { environment } from 'src/environments/environment';
-import { msgConsole } from '../JsonServerClass';
-import { UserParam } from '../JsonServerClass';
-import { OneBucketInfo } from '../JsonServerClass';
-import { configServer } from '../JsonServerClass';
 
+import { msginLogConsole } from '../consoleLog';
+
+import { EventAug, configPhoto, StructurePhotos } from '../JsonServerClass';
+import {  LoginIdentif, msgConsole , OneBucketInfo, configServer, classCredentials } from '../JsonServerClass';
 
 import {mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from '../ClassConverter';
 import {mainClassCaloriesFat, mainDailyReport} from '../Health/ClassHealthCalories';
@@ -39,8 +30,8 @@ import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.servic
 
 export class AdminJsonComponent {
   @Output() returnFile= new EventEmitter<any>();
-  @Input() ConfigCaloriesFat=new mainClassCaloriesFat;
 
+  @Input() ConfigCaloriesFat=new mainClassCaloriesFat;
   @Input() ConvertUnit=new mainClassConv;
   @Input() ConvToDisplay=new mainConvItem;
   @Input() theTabOfUnits=new mainClassUnit;
@@ -50,6 +41,17 @@ export class AdminJsonComponent {
   @Input() MyConfigFitness=new ConfigFitness;
 
   @Input() HealthAllData=new mainDailyReport; 
+
+  @Input() LoginTable_User_Data:Array<EventAug>=[];
+  @Input() LoginTable_DecryptPSW:Array<string>=[];
+
+  @Input() configServer=new configServer;
+  @Input() credentials = new classCredentials;
+  @Input() identification=new LoginIdentif;
+
+  @Input() WeddingPhotos:Array<StructurePhotos>=[];
+
+
 
   constructor(
     private router:Router,
@@ -95,13 +97,7 @@ export class AdminJsonComponent {
     Error_msgMongo:string='';
     RecordToWrite=new LoginIdentif;
     // https://storage.googleapis.com/storage/v1/b?project=xmv-it-consulting
-    @Input() LoginTable_User_Data:Array<EventAug>=[];
-    @Input() LoginTable_DecryptPSW:Array<string>=[];
 
-    @Input() identification=new LoginIdentif;
-    @Input() WeddingPhotos:Array<StructurePhotos>=[];
-
-    @Input() configServer=new configServer;
 
    
     //SelectedconfigServer=new configServer;
@@ -426,6 +422,18 @@ BackToSaveFile(event:any){
                
              } 
            )
+ }
+
+ @Output() resetServer= new EventEmitter<any>();
+ @Output() newCredentials= new EventEmitter<any>();
+ fnResetServer(){
+         this.resetServer.emit();
+   }
+ 
+ fnNewCredentials(credentials:any){
+    this.identification.userServerId=credentials.userServerId;
+    this.identification.credentialDate=credentials.creationDate;
+    this.newCredentials.emit(credentials);
  }
 
 LogMsgConsole(msg:string){
