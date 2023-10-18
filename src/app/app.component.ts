@@ -92,7 +92,7 @@ inData=new classAccessFile;
       // var test_prod='prod';
       var test_prod='test';  // this is for allFunctions only so that test BackendServer is used
       var InitconfigServer=new configServer;
-  InitconfigServer.baseUrl='http://localhost:8080';
+  // InitconfigServer.baseUrl='http://localhost:8080';
       //InitconfigServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
       InitconfigServer.test_prod=test_prod;
       InitconfigServer.GoogleProjectId='ConfigDB';
@@ -115,7 +115,7 @@ inData=new classAccessFile;
               } }
             }
 
-  this.configServer.baseUrl='http://localhost:8080';
+  // this.configServer.baseUrl='http://localhost:8080';
           this.configServer.IpAddress=this.IpAddress;
           console.log('configServer is retrieved');
           //this.getTokenOAuth2();
