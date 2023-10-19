@@ -10,7 +10,7 @@ import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.servic
 import { LoginIdentif , configServer } from './JsonServerClass';
 import { environment } from 'src/environments/environment';
 import { classCredentials} from './JsonServerClass';
-import {mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from './ClassConverter';
+import { mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from './ClassConverter';
 import { classAccessFile } from './classFileSystem';
 
 
@@ -30,8 +30,8 @@ export class AppComponent {
     private ManageMangoDB: ManageMangoDBService,
     private elementRef: ElementRef,
     private http: HttpClient,
-    private readonly route: ActivatedRoute,
-    private readonly router: Router,
+    private route: ActivatedRoute,
+    private router: Router,
    
     ) {}
 
@@ -50,7 +50,7 @@ export class AppComponent {
   selHealthFunction:number=0;
   credentials = new classCredentials;
   isCredentials:boolean=false;
-  myParams={code:"", scope:""};
+  myParams={server:"", scope:""};
 
   theForm: FormGroup = new FormGroup({ 
     userId: new FormControl({value:'', disabled:false}, { nonNullable: true }),
@@ -59,28 +59,29 @@ export class AppComponent {
 
 
   ngOnInit(){
-    //const snapshotParam = this.route.snapshot.paramMap.get("animal");
-    //console.log('snapshotParam=' + JSON.stringify(snapshotParam))
+   // const snapshotParam = this.route.snapshot.paramMap.get("server");
+   // console.log('snapshotParam=' + JSON.stringify(snapshotParam))
 
-    /*
+  // http://localhost:4200/?server=8080&scope=test 
     this.route.queryParams
       .subscribe(params => {
         console.log(params); 
         console.log(JSON.stringify(params));
         
-        this.myParams.code = params['code'];
+        this.myParams.server = params['server'];
         this.myParams.scope = params['scope'];
+        console.log('getIpAddress');
+        this.http.get("http://api.ipify.org/?format=json").subscribe((res:any)=>{
+          this.IpAddress = res.ip;
+        });
+  
+        this.RetrieveConfig();
         
       }
     );
-    */
+    
 
-      console.log('getIpAddress');
-      this.http.get("http://api.ipify.org/?format=json").subscribe((res:any)=>{
-        this.IpAddress = res.ip;
-      });
-
-    this.RetrieveConfig();
+     
   }
   
 inData=new classAccessFile;
@@ -92,8 +93,13 @@ inData=new classAccessFile;
       // var test_prod='prod';
       var test_prod='test';  // this is for allFunctions only so that test BackendServer is used
       var InitconfigServer=new configServer;
-  // InitconfigServer.baseUrl='http://localhost:8080';
-      //InitconfigServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
+      if (this.myParams.server="8080"){
+          InitconfigServer.baseUrl='http://localhost:8080';
+      } else {
+          InitconfigServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
+      }
+      
+      
       InitconfigServer.test_prod=test_prod;
       InitconfigServer.GoogleProjectId='ConfigDB';
       this.ManageMangoDB.findConfig(InitconfigServer, 'configServer')
@@ -114,10 +120,12 @@ inData=new classAccessFile;
                   this.configServer = data[i];
               } }
             }
-
-  // this.configServer.baseUrl='http://localhost:8080';
+          if (this.myParams.server="8080"){ // override
+              this.configServer.baseUrl='http://localhost:8080';
+          } 
+  
           this.configServer.IpAddress=this.IpAddress;
-          console.log('configServer is retrieved');
+          console.log('configServer is retrieved using ' + this.configServer.baseUrl);
           //this.getTokenOAuth2();
           if (this.credentials.access_token===""){
                 this.getDefaultCredentials();
