@@ -87,22 +87,25 @@ export class AppComponent {
 inData=new classAccessFile;
   RetrieveConfig(){
     console.log('RetrieveConfig()');
-        if (environment.production === false){
-          test_prod='test';
-      }
-      // var test_prod='prod';
-      var test_prod='test';  // this is for allFunctions only so that test BackendServer is used
-      var InitconfigServer=new configServer;
-      if (this.myParams.server="8080"){
+    var test_prod='test';
+        
+        // this is for allFunctions only so that test BackendServer is used
+    var InitconfigServer=new configServer;
+    if (this.myParams.server="8080"){
           InitconfigServer.baseUrl='http://localhost:8080';
-      } else {
+    } else {
           InitconfigServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
-      }
+    }
+    if (this.myParams.scope="test"){
+        test_prod='test';
+    } else {
+        test_prod='prod';
+    }
       
       
-      InitconfigServer.test_prod=test_prod;
-      InitconfigServer.GoogleProjectId='ConfigDB';
-      this.ManageMangoDB.findConfig(InitconfigServer, 'configServer')
+    InitconfigServer.test_prod=test_prod; // retrieve the corresponding record test or production
+    InitconfigServer.GoogleProjectId='ConfigDB';
+    this.ManageMangoDB.findConfig(InitconfigServer, 'configServer')
      // this.ManageMangoDB.findConfigbyURL(InitconfigServer, 'configServer', '')
       .subscribe(
         data => {
@@ -115,26 +118,27 @@ inData=new classAccessFile;
         } else {
 
  
-          for (let i=0; i<data.length; i++){
+        for (let i=0; i<data.length; i++){
               if (data[i].title==="configServer" && data[i].test_prod===test_prod){
                   this.configServer = data[i];
               } }
             }
-          if (this.myParams.server="8080"){ // override
+        if (this.myParams.server==="8080"){ // override
               this.configServer.baseUrl='http://localhost:8080';
           } 
-  
-          this.configServer.IpAddress=this.IpAddress;
-          console.log('configServer is retrieved using ' + this.configServer.baseUrl);
+        // else keep the one in the record
+
+        this.configServer.IpAddress=this.IpAddress;
+        console.log('configServer is retrieved using ' + this.configServer.baseUrl);
           //this.getTokenOAuth2();
-          if (this.credentials.access_token===""){
+        if (this.credentials.access_token===""){
                 this.getDefaultCredentials();
-          } 
-          if (this.isNewUser===true){
+        } 
+        if (this.isNewUser===true){
             this.assignNewServerUsrId();
             this.isNewUser=false;
-            }
-          },
+          }
+        },
         error => {
           console.log('error to retrieve the configuration file ;  error = ', error);
          
