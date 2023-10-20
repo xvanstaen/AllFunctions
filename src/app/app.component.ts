@@ -57,7 +57,7 @@ export class AppComponent {
     psw: new FormControl({value:'', disabled:false}, { nonNullable: true }),
   });
 
-
+  isNewUser:boolean=true;
   ngOnInit(){
    // const snapshotParam = this.route.snapshot.paramMap.get("server");
    // console.log('snapshotParam=' + JSON.stringify(snapshotParam))
@@ -130,7 +130,11 @@ inData=new classAccessFile;
           if (this.credentials.access_token===""){
                 this.getDefaultCredentials();
           } 
-        },
+          if (this.isNewUser===true){
+            this.assignNewServerUsrId();
+            this.isNewUser=false;
+            }
+          },
         error => {
           console.log('error to retrieve the configuration file ;  error = ', error);
          
@@ -171,7 +175,7 @@ inData=new classAccessFile;
           this.credentials.id_token=data.credentials.id_token
           this.credentials.refresh_token=data.credentials.refresh_token
           this.credentials.token_type=data.credentials.token_type;
-          this.credentials.userServerId=data.credentials.userServerId;
+          // this.credentials.userServerId=data.credentials.userServerId;
           this.credentials.creationDate=data.credentials.creationDate;
           // this.getInfoToken(); // this is a test
 
@@ -198,6 +202,18 @@ inData=new classAccessFile;
             console.log('return from getInfoToken() with error');
             console.log(JSON.stringify(err));
           });
+  }
+
+  assignNewServerUsrId(){
+    this.ManageGoogleService.getNewServerUsrId(this.configServer)
+    .subscribe(
+        (data ) => {
+            this.credentials.userServerId=data.credentials.userServerId;
+          },
+          err => {
+
+          }
+    )
   }
 
   onInput(event:any){
@@ -230,10 +246,13 @@ inData=new classAccessFile;
     this.isResetServer=true;
     this.isIdRetrieved=false;
     this.getDefaultCredentials();
+    this.assignNewServerUsrId();
   }
 
   fnNewCredentials(credentials:any){
+    this.isResetServer=true;
     this.credentials=credentials;
+
   }
 
   validateIdentification(){

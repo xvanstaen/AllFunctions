@@ -20,6 +20,7 @@
         <div style="display:inline-block; height:4px; width:100%;"></div>
     </form>
 </div>
+
 <div  *ngIf="isIdRetrieved===true && this.isConfigServerRetrieved===true" style=" max-width: 440px; ">
     <span style="width:94%; background-color: cyan; margin-left:10px; border:solid 2px red; display:inline-block; ">
         <span style="width:100%; color:#0000ff; font-size:22px; display:inline-block; text-align: center; padding-top:10px; height:50px;"> Select the apps </span>
@@ -47,6 +48,13 @@
     <button class="sizeButtons"  (click)="onSelectApps()">Submit</button>
 </div>
 <div id="posTopMain" ></div>
+<div *ngIf="isResetServer===true" >
+    <div style="display:inline-block; height:4px; width:100%;"></div>
+    <span style="width:350px; background-color: cyan; margin-left:30px; border:solid 2px red; display:inline-block; ">
+        Server has been reinitialised
+    </span>
+    <div style="display:inline-block; height:4px; width:100%;"></div>
+</div>
 <div *ngIf="isAppsSelected===true && isIdRetrieved===true && this.isConfigServerRetrieved===true">
     <div *ngIf="selectApps===1 ">
         <app-xmv-company [configServer]="configServer" [INidentification]="identification"  [isConfigServerRetrieved]="isConfigServerRetrieved"
