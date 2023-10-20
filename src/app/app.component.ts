@@ -91,12 +91,12 @@ inData=new classAccessFile;
         
         // this is for allFunctions only so that test BackendServer is used
     var InitconfigServer=new configServer;
-    if (this.myParams.server="8080"){
+    if (this.myParams.server==="8080"){
           InitconfigServer.baseUrl='http://localhost:8080';
     } else {
           InitconfigServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
     }
-    if (this.myParams.scope="test"){
+    if (this.myParams.scope==="test"){
         test_prod='test';
     } else {
         test_prod='prod';
@@ -208,11 +208,13 @@ inData=new classAccessFile;
           });
   }
 
+  saveServerUsrId:number=0;
   assignNewServerUsrId(){
     this.ManageGoogleService.getNewServerUsrId(this.configServer)
     .subscribe(
         (data ) => {
             this.credentials.userServerId=data.credentials.userServerId;
+            this.saveServerUsrId=data.credentials.userServerId;
           },
           err => {
 
@@ -262,7 +264,7 @@ inData=new classAccessFile;
   validateIdentification(){
     this.errorMsg="";
 
-    if (this.theForm.controls['userId'].value !== '' && this.theForm.controls['psw'].value){
+    if (this.theForm.controls['userId'].value !== '' && this.theForm.controls['psw'].value !== '' ){
       if (this.isCredentials===true){
         this.getLogin(this.theForm.controls['userId'].value,this.theForm.controls['psw'].value);
       }
@@ -309,7 +311,7 @@ inData=new classAccessFile;
             this.isIdRetrieved=true;
             this.isConfigServerRetrieved=true;
             this.identification.IpAddress=this.IpAddress;
-            this.identification.userServerId=this.credentials.userServerId;
+            this.identification.userServerId=this.saveServerUsrId
             this.identification.credentialDate=this.credentials.creationDate;
             this.errorMsg="";
       },
