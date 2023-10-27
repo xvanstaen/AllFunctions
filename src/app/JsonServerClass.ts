@@ -32,6 +32,10 @@ export class BioData{
       credentialDate:string='';
       apps:Array<string>=[];
       ownBuckets:Array<any>=[{name:""}];
+      performanceSport={
+        bucket:"xmv-sport-performance",
+        file:"",
+        };
       fitness={
         bucket:"xav_fitness",
         files:{
@@ -264,6 +268,10 @@ export class configServer{
   BucketFitness:string='';
   BucketRecipe:string='';
   filesToCache=[];
+  PointOfRef={
+    bucket:"config-xmvit",
+    file:"PointOfReference.json",
+    };
 }
 
 export class classPosSlider{
@@ -281,5 +289,7 @@ export class   classCredentials {
   userServerId:number=-1; creationDate:string=""}
 
 
-
+  export class classPointOfRef {
+    ref:string="";lat:number=0;lgt:number=0;comments:string="";
+    }
 

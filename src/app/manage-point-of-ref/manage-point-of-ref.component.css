@@ -1,0 +1,23 @@
+
+@import "../performance-sport/performance-sport.component.css";
+
+.inputText{
+    color:blue;
+    background-color: rgb(232, 229, 229);
+    width:150px;
+    height:26px;
+    margin-left:25px;
+}
+
+.inputText:hover{
+    background-color: cyan;
+}
+
+.theLabel{
+    margin-left:8px; color:white; background:blue;
+    width:200px;
+    display:inline-block;
+    height:26px;
+    padding-left:8px;
+}
+

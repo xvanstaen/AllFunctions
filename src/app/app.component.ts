@@ -53,8 +53,8 @@ export class AppComponent {
   myParams={server:"", scope:""};
 
   theForm: FormGroup = new FormGroup({ 
-    userId: new FormControl({value:'', disabled:false}, { nonNullable: true }),
-    psw: new FormControl({value:'', disabled:false}, { nonNullable: true }),
+    userId: new FormControl({value:'Fitness', disabled:false}, { nonNullable: true }),
+    psw: new FormControl({value:'A', disabled:false}, { nonNullable: true }),
   });
 
   isNewUser:boolean=true;
@@ -101,7 +101,7 @@ inData=new classAccessFile;
     } else {
         test_prod='prod';
     }
-      
+    console.log(test_prod);
       
     InitconfigServer.test_prod=test_prod; // retrieve the corresponding record test or production
     InitconfigServer.GoogleProjectId='ConfigDB';
@@ -182,8 +182,12 @@ inData=new classAccessFile;
           // this.credentials.userServerId=data.credentials.userServerId;
           this.credentials.creationDate=data.credentials.creationDate;
           // this.getInfoToken(); // this is a test
-
+      
           this.isCredentials=true;
+
+// TO BE DELETED
+this.isResetServer=true;
+//
           if (this.isResetServer===true){
             this.isResetServer=false;
             this.getLogin(this.theForm.controls['userId'].value,this.theForm.controls['psw'].value);
@@ -314,6 +318,12 @@ inData=new classAccessFile;
             this.identification.userServerId=this.saveServerUsrId
             this.identification.credentialDate=this.credentials.creationDate;
             this.errorMsg="";
+
+// TO BE DELETED
+this.selectApps=17;
+this.isAppsSelected=true;
+//
+//
       },
         err=> {
           console.log('error to checkLogin - error status=' + err.status + ' '+ err.message );

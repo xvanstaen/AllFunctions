@@ -59,6 +59,8 @@ import { FileSystemServiceComponent } from './file-system-service/file-system-se
 
 import { TestServerJSComponent } from './test-server-js/test-server-js.component';
 import { TestHttpOAComponent } from './test-http-oa/test-http-oa.component';
+import { PerformanceSportComponent } from './performance-sport/performance-sport.component';
+import { ManagePointOfRefComponent } from './manage-point-of-ref/manage-point-of-ref.component';
 
 //import { NgxIntlTelInputComponent } from './ngx-intl-tel-input/ngx-intl-tel-input.component';
 
@@ -104,6 +106,8 @@ import { TestHttpOAComponent } from './test-http-oa/test-http-oa.component';
     TestServerJSComponent,
     TestHttpOAComponent,
     FileSystemServiceComponent,
+    PerformanceSportComponent,
+    ManagePointOfRefComponent,
 
     
 
