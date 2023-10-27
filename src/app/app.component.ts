@@ -186,7 +186,7 @@ inData=new classAccessFile;
           this.isCredentials=true;
 
 // TO BE DELETED
-this.isResetServer=true;
+//this.isResetServer=true;
 //
           if (this.isResetServer===true){
             this.isResetServer=false;
@@ -320,8 +320,8 @@ this.isResetServer=true;
             this.errorMsg="";
 
 // TO BE DELETED
-this.selectApps=17;
-this.isAppsSelected=true;
+//this.selectApps=17;
+//this.isAppsSelected=true;
 //
 //
       },
