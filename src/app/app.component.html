@@ -43,6 +43,7 @@
         <span class="options" >16. Test google services</span>
         <span class="options" >17. Performance sport</span>
         <span class="options" >18. Manage PointOfRef</span>
+        <span class="options" >19. Manage Circuits</span>
 
         <br><br>
     </span>
@@ -101,6 +102,10 @@
     <div *ngIf="selectApps===18">
         <app-manage-point-of-ref   [configServer]="configServer" [identification]="identification" [credentials]="credentials">
         </app-manage-point-of-ref>
+    </div>  
+    <div *ngIf="selectApps===19">
+        <app-manage-circuits [configServer]="configServer" [identification]="identification" [credentials]="credentials">
+        </app-manage-circuits>
     </div>  
 
 </div>

@@ -36,6 +36,10 @@ export class BioData{
         bucket:"xmv-sport-performance",
         file:"",
         };
+      circuits={
+          bucket:"xmv-sport-performance",
+          file:"myCircuit",
+          };
       fitness={
         bucket:"xav_fitness",
         files:{
@@ -285,11 +289,21 @@ export class classPosSlider{
 }
 
 export class   classCredentials {
-  access_token:string=""; id_token:string=""; refresh_token:string=""; token_type:string="";
-  userServerId:number=-1; creationDate:string=""}
+    access_token:string=""; id_token:string=""; refresh_token:string=""; token_type:string="";
+    userServerId:number=-1; creationDate:string=""
+}
 
+export class classCountryPoR{
+  country:string="";code:string=""; PoR:Array<classPointOfRef>=[]
+}
 
-  export class classPointOfRef {
-    ref:string="";lat:number=0;lgt:number=0;comments:string="";
+export class classPointOfRef 
+  {
+    ref:string=""; alt:number=0; lat:number=0; lon:number=0; comments:string=""; 
+  }
+
+export class classCircuitRec
+    { 
+      name:string=""; country:string=""; city:string="";
+      points:Array<classPointOfRef>=[];
     }
-

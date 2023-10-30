@@ -61,6 +61,7 @@ import { TestServerJSComponent } from './test-server-js/test-server-js.component
 import { TestHttpOAComponent } from './test-http-oa/test-http-oa.component';
 import { PerformanceSportComponent } from './performance-sport/performance-sport.component';
 import { ManagePointOfRefComponent } from './manage-point-of-ref/manage-point-of-ref.component';
+import { ManageCircuitsComponent } from './manage-circuits/manage-circuits.component';
 
 //import { NgxIntlTelInputComponent } from './ngx-intl-tel-input/ngx-intl-tel-input.component';
 
@@ -108,6 +109,7 @@ import { ManagePointOfRefComponent } from './manage-point-of-ref/manage-point-of
     FileSystemServiceComponent,
     PerformanceSportComponent,
     ManagePointOfRefComponent,
+    ManageCircuitsComponent,
 
     
 

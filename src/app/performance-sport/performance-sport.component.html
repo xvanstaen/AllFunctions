@@ -16,9 +16,9 @@
         <input type="text"   class="inputText" formControlName="meters" value="meters" >
         <label class="theLabel">meters</label>
 
-        <button *ngIf="isFileProcessed===true" id='selOptions' class="sizeButtons" style="margin-top:10px; margin-left:100px; " (click)="checkOptions()"> Submit</button>
+        <button *ngIf="isFileProcessed===true && perf.length>0" id='selOptions' class="sizeButtons" style="margin-top:10px; margin-left:100px; " (click)="checkOptions()"> Submit</button>
             
-        <div class="skipline error" *ngIf="errorMsg!==''">errorMsg</div>
+        <div class="skipline error" *ngIf="errorMsg!==''">{{errorMsg}}</div>
     </div>
 </form>
 <div class="skipLine"></div>

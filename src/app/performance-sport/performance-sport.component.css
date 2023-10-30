@@ -62,6 +62,10 @@ div{
 .error{
     color:red;
     font-size:14px;
+    width:100%;
+    display: inline-block;
+    background-color: lightgrey;
+    text-align: center;
 }
 
 
@@ -151,7 +155,6 @@ td {
   }
 
 .tabH{
-
     border: solid 1px blue;
 }
 

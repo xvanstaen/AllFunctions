@@ -304,7 +304,12 @@ ReceivedData(event:any){
 
 
     this.lastOccurrence=this.perf.length-1;
-    this.isFileProcessed=true;
+    if ( this.perf.length===0){
+      this.errorMsg = this.errorMsg + "  file perf is empty - check the problem";
+    } else {
+      this.isFileProcessed=true;
+    }
+    
   }
 
   isFileProcessed:boolean=false;
@@ -317,8 +322,10 @@ ReceivedData(event:any){
     } else if (isNaN(this.formOptions.controls['meters'].value)){
       this.errorMsg='enter a numeric value for meters';
     }
-    if (this.errorMsg===''){
+    if (this.errorMsg==='' && this.perf.length>0){
       this.performancePerSec();
+    } else if ( this.perf.length===0){
+      this.errorMsg = this.errorMsg + "  file perf is empty - check the problem";
     }
 
   }

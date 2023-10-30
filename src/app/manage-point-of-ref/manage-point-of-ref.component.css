@@ -1,12 +1,15 @@
-
+body{
+    width:590px;
+    margin-left:20px;
+}
 @import "../performance-sport/performance-sport.component.css";
 
 .inputText{
     color:blue;
     background-color: rgb(232, 229, 229);
-    width:150px;
+    width:200px;
     height:26px;
-    margin-left:25px;
+    padding-left:5px;
 }
 
 .inputText:hover{
@@ -14,10 +17,22 @@
 }
 
 .theLabel{
-    margin-left:8px; color:white; background:blue;
+    color:white; 
+    background:blue;
     width:200px;
     display:inline-block;
     height:26px;
-    padding-left:8px;
+    padding-left:5px;
 }
+
+.oddC{
+    background-color: rgb(109, 147, 243);
+}
+
+.evenC{
+    background-color: rgb(121, 141, 192);
+    color:black;
+    font-weight:400;
+}
+
 
