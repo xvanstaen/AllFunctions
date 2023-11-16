@@ -10,7 +10,7 @@ import { FormGroup, UntypedFormControl,FormControl, Validators, FormBuilder, For
 import { Observable } from 'rxjs';
 
 import {msginLogConsole} from '../consoleLog'
-import { configServer, LoginIdentif, OneBucketInfo, classPointOfRef, classCircuitRec, msgConsole, classCredentials } from '../JsonServerClass';
+import { configServer, LoginIdentif, OneBucketInfo, classPointOfRef, classCircuitRec, classCountryPoR, msgConsole, classCredentials } from '../JsonServerClass';
 import { findIds } from '../MyStdFunctions';
 
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
@@ -35,14 +35,16 @@ export class ManageCircuitsComponent {
 
     @Output() newCredentials= new EventEmitter<any>();
     @Output() resetServer= new EventEmitter<any>();
-
+    @Output() returnCircuit= new EventEmitter<any>();
     @Input() configServer = new configServer;
     @Input() identification= new LoginIdentif;
+    @Input() selectionCircuit:boolean=false;
 
-    tabPoR:Array<classPointOfRef>=[];
+    tabPoR:Array<classCountryPoR>=[];
     selectedPoint= new classPointOfRef;
 
     isCircuitSelected:boolean=true;
+    listCountry:Array<any>=[];
 
     tabCircuit:Array<any>=[];
     
@@ -63,19 +65,22 @@ export class ManageCircuitsComponent {
       fileName: new FormControl("", { nonNullable: true }),
     })
 
-    istabPointOfRef:boolean=false;
+   
     tabAction=["Cancel","Add before","Add after","Delete"];
     tabActionH=["Cancel","Add before","Add after","Delete","Zoom-in","Zoom-out"];
+    tabRef:Array<any>=[];
     tabDialog:Array<boolean>=[]; 
     iDialog:number=0;
     expandCircuit:number=-1;
 
+    istabPointOfRef:boolean=false;
     isFileModified:boolean=false;
     isTabOfRefReceived:boolean=false;
     isFileCircuitReceived:boolean=false;
     isListCountries:boolean=false;
-    saveAction:string="";
-    saveRecord:number=0;
+    isDeleteCircuit:boolean=false;
+    isDeletePoR:boolean=false;
+
     saveConfirmed:boolean=false;
 
     TabOfId:Array<any>=[];
@@ -83,11 +88,8 @@ export class ManageCircuitsComponent {
    
     errorMsg:string="";
 
-  
-
-
 ngOnInit(){
-  /****
+/***
   this.ManageGoogleService.insertCacheFile(this.configServer,this.identification.circuits.file)
     .subscribe((data ) => {  
           console.log('insertCacheFile ==> ' + JSON.stringify(data));
@@ -95,11 +97,11 @@ ngOnInit(){
       err => {
           console.log('error on insertCacheFile :'+ JSON.stringify(err));
       });
-  *****/
+  */
   this.GetRecord(this.identification.circuits.bucket, this.identification.circuits.file,1);
   //this.GetRecord("config-xmvit", "CountryISO.json",2);
   this.GetRecord("config-xmvit", "CountryISOPreferred.json",2);
-  
+  this.selectionCircuit
 }
 
 resetBooleans(){
@@ -113,8 +115,6 @@ manageFile(event:any){
   this.isTabOfRefReceived=true;
 }
 
-
-tabRef:Array<any>=[];
 onInput(event:any){
   this.resetBooleans();
 
@@ -161,16 +161,33 @@ onInput(event:any){
       this.isFileModified=true;
       this.fileCircuit[this.TabOfId[0]].city=event.target.value;
   } else if (theValue.strFound==="PoRef"){ // first letters of PoR are input by user
-      for (var i=0; i<this.tabPoR.length; i++){
-        this.iDialog=0;
-        this.tabDialog[this.iDialog]=true;
-        this.tabDialog[1]=false;
-        if (this.tabPoR[i].ref.toLowerCase().indexOf(event.target.value.toLowerCase().trim())!==-1){
-          const thePush=new classPointOfRef;
-          this.tabRef.push(thePush);
-          this.tabRef[this.tabRef.length-1]=this.tabPoR[i];
+    this.iDialog=0;
+    this.tabDialog[this.iDialog]=true;
+    this.tabDialog[1]=false;  
+    for (var i=0; i<this.tabPoR.length && this.tabPoR[i].country!== this.fileCircuit[this.TabOfId[0]].country; i++){
+    }
+    if (i<this.tabPoR.length){
+        for (var j=0; j<this.tabPoR[i].PoR.length; j++){
+          if (this.tabPoR[i].PoR[j].ref.toLowerCase().indexOf(event.target.value.toLowerCase().trim())!==-1){
+            const thePush=new classPointOfRef;
+            this.tabRef.push(thePush);
+            this.tabRef[this.tabRef.length-1]=this.tabPoR[i].PoR[j];
+          }
         }
-      }
+      }    
+    if (  this.tabRef.length===1){
+      this.isFileModified=true;
+      this.fileCircuit[this.TabOfId[0]].points[this.TabOfId[1]].ref=this.tabRef[0].ref;
+      this.fileCircuit[this.TabOfId[0]].points[this.TabOfId[1]].alt=this.tabRef[0].alt;
+      this.fileCircuit[this.TabOfId[0]].points[this.TabOfId[1]].lat=this.tabRef[0].lat;
+      this.fileCircuit[this.TabOfId[0]].points[this.TabOfId[1]].lon=this.tabRef[0].lon;
+      this.isFileModified=true;
+      this.tabRef.splice(0, this.tabRef.length);
+    } else{
+      this.iDialog=0;
+      this.tabDialog[this.iDialog]=true;
+    }
+
   } else if (theValue.strFound==="selPoR"){ // PoR has been selected by the customer
       this.isFileModified=true;
       this.fileCircuit[this.TabOfId[0]].points[this.TabOfId[1]].ref=this.tabRef[this.TabOfId[2]].ref;
@@ -211,28 +228,38 @@ onInput(event:any){
     this.fileCircuit.splice(this.TabOfId[0],1);
   } else if (theValue.strFound==="delCircuitNO"){
     this.isDeleteCircuit=false;
+  } else if (theValue.strFound==="returnCircuit"){
+    this.returnCircuit.emit(this.fileCircuit[this.TabOfId[0]]);
   }
   this.scroller.scrollToAnchor('bottomCircuit');
 }
 
-isDeleteCircuit:boolean=false;
-isDeletePoR:boolean=false;
+updateAllCircuits(event:any){
+  if (event.target.id==="updatePoRYES"){
+    for (var i=0; i<this.fileCircuit.length; i++){
+
+      for (var k=0; k<this.tabPoR.length && this.tabPoR[k].country !==this.fileCircuit[i].country; k++){}
+      if (k<this.tabPoR.length){
+        for (var j=0; j<this.fileCircuit[i].points.length; j++){
+            for (var l=0; l<this.tabPoR[k].PoR.length; l++){
+              if (this.tabPoR[k].PoR[l].ref === this.fileCircuit[i].points[j].ref){
+                this.fileCircuit[i].points[j].lat=this.tabPoR[k].PoR[l].lat;
+                this.fileCircuit[i].points[j].lon=this.tabPoR[k].PoR[l].lon;
+                l=this.tabPoR[k].PoR.length;
+              }
+            }
+        }
+      }
+      this.isFileModified=true;
+  }
+
+  }
+
+}
+
 onSelectPoR(event:any){
   this.selectedPoint=event;
 }
-
-
-checkFormData(){
-  this.errorMsg="";
-  if (this.formOptions.controls["pointRef"].value==="" || this.formOptions.controls["lat"].value===""
-      || this.formOptions.controls["lgt"].value ===""){
-        this.errorMsg="All fields are mandatory";
-  } else if (isNaN(this.formOptions.controls["lat"].value) 
-  || isNaN(this.formOptions.controls["lgt"].value)){
-    this.errorMsg="Latitude and Loongitude must be numeric values";
-  }
-}
-
 
 manageUpdates(event:any){
   if (event.target.id==="confirmSave"){
@@ -250,8 +277,6 @@ manageUpdates(event:any){
       this.saveConfirmed=false;
   }
 }
-
-
 
 saveFile(bucket:string, object:string,record:any){
   this.errorMessage='';
@@ -275,7 +300,7 @@ saveFile(bucket:string, object:string,record:any){
         this.scroller.scrollToAnchor('bottomCircuit');
       })
 }
-listCountry:Array<any>=[];
+
 GetRecord(bucketName:string,objectName:string, iWait:number){
   this.errorMessage="";
   this.EventHTTPReceived[iWait]=false;
@@ -302,19 +327,7 @@ GetRecord(bucketName:string,objectName:string, iWait:number){
               var i = myStr.indexOf(theChar);
               this.listCountry.push({country:"",code:""});
               this.listCountry[this.listCountry.length-1].code=myStr.substring(i+4,i+6).toUpperCase();
-              
-              /*
-              var trouve=false;
-              for (var j=i-1; j>0; j-- ){
-                if (myStr.substring(j,j+1)==='"'){
-                  trouve = true;
-                  this.listCountry[this.listCountry.length-1].country=myStr.substring(j+1,i);
-                }
-              }
-              if (trouve===false){
-                this.listCountry[this.listCountry.length-1].country=myStr.substring(1,i);
-              }
-              */
+
               this.listCountry[this.listCountry.length-1].country=myStr.substring(1,i);
               myStr=myStr.substring(i+11);
               lenStr=myStr.length;
@@ -342,7 +355,6 @@ GetRecord(bucketName:string,objectName:string, iWait:number){
       })
 }
 
-
 waitHTTP(loop:number, maxloop:number, eventNb:number){
   const pas=500;
   if (loop%pas === 0){
@@ -359,20 +371,5 @@ waitHTTP(loop:number, maxloop:number, eventNb:number){
             }    
       }  
   }
-
-firstLoop:boolean=true;
-ngOnChanges(changes: SimpleChanges) { 
-    if (this.firstLoop===true){
-      this.firstLoop=false;
-    } else {
-      for (const propName in changes){
-        const j=changes[propName];
-        if (propName==='credentials'){
-          console.log('credentials have been updated');
-        }
-      }
-    }
-
-}
 
 }

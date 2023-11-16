@@ -9,7 +9,7 @@ import { ViewportScroller } from "@angular/common";
 import { FormGroup, UntypedFormControl,FormControl, Validators, FormBuilder, FormArray} from '@angular/forms';
 import { Observable } from 'rxjs';
 
-
+import { findIds, formatHHMNSS } from '../MyStdFunctions';
 
 import {msginLogConsole} from '../consoleLog'
 import { configServer, LoginIdentif, OneBucketInfo, classPointOfRef, msgConsole, classCredentials } from '../JsonServerClass';
@@ -39,12 +39,17 @@ export class PerformanceSportComponent {
     @Output() newCredentials= new EventEmitter<any>();
     @Output() returnFile= new EventEmitter<any>();
     @Output() resetServer= new EventEmitter<any>();
+    @Output() returnPerf= new EventEmitter<any>();
 
     @Input() configServer = new configServer;
     @Input() identification= new LoginIdentif;
 
+    @Input() isPerfRetrieved : boolean = false;
     tabPoR:Array<classPointOfRef>=[];
-
+    perf:Array<any>=[];
+    perfLaps:Array<any>=[];
+    i : number = 0;
+    lastOccurrence:number=0;
     cheetahRecord = new classGarminGoldenCheetah;
 
     EventHTTPReceived:Array<boolean>=[];
@@ -125,10 +130,238 @@ confirmSave(event:any){
   }
 }
 
-perf:Array<any>=[];
-//classPerf={time:0,dist:0,speed:0,heart:0,alt:0,lat:0,lon:0,slope:0});
-i : number = 0;
-lastOccurrence:number=0;
+processGPXfile(event:any){
+const trkpt ='<trkpt';
+const lat='lat=\"';
+const lon='lon="';
+const ele='ele>';
+const strTime='time>'
+const heart='ns3:hr>';
+var trouve=false;
+var myGPXFile:Array<any>=[];
+var myGPXtxt:string='';
+myGPXFile.splice(0,myGPXFile.length);
+var strGPX=event.text;
+var strLen=strGPX.length;
+var prevTime=0;
+while (strLen>0){
+
+  var sTrkpt=strGPX.indexOf(trkpt);
+  if (sTrkpt!==-1){
+    var eTrkpt=strGPX.indexOf('</trkpt>');
+    var strSearch=strGPX.substring(sTrkpt,eTrkpt);
+    myGPXFile.push({lat:0,lon:0,ele:0,heart:0,time:'',elapse:0, cumulElapse:0});
+    var start=strSearch.indexOf(lat) + lat.length;
+    var end=strSearch.indexOf('\" lon=\"');
+    myGPXFile[myGPXFile.length-1].lat=strSearch.substring(start,end);
+    myGPXtxt=myGPXtxt+strSearch.substring(start,end)+"\t";
+  
+    const strLon=strSearch.substring(end);
+    start=strLon.indexOf(lon) + lon.length;
+    end=strLon.indexOf('\">\n');
+    myGPXFile[myGPXFile.length-1].lon=strLon.substring(start,end);
+    myGPXtxt=myGPXtxt+strLon.substring(start,end)+"\t";
+
+    start=strSearch.indexOf(ele) + ele.length;
+    end=strSearch.indexOf('</'+ele);
+    myGPXFile[myGPXFile.length-1].ele=strSearch.substring(start,end);
+    myGPXtxt=myGPXtxt+strSearch.substring(start,end)+"\t";
+
+    start=strSearch.indexOf(heart) + heart.length;
+    end=strSearch.indexOf('</'+heart);
+    myGPXFile[myGPXFile.length-1].heart=strSearch.substring(start,end);
+    myGPXtxt=myGPXtxt+strSearch.substring(start,end)+"\t";
+  
+    start=strSearch.indexOf('<'+strTime) + strTime.length + 1;
+    end=strSearch.indexOf('</'+strTime);
+    myGPXFile[myGPXFile.length-1].time=strSearch.substring(start,end);
+    myGPXtxt=myGPXtxt+strSearch.substring(start,end)+"\t";
+
+    start=myGPXFile[myGPXFile.length-1].time.indexOf('T') +  1;
+    end=myGPXFile[myGPXFile.length-1].time.indexOf('.000Z');
+
+    const Thour=Number(myGPXFile[myGPXFile.length-1].time.substring(start,start+2));
+    const Tmn=Number(myGPXFile[myGPXFile.length-1].time.substring(start+3,start+5));
+    const Tsec=Number(myGPXFile[myGPXFile.length-1].time.substring(start+6,start+8));
+    
+    if (myGPXFile.length>1){
+      myGPXFile[myGPXFile.length-1].elapse=(Thour)*3600+Tmn*60+Tsec - prevTime;
+      myGPXFile[myGPXFile.length-1].cumulElapse=myGPXFile[myGPXFile.length-2].cumulElapse+myGPXFile[myGPXFile.length-1].elapse;
+    } else {
+      myGPXFile[myGPXFile.length-1].elapse=0;
+      myGPXFile[myGPXFile.length-1].cumulElapse==0;
+    }
+    myGPXtxt=myGPXtxt+myGPXFile[myGPXFile.length-1].cumulElapse+"\r\n";
+    prevTime = Thour*3600+Tmn*60+Tsec;
+
+
+    strGPX=strGPX.substring(eTrkpt+8);
+    strLen=strGPX.length;
+  } else {
+    strLen=0;
+  }
+}
+
+    var file=new File ([JSON.stringify(myGPXFile)], 'myJSON-GPXfile', {type: 'application/json'});
+      
+    this.ManageGoogleService.uploadObject(this.configServer, 'xmv-tests', file ,  'myJSON-GPXfile')
+        .subscribe(
+            res => {
+                if (res.type===4){ 
+
+                }
+          })
+      var file=new File ([JSON.stringify(myGPXtxt)], 'myTEXT-GPXfile', {type: 'application/json'}); 
+            this.ManageGoogleService.uploadObject(this.configServer, 'xmv-tests', file ,  'myTEXT-GPXfile')
+                .subscribe(
+              res => {
+                  if (res.type===4){ 
+                    console.log('GPX text file is saved');
+                  }
+            },
+            err => {
+              console.log(err);
+            })
+
+
+}
+
+processTCXfile(event:any){
+
+  const lap='Lap StartTime=\"';
+  const timeSec='TotalTimeSeconds>';
+  const distMeters='DistanceMeters>';
+  const calories='Calories>';
+  const maxSpeed='MaximumSpeed>';
+  const maxHeartRate='MaximumHeartRateBpm>';
+  const avgHeartRate='AverageHeartRateBpm>';
+  const heartValue='Value>'
+  const track="Trackpoint>";
+  const lengthText=event.text.length;
+  const zoulou='000Z';
+
+  var theStr=event.text;
+  var trouve=false;
+  var nbLaps=0;
+  var iLoop=0;
+  var maxLoop=100;
+  this.perfLaps.splice(0,this.perfLaps.length);
+  while (trouve===false && iLoop<maxLoop){
+    iLoop++
+    const startLap = theStr.indexOf('<'+lap);
+    const endLap = theStr.indexOf('</Lap>');
+    if (startLap!==-1 && endLap!==-1){
+        var strLap = theStr.substring(startLap,endLap);
+        this.perfLaps.push({lap:0,date:"",dist:0,maxSpeed:0,maxHeart:0,avgHeart:0,cal:0});
+        nbLaps++
+        this.perfLaps[this.perfLaps.length-1].lap=nbLaps;
+        var sLength=strLap.indexOf(lap)+lap.length;
+        var eLength=strLap.indexOf(zoulou)+4;
+        this.perfLaps[this.perfLaps.length-1].date=strLap.substring(sLength,eLength);
+
+        sLength=strLap.indexOf(timeSec)+timeSec.length;
+        eLength=strLap.indexOf('</'+timeSec);
+        this.perfLaps[this.perfLaps.length-1].time=strLap.substring(sLength,eLength);
+
+        sLength=strLap.indexOf(calories)+calories.length;
+        eLength=strLap.indexOf('</'+calories);
+        this.perfLaps[this.perfLaps.length-1].cal=strLap.substring(sLength,eLength);
+
+        sLength=strLap.indexOf(distMeters)+distMeters.length;
+        eLength=strLap.indexOf('</'+distMeters);
+        this.perfLaps[this.perfLaps.length-1].dist=strLap.substring(sLength,eLength);
+
+        sLength=strLap.indexOf(maxSpeed)+maxSpeed.length;
+        eLength=strLap.indexOf('</'+maxSpeed);
+        this.perfLaps[this.perfLaps.length-1].maxSpeed=Number(strLap.substring(sLength,eLength))*3.6;
+
+        sLength=strLap.indexOf(avgHeartRate);
+        eLength=strLap.indexOf('</'+avgHeartRate);
+        var strB=strLap.substring(sLength,eLength);
+        sLength=strB.indexOf(heartValue)+heartValue.length;
+        eLength=strB.indexOf('</'+heartValue);
+        this.perfLaps[this.perfLaps.length-1].avgHeart=strB.substring(sLength,eLength);
+
+        sLength=strLap.indexOf(maxHeartRate);
+        eLength=strLap.indexOf('</'+maxHeartRate);
+        strB=strLap.substring(sLength,eLength);
+        sLength=strB.indexOf(heartValue)+heartValue.length;
+        eLength=strB.indexOf('</'+heartValue);
+        this.perfLaps[this.perfLaps.length-1].maxHeart=strB.substring(sLength,eLength);
+       
+
+        for (var i=strLap.length; i>0; i--){
+            const startTrack=strLap.indexOf('<'+track);
+            const endTrack=strLap.indexOf('</'+track);
+            if (startTrack!==-1 && endTrack !==-1){
+                const strTrack=strLap.substring(startTrack,endTrack);
+                this.processTrackPoint(strTrack);
+                strLap=strLap.substring(endTrack+track.length);
+            } else i=0;
+
+        }
+
+        theStr=theStr.substring(endLap+6);
+
+    } else {
+      trouve=true;
+
+      var file=new File ([JSON.stringify(this.perfLaps)], 'myJSON-CSVfile', {type: 'application/json'});
+ 
+      this.ManageGoogleService.uploadObject(this.configServer, 'xmv-tests', file ,  'myJSON-CSVfile')
+        .subscribe(
+          res => {
+            if (res.type===4){ 
+
+            }
+          })
+      file=new File ([JSON.stringify(this.perf)], 'myJSON-TCXfile', {type: 'application/json'});
+      
+            this.ManageGoogleService.uploadObject(this.configServer, 'xmv-tests', file ,  'myJSON-TCXfile')
+              .subscribe(
+                res => {
+                  if (res.type===4){ 
+
+                  }
+          })
+    }
+  }
+  console.log('end');
+}
+
+processTrackPoint(theString:string){
+  var tabLabels=['Time>','LatitudeDegrees>','LongitudeDegrees>','AltitudeMeters>','DistanceMeters>','Value>','ns3:Speed>']
+  var tabResults=[];
+  // const heart='HeartRateBpm>';
+  
+  for (var i=0; i<tabLabels.length; i++){
+    const start=theString.indexOf('<'+tabLabels[i]) + tabLabels[i].length;
+    const end=theString.indexOf('</'+tabLabels[i]);
+    tabResults[i]=theString.substring(start+1,end);
+  }
+
+  this.perf.push({time:'',dist:0,speed:0,heart:0,alt:0,lat:0,lon:0,slope:0});
+  this.perf[this.perf.length-1].time=tabResults[0];
+  this.perf[this.perf.length-1].lat=Number(tabResults[1]);
+  this.perf[this.perf.length-1].lon=Number(tabResults[2]);
+  this.perf[this.perf.length-1].alt=Number(tabResults[3]);
+  this.perf[this.perf.length-1].dist=Number(tabResults[4]);
+  this.perf[this.perf.length-1].heart=Number(tabResults[5]);
+  if (Number(tabResults[6])*3.6===0 && this.perf.length>1){
+      this.perf[this.perf.length-1].speed=(this.perf[this.perf.length-1].dist-this.perf[this.perf.length-2].dist)*100*3.6;
+  } else {
+      this.perf[this.perf.length-1].speed=Number(tabResults[6])*3.6;
+  }
+  
+
+  if (this.perf.length>1){
+      this.perf[this.perf.length-1].slope=(this.perf[this.perf.length-2].alt-this.perf[this.perf.length-1].alt)/(this.perf[this.perf.length-2].dist-this.perf[this.perf.length-1].dist)*100;
+  }
+
+}
+
+
+file=new File([JSON.stringify(event)], 'myGPXfile', {type: 'application/json'});
 ReceivedData(event:any){
     //this.theReceivedData=event;
     const stringNumber="0123456789.";
@@ -144,17 +377,49 @@ ReceivedData(event:any){
     this.scroller.scrollToAnchor('result');
     if (typeof event==="object" && event.text!==undefined){
         const lengthText=event.text.length;
-       
+        const isGPX = event.text.indexOf('<gpx creator=');
+        if (isGPX === -1){
+          var fileTCX = event.text.indexOf("<TotalTimeSeconds>"); // format of the file is TCX
+          if (fileTCX!==-1){
+            this.file=new File ([JSON.stringify(event)], 'myTCXfile', {type: 'application/json'});
+          }
+        } else {
+            this.file=new File ([JSON.stringify(event)], 'myGPXfile', {type: 'application/json'});
+ 
+        } 
+
+        
+        this.ManageGoogleService.uploadObject(this.configServer, 'xmv-tests', this.file ,  'myTCXfile')
+          .subscribe(
+            res => {
+              if (res.type===4){ 
+
+              }
+            })
+
+
+
         // test if file contains all columns
         // Time	Distance	Heart rate	Speed	Altitude	Latitude	Longitude	Slope
+        
         const fileType = event.text.indexOf("Altitude"); // if =-1 contains 3 columns only
         const fileRide = event.text.indexOf("RIDE"); // if =-1 contains 3 columns only
-        if (fileRide===-1){
+        
+        var iLoop=0;
+        if (isGPX !== -1){
+          this.processGPXfile(event);
+            console.log('end GTX');
+            this.perf.splice(0,this.perf.length);
+        } else if (fileTCX !== -1){
+          this.processTCXfile(event);
+            console.log('end TCX');
+            this.perf.splice(0,this.perf.length);
+        } else if (fileRide===-1){
           if (fileType!==-1 ){
             maxFields=8;
           }
           
-          for (this.i=0; this.i<lengthText && stringNumber.indexOf(event.text.substring(this.i,this.i+1))===-1 ; this.i++){
+          for ( this.i=0; this.i<lengthText && stringNumber.indexOf(event.text.substring(this.i,this.i+1))===-1 ; this.i++){
           }
           // "\t" refers to tabulation
           for (this.i=this.i; this.i<lengthText; this.i++){
@@ -287,7 +552,7 @@ ReceivedData(event:any){
         if (j<this.perf.length){
           for ( k=j+1; k<this.perf.length && this.perf[k].lon===0; k++){}
           if (k<this.perf.length){
-              this.newFillLatLon(j,k);
+              this.newFillLatLon(j,k-1);
           } else { 
             this.errorMessage = "LAT & LON are nil and cannot be updated";
           }
@@ -310,6 +575,11 @@ ReceivedData(event:any){
       this.isFileProcessed=true;
     }
     
+
+    if (this.isPerfRetrieved===true){
+        this.returnPerf.emit({name:this.SelectedBucketInfo.name,content:this.perf});
+    }
+
   }
 
   isFileProcessed:boolean=false;
@@ -345,58 +615,7 @@ fillPerf(iRecord:number, specChar:string){
   return (myNb);
 }
 
-fillLatLon(startR:number,endR:number ){
-  var tabDic:Array<any>=[];
 
-  var totalRow=endR - startR +1;
-  var k=1;
-
-  tabDic[k]=Math.trunc(totalRow/2);
-  this.perf[startR+tabDic[k]].lat = (this.perf[endR+1].lat + this.perf[startR-1].lat)/2;
-  this.perf[startR+tabDic[k]].lon = (this.perf[endR+1].lon + this.perf[startR-1].lon)/2;
-
-  var refRow=tabDic[k];
-  for (var i=0; i<totalRow; i++){
-    refRow=Math.trunc(refRow/2);
-    var endLoop=false;
-    k++;
-    tabDic[k]=refRow;
-    if (this.perf[startR+tabDic[k]].lat===0){
-      for (var l=startR+tabDic[k]-1; l>startR-2 && this.perf[l].lat===0; l--){};
-      for (var m=startR+tabDic[k]+1; m<endR+2 && this.perf[m].lat===0; m++){};
-      this.perf[startR+tabDic[k]].lat = (this.perf[m].lat + this.perf[l].lat)/2;
-      this.perf[startR+tabDic[k]].lon = (this.perf[m].lon + this.perf[l].lon)/2;
-    }
-    
-
-    
-    for (var j= 3; endLoop===false; j++){
-      if (refRow * j<totalRow){
-        k++;
-        tabDic[k]=refRow * j;
-        if (this.perf[startR+tabDic[k]].lat===0){
-          for (var l=startR+tabDic[k]-1; l>startR-2 && this.perf[l].lat===0; l--){};
-          for (var m=startR+tabDic[k]+1; m<endR+2 && this.perf[m].lat===0; m++){};
-          this.perf[startR+tabDic[k]].lat = (this.perf[m].lat + this.perf[l].lat)/2;
-          this.perf[startR+tabDic[k]].lon = (this.perf[m].lon + this.perf[l].lon)/2;
-        }
-      } else {endLoop=true}
-    }
-    if (refRow===2){
-      i=totalRow+1;
-    }
-     console.log('end dichotomie');
-  }
-
-  for (var i=startR; i<endR+1; i++){
-      if (this.perf[i].lat === 0){
-          for (var l=i-1; l>startR-2 && this.perf[l].lat===0; l--){};
-          for (var n=i+1; n<endR+2 && this.perf[n].lat===0; n++){};
-          this.perf[i].lat = (this.perf[n].lat + this.perf[l].lat)/2;
-          this.perf[i].lon = (this.perf[n].lon + this.perf[l].lon)/2;
-      }
-  }
-}
 
 
 newFillLatLon(startR:number,endR:number){
@@ -404,6 +623,20 @@ var primeTabDic=[];
 
 var firstRowRef=startR-1;
 var lastRowRef=endR+1;
+// This 4 loops should not be executed; it's just in case something goes wrong
+while(this.perf[lastRowRef].lat===0 && lastRowRef>firstRowRef+1){
+  lastRowRef--
+}
+while(this.perf[lastRowRef].lat===0 ){
+  lastRowRef++
+}
+while(this.perf[firstRowRef].lat===0  && firstRowRef<lastRowRef-1){
+  firstRowRef++
+}
+while(this.perf[firstRowRef].lat===0 ){
+  firstRowRef--
+}
+
 
 var tabTest:Array<any>=[]
   
@@ -452,7 +685,8 @@ primeTabDic[iPrimeDic]=firstRowRef;
               lastRowRef=primeTabDic[iPrimeDic-1];
               midRowRef=Math.trunc((lastRowRef + firstRowRef)/2) ;
             }
-            if (this.perf[midRowRef].lat===0 && iPrimeDic!==-1){
+            if (this.perf[midRowRef].lat===0 && iPrimeDic!==-1 && this.perf[lastRowRef].lat!==0 && this.perf[lastRowRef].lon!==0 && this.perf[firstRowRef].lat!==0 && this.perf[firstRowRef].lon!==0){
+                
               this.perf[midRowRef].lat = (this.perf[lastRowRef].lat + this.perf[firstRowRef].lat)/2;
               this.perf[midRowRef].lon = (this.perf[lastRowRef].lon + this.perf[firstRowRef].lon)/2;
         
@@ -486,13 +720,17 @@ primeTabDic[iPrimeDic]=firstRowRef;
               
               /**************** */
             } else {
-              if (iPrimeDic!==-1){
+               if (iPrimeDic!==-1){
+
                 primeTabDic.splice(iPrimeDic,1);
                 iPrimeDic--
                 midRowRef=0;
-                console.log(' midRow ' + midRowRef + ' was already processed');
+                if (this.perf[lastRowRef].lat===0 || this.perf[lastRowRef].lon0==0 || this.perf[firstRowRef].lat===0 || this.perf[firstRowRef].lon===0){
+                  console.log(' lat & lon of record ' + lastRowRef + ' =0');
+              } else {
+                  console.log(' midRow ' + midRowRef + ' was already processed');
               }
-            }
+            }}
             
           }
 
@@ -582,7 +820,7 @@ primeTabDic[iPrimeDic]=firstRowRef;
     } else {
       if (jSec > intervalSec){
  
-            kSec = this.perf[i].sec - this.perf[i-1].sec;
+            kSec = this.perf[i].time - this.perf[i-1].time;
             // Distance during kSec
             distanceK = this.perf[i].dist - this.perf[i-1].dist;
             // Distance per second
@@ -632,24 +870,24 @@ primeTabDic[iPrimeDic]=firstRowRef;
   //****************************/
   this.tabSecond[0].dist=this.tabSecond[0].cumulDist;
   this.tabSecond[0].speed=this.tabSecond[0].dist * 1000 / this.tabSecond[0].interval * 3.6;
-  this.tabSecond[0].cumulInterval=this.tabSecond[0].interval;
-  this.tabSecond[0].cumulTime=this.formatHHMNSS(this.tabSecond[0].cumulInterval) ;
-  this.tabSecond[0].cumulSpeed=this.tabSecond[0].speed;
+  this.tabSecond[0].cumulInterval=Number(this.tabSecond[0].interval);
+  this.tabSecond[0].cumulTime=formatHHMNSS(this.tabSecond[0].cumulInterval) ;
+  this.tabSecond[0].cumulSpeed=Number(this.tabSecond[0].speed);
   for (var i=1; i<this.tabSecond.length; i++){
     
-    this.tabSecond[i].dist=this.tabSecond[i].cumulDist - this.tabSecond[i-1].cumulDist;
-    this.tabSecond[i].speed=this.tabSecond[i].dist * 1000 / this.tabSecond[i].interval * 3.6;
+    this.tabSecond[i].dist=Number(this.tabSecond[i].cumulDist) - Number(this.tabSecond[i-1].cumulDist);
+    this.tabSecond[i].speed=Number(this.tabSecond[i].dist) * 1000 / Number(this.tabSecond[i].interval) * 3.6;
 
-    this.tabSecond[i].cumulInterval=this.tabSecond[i].interval + this.tabSecond[i-1].cumulInterval;
+    this.tabSecond[i].cumulInterval=Number(this.tabSecond[i].interval) + Number(this.tabSecond[i-1].cumulInterval);
 
-    this.tabSecond[i].cumulTime=this.formatHHMNSS(this.tabSecond[i].cumulInterval) ;
-    this.tabSecond[i].cumulSpeed=this.tabSecond[i].cumulDist * 1000 / this.tabSecond[i].cumulInterval * 3.6;;
+    this.tabSecond[i].cumulTime=formatHHMNSS(this.tabSecond[i].cumulInterval) ;
+    this.tabSecond[i].cumulSpeed=Number(this.tabSecond[i].cumulDist) * 1000 / Number(this.tabSecond[i].cumulInterval) * 3.6;;
 
   }
  //****************************/
     this.tabMeter[0].dist=this.tabMeter[0].cumulDist;
     this.tabMeter[0].time=this.tabMeter[0].cumulTime;
-    this.tabMeter[0].strTime=this.formatHHMNSS(this.tabMeter[0].time) ;
+    this.tabMeter[0].strTime=formatHHMNSS(this.tabMeter[0].time) ;
    
     this.tabMeter[0].speed=Number(this.tabMeter[0].dist)  * 1000 / Number(this.tabMeter[0].time) * 3.6;
     this.tabMeter[0].cumulStrTime=this.tabMeter[0].strTime;
@@ -658,10 +896,10 @@ primeTabDic[iPrimeDic]=firstRowRef;
       this.tabMeter[i].dist=this.tabMeter[i].cumulDist - this.tabMeter[i-1].cumulDist;
       this.tabMeter[i].time=this.tabMeter[i].cumulTime - this.tabMeter[i-1].cumulTime;
 
-      this.tabMeter[i].strTime=this.formatHHMNSS(this.tabMeter[i].time) ;
+      this.tabMeter[i].strTime=formatHHMNSS(this.tabMeter[i].time) ;
       this.tabMeter[i].speed=Number(this.tabMeter[i].dist)  * 1000 / Number(this.tabMeter[i].time) * 3.6;
 
-      this.tabMeter[i].cumulStrTime=this.formatHHMNSS(this.tabMeter[i].cumulTime) ;
+      this.tabMeter[i].cumulStrTime=formatHHMNSS(this.tabMeter[i].cumulTime) ;
       this.tabMeter[i].cumulSpeed=Number(this.tabMeter[i].cumulDist)  * 1000 / Number(this.tabMeter[i].cumulTime) * 3.6;
     }
 
@@ -685,33 +923,6 @@ GetRecord(bucketName:string,objectName:string, iWait:number){
       })
 }
 
-
-formatHHMNSS(theTime:number){
-  const hh =  Math.trunc(theTime  / 3600);
-  const MODmn = theTime % 3600;
-  const mn =  Math.trunc(MODmn / 60);
-  const sec = MODmn % 60;
-  var strHH="";
-  var strMN="";
-  var strSEC="";
-  if (hh<10){
-    strHH="0"+hh.toString();
-  } else {
-    strHH=hh.toString();
-  }
-  if (mn<10){
-    strMN="0"+mn.toString();
-  } else {
-    strMN=mn.toString();
-  }
-  if (sec<10){
-    strSEC="0"+sec.toString();
-  } else {
-    strSEC=sec.toString();
-  }
-
-  return (strHH+":"+strMN+":"+strSEC) ;
-}
 
 getBucket(){
   this.errorMessage="";
@@ -770,3 +981,58 @@ waitHTTP(loop:number, maxloop:number, eventNb:number){
 
 
 }
+
+/**
+ fillLatLon(startR:number,endR:number ){
+  var tabDic:Array<any>=[];
+
+  var totalRow=endR - startR +1;
+  var k=1;
+
+  tabDic[k]=Math.trunc(totalRow/2);
+  this.perf[startR+tabDic[k]].lat = (this.perf[endR+1].lat + this.perf[startR-1].lat)/2;
+  this.perf[startR+tabDic[k]].lon = (this.perf[endR+1].lon + this.perf[startR-1].lon)/2;
+
+  var refRow=tabDic[k];
+  for (var i=0; i<totalRow; i++){
+    refRow=Math.trunc(refRow/2);
+    var endLoop=false;
+    k++;
+    tabDic[k]=refRow;
+    if (this.perf[startR+tabDic[k]].lat===0){
+      for (var l=startR+tabDic[k]-1; l>startR-2 && this.perf[l].lat===0; l--){};
+      for (var m=startR+tabDic[k]+1; m<endR+2 && this.perf[m].lat===0; m++){};
+      this.perf[startR+tabDic[k]].lat = (this.perf[m].lat + this.perf[l].lat)/2;
+      this.perf[startR+tabDic[k]].lon = (this.perf[m].lon + this.perf[l].lon)/2;
+    }
+    
+
+    
+    for (var j= 3; endLoop===false; j++){
+      if (refRow * j<totalRow){
+        k++;
+        tabDic[k]=refRow * j;
+        if (this.perf[startR+tabDic[k]].lat===0){
+          for (var l=startR+tabDic[k]-1; l>startR-2 && this.perf[l].lat===0; l--){};
+          for (var m=startR+tabDic[k]+1; m<endR+2 && this.perf[m].lat===0; m++){};
+          this.perf[startR+tabDic[k]].lat = (this.perf[m].lat + this.perf[l].lat)/2;
+          this.perf[startR+tabDic[k]].lon = (this.perf[m].lon + this.perf[l].lon)/2;
+        }
+      } else {endLoop=true}
+    }
+    if (refRow===2){
+      i=totalRow+1;
+    }
+     console.log('end dichotomie');
+  }
+
+  for (var i=startR; i<endR+1; i++){
+      if (this.perf[i].lat === 0){
+          for (var l=i-1; l>startR-2 && this.perf[l].lat===0; l--){};
+          for (var n=i+1; n<endR+2 && this.perf[n].lat===0; n++){};
+          this.perf[i].lat = (this.perf[n].lat + this.perf[l].lat)/2;
+          this.perf[i].lon = (this.perf[n].lon + this.perf[l].lon)/2;
+      }
+  }
+}
+ */

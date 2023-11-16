@@ -79,8 +79,9 @@ export class AppComponent {
         
       }
     );
-    
-
+// TO BE DELETED
+    this.myParams.scope==="test";
+    this.myParams.server==="8080";
      
   }
   
@@ -320,7 +321,7 @@ this.isResetServer=true;
             this.errorMsg="";
 
 // TO BE DELETED
-this.selectApps=19;
+this.selectApps=20;
 this.isAppsSelected=true;
 //
 //

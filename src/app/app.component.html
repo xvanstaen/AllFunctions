@@ -44,6 +44,7 @@
         <span class="options" >17. Performance sport</span>
         <span class="options" >18. Manage PointOfRef</span>
         <span class="options" >19. Manage Circuits</span>
+        <span class="options" >20. Reports sport</span>
 
         <br><br>
     </span>
@@ -107,7 +108,10 @@
         <app-manage-circuits [configServer]="configServer" [identification]="identification" [credentials]="credentials">
         </app-manage-circuits>
     </div>  
-
+    <div *ngIf="selectApps===20">
+        <app-sport-reports [configServer]="configServer" [identification]="identification" [credentials]="credentials">
+        </app-sport-reports>
+    </div>  
 </div>
   
 

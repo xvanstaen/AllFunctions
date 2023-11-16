@@ -83,7 +83,7 @@ ngOnInit(){
   this.ManageGoogleService.insertCacheFile(this.configServer,this.configServer.PointOfRef.file)
   .subscribe((data ) => {  
 
-    console.log('insertCacheFile ==> ' + JSON.stringify(data));
+    console.log('insertCacheFile ==> OK ' );
   },
   err => {
     console.log('error on insertCacheFile :'+ JSON.stringify(err));

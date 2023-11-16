@@ -58,7 +58,32 @@
         return(formattedDate);
     }
 
-
+    export function formatHHMNSS(theTime:number){ // theTime is in seconds
+      const hh =  Math.trunc(theTime  / 3600);
+      const MODmn = theTime % 3600;
+      const mn =  Math.trunc(MODmn / 60);
+      const sec = MODmn % 60;
+      var strHH="";
+      var strMN="";
+      var strSEC="";
+      if (hh<10){
+        strHH="0"+hh.toString();
+      } else {
+        strHH=hh.toString();
+      }
+      if (mn<10){
+        strMN="0"+mn.toString();
+      } else {
+        strMN=mn.toString();
+      }
+      if (sec<10){
+        strSEC="0"+sec.toString();
+      } else {
+        strSEC=sec.toString();
+      }
+    
+      return (strHH+":"+strMN+":"+strSEC) ;
+    }
     export function fnAddTime(theDate:string, addHour:number, addMin:number){
         // format of theDate is YYYMMDDHHMNSS
         var stringHour='';

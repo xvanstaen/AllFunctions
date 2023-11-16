@@ -40,7 +40,7 @@ import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.servic
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import {AccessConfigService} from 'src/app/CloudServices/access-config.service';
 
-import { fnAddTime, convertDate, strDateTime, fnCheckLockLimit } from '../../MyStdFunctions';
+import { fnAddTime, convertDate, strDateTime, fnCheckLockLimit, findIds } from '../../MyStdFunctions';
 
 @Component({
   selector: 'app-health',
@@ -754,7 +754,7 @@ CreateTabFood(item:any, value:any){
 onSelMealFood(event:any){
   //this.resetBooleans();
   this.error_msg='';
-  this.findIds(event.target.id);
+  this.manageIds(event.target.id);
   if (event.currentTarget.id.substring(0,7)==='selFood'){
     //this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name =event.target.textContent.toLowerCase().trim();
     this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name =this.tabInputFood[this.TabOfId[3]].name;
@@ -784,7 +784,7 @@ onInputDailyA(event:any){
     this.error_msg='';
     var i=0;
     const fieldName=event.target.id.substring(0,4);
-    this.findIds(event.target.id);
+    this.manageIds(event.target.id);
     if (event.target.id.substring(0,3)!=='Sel'){
       this.errorFn='Cre';
       if (fieldName==='date'){
@@ -864,7 +864,7 @@ onInputDailyAllA(event:any){
       this.error_msg='';
       var i=0;
       const fieldName=event.target.id.substring(0,7);
-      this.findIds(event.target.id);
+      this.manageIds(event.target.id);
         if (fieldName==='dateAll'){
           this.CheckDupeDate(event.target.value);
           this.HealthAllData.tabDailyReport[this.TabOfId[0]].date=event.target.value;
@@ -960,7 +960,7 @@ onActionA(event:any){
   this.resetBooleans();
   if (this.tabLock[0].lock !== 2){
 
-    this.findIds(event.target.id);
+    this.manageIds(event.target.id);
     this.dialogue[this.prevDialogue]=false;
     if (this.tabLock[0].lock === 0 && event.target.id.substring(0,10)!=='openAction'){
       this.isAllDataModified=true;
@@ -1149,7 +1149,7 @@ onActionA(event:any){
 }
 
 DeleteIngredient(event:any){
-  this.findIds(event.target.id);
+  this.manageIds(event.target.id);
   if (event.target.id.substring(0,6)==='DelCre'){
     this.HealthData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish.splice(this.TabOfId[2],1);
     if (this.HealthData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish.length===0){
@@ -1176,7 +1176,7 @@ DeleteIngredient(event:any){
 }
 
 DeleteMeal(event:any){
-  this.findIds(event.target.id);
+  this.manageIds(event.target.id);
   if (event.target.id.substring(0,6)==='DelCre'){
     this.HealthData.tabDailyReport[this.TabOfId[0]].meal.splice(this.TabOfId[1],1);
     if (this.HealthData.tabDailyReport[this.TabOfId[0]].meal.length===0){
@@ -1200,7 +1200,7 @@ DeleteMeal(event:any){
 }
 
 DeleteDay(event:any){
-  this.findIds(event.target.id);
+  this.manageIds(event.target.id);
   if (event.target.id.substring(0,10)==='DelAllDate'){
     this.HealthAllData.tabDailyReport.splice(this.TabOfId[0],1);
     this.tabNewRecordAll.splice(this.TabOfId[0],1);
@@ -1214,7 +1214,7 @@ DeleteDay(event:any){
 }
 
 CreateIngredient(event:any){
-  this.findIds(event.target.id);
+  this.manageIds(event.target.id);
   const theIngredient=new ClassDish;
   if (event.target.id.substring(0,8)==='CreIngrA'){
     this.HealthData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish.splice(this.TabOfId[2]+1,0,theIngredient);
@@ -1235,7 +1235,7 @@ CreateIngredient(event:any){
 }
 
 CreateMeal(event:any){
-  this.findIds(event.target.id);
+  this.manageIds(event.target.id);
   const theMeal=new ClassMeal;
   if (event.target.id.substring(0,8)==='CreMealA'){
       this.HealthData.tabDailyReport[this.TabOfId[0]].meal.splice(this.TabOfId[1]+1,0,theMeal);
@@ -1270,7 +1270,7 @@ CreateMeal(event:any){
 }
 
 CreateDay(event:any){
-  this.findIds(event.target.id);
+  this.manageIds(event.target.id);
   const theDaily=new DailyReport;
   var iDate=0;
   if (event.target.id.substring(0,8)==='AllDateA'){
@@ -1358,6 +1358,16 @@ FillHealthAllInOut(outFile:any, inFile:any){
 
 }
 
+manageIds(theId:string){
+  this.error_msg='';
+  this.TabOfId.splice(0,this.TabOfId.length);
+  const theValue= findIds(theId,"-");
+  
+  for (var i=0; i<theValue.tabOfId.length; i++){
+    this.TabOfId[i]=theValue.tabOfId[i];
+  }
+}
+/*
 findIds(theId:string){
   this.error_msg='';
   
@@ -1379,7 +1389,7 @@ findIds(theId:string){
     i++;
   }
 }
-
+*/
 initTrackRecord(){
   for (var i=0; i<this.HealthAllData.tabDailyReport.length; i++){
     if (this.tabNewRecordAll.length===0 || i!==0){
@@ -1679,7 +1689,8 @@ fillAllData(inRecord:any, outRecord:any){
 
 delDate(event:any){
   this.isDeleteConfirmed=true;
-  this.findIds(event.target.id);
+  this.manageIds(event.target.id);
+  
   this.recordToDelete=this.TabOfId[0];
   const theDate=this.HealthAllData.tabDailyReport[this.recordToDelete].date;
   this.error_msg='confirm record#' + this.recordToDelete + ' with date=' + theDate + 'to be deleted';
@@ -1876,7 +1887,7 @@ this.errorFn='';
 }
 
 CancelRecord(event:any){
-this.findIds(event.target.id);
+this.manageIds(event.target.id);
 this.isMustSaveFile = false;
 if (event.target.id.substring(0,3)==='Cre'){
   this.HealthData.tabDailyReport.splice(0,this.HealthData.tabDailyReport.length);

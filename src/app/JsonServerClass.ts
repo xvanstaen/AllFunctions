@@ -307,3 +307,7 @@ export class classCircuitRec
       name:string=""; country:string=""; city:string="";
       points:Array<classPointOfRef>=[];
     }
+
+export class classFilePerf{
+    time:number=0;dist:number=0;speed:number=0;heart:number=0;alt:number=0;lat:number=0;lon:number=0;slopenumber=0;
+}
