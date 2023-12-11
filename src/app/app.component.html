@@ -22,7 +22,7 @@
 </div>
 
 <div  *ngIf="isIdRetrieved===true && this.isConfigServerRetrieved===true" style=" max-width: 440px; ">
-    <span style="width:94%; background-color: cyan; margin-left:10px; border:solid 2px red; display:inline-block; ">
+    <span style="width:94%; background-color: cyan; margin-left:20px; border:solid 2px red; display:inline-block; ">
         <span style="width:100%; color:#0000ff; font-size:22px; display:inline-block; text-align: center; padding-top:10px; height:50px;"> Select the apps </span>
         <br>
         <span class="options" >1. XMV Company</span>
@@ -44,7 +44,8 @@
         <span class="options" >17. Performance sport</span>
         <span class="options" >18. Manage PointOfRef</span>
         <span class="options" >19. Manage Circuits</span>
-        <span class="options" >20. Reports sport</span>
+        <span class="options" >20. Sport report</span>
+        <span class="options" >21. Sport analysis</span>
 
         <br><br>
     </span>
@@ -112,6 +113,10 @@
         <app-sport-reports [configServer]="configServer" [identification]="identification" [credentials]="credentials">
         </app-sport-reports>
     </div>  
+    <div *ngIf="selectApps===21">
+        <app-sport-analysis [configServer]="configServer" [identification]="identification" [credentials]="credentials">
+        </app-sport-analysis>
+    </div> 
 </div>
   
 

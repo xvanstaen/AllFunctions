@@ -62,6 +62,7 @@ export class ManageCircuitsComponent {
       pointRef: new FormControl("", { nonNullable: true }),
       lat: new FormControl(0, { nonNullable: true }),
       lgt: new FormControl(0, { nonNullable: true }),
+      dist: new FormControl(0, { nonNullable: true }),
       fileName: new FormControl("", { nonNullable: true }),
     })
 
@@ -69,6 +70,7 @@ export class ManageCircuitsComponent {
     tabAction=["Cancel","Add before","Add after","Delete"];
     tabActionH=["Cancel","Add before","Add after","Delete","Zoom-in","Zoom-out"];
     tabRef:Array<any>=[];
+    tabDist:Array<number>=[];
     tabDialog:Array<boolean>=[]; 
     iDialog:number=0;
     expandCircuit:number=-1;
@@ -87,6 +89,7 @@ export class ManageCircuitsComponent {
     strFound:string="";
    
     errorMsg:string="";
+    sizeBox:number=0;
 
 ngOnInit(){
 /***
@@ -148,12 +151,16 @@ onInput(event:any){
       this.isDeleteCircuit=true;
     } else if (this.tabActionH[this.TabOfId[1]]==="Zoom-in"){
         this.expandCircuit=this.TabOfId[0];
+        this.sizeTheBox();
     } else if (this.tabActionH[this.TabOfId[1]]==="Zoom-out"){
         this.expandCircuit=-1;
   } 
   } else if (theValue.strFound==="name"){
       this.isFileModified=true;
       this.fileCircuit[this.TabOfId[0]].name=event.target.value;
+  } else if (theValue.strFound==="dist"){
+    this.isFileModified=true;
+    this.fileCircuit[this.TabOfId[0]].dist[this.TabOfId[1]]=Number(event.target.value);
   } else if (theValue.strFound==="country"){
       this.isFileModified=true;
       this.fileCircuit[this.TabOfId[0]].country=event.target.value;
@@ -181,6 +188,10 @@ onInput(event:any){
       this.fileCircuit[this.TabOfId[0]].points[this.TabOfId[1]].alt=this.tabRef[0].alt;
       this.fileCircuit[this.TabOfId[0]].points[this.TabOfId[1]].lat=this.tabRef[0].lat;
       this.fileCircuit[this.TabOfId[0]].points[this.TabOfId[1]].lon=this.tabRef[0].lon;
+      this.fileCircuit[this.TabOfId[0]].points[this.TabOfId[1]].varLat=this.tabRef[0].varLat;
+      this.fileCircuit[this.TabOfId[0]].points[this.TabOfId[1]].varLon=this.tabRef[0].varLon;
+      this.fileCircuit[this.TabOfId[0]].points[this.TabOfId[1]].prio=this.tabRef[0].prio;
+      //this.fileCircuit[this.TabOfId[0]].dist[this.TabOfId[1]]=this.tabRef[0].dist;
       this.isFileModified=true;
       this.tabRef.splice(0, this.tabRef.length);
     } else{
@@ -194,6 +205,7 @@ onInput(event:any){
       this.fileCircuit[this.TabOfId[0]].points[this.TabOfId[1]].alt=this.tabRef[this.TabOfId[2]].alt;
       this.fileCircuit[this.TabOfId[0]].points[this.TabOfId[1]].lat=this.tabRef[this.TabOfId[2]].lat;
       this.fileCircuit[this.TabOfId[0]].points[this.TabOfId[1]].lon=this.tabRef[this.TabOfId[2]].lon;
+      //this.fileCircuit[this.TabOfId[0]].dist[this.TabOfId[1]]=this.tabRef[this.TabOfId[2]].dist;
       this.isFileModified=true;
       this.tabRef.splice(0, this.tabRef.length);
   } else  if (theValue.strFound==="actionPoR"){ // display tabAction
@@ -245,6 +257,9 @@ updateAllCircuits(event:any){
               if (this.tabPoR[k].PoR[l].ref === this.fileCircuit[i].points[j].ref){
                 this.fileCircuit[i].points[j].lat=this.tabPoR[k].PoR[l].lat;
                 this.fileCircuit[i].points[j].lon=this.tabPoR[k].PoR[l].lon;
+                this.fileCircuit[i].points[j].varLat=this.tabPoR[k].PoR[l].varLat;
+                this.fileCircuit[i].points[j].varLon=this.tabPoR[k].PoR[l].varLon;
+                this.fileCircuit[i].points[j].prio=this.tabPoR[k].PoR[l].prio;
                 l=this.tabPoR[k].PoR.length;
               }
             }
@@ -272,9 +287,19 @@ manageUpdates(event:any){
   } else if (event.target.id==="noReinit"){
     
   } else if (event.target.id==="saveFile"){
+    this.checkCodeCircuit();
     this.saveFile(this.identification.circuits.bucket, this.identification.circuits.file, this.fileCircuit);
   } else if (event.target.id==="cancelSave"){
       this.saveConfirmed=false;
+  }
+}
+
+checkCodeCircuit(){
+  for (var i=0; i<this.fileCircuit.length; i++){
+    if (this.fileCircuit[i].code===undefined || this.fileCircuit[i].code===""){
+      for (var j=0; j<this.listCountry.length && this.listCountry[j].country!==this.fileCircuit[i].country; j++){}
+      this.fileCircuit[i].code=this.listCountry[j].code + '-' + i.toString();
+    }
   }
 }
 
@@ -300,20 +325,59 @@ saveFile(bucket:string, object:string,record:any){
         this.scroller.scrollToAnchor('bottomCircuit');
       })
 }
+sizeTheBox(){
+  const maxSizeBox=400;
+  const marginSizeBox=60;
+  if (this.expandCircuit!==-1){
+    this.sizeBox= (this.fileCircuit[this.expandCircuit].points.length + this.fileCircuit.length) * this.sizeRow + marginSizeBox + 80;
+  } else {
+    this.sizeBox= this.fileCircuit.length * this.sizeRow + marginSizeBox;
+  }
+  if (this.sizeBox > maxSizeBox){
+    this.sizeBox=maxSizeBox;
+  }
+}
+sizeRow:number=30;
 
 GetRecord(bucketName:string,objectName:string, iWait:number){
   this.errorMessage="";
   this.EventHTTPReceived[iWait]=false;
   this.NbWaitHTTP++;
+  var i=0;
   this.waitHTTP(this.TabLoop[iWait],30000,iWait);
   this.ManageGoogleService.getContentObject(this.configServer, bucketName, objectName )
       .subscribe((data ) => {  
         if (iWait===1){ // Circuits
           this.fileCircuit.splice(0,this.fileCircuit.length);
-          this.fileCircuit=data;
-          this.isFileCircuitReceived=true;
+          //this.fileCircuit=data;
+          
+         
+          for  (i=0; i<data.length; i++){
+            const classCirc=new classCircuitRec;
+            this.fileCircuit.push(classCirc);
+            this.fileCircuit[i].city=data[i].city;
+            this.fileCircuit[i].code=data[i].code;
+            this.fileCircuit[i].name=data[i].name;
+            this.fileCircuit[i].country=data[i].country;
+            for (var j=0; j<data[i].points.length; j++){
+              const classPoint=new classPointOfRef;
+              this.fileCircuit[i].points.push(classPoint);
+              this.fileCircuit[i].points[j]=data[i].points[j];
+            }
+            
+            if (data[i].dist===undefined){
+              for (var j=0; j<data[i].points.length; j++){
+                this.fileCircuit[i].dist[j]=0;
+              }
+            } else {
+              this.fileCircuit[i].dist=data[i].dist;
+            }
           }
-        else if (iWait===2){ // Circuits
+
+          this.isFileCircuitReceived=true;
+          this.sizeTheBox();
+          
+        } else if (iWait===2){ // Circuits
           if (data.text === undefined){
             this.listCountry=data;
           } else {
@@ -324,7 +388,7 @@ GetRecord(bucketName:string,objectName:string, iWait:number){
             const theChar=" = '";
             var lenStr=myStr.length;
             while (lenStr>5){
-              var i = myStr.indexOf(theChar);
+              i = myStr.indexOf(theChar);
               this.listCountry.push({country:"",code:""});
               this.listCountry[this.listCountry.length-1].code=myStr.substring(i+4,i+6).toUpperCase();
 
@@ -347,9 +411,11 @@ GetRecord(bucketName:string,objectName:string, iWait:number){
           this.fileCircuit[0].name="";
           this.fileCircuit[0].country="Singapore";
           this.fileCircuit[0].city="";
+          this.fileCircuit[0].code="SI-"+this.fileCircuit.length.toString();
           const recordPoR= new classPointOfRef;
           this.fileCircuit[0].points.push(recordPoR);
           this.isFileCircuitReceived=true;
+          this.sizeTheBox();
           }
         this.scroller.scrollToAnchor('bottomCircuit');
       })

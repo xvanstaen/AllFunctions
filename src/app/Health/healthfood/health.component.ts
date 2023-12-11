@@ -302,7 +302,11 @@ ngOnInit(): void {
   for (var i=0; i<7; i++){
     const thePush=new classAccessFile;
     this.tabLock.push(thePush);
-    this.tabLock[i].lock=3;
+    if (this.identification.triggerFileSystem==="No"){
+      this.tabLock[i].lock=1;
+    } else {
+      this.tabLock[i].lock=3;
+    }
     this.tabLock[i].user=this.identification.UserId;
     this.tabLock[i].iWait=i;
     this.tabLock[i].timeoutFileSystem.hh=this.configServer.timeoutFileSystem.hh;
@@ -319,6 +323,25 @@ ngOnInit(): void {
 
   for (var i=0; i<this.maxEventHTTPrequest; i++){
     this.EventHTTPReceived[i]=false;
+  }
+
+  if (this.InHealthAllData.fileType!==''){
+    this.FillHealthAllInOut(this.HealthAllData,this.InHealthAllData);
+    this.initTrackRecord();
+    this.EventHTTPReceived[0]=true;
+    this.SpecificForm.controls['FileName'].setValue(this.identification.fitness.files.fileHealth);
+  } else {
+    this.GetRecord(this.identification.fitness.bucket,this.identification.fitness.files.fileHealth,0);
+  }
+
+  if (this.InConfigHTMLFitHealth.fileType===''){
+    this.GetRecord(this.identification.configFitness.bucket,this.identification.configFitness.files.confHTML,3);
+
+  } else {
+    this.ConfigHTMLFitHealth=this.InConfigHTMLFitHealth;
+    this.confTableAll=this.InConfigHTMLFitHealth.ConfigHealth.confTableAll;
+    this.EventHTTPReceived[3]=true;
+    this.calculateHeight();
   }
 
   this.posDivCalFat=getPosDiv("posTopAppCalFat");
@@ -378,14 +401,7 @@ ngOnInit(): void {
   this.tabLock[0].bucket=this.identification.fitness.bucket;
   this.tabLock[0].object=this.identification.fitness.files.fileHealth;
 
-  if (this.InHealthAllData.fileType!==''){
-    this.FillHealthAllInOut(this.HealthAllData,this.InHealthAllData);
-    this.initTrackRecord();
-    this.EventHTTPReceived[0]=true;
-    this.SpecificForm.controls['FileName'].setValue(this.identification.fitness.files.fileHealth);
-  } else {
-    this.GetRecord(this.identification.fitness.bucket,this.identification.fitness.files.fileHealth,0);
-  }
+
   this.tabLock[1].bucket=this.identification.configFitness.bucket;
   this.tabLock[1].object=this.identification.configFitness.files.calories;
 
@@ -404,38 +420,6 @@ ngOnInit(): void {
 
   this.tabLock[3].bucket=this.identification.configFitness.bucket;
   this.tabLock[3].object=this.identification.configFitness.files.confHTML;
-
-  if (this.InConfigHTMLFitHealth.fileType===''){
-    this.GetRecord(this.identification.configFitness.bucket,this.identification.configFitness.files.confHTML,3);
-
-  } else {
-    this.ConfigHTMLFitHealth=this.InConfigHTMLFitHealth;
-    this.confTableAll=this.InConfigHTMLFitHealth.ConfigHealth.confTableAll;
-    this.EventHTTPReceived[3]=true;
-    this.calculateHeight();
-  }
-
-  if (this.InConfigCaloriesFat.fileType!==''){
-    this.ConfigCaloriesFat=this.InConfigCaloriesFat;
-    this.EventHTTPReceived[1]=true;
-    this.CreateDropDownCalFat();
-  } else {
-    this.GetRecord(this.identification.configFitness.bucket,this.identification.configFitness.files.calories,1);
-  }
-
-
-  if (this.fileRecipe.fileType===''){
-    this.GetRecord(this.identification.fitness.bucket,this.identification.fitness.files.recipe,6);
-  } 
-
-
-
-  if (this.InConvertUnit.fileType===''){
-    this.GetRecord(this.identification.configFitness.bucket,this.identification.configFitness.files.convertUnit,2);
-  } else {
-    this.ConvertUnit=this.InConvertUnit;
-    this.EventHTTPReceived[2]=true;
-  }
 
 
   // TO BE REVIEWED IN ORDER TO READ, MODIFY ONLINE AND SAVE
@@ -469,7 +453,29 @@ ngOnInit(): void {
   }
 }
 
+accessAllOtherFiles(){
+  
+  if (this.InConfigCaloriesFat.fileType!==''){
+    this.ConfigCaloriesFat=this.InConfigCaloriesFat;
+    this.EventHTTPReceived[1]=true;
+    this.CreateDropDownCalFat();
+  } else {
+    this.GetRecord(this.identification.configFitness.bucket,this.identification.configFitness.files.calories,1);
+  }
 
+  if (this.fileRecipe.fileType===''){
+    this.GetRecord(this.identification.fitness.bucket,this.identification.fitness.files.recipe,6);
+  } 
+
+  if (this.InConvertUnit.fileType===''){
+    this.GetRecord(this.identification.configFitness.bucket,this.identification.configFitness.files.convertUnit,2);
+  } else {
+    this.ConvertUnit=this.InConvertUnit;
+    this.EventHTTPReceived[2]=true;
+  }
+}
+
+isForceReset:boolean=false;
 resetBooleans(){
   //this.isCopyFile=false;
   //this.isSelectedDateFound=false;
@@ -479,7 +485,7 @@ resetBooleans(){
   this.tabInputFood.splice(0,this.tabInputFood.length);
   
  
-  if (this.tabLock[0].lock!==1){
+  if (this.tabLock[0].lock!==1 || this.isForceReset===true){
     this.isDeleteConfirmed=false;
     this.isDisplaySpecific=false;
     this.IsSaveConfirmedCre=false;
@@ -492,6 +498,7 @@ resetBooleans(){
     this.isAllDataModified = false;
     this.isMustSaveFile=false;
     this.isSaveHealth=false;
+    this.isForceReset=false;
   }
 
 }
@@ -525,12 +532,17 @@ reportCheckLockLimit(event:any){
 }
 
 checkLockLimit(iWait:number, isDataModified:boolean, isSaveFile:boolean){ 
+  
     var valueCheck= {action:'',lockValue:0, lockAction:'' };
-    valueCheck=fnCheckLockLimit(this.configServer, this.tabLock, iWait, this.lastInputAt, isDataModified, isSaveFile);
+    if (this.identification.triggerFileSystem==="No"){
+        valueCheck.action="noAction";
+    } else {
+        valueCheck=fnCheckLockLimit(this.configServer, this.tabLock, iWait, this.lastInputAt, isDataModified, isSaveFile);
+        if (iWait===0 && this.tabLock[iWait].lock===2){
+          this.isAllDataModified = false;
+        }
+      }
 
-    if (iWait===0 && this.tabLock[iWait].lock===2){
-      this.isAllDataModified = false;
-    }
     if (valueCheck.action!=='noAction'){
       if (valueCheck.action==='updateSystemFile'){
             this.tabLock[iWait].action=valueCheck.lockAction;
@@ -693,13 +705,26 @@ if (this.HealthAllData.tabDailyReport.length>0){
 }
 
 CreateTabFood(item:any, value:any){
-  this.tabInputMeal.splice(0,this.tabInputMeal.length);
-  this.tabInputFood.splice(0,this.tabInputFood.length);
-  var iTab:number=0;
+  
+  
+  var iTab:number=-1;
   this.error_msg='';
 
   if (item==='Food'){
-    iTab=-1;
+    this.tabInputFood.splice(0,this.tabInputFood.length);
+    this.tabFood.sort((a, b) => (a.name < b.name) ? -1 : 1);
+    for (var i=0; i<this.tabFood.length && this.tabFood[i].name.toLowerCase().trim().substring(0,value.length)!==value.toLowerCase().trim(); i++){}
+    if (i<this.tabFood.length){
+      for (var i=i; i<this.tabFood.length && this.tabFood[i].name.toLowerCase().trim().substring(0,value.length)===value.toLowerCase().trim(); i++){
+        iTab++;
+        this.tabInputFood.push({name:"",serving:"",unit:""});
+        this.tabInputFood[iTab].name=this.tabFood[i].name.toLowerCase().trim();
+        this.tabInputFood[iTab].serving=this.tabFood[i].serving;
+        this.tabInputFood[iTab].unit=this.tabFood[i].unit;
+      }
+    }
+    /***
+
     for (var i=0; i<this.tabFood.length; i++){
       if (this.tabFood[i].name.toLowerCase().trim().indexOf(value.toLowerCase().trim()) !== -1){
         iTab++;
@@ -709,6 +734,7 @@ CreateTabFood(item:any, value:any){
         this.tabInputFood[iTab].unit=this.tabFood[i].unit;
       }
     }
+     */
     this.sizeBoxContentFood=this.sizeBox.heightItem  * this.tabInputFood.length;
     if (this.sizeBoxContentFood>this.sizeBox.maxHeightContent){
       this.sizeBoxContentFood=this.sizeBox.maxHeightContent;
@@ -722,11 +748,12 @@ CreateTabFood(item:any, value:any){
 
     this.styleBoxFood=getStyleDropDownContent(this.sizeBoxContentFood, this.sizeBox.widthContent );
     //this.styleBoxOptionFood=getStyleDropDownBox(this.sizeBoxFood, this.sizeBox.widthOptions, this.offsetLeft - 24, this.selectedPosition.y -this.posDivAfterTitle.Client.Top - 255, this.sizeBox.scrollY);
-    this.styleBoxOptionFood=getStyleDropDownBox(this.sizeBoxFood, this.sizeBox.widthOptions, this.offsetLeft +100, this.posItem, this.sizeBox.scrollY);
+    this.styleBoxOptionFood=getStyleDropDownBox(this.sizeBoxFood, this.sizeBox.widthOptions, this.offsetLeft - 25 , this.posItem + 40, this.sizeBox.scrollY);
 
   }
   else if (item==='Meal'){
-      iTab=-1;
+    this.tabInputMeal.splice(0,this.tabInputMeal.length);
+
       for (var i=0; i<this.tabMeal.length; i++){
         if (this.tabMeal[i].name.substr(0,value.trim().length).toLowerCase().trim()===value.toLowerCase().trim()){
           iTab++;
@@ -746,7 +773,7 @@ CreateTabFood(item:any, value:any){
 
       this.styleBoxMeal=getStyleDropDownContent(this.sizeBoxContentMeal, this.sizeBox.widthContent - 50);
       //this.styleBoxOptionMeal=getStyleDropDownBox(this.sizeBoxMeal, this.sizeBox.widthOptions - 50, this.offsetLeft - 20,  this.selectedPosition.y - this.posDivAfterTitle.Client.Top  - 255, this.sizeBox.scrollY);
-      this.styleBoxOptionMeal=getStyleDropDownBox(this.sizeBoxMeal, this.sizeBox.widthOptions - 50, this.offsetLeft +70,  this.posItem, this.sizeBox.scrollY);
+      this.styleBoxOptionMeal=getStyleDropDownBox(this.sizeBoxMeal, this.sizeBox.widthOptions - 50, this.offsetLeft - 25,  this.posItem + 40, this.sizeBox.scrollY);
     }
 
 }
@@ -770,7 +797,7 @@ onInputDaily(event:any){
   this.theEvent.target.textContent=event.target.textContent;
   this.theEvent.target.value=event.target.value;
   this.onInputAction='onInputDaily';
-  this.lastInputAt=this.lastInputAt=strDateTime();
+  this.lastInputAt=strDateTime();
   this.checkLockLimit(0, this.isAllDataModified, this.isSaveHealth);
 }
 
@@ -839,7 +866,7 @@ onInputDailyAll(event:any){
   this.onInputAction='onInputDailyAll';
   this.offsetLeft = event.currentTarget.offsetLeft;
   this.offsetWidth = event.currentTarget.offsetWidth;
-  this.lastInputAt=this.lastInputAt=strDateTime();
+  this.lastInputAt=strDateTime();
   this.checkLockLimit(0, this.isAllDataModified, this.isSaveHealth);
 }
 
@@ -865,25 +892,25 @@ onInputDailyAllA(event:any){
       var i=0;
       const fieldName=event.target.id.substring(0,7);
       this.manageIds(event.target.id);
-        if (fieldName==='dateAll'){
+      if (fieldName==='ingrAll'){
+        this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name=event.target.value;
+        this.tabNewRecordAll[this.TabOfId[0]].meal[this.TabOfId[1]].food[this.TabOfId[2]].nb=1;
+        this.CreateTabFood('Food',event.target.value);
+      }  else   if (fieldName==='quanAll'){
+        this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].quantity=event.target.value;
+        this.tabNewRecordAll[this.TabOfId[0]].meal[this.TabOfId[1]].food[this.TabOfId[2]].nb=1;
+      } else   if (fieldName==='unitAll'){
+        this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].unit=event.target.value;
+        this.tabNewRecordAll[this.TabOfId[0]].meal[this.TabOfId[1]].food[this.TabOfId[2]].nb=1;
+      } else if (fieldName==='dateAll'){
           this.CheckDupeDate(event.target.value);
           this.HealthAllData.tabDailyReport[this.TabOfId[0]].date=event.target.value;
           this.tabNewRecordAll[this.TabOfId[0]].nb=1;
-        } else   if (fieldName==='mealAll'){
+      } else if (fieldName==='mealAll'){
           this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].name=event.target.value;
           this.tabNewRecordAll[this.TabOfId[0]].meal[this.TabOfId[1]].nb=1;
           this.CreateTabFood('Meal',event.target.value);
-        } else   if (fieldName==='ingrAll'){
-          this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name=event.target.value;
-          this.tabNewRecordAll[this.TabOfId[0]].meal[this.TabOfId[1]].food[this.TabOfId[2]].nb=1;
-          this.CreateTabFood('Food',event.target.value);
-        }  else   if (fieldName==='quanAll'){
-          this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].quantity=event.target.value;
-          this.tabNewRecordAll[this.TabOfId[0]].meal[this.TabOfId[1]].food[this.TabOfId[2]].nb=1;
-        } else   if (fieldName==='unitAll'){
-          this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].unit=event.target.value;
-          this.tabNewRecordAll[this.TabOfId[0]].meal[this.TabOfId[1]].food[this.TabOfId[2]].nb=1;
-        } else   if (fieldName==='burnAll'){
+      } else      if (fieldName==='burnAll'){
           this.HealthAllData.tabDailyReport[this.TabOfId[0]].burntCalories=event.target.value;
           this.tabNewRecordAll[this.TabOfId[0]].nb=1;
         } 
@@ -1331,7 +1358,7 @@ FillHealthAllInOut(outFile:any, inFile:any){
                 outFile.tabDailyReport[iOut].meal[jOut].total=inFile.tabDailyReport[i].meal[j].total;
                 var lOut=-1; 
                 for (var k=0; k<inFile.tabDailyReport[i].meal[j].dish.length; k++){
-                    if (inFile.tabDailyReport[i].meal[j].dish[k].name!=='' && inFile.tabDailyReport[i].meal[j].dish[k].quantity!==0){
+                    if (inFile.tabDailyReport[i].meal[j].dish[k].name!=='' ){
                       const theIngr=new ClassDish;
                       outFile.tabDailyReport[iOut].meal[jOut].dish.push(theIngr);
                       lOut++
@@ -1483,6 +1510,39 @@ alignRecord(){
   this.isAllDataModified=true;
 }
 
+cleanFile(){
+  for (var i=0; i<this.HealthAllData.tabDailyReport.length; i++){
+    var trouve=false;
+    if (this.HealthAllData.tabDailyReport[i].date.toString().length>10){
+      if (this.HealthAllData.tabDailyReport[i].meal.length===0){
+          trouve=true;
+          this.HealthAllData.tabDailyReport.splice(i,1);
+          i--
+      } else {
+        this.TheSelectDisplays.controls['SelectedDate'].setValue(this.HealthAllData.tabDailyReport[i].date.toString().substring(0,10));
+        this.HealthAllData.tabDailyReport[i].date=this.TheSelectDisplays.controls['SelectedDate'].value;
+      }
+      
+    }
+    for (var j=0; j<this.HealthAllData.tabDailyReport[i].meal.length && trouve===false; j++){
+          if (this.HealthAllData.tabDailyReport[i].meal[j].dish.length===0 && this.HealthAllData.tabDailyReport[i].meal[j].name===""){
+            this.HealthAllData.tabDailyReport[i].meal.splice(j,1);
+            j--
+          } else {
+            for (var k=0; k<this.HealthAllData.tabDailyReport[i].meal[j].dish.length; k++){
+                if (this.HealthAllData.tabDailyReport[i].meal[j].dish[k].name==="" && this.HealthAllData.tabDailyReport[i].meal[j].dish[k].quantity===0){
+                  this.HealthAllData.tabDailyReport[i].meal[j].dish.splice(k,1);
+                  k--
+                }
+            }
+          }
+      }
+    }
+    this.tabNewRecordAll.splice(0,this.tabNewRecordAll.length);
+    this.initTrackRecord();
+    this.isAllDataModified=true;
+}
+
 GetRecord(Bucket:string,GoogleObject:string, iWait:number){
 
     this.EventHTTPReceived[iWait]=false;
@@ -1492,6 +1552,7 @@ GetRecord(Bucket:string,GoogleObject:string, iWait:number){
         .subscribe((data ) => {        
            
             if (iWait===0){
+                this.accessAllOtherFiles();
                 this.FillHealthAllInOut(this.HealthAllData, data);
                
                 //this.HealthAllData=data;
@@ -1812,15 +1873,21 @@ SaveRecipeFile(event:any){
 isConfirmSaveA:boolean=false;
 
 ConfirmSaveA(event:any){
+  this.resetBooleans();
   this.theEvent.target.id=event.target.id;
   this.theEvent.target.value=event.target.value;
   this.theEvent.target.textContent=event.target.textContent;
-  if (this.isMustSaveFile===false){
-    this.isConfirmSaveA=true;
-      this.checkLockLimit(0,true,false);
-  } else if (this.tabLock[0].lock === 1){
+  if (this.identification.triggerFileSystem==="No"){
     this. ConfirmSave(event);
+  } else {
+    if (this.isMustSaveFile===false){
+      this.isConfirmSaveA=true;
+        this.checkLockLimit(0,true,false);
+    } else if (this.tabLock[0].lock === 1){
+      this. ConfirmSave(event);
+    }
   }
+
 }
 
 ConfirmSave(event:any){
@@ -1933,7 +2000,12 @@ SaveHealth(event:any){
   this.error_msg='';
   this.isSaveHealth=true;
   this.theEvent.target.id=event.target.id;
-  this.checkLockLimit(0,true,true);
+  if (this.identification.triggerFileSystem==="Yes"){
+    this.checkLockLimit(0,true,true);
+  } else {
+    this.ProcessSaveHealth(event);
+  }
+  
 }
 
 ProcessSaveHealth(event:any){
@@ -2002,6 +2074,7 @@ ProcessSaveHealth(event:any){
               this.calculateHealth(this.HealthAllData.tabDailyReport[i]);
               if (this.error_msg!==''){
                 this.errCalcCalFat='errors found while caculating calories and fat';
+                this.error_msg="";
               }
               this.HealthAllData.tabDailyReport[i].total=this.returnData.outHealthData.total;
               this.HealthAllData.tabDailyReport[i].meal=this.returnData.outHealthData.meal;
@@ -2029,7 +2102,7 @@ ProcessSaveHealth(event:any){
 
 
 SaveNewRecord(GoogleBucket:string, GoogleObject:string, record:any, iWait:number){
-  this.error_msg='';
+    this.error_msg='';
     //var file=new File ([JSON.stringify(this.HealthAllData)],GoogleObject, {type: 'application/json'});
     var file=new File ([JSON.stringify(record)],GoogleObject, {type: 'application/json'});
     if (GoogleObject==='ConsoleLog.json'){
@@ -2039,8 +2112,9 @@ SaveNewRecord(GoogleBucket:string, GoogleObject:string, record:any, iWait:number
       }  
     this.ManageGoogleService.uploadObject(this.configServer, GoogleBucket, file , GoogleObject)
       .subscribe(res => {
+              
               if (res.type===4){
-                this.error_msg='File "'+ GoogleObject +'" is successfully stored in the cloud';
+                
                 if (iWait===0 ){
                   this.isAllDataModified=false;
                 } else if (iWait===1 ){
@@ -2054,8 +2128,9 @@ SaveNewRecord(GoogleBucket:string, GoogleObject:string, record:any, iWait:number
                 if (iWait===0 || iWait===1 || iWait===5 || iWait===6){
                   // update field 'updatedAt' in file system 
                   this.updateLockFile(iWait);
-
                 }
+                this.isForceReset=true;
+                this.error_msg='File "'+ GoogleObject +'" is successfully stored in the cloud';
                 // this.returnFile.emit(record); // not needed as files are stored in cache of backend server
               }
             },
@@ -2283,28 +2358,34 @@ onFileSystem(iWait:number){
   var theAction=this.tabLock[iWait].action;
   this.iWaitSave=iWait;
   this.tabLock[iWait].status=0;
-  this.ManageGoogleService.onFileSystem(this.configServer, this.configServer.bucketFileSystem, 'fileSystem', this.tabLock, iWait.toString() )
-  .subscribe(
-    data  => {  
+  if (this.identification.triggerFileSystem==="No"){
+    this.tabLock[iWait].lock=1;
+    this.tabLock[iWait].action="";
+  } else {
+    
+    this.ManageGoogleService.onFileSystem(this.configServer, this.configServer.bucketFileSystem, 'fileSystem', this.tabLock, iWait.toString() )
+    .subscribe(
+      data  => {  
+          if (theAction === 'onDestroy'){
+            // console.log('onDestroy ==> '+ JSON.stringify(data));
+            this.tabLock[iWait].status=0;
+          } else {
+            this.returnOnFileSystem(data,iWait);
+          }
+            
+      },
+      err => {
         if (theAction === 'onDestroy'){
-          // console.log('onDestroy ==> '+ JSON.stringify(data));
-          this.tabLock[iWait].status=0;
+          if (err.status===900){
+            // destroy is fine
+          } else {
+              console.log('Google updateFileSystem general error='+err.status + '  specific error= ' +err.error.error + ' & message= ' + err.error.message);
+              this.error_msg = this.error_msg + '   update FileSystem ='+err.status + '  specific error= ' +err.error.error + ' & message= ' + err.error.message;          
+          }
         } else {
-          this.returnOnFileSystem(data,iWait);
-        }
-          
-    },
-    err => {
-      if (theAction === 'onDestroy'){
-        if (err.status===900){
-          // destroy is fine
-        } else {
-            console.log('Google updateFileSystem general error='+err.status + '  specific error= ' +err.error.error + ' & message= ' + err.error.message);
-            this.error_msg = this.error_msg + '   update FileSystem ='+err.status + '  specific error= ' +err.error.error + ' & message= ' + err.error.message;          
-        }
-      } else {
-        this.returnOnFileSystem(err, iWait);
-     } })
+          this.returnOnFileSystem(err, iWait);
+      } })
+  }
 }
 
 
