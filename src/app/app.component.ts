@@ -321,7 +321,7 @@ this.isResetServer=true;
             this.errorMsg="";
 
 // TO BE DELETED
-this.selectApps=20;
+this.selectApps=22;
 this.isAppsSelected=true;
 //
 //

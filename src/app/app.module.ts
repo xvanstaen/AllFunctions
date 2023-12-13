@@ -64,8 +64,8 @@ import { ManagePointOfRefComponent } from './manage-point-of-ref/manage-point-of
 import { ManageCircuitsComponent } from './manage-circuits/manage-circuits.component';
 import { SportReportsComponent } from './sport-reports/sport-reports.component';
 import { SportAnalysisComponent } from './sport-analysis/sport-analysis.component';
+import { SportPerfRawDataMgtComponent } from './sport-perf-raw-data-mgt/sport-perf-raw-data-mgt.component';
 
-//import { NgxIntlTelInputComponent } from './ngx-intl-tel-input/ngx-intl-tel-input.component';
 
 @NgModule({
   declarations: [
@@ -114,6 +114,8 @@ import { SportAnalysisComponent } from './sport-analysis/sport-analysis.componen
     ManageCircuitsComponent,
     SportReportsComponent,
     SportAnalysisComponent,
+    SportPerfRawDataMgtComponent,
+  
 
     
 

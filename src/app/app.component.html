@@ -39,13 +39,14 @@
         <span class="options" >12. Health data</span>
         <span class="options" >13. Health Chart</span>
         <span class="options" >14. Recipe</span>
-        <span class="options" >15. Dictionnairy for recipe</span>
+        <span class="options" >15. Dicto for recipe</span>
         <span class="options" >16. Test google services</span>
         <span class="options" >17. Performance sport</span>
         <span class="options" >18. Manage PointOfRef</span>
         <span class="options" >19. Manage Circuits</span>
         <span class="options" >20. Sport report</span>
         <span class="options" >21. Sport analysis</span>
+        <span class="options" >22. Sport Raw Data Mgt</span>
 
         <br><br>
     </span>
@@ -116,6 +117,10 @@
     <div *ngIf="selectApps===21">
         <app-sport-analysis [configServer]="configServer" [identification]="identification" [credentials]="credentials">
         </app-sport-analysis>
+    </div> 
+    <div *ngIf="selectApps===22">
+        <app-sport-perf-raw-data-mgt [configServer]="configServer" [identification]="identification" [credentials]="credentials">
+        </app-sport-perf-raw-data-mgt>
     </div> 
 </div>
   
