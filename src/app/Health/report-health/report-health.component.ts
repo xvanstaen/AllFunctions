@@ -149,6 +149,20 @@ export class ReportHealthComponent implements OnInit {
 
   tabPeriod=['daily','weekly','monthly'];
 
+  paramAllCharts= new FormGroup({ 
+    period:new FormControl({value:'', disabled:false}, { nonNullable: true }), //daily, weekly, monthly
+    startRange: new FormControl({value:'', disabled:false},[
+      Validators.required,
+      // validates date format yyyy-mm-dd with regular expression
+      Validators.pattern(/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/)
+      ]),
+    endRange: new FormControl({value:'', disabled:false},[
+      Validators.required,
+      // validates date format yyyy-mm-dd with regular expression
+      Validators.pattern(/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/)
+      ])
+    });  
+
   selectChart: FormGroup = new FormGroup({ 
     chartType: new FormControl({value:'line', disabled:true}, { nonNullable: true }),
     barThickness: new FormControl({value:'line', disabled:true}, { nonNullable: true }),
@@ -722,6 +736,28 @@ changeCanvas(i:number){
   }
   }
 
+forAllCharts(event:any){
+  if (event.target.id==="clear"){
+      this.paramAllCharts.controls['period'].setValue(this.tabPeriod[0]);
+      this.paramAllCharts.controls['startRange'].setValue('2023-01-01');
+      this.paramAllCharts.controls['endRange'].setValue('');
+
+  } else if (event.target.id==="apply"){
+    for (var nb=0; nb<4; nb++){
+      this.tabParamChart[nb].period=this.paramAllCharts.controls['period'].value.toLowerCase().trim();
+      if (this.paramAllCharts.controls['startRange'].value!==null){
+        this.tabParamChart[nb].startRange=this.paramAllCharts.controls['startRange'].value;
+      }
+      if (this.paramAllCharts.controls['endRange'].value!==null){
+        this.tabParamChart[nb].endRange=this.paramAllCharts.controls['endRange'].value;
+      }
+      this.buildChart(nb);
+    }
+    
+
+  }
+
+}
 
 selectedChart:number=0;
 SelChart(event:any){
@@ -1172,6 +1208,16 @@ selectPeriod(event:any){
   } else if (event.target.id==='selectedPeriod'){
     this.isPeriodSelected=false;
     this.selectChart.controls['period'].setValue(event.target.textContent.toLowerCase().trim());
+  }
+}
+
+selectPeriodAll(event:any){
+  this.resetBooleans();
+  if (event.target.id==='selPeriod'){
+    this.isPeriodSelected=true;
+  } else if (event.target.id==='selectedPeriod'){
+    this.isPeriodSelected=false;
+    this.paramAllCharts.controls['period'].setValue(event.target.textContent.toLowerCase().trim());
   }
 }
 
@@ -2166,7 +2212,7 @@ specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
               color:TitleColor,
               font:{
                   size:this.tabParamChart[nb].chartTitle.font.size,
-                  weight:this.tabParamChart[nb].chartTitle.font.weight,
+                  weight:Number(this.tabParamChart[nb].chartTitle.font.weight),
                   family:this.tabParamChart[nb].chartTitle.font.family,
                 }
             },
@@ -2183,7 +2229,7 @@ specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
                
                 font:{
                   size:theboxfontSize,
-                  weight:this.tabParamChart[nb].legendBox.font.weight,
+                  weight:Number(this.tabParamChart[nb].legendBox.font.weight),
                   family:this.tabParamChart[nb].legendBox.font.family,
                 }
                 
@@ -2202,7 +2248,7 @@ specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
                   },  
               font:{
                   size:this.tabParamChart[nb].legendTitle.font.size,
-                  weight:this.tabParamChart[nb].legendTitle.font.weight,
+                  weight:Number(this.tabParamChart[nb].legendTitle.font.weight),
                   family:this.tabParamChart[nb].legendTitle.font.family,
                 }
               },
@@ -2279,7 +2325,7 @@ specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
               color:TitleColor,
               font:{
                   size:this.tabParamChart[nb].chartTitle.font.size,
-                  weight:this.tabParamChart[nb].chartTitle.font.weight,
+                  weight:Number(this.tabParamChart[nb].chartTitle.font.weight),
                   family:this.tabParamChart[nb].chartTitle.font.family,
                 }
             },
@@ -2295,7 +2341,7 @@ specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
                 color:theColorBox,    
                 font:{
                   size:theboxfontSize,
-                  weight:this.tabParamChart[nb].legendBox.font.weight,
+                  weight:Number(this.tabParamChart[nb].legendBox.font.weight),
                   family:this.tabParamChart[nb].legendBox.font.family,
                 }
                 
@@ -2314,7 +2360,7 @@ specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
                   },  
               font:{
                   size:this.tabParamChart[nb].legendTitle.font.size,
-                  weight:this.tabParamChart[nb].legendTitle.font.weight,
+                  weight:Number(this.tabParamChart[nb].legendTitle.font.weight),
                   family:this.tabParamChart[nb].legendTitle.font.family,
                 }
               },

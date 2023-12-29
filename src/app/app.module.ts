@@ -59,12 +59,15 @@ import { FileSystemServiceComponent } from './file-system-service/file-system-se
 
 import { TestServerJSComponent } from './test-server-js/test-server-js.component';
 import { TestHttpOAComponent } from './test-http-oa/test-http-oa.component';
-import { PerformanceSportComponent } from './performance-sport/performance-sport.component';
-import { ManagePointOfRefComponent } from './manage-point-of-ref/manage-point-of-ref.component';
-import { ManageCircuitsComponent } from './manage-circuits/manage-circuits.component';
-import { SportReportsComponent } from './sport-reports/sport-reports.component';
-import { SportAnalysisComponent } from './sport-analysis/sport-analysis.component';
-import { SportPerfRawDataMgtComponent } from './sport-perf-raw-data-mgt/sport-perf-raw-data-mgt.component';
+
+import { ManagePointOfRefComponent } from './Sport/manage-point-of-ref/manage-point-of-ref.component';
+import { ManageCircuitsComponent } from './Sport/manage-circuits/manage-circuits.component';
+import { SportReportsComponent } from './Sport/sport-reports/sport-reports.component';
+import { SportAnalysisComponent } from './Sport/sport-analysis/sport-analysis.component';
+import { SportPerfRawDataMgtComponent } from './Sport/sport-perf-raw-data-mgt/sport-perf-raw-data-mgt.component';
+import { SportPerformanceComponent } from './Sport/sport-performance/sport-performance.component';
+import { DisplayCircuitLoopComponent } from './Sport/display-circuit-loop/display-circuit-loop.component';
+import { BuildLoopFromPerfComponent } from './Sport/build-loop/build-loop-from-perf.component';
 
 
 @NgModule({
@@ -109,16 +112,14 @@ import { SportPerfRawDataMgtComponent } from './sport-perf-raw-data-mgt/sport-pe
     TestServerJSComponent,
     TestHttpOAComponent,
     FileSystemServiceComponent,
-    PerformanceSportComponent,
     ManagePointOfRefComponent,
     ManageCircuitsComponent,
     SportReportsComponent,
     SportAnalysisComponent,
     SportPerfRawDataMgtComponent,
-  
-
-    
-
+    SportPerformanceComponent,
+    DisplayCircuitLoopComponent,
+    BuildLoopFromPerfComponent ,
   ],
   imports: [
 

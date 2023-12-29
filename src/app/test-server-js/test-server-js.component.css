@@ -80,7 +80,7 @@
 
     
 .Straight-options{
-    width:120px;
+    width:100%;
     font-size:12px;
     height:25px;
     color:black;
@@ -93,7 +93,7 @@
   }
 
 .Straight-options:hover{
-    background-color:lightyellow;
+    background-color:rgb(36, 199, 85);
   }
 
 .response{

@@ -226,27 +226,30 @@ this.isResetServer=true;
           }
     )
   }
-
+  inputSelect:number=0;
   onInput(event:any){
-      this.selectApps=Number(event.target.value);
+      this.inputSelect=Number(event.target.value);
+      this.selectApps=0;
+      this.selHealthFunction=0;
       this.dictionaryOnly=false;
       this.isAppsSelected=false;
-      if (this.selectApps===11){
-        this.selHealthFunction=5;
-      } else if (this.selectApps===12){
-        this.selHealthFunction=3;
-      } else if (this.selectApps===13){
-        this.selHealthFunction=7;
-      }  else if (this.selectApps===15){
-        this.dictionaryOnly=true;
-      }else{
-        this.selHealthFunction=0
-      } 
   }
 
   isAppsSelected:boolean=false;
   onSelectApps(){
     this.isAppsSelected=true;
+    this.selectApps=this.inputSelect;
+    if (this.selectApps===11){
+      this.selHealthFunction=5;
+    } else if (this.selectApps===12){
+      this.selHealthFunction=3;
+    } else if (this.selectApps===13){
+      this.selHealthFunction=7;
+    }  else if (this.selectApps===15){
+      this.dictionaryOnly=true;
+    }else{
+      this.selHealthFunction=0
+    } 
   }
 
   errorMsg:string="";
@@ -321,7 +324,8 @@ this.isResetServer=true;
             this.errorMsg="";
 
 // TO BE DELETED
-this.selectApps=22;
+this.selectApps=16;
+//this.selHealthFunction=5
 this.isAppsSelected=true;
 //
 //

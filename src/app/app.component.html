@@ -40,7 +40,7 @@
         <span class="options" >13. Health Chart</span>
         <span class="options" >14. Recipe</span>
         <span class="options" >15. Dicto for recipe</span>
-        <span class="options" >16. Test google services</span>
+        <span class="options" >16. Test servers</span>
         <span class="options" >17. Performance sport</span>
         <span class="options" >18. Manage PointOfRef</span>
         <span class="options" >19. Manage Circuits</span>
@@ -69,13 +69,13 @@
         </app-xmv-company>
     </div>
    
-    <div *ngIf="selectApps>1 && selectApps<10" style="float:none;">
+    <div *ngIf="selectApps>1 && selectApps<10 " style="float:none;">
        
         <app-routing-app [selectApps]="selectApps"  [configServer]="configServer" > </app-routing-app>
     </div>
     <div *ngIf="selectApps===10">
         <app-converter  [identification]="identification"  [configServer]="configServer" [convertOnly]="convertOnly" 
-            [InConvertUnit]="ConvertUnit" [InConvToDisplay]="ConvToDisplay" [IntheTabOfUnits]="theTabOfUnits"  [InWeightRefTable]="WeightRefTable" (returnFile)="ReceiveFiles($event)"     
+            (returnFile)="ReceiveFiles($event)"     
         >
         </app-converter>
     </div>  
