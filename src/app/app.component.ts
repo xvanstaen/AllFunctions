@@ -63,6 +63,7 @@ export class AppComponent {
    // console.log('snapshotParam=' + JSON.stringify(snapshotParam))
 
   // http://localhost:4200/?server=8080&scope=test 
+   // http://localhost:4200/?server=XMV&scope=prod 
     this.route.queryParams
       .subscribe(params => {
         console.log(params); 
@@ -79,30 +80,35 @@ export class AppComponent {
         
       }
     );
-// TO BE DELETED
-    this.myParams.scope==="test";
-    this.myParams.server==="8080";
-     
+
   }
   
 inData=new classAccessFile;
   RetrieveConfig(){
     console.log('RetrieveConfig()');
-    var test_prod='test';
+    var test_prod='';
         
         // this is for allFunctions only so that test BackendServer is used
     var InitconfigServer=new configServer;
     if (this.myParams.server==="8080"){
           InitconfigServer.baseUrl='http://localhost:8080';
+
+    } else  if (this.myParams.server==="XMV"){
+          InitconfigServer.baseUrl='https://xmv-it-consulting.uc.r.appspot.com';
+            
     } else {
-          InitconfigServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
+      InitconfigServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
     }
-    if (this.myParams.scope==="test"){
-        test_prod='test';
-    } else {
+    if (this.myParams.scope==="prod"){
         test_prod='prod';
+    } else {
+        test_prod='test';
     }
-    console.log(test_prod);
+
+    //test_prod='prod';
+    //this.configServer.baseUrl = "https://xmv-it-consulting.uc.r.appspot.com";
+
+    console.log(test_prod + ' baseUrl ' + InitconfigServer.baseUrl);
       
     InitconfigServer.test_prod=test_prod; // retrieve the corresponding record test or production
     InitconfigServer.GoogleProjectId='ConfigDB';
@@ -124,13 +130,11 @@ inData=new classAccessFile;
                   this.configServer = data[i];
               } }
             }
-        if (this.myParams.server==="8080"){ // override
-              this.configServer.baseUrl='http://localhost:8080';
-          } 
-        // else keep the one in the record
+        
+        this.configServer.baseUrl = InitconfigServer.baseUrl;
 
         this.configServer.IpAddress=this.IpAddress;
-        console.log('configServer is retrieved using ' + this.configServer.baseUrl);
+        console.log('configServer is retrieved; we will be using ' + this.configServer.baseUrl);
           //this.getTokenOAuth2();
         if (this.credentials.access_token===""){
                 this.getDefaultCredentials();

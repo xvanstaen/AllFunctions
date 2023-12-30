@@ -74,22 +74,6 @@ export class TestServerJSComponent {
     "Accept": "",
   });
 
-
-  newMetadataA = {
-    cacheControl: '',
-    contentType: 'application/json'
-  };
-
-  newMetadata = {
-    cacheControl: 'public,max-age=0,no-cache,no-store',
-    contentType: 'application/json',
-    metadata: {
-      myOwnKwy: 'myPerformance'
-    }
-  };
-
-  metadata: string = "'myKey':'description'";
-
   TabBuckets = [{ name: '' }];
   myListOfObjects = new Bucket_List_Info;
   oneMetadata = new OneBucketInfo;
@@ -113,6 +97,7 @@ export class TestServerJSComponent {
 
   theForm: FormGroup = new FormGroup({
     testProd: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
+    nameServer: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
     server: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
     srcBucket: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
     srcObject: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
@@ -124,7 +109,12 @@ export class TestServerJSComponent {
     metaType: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
   });
 
-  tabAction: Array<string> = ['cancel', 'listBuckets', 'listObjects', 'getFileContent', 'getListMetadata', 'getMetadata', 'updateMetadata',  'saveObject', 'uploadMetaPerso' , 'renameObject', 'copyObject', 'moveObject', 'delObject'];
+  tabAction: Array<string> = ['cancel', 'list all buckets', 'list all objects', 'get file content', 'get list metadata for all objects', 'get metadata for one object', 'update metadata for one object',  'save object', 'save object with meta perso' , 'rename object', 
+  'copy object', 'move object', 'delete object', 'cache console'];
+
+  tabServers: Array<string> = [
+    'http://localhost:8080', 'https://test-server-359505.uc.r.appspot.com','https://xmv-it-consulting.uc.r.appspot.com'
+  ]
   //   'delBucket'
   actionDropdown: boolean = false;
   returnFileContent: any;
@@ -134,7 +124,7 @@ export class TestServerJSComponent {
   strMetaDataPerso:string="";
 
   ngOnInit() {
-    this.configServer.baseUrl = 'http://localhost:8080';
+   // this.configServer.baseUrl = 'http://localhost:8080';
     this.reinitialise();
     console.log('ngOnInit');
     for (var i = 0; i < this.maxEventHTTPrequest; i++) {
@@ -148,9 +138,6 @@ export class TestServerJSComponent {
       this.tabMetaPerso[i].key="";
       this.tabMetaPerso[i].value="";
     }
-    // TO BE DELETED
-    this.tabMetaPerso[0].key="fileType";
-    this.tabMetaPerso[0].value="theCircuit";
 
     if (this.credentials.access_token !== undefined || this.credentials.access_token !== "") {
       this.authorization = 'Bearer ' + this.credentials.access_token;
@@ -175,15 +162,16 @@ export class TestServerJSComponent {
   reinitialise() {
 
     this.theForm.controls['server'].setValue('server');
-    this.theForm.controls['testProd'].setValue('test');
-    this.theForm.controls['srcBucket'].setValue('xmv-sport-performance');
-    this.theForm.controls['srcObject'].setValue('myCircuitsA');
+    this.theForm.controls['nameServer'].setValue(this.tabServers[1]);
+    this.theForm.controls['testProd'].setValue('prod');
+    this.theForm.controls['srcBucket'].setValue('');
+    this.theForm.controls['srcObject'].setValue('');
     this.theForm.controls['destBucket'].setValue('');
     this.theForm.controls['destObject'].setValue('');
-    this.theForm.controls['fileContent'].setValue('{"myContent":"this is the content of my circuit file"}');
+    this.theForm.controls['fileContent'].setValue('');
     this.theForm.controls['action'].setValue('');
-    this.theForm.controls['metaControl'].setValue(this.newMetadata.cacheControl);
-    this.theForm.controls['metaType'].setValue(this.newMetadata.contentType);
+    this.theForm.controls['metaControl'].setValue(this.cacheControl);
+    this.theForm.controls['metaType'].setValue(this.contentTypeJson);
     this.error = "";
     this.returnFileContent = "";
     this.currentAction = "";
@@ -191,7 +179,6 @@ export class TestServerJSComponent {
 
 
   requestToken() {
-
     this.EventHTTPReceived[9] = false;
     this.waitHTTP(this.TabLoop[9], this.maxLoop, 9);
     this.ManageGoogleService.getTokenOAuth2(this.configServer)
@@ -203,7 +190,6 @@ export class TestServerJSComponent {
           console.log(JSON.stringify(err))
           this.EventHTTPReceived[9] = true;
         });
-
   }
 
 
@@ -211,9 +197,6 @@ export class TestServerJSComponent {
     console.log('onAction');
     this.metaDataMsg='';
     this.actionDropdown = true;
-   
-
-
   }
 
 
@@ -299,20 +282,17 @@ export class TestServerJSComponent {
     return (inObject);
   }
 
-
+  selectServer(event: any) {
+    this.configServer.baseUrl = event.target.textContent.trim();
+    this.theForm.controls['nameServer'].setValue(event.target.textContent.trim());
+  }
 
   selectAction(event: any) {
     this.testConvertObject();
 
     var testProd = this.theForm.controls['testProd'].value;
-    if (testProd.toLowerCase().trim() === 'test') {
-      this.configServer.baseUrl = 'http://localhost:8080';
-    } else {
-      this.configServer.baseUrl = 'https://test-server-359505.uc.r.appspot.com';
-    }
     this.configServer.test_prod = testProd.toLowerCase().trim();
-    // to be deleted after test
-    this.configServer.baseUrl = 'http://localhost:8080';
+
     this.actionDropdown = false;
     this.error = "";
     this.metaDataMsg="";
@@ -320,41 +300,47 @@ export class TestServerJSComponent {
     this.currentAction = event.target.textContent.trim();
     if (event.target.textContent.trim() !== "cancel") {
       this.theForm.controls['action'].setValue(event.target.textContent.trim());
-      if (event.target.textContent.trim() === 'listBuckets') {
+      if (event.target.textContent.trim() === 'list all buckets') {
         this.getListBuckets();
 
-      } else if (event.target.textContent.trim() === 'listObjects') {
+      } else if (event.target.textContent.trim() === 'list all objects') {
         this.getListObjects(this.theForm.controls['srcBucket'].value);
 
-      } else if (event.target.textContent.trim() === 'getFileContent') {
+      } else if (event.target.textContent.trim() === 'get file content') {
         if (this.theForm.controls['server'].value === 'HTTP') {
           this.getFileContentHTTP(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
-
         } else {
           this.getFileContent(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
-
         }
 
-      } else if (event.target.textContent.trim() === 'getListMetadata') {
+      } else if (event.target.textContent.trim() === 'get list metadata for all objects') {
         this.listMetaDataObject(this.theForm.controls['srcBucket'].value);
 
-      } else if (event.target.textContent.trim() === 'getMetadata') {
+      } else if (event.target.textContent.trim() === 'get metadata for one object') {
         this.getMetaData(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
 
-      }  else if (event.target.textContent.trim() === 'copyObject') {
+      }  else if (event.target.textContent.trim() === 'copy object') {
         this.copyObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['destBucket'].value, this.theForm.controls['destObject'].value);
 
-      } else if (event.target.textContent.trim() === 'moveObject') {
+      } else if (event.target.textContent.trim() === 'move object') {
         this.moveObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['destBucket'].value, this.theForm.controls['destObject'].value);
-
-
-      } else if (event.target.textContent.trim() === 'saveObject') {
-
+      
+      } else if (event.target.textContent.trim() === 'rename object') {
+        this.renameObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['destObject'].value);
+        
+      }  else if (event.target.textContent.trim() === 'delete object') {
+        this.deleteObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
+        
+      }else if (event.target.textContent.trim() === 'save object') {
         this.isConfirmedSave = true;
-      } else if (event.target.textContent.trim() === 'uploadMetaPerso') {
 
+      } else if (event.target.textContent.trim() === 'save object with meta perso') {
         this.uploadMetaPerso(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['fileContent'].value)
-      } else {
+      
+      } else if (event.target.textContent.trim() === 'cache console') {
+        this.getCacheConsole();
+
+      }else {
         this.error = 'ACTION UNKNOWN';
       }
     }
@@ -364,14 +350,11 @@ export class TestServerJSComponent {
   actionUpdateMeta() {
     this.currentAction = "";
     this.metaDataMsg="";
-    this.newMetadata.cacheControl = this.theForm.controls['metaControl'].value;
-    this.newMetadata.contentType = this.theForm.controls['metaType'].value;
 
     for (var i = this.tabMetaPerso.length-1; i > 0; i--) {
       if (this.tabMetaPerso[i].key === "") {
         this.tabMetaPerso.splice(i, 1);
       }
-
     }
 
     this.updateMetaData(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value,);
@@ -379,10 +362,7 @@ export class TestServerJSComponent {
 
   metaDataMsg:string="";
   updateMetaData(bucket: any, object: any) {
-    //const newMetadata = {
-    //  cacheControl: 'public,max-age=0,no-cache,no-store',
-    //  contentType: 'application/json',
-    //};
+
     this.metaDataMsg="";
     this.EventHTTPReceived[5] = false;
     this.waitHTTP(this.TabLoop[5], this.maxLoop, 5);
@@ -489,6 +469,7 @@ export class TestServerJSComponent {
         });
   }
 
+  tabListMetaPerso:Array<string>=[];
   listMetaDataObject(bucket: any) {
     this.EventHTTPReceived[3] = false;
     this.waitHTTP(this.TabLoop[3], this.maxLoop, 3);
@@ -496,10 +477,16 @@ export class TestServerJSComponent {
       .subscribe((data) => {
         //console.log(JSON.stringify(data));
         this.myListOfObjects.items.splice(0, this.myListOfObjects.items.length);
+        this.tabListMetaPerso.splice(0,this.tabListMetaPerso.length);
         for (var i = 0; i < data.length; i++) {
           const metadata = new OneBucketInfo;
           this.myListOfObjects.items.push(metadata);
           this.myListOfObjects.items[i] = data[i].items;
+          if (data[i].items.metadata!==undefined){
+            this.tabListMetaPerso[i]=JSON.stringify(data[i].items.metadata);
+          } else {
+            this.tabListMetaPerso[i]="";
+          }
         }
         this.returnFileContent = JSON.stringify(data);
         this.EventHTTPReceived[3] = true;
@@ -533,32 +520,31 @@ export class TestServerJSComponent {
           this.strMetaDataPerso = JSON.stringify(data.metadata);
           var iTab=-1;
           this.fullSizeTabMeta();
-
-          this.EventHTTPReceived[4] = true;
-          for (var iPos=2; iPos<this.strMetaDataPerso.length; iPos++){
-              
-              var jPos=this.strMetaDataPerso.substring(iPos).indexOf('":"');
-              iTab++
-              this.tabMetaPerso[iTab].key=this.strMetaDataPerso.substring(iPos,jPos+iPos);
-              
-              iPos=iPos+jPos+3;
-              jPos=this.strMetaDataPerso.substring(iPos).indexOf('","');
-              k=2;
-              if (jPos===-1){
-                jPos=this.strMetaDataPerso.substring(iPos).indexOf('"}');
-                k=1;
-              }
-              this.tabMetaPerso[iTab].value=this.strMetaDataPerso.substring(iPos,jPos+iPos);
-              iPos=iPos+jPos+k;
+          if (this.strMetaDataPerso!==undefined ){
+            for (var iPos=2; iPos<this.strMetaDataPerso.length; iPos++){
+                
+                var jPos=this.strMetaDataPerso.substring(iPos).indexOf('":"');
+                iTab++
+                this.tabMetaPerso[iTab].key=this.strMetaDataPerso.substring(iPos,jPos+iPos);
+                
+                iPos=iPos+jPos+3;
+                jPos=this.strMetaDataPerso.substring(iPos).indexOf('","');
+                k=2;
+                if (jPos===-1){
+                  jPos=this.strMetaDataPerso.substring(iPos).indexOf('"}');
+                  k=1;
+                }
+                this.tabMetaPerso[iTab].value=this.strMetaDataPerso.substring(iPos,jPos+iPos);
+                iPos=iPos+jPos+k;
+            }
           }
-
           iTab++
           for (var i=iTab; i<5; i++) {
             this.tabMetaPerso[i].key="";
             this.tabMetaPerso[i].value="";
           }
           this.oneMetadata = data;
-
+          this.EventHTTPReceived[4] = true;
         },
         err => {
           //console.log('Metaobject not retrieved ' + err.status);
@@ -567,7 +553,38 @@ export class TestServerJSComponent {
         });
   }
 
+  deleteObject(srcbucket: any, srcobject: any) {
+    this.EventHTTPReceived[7] = false;
+    this.waitHTTP(this.TabLoop[7], this.maxLoop, 7);
+    this.ManageGoogleService.deleteObject(this.configServer, srcbucket, srcobject)
+      .subscribe(
+        (data) => {
+          this.returnFileContent = JSON.stringify(data);
+          this.EventHTTPReceived[7] = true;
+        },
+        err => {
+          //console.log('Error to copy ' + err.status);
+          this.error = JSON.stringify(err);
+          this.EventHTTPReceived[7] = true;
+        });
+  }
 
+
+  renameObject(srcbucket: any, srcobject: any, destobject: any) {
+    this.EventHTTPReceived[7] = false;
+    this.waitHTTP(this.TabLoop[7], this.maxLoop, 7);
+    this.ManageGoogleService.renameObject(this.configServer, srcbucket, srcobject, destobject)
+      .subscribe(
+        (data) => {
+          this.returnFileContent = JSON.stringify(data);
+          this.EventHTTPReceived[7] = true;
+        },
+        err => {
+          //console.log('Error to copy ' + err.status);
+          this.error = JSON.stringify(err);
+          this.EventHTTPReceived[7] = true;
+        });
+  }
 
   moveObject(srcbucket: any, srcobject: any, destbucket: any, destobject: any) {
     this.EventHTTPReceived[7] = false;
@@ -601,6 +618,21 @@ export class TestServerJSComponent {
         });
   }
 
+  getCacheConsole() {
+    this.EventHTTPReceived[10] = false;
+    this.waitHTTP(this.TabLoop[10], this.maxLoop, 6);
+    this.ManageGoogleService.getCacheConsole(this.configServer)
+      .subscribe(
+        (data) => {
+          this.returnFileContent = JSON.stringify(data);
+          this.EventHTTPReceived[10] = true;
+        },
+        err => {
+          //console.log('Error to move ' + err.status);
+          this.error = JSON.stringify(err);
+          this.EventHTTPReceived[10] = true;
+        });
+  }
 
 
   saveObject(srcbucket: any, srcobject: any, record: any) {
@@ -651,7 +683,7 @@ export class TestServerJSComponent {
         }
       },
         err => {
-          console.log('Metaobject not retrieved ' + err.status);
+          console.log('Upload of object and meaPerso failed ' + err.status);
           this.error = JSON.stringify(err);
           this.EventHTTPReceived[8] = true;
         });
