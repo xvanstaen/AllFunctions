@@ -1,4 +1,3 @@
 {
-    "git.ignoreLimitWarning": true,
-    "html.validate.styles": false
+    "git.ignoreLimitWarning": true
 }

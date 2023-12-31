@@ -305,7 +305,7 @@ ngOnInit(): void {
   for (var i=0; i<7; i++){
     const thePush=new classAccessFile;
     this.tabLock.push(thePush);
-    if (this.identification.triggerFileSystem==="No"){
+    if (this.identification.triggerFileSystem==="No"){ 
       this.tabLock[i].lock=1;
     } else {
       this.tabLock[i].lock=3;
@@ -486,8 +486,6 @@ resetBooleans(){
   this.dialogue[this.prevDialogue]=false;
   this.tabInputMeal.splice(0,this.tabInputMeal.length);
   this.tabInputFood.splice(0,this.tabInputFood.length);
-  
- 
   if (this.tabLock[0].lock!==1 || this.isForceReset===true){
     this.isDeleteConfirmed=false;
     this.isDisplaySpecific=false;
@@ -495,10 +493,10 @@ resetBooleans(){
     this.IsSaveConfirmedSel=false;
     this.isCreateNew=false;
     this.IsSaveConfirmedAll=false;
-    this.isAllDataModified=false;
+    this.isAllDataModified = false;
     this.tabNewRecordAll.splice(0,this.tabNewRecordAll.length);
     this.initTrackRecord();
-    this.isAllDataModified = false;
+    
     this.isMustSaveFile=false;
     this.isSaveHealth=false;
     this.isForceReset=false;
@@ -537,22 +535,20 @@ reportCheckLockLimit(event:any){
 checkLockLimit(iWait:number, isDataModified:boolean, isSaveFile:boolean){ 
   
     var valueCheck= {action:'',lockValue:0, lockAction:'' };
-    if (this.identification.triggerFileSystem==="No"){
+    if (this.identification.triggerFileSystem==="No"){ //"No"
         valueCheck.action="noAction";
     } else {
         valueCheck=fnCheckLockLimit(this.configServer, this.tabLock, iWait, this.lastInputAt, isDataModified, isSaveFile);
         if (iWait===0 && this.tabLock[iWait].lock===2){
           this.isAllDataModified = false;
         }
-      }
-
+    }
     if (valueCheck.action!=='noAction'){
       if (valueCheck.action==='updateSystemFile'){
             this.tabLock[iWait].action=valueCheck.lockAction;
             // this.updateSystemFile(iWait);
             this.onFileSystem(iWait);
       } else if (valueCheck.action==='checkFile'){
-        
             if ((iWait===0 && this.isSaveHealth===false) || (iWait===1 && this.isSaveCaloriesFat===false) || (iWait===5 && this.isSaveParamChart===false)){
               this.checkUpdateFile(iWait) 
             } else {
@@ -571,18 +567,18 @@ checkLockLimit(iWait:number, isDataModified:boolean, isSaveFile:boolean){
             this.theEvent.target.id='All'; // ===== change value of target.id if created record or if selRecord  
             this.ConfirmSave(this.theEvent);
         } 
-    } else if (this.isConfirmSaveA===true){
-      this.ConfirmSave(this.theEvent);
-    } else if (this.onInputAction==="onAction"){
-      this.onInputAction="";
-      this.onActionA(this.theEvent);
     } else if (this.onInputAction==="onInputDailyAll"){
       this.onInputAction="";
       this.onInputDailyAllA(this.theEvent);
-    } else if (this.onInputAction==="onInputDaily"){
+    } else if (this.onInputAction==="onAction"){
+      this.onInputAction="";
+      this.onActionA(this.theEvent);
+    } else  if (this.onInputAction==="onInputDaily"){
       this.onInputAction="";
       this.onInputDailyA(this.theEvent);
-    }
+    } else if (this.isConfirmSaveA===true){
+      this.ConfirmSave(this.theEvent);
+    } 
 }
 
 dateRangeSelection(event:any){
@@ -707,8 +703,8 @@ if (this.HealthAllData.tabDailyReport.length>0){
 }
 }
 
+
 CreateTabFood(item:any, value:any){
-  
   
   var iTab:number=-1;
   this.error_msg='';
@@ -726,8 +722,10 @@ CreateTabFood(item:any, value:any){
         this.tabInputFood[iTab].unit=this.tabFood[i].unit;
       }
     }
-    if (this.tabInputFood.length>1){
-    }
+    if (this.tabInputFood.length===1){
+      this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name =this.tabInputFood[0].name;
+      this.tabInputFood.splice(0,this.tabInputFood.length);
+    } else {
       this.sizeBoxContentFood=this.sizeBox.heightItem  * this.tabInputFood.length;
       if (this.sizeBoxContentFood>this.sizeBox.maxHeightContent){
         this.sizeBoxContentFood=this.sizeBox.maxHeightContent;
@@ -738,11 +736,28 @@ CreateTabFood(item:any, value:any){
         this.sizeBox.scrollY="hidden";
       }
       this.findPosItem(this.sizeBoxFood);
+      /***
+      this.styleBoxFood = {
+        'width': this.sizeBoxContentFood + 'px',
+        'height': this.sizeBox.widthContent + 'px',
+        'position': 'absolute',
+        'z-index': '1'
+      }
 
+      this.styleBoxOptionFood = {
+        'background-color':'lightgrey',
+        'height': this.sizeBoxFood + 'px',
+        'width': this.sizeBox.widthOptions + 'px',
+        'margin-left': this.offsetLeft + 90 + 'px',
+        'margin-top' :  this.posItem + 1 + 'px',
+        'overflow-x': 'hidden',
+        'overflow-y': scrollY,
+        'border':'1px lightgrey solid'
+        }
+      */
       this.styleBoxFood=getStyleDropDownContent(this.sizeBoxContentFood, this.sizeBox.widthContent );
-      //this.styleBoxOptionFood=getStyleDropDownBox(this.sizeBoxFood, this.sizeBox.widthOptions, this.offsetLeft - 24, this.selectedPosition.y -this.posDivAfterTitle.Client.Top - 255, this.sizeBox.scrollY);
-      this.styleBoxOptionFood=getStyleDropDownBox(this.sizeBoxFood, this.sizeBox.widthOptions, this.offsetLeft - 25 , this.posItem + 40, this.sizeBox.scrollY);
-    
+      this.styleBoxOptionFood=getStyleDropDownBox(this.sizeBoxFood, this.sizeBox.widthOptions, this.offsetLeft + 100 , 5, this.sizeBox.scrollY); // this.offsetLeft - 25   this.posItem +40
+    }
   }
   else if (item==='Meal'){
     this.tabInputMeal.splice(0,this.tabInputMeal.length);
@@ -866,26 +881,12 @@ onInputDailyAll(event:any){
   this.offsetLeft = event.currentTarget.offsetLeft;
   this.offsetWidth = event.currentTarget.offsetWidth;
   this.lastInputAt=strDateTime();
-  this.checkLockLimit(0, this.isAllDataModified, this.isSaveHealth);
+  this.checkLockLimit(0, this.isAllDataModified, this.isSaveHealth)
 }
 
 onInputDailyAllA(event:any){
-
-  //this.lastInputAt=strDateTime();
-  //this.isAllDataModified=true;
-  //this.checkLockLimit(0, this.isAllDataModified, this.isSaveHealth);
-
   if (this.tabLock[0].lock !== 2){
-    this.resetBooleans();
-    //this.offsetHeight= event.currentTarget.offsetHeight;
-    //this.offsetTop = event.currentTarget.offsetTop;
-    //this.scrollHeight = event.currentTarget.scrollHeight;
-    //this.scrollTop = event.currentTarget.scrollTop;
-    //console.log('offsetHeight='+this.offsetHeight +'  offsetLeft= '+this.offsetLeft + ' offsetTop=' + this.offsetTop 
-    //+ ' scrollHeight='+this.scrollHeight+ '  scrollTop=' +this.scrollTop);
-
-      //this.offsetLeft = event.currentTarget.offsetLeft;
-      //this.offsetWidth = event.currentTarget.offsetWidth;
+      this.resetBooleans();
       this.isAllDataModified=true;
       this.error_msg='';
       var i=0;
@@ -2475,16 +2476,15 @@ returnOnFileSystem(data:any, iWait:number){
 
         } else { 
           this.tabLock[iWait]=data.tabLock[iWait];
-          if (this.tabLock[iWait].action==='check&update' && data.tabLock[iWait].status===0 && this.isMustSaveFile===true){
-            this.ConfirmSave(this.theEvent);
-
+          if (data.tabLock[iWait].lock ===1 && this.onInputAction==="onInputDailyAll"){
+            this.onInputAction="";
+            this.onInputDailyAllA(this.theEvent);
           } else if (data.tabLock[iWait].lock ===1 && this.onInputAction==="onAction"){
             this.onInputAction="";
             this.onActionA(this.theEvent);
-          } else if (data.tabLock[iWait].lock ===1 && this.onInputAction==="onInputDailyAll"){
-            this.onInputAction="";
-            this.onInputDailyAllA(this.theEvent);
-          } else if (data.tabLock[iWait].lock ===1 && this.onInputAction==="onInputDaily"){
+          } else if (this.tabLock[iWait].action==='check&update' && data.tabLock[iWait].status===0 && this.isMustSaveFile===true){
+            this.ConfirmSave(this.theEvent);
+          } else  if (data.tabLock[iWait].lock ===1 && this.onInputAction==="onInputDaily"){
             this.onInputAction=""; 
             this.onInputDailyA(this.theEvent);
           } else { 
@@ -2730,7 +2730,7 @@ getDefaultCredentials(iWait:number, checkFile:boolean){
       err => {
         console.log('return from requestToken() with error = '+ JSON.stringify(err));
         this.msgCredentials='problem to retrieve credentials data ==>   '+ JSON.stringify(err);
-  this.error_msg=this.error_msg+this.msgCredentials;
+        this.error_msg=this.error_msg+this.msgCredentials;
         this.resetServer.emit();
         });
 }

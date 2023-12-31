@@ -61,7 +61,7 @@
     </span>
     <div style="display:inline-block; height:4px; width:100%;"></div>
 </div>
-<div *ngIf="isAppsSelected===true && isIdRetrieved===true && this.isConfigServerRetrieved===true">
+<div *ngIf="isAppsSelected===true && isIdRetrieved===true && isConfigServerRetrieved===true && isCredentials===true">
     <div *ngIf="selectApps===1 ">
         <app-xmv-company [configServer]="configServer" [INidentification]="identification"  [isConfigServerRetrieved]="isConfigServerRetrieved"
             [InConvertUnit]="ConvertUnit" [InConvToDisplay]="ConvToDisplay" [IntheTabOfUnits]="theTabOfUnits"  [InWeightRefTable]="WeightRefTable" 

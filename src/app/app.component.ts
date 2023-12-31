@@ -58,6 +58,20 @@ export class AppComponent {
   });
 
   isNewUser:boolean=true;
+  selectApps:number=0;
+  dictionaryOnly:boolean=false;
+  IpAddress:string="";
+  bearerAuthorisation:string="";
+  theNumber:string="";
+  isIdRetrieved:boolean=false;
+  saveServerUsrId:number=0;
+  inputSelect:number=0;
+  isAppsSelected:boolean=false;
+  errorMsg:string="";
+  isResetServer:boolean=false;
+
+  inData=new classAccessFile;
+
   ngOnInit(){
    // const snapshotParam = this.route.snapshot.paramMap.get("server");
    // console.log('snapshotParam=' + JSON.stringify(snapshotParam))
@@ -68,22 +82,17 @@ export class AppComponent {
       .subscribe(params => {
         console.log(params); 
         console.log(JSON.stringify(params));
-        
         this.myParams.server = params['server'];
         this.myParams.scope = params['scope'];
-        console.log('getIpAddress');
-        this.http.get("http://api.ipify.org/?format=json").subscribe((res:any)=>{
-          this.IpAddress = res.ip;
-        });
-  
-        this.RetrieveConfig();
-        
+        this.http.get("http://api.ipify.org/?format=json").subscribe(
+          (res:any)=>{
+              this.IpAddress = res.ip;
+          }, err=> {console.log("issue to retrieve ipAddress" + err)});
+        this.RetrieveConfig();        
       }
     );
-
   }
   
-inData=new classAccessFile;
   RetrieveConfig(){
     console.log('RetrieveConfig()');
     var test_prod='';
@@ -105,9 +114,6 @@ inData=new classAccessFile;
         test_prod='test';
     }
 
-    //test_prod='prod';
-    //this.configServer.baseUrl = "https://xmv-it-consulting.uc.r.appspot.com";
-
     console.log(test_prod + ' baseUrl ' + InitconfigServer.baseUrl);
       
     InitconfigServer.test_prod=test_prod; // retrieve the corresponding record test or production
@@ -123,21 +129,19 @@ inData=new classAccessFile;
         if (Array.isArray(data) === false){
           this.configServer = data;
         } else {
-
- 
-        for (let i=0; i<data.length; i++){
+          for (let i=0; i<data.length; i++){
               if (data[i].title==="configServer" && data[i].test_prod===test_prod){
                   this.configServer = data[i];
-              } }
+              } 
             }
+        }
         
         this.configServer.baseUrl = InitconfigServer.baseUrl;
-
         this.configServer.IpAddress=this.IpAddress;
         console.log('configServer is retrieved; we will be using ' + this.configServer.baseUrl);
           //this.getTokenOAuth2();
         if (this.credentials.access_token===""){
-                this.getDefaultCredentials();
+            this.getDefaultCredentials();
         } 
         if (this.isNewUser===true){
             this.assignNewServerUsrId();
@@ -146,34 +150,22 @@ inData=new classAccessFile;
         },
         error => {
           console.log('error to retrieve the configuration file ;  error = ', error);
-         
         });
   }
 
-  selectApps:number=0;
-  dictionaryOnly:boolean=false;
-  IpAddress:string="";
-  bearerAuthorisation:string="";
-
   getTokenOAuth2(){
-
     console.log('requestToken()');
     this.ManageGoogleService.getTokenOAuth2(this.configServer  )
     .subscribe(
         (data ) => {
           console.log('return from requestToken() with no error');
             console.log(JSON.stringify(data));
-          
         },
         err => {
           console.log('return from requestToken() with error');
             console.log(JSON.stringify(err));
           });
-
   }
-
-  theNumber:string="";
-  isIdRetrieved:boolean=false;
   
   getDefaultCredentials(){
     console.log('getDefaultCredentials()');
@@ -203,7 +195,7 @@ this.isResetServer=true;
           });
   }
 
-  getInfoToken(){
+getInfoToken(){
     console.log('getInfoToken()');
     this.ManageGoogleService.getInfoToken(this.configServer, this.credentials.access_token  )
     .subscribe(
@@ -217,7 +209,6 @@ this.isResetServer=true;
           });
   }
 
-  saveServerUsrId:number=0;
   assignNewServerUsrId(){
     this.ManageGoogleService.getNewServerUsrId(this.configServer)
     .subscribe(
@@ -230,7 +221,7 @@ this.isResetServer=true;
           }
     )
   }
-  inputSelect:number=0;
+
   onInput(event:any){
       this.inputSelect=Number(event.target.value);
       this.selectApps=0;
@@ -239,7 +230,6 @@ this.isResetServer=true;
       this.isAppsSelected=false;
   }
 
-  isAppsSelected:boolean=false;
   onSelectApps(){
     this.isAppsSelected=true;
     this.selectApps=this.inputSelect;
@@ -255,9 +245,6 @@ this.isResetServer=true;
       this.selHealthFunction=0
     } 
   }
-
-  errorMsg:string="";
-  isResetServer:boolean=false;
 
   fnResetServer(){
     this.isCredentials=false;
@@ -328,10 +315,12 @@ this.isResetServer=true;
             this.errorMsg="";
 
 // TO BE DELETED
-this.selectApps=16;
+this.selectApps=12;
 //this.selHealthFunction=5
 this.isAppsSelected=true;
 //
+console.log("isResetServer= "+this.isResetServer + "  isIdRetrieved=" + this.isIdRetrieved + "  isConfigServerRetrieved=" + this.isConfigServerRetrieved
+        )
 //
       },
         err=> {
