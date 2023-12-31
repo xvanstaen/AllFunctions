@@ -96,6 +96,16 @@
     background-color:rgb(36, 199, 85);
   }
 
+.theList{
+   width:45%; 
+
+  font-size:16px; height:25px;  padding-top:2px; width:100%; display:inline-block; padding-left:10px;
+}
+
+.theList:hover{
+  background-color: lightgreen;
+}
+
 .response{
     display:inline-block; width:80%; height:10px; color:blue; margin-left:20px; 
 }

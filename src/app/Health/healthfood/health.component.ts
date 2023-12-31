@@ -287,6 +287,7 @@ findPosItem(sizeBox:any){
   if (Number(sizeBox)+this.posItem > this.confTableAll.height){
     this.posItem=this.confTableAll.height - Number(sizeBox);
   }
+
 }
 
 @HostListener('window:resize', ['$event'])
@@ -715,18 +716,6 @@ CreateTabFood(item:any, value:any){
   if (item==='Food'){
     this.tabInputFood.splice(0,this.tabInputFood.length);
     this.tabFood.sort((a, b) => (a.name < b.name) ? -1 : 1);
-    /***
-    for (var i=0; i<this.tabFood.length && this.tabFood[i].name.toLowerCase().trim().substring(0,value.length)!==value.toLowerCase().trim(); i++){}
-    if (i<this.tabFood.length){
-      for (var i=i; i<this.tabFood.length && this.tabFood[i].name.toLowerCase().trim().substring(0,value.length)===value.toLowerCase().trim(); i++){
-        iTab++;
-        this.tabInputFood.push({name:"",serving:"",unit:""});
-        this.tabInputFood[iTab].name=this.tabFood[i].name.toLowerCase().trim();
-        this.tabInputFood[iTab].serving=this.tabFood[i].serving;
-        this.tabInputFood[iTab].unit=this.tabFood[i].unit;
-      }
-    }
-    ***/
 
     for (var i=0; i<this.tabFood.length; i++){
       if (this.tabFood[i].name.toLowerCase().trim().indexOf(value.toLowerCase().trim()) !== -1){
@@ -738,7 +727,7 @@ CreateTabFood(item:any, value:any){
       }
     }
     if (this.tabInputFood.length>1){
-
+    }
       this.sizeBoxContentFood=this.sizeBox.heightItem  * this.tabInputFood.length;
       if (this.sizeBoxContentFood>this.sizeBox.maxHeightContent){
         this.sizeBoxContentFood=this.sizeBox.maxHeightContent;
@@ -753,7 +742,7 @@ CreateTabFood(item:any, value:any){
       this.styleBoxFood=getStyleDropDownContent(this.sizeBoxContentFood, this.sizeBox.widthContent );
       //this.styleBoxOptionFood=getStyleDropDownBox(this.sizeBoxFood, this.sizeBox.widthOptions, this.offsetLeft - 24, this.selectedPosition.y -this.posDivAfterTitle.Client.Top - 255, this.sizeBox.scrollY);
       this.styleBoxOptionFood=getStyleDropDownBox(this.sizeBoxFood, this.sizeBox.widthOptions, this.offsetLeft - 25 , this.posItem + 40, this.sizeBox.scrollY);
-    }
+    
   }
   else if (item==='Meal'){
     this.tabInputMeal.splice(0,this.tabInputMeal.length);

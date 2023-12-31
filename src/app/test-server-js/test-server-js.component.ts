@@ -74,6 +74,8 @@ export class TestServerJSComponent {
     "Accept": "",
   });
 
+  copyData:string="";
+
   TabBuckets = [{ name: '' }];
   myListOfObjects = new Bucket_List_Info;
   oneMetadata = new OneBucketInfo;
@@ -87,6 +89,7 @@ export class TestServerJSComponent {
   isConfirmedSave: boolean = false;
   isGetMetadata: boolean = false;
   isGetAllMetadata: boolean = false;
+  isConfirmedDelete:boolean=false;
 
   EventHTTPReceived: Array<boolean> = [];
   maxEventHTTPrequest: number = 20;
@@ -175,6 +178,8 @@ export class TestServerJSComponent {
     this.error = "";
     this.returnFileContent = "";
     this.currentAction = "";
+    this.isConfirmedDelete= false;
+    this.isConfirmedSave= false;
   }
 
 
@@ -199,6 +204,24 @@ export class TestServerJSComponent {
     this.actionDropdown = true;
   }
 
+  copySelection(event:any){
+    if (event.target.id.indexOf('-')!==-1){
+      this.copyData=event.target.id.substring(event.target.id.indexOf('-')+1);
+    }
+  }
+
+  pasteAction(event:any){
+    if (event.target.id==="srcBucket"){
+      this.theForm.controls['srcBucket'].setValue(this.copyData);
+    } else if (event.target.id==="destBucket"){
+      this.theForm.controls['destBucket'].setValue(this.copyData);
+    } else if (event.target.id==="srcObject"){
+      this.theForm.controls['srcObject'].setValue(this.copyData);
+    } else if (event.target.id==="destObject"){
+      this.theForm.controls['destObject'].setValue(this.copyData);
+    }
+
+  }
 
   testConvertObject(){
     const newObject = {
@@ -293,11 +316,14 @@ export class TestServerJSComponent {
     var testProd = this.theForm.controls['testProd'].value;
     this.configServer.test_prod = testProd.toLowerCase().trim();
 
+    this.isConfirmedDelete= false;
+    this.isConfirmedSave= false;
     this.actionDropdown = false;
     this.error = "";
     this.metaDataMsg="";
     this.returnFileContent = "";
     this.currentAction = event.target.textContent.trim();
+
     if (event.target.textContent.trim() !== "cancel") {
       this.theForm.controls['action'].setValue(event.target.textContent.trim());
       if (event.target.textContent.trim() === 'list all buckets') {
@@ -328,14 +354,16 @@ export class TestServerJSComponent {
       } else if (event.target.textContent.trim() === 'rename object') {
         this.renameObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['destObject'].value);
         
-      }  else if (event.target.textContent.trim() === 'delete object') {
-        this.deleteObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
+      }  else if (event.target.textContent.trim() === 'delete object' && this.theForm.controls['srcObject'].value!=="" ) {
+        this.isConfirmedDelete = true;
         
-      }else if (event.target.textContent.trim() === 'save object') {
+        
+      }else if (event.target.textContent.trim() === 'save object'  && this.theForm.controls['srcObject'].value!=="") {
         this.isConfirmedSave = true;
 
-      } else if (event.target.textContent.trim() === 'save object with meta perso') {
-        this.uploadMetaPerso(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['fileContent'].value)
+      } else if (event.target.textContent.trim() === 'save object with meta perso' && this.theForm.controls['srcObject'].value!=="") {
+        this.isConfirmedSave = true;
+       
       
       } else if (event.target.textContent.trim() === 'cache console') {
         this.getCacheConsole();
@@ -387,16 +415,26 @@ export class TestServerJSComponent {
   }
 
 
-
+  confirmDelete(event: any) {
+    this.isConfirmedDelete= false;
+    if (event.target.id === "Save") {
+      this.deleteObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
+    }
+  }
 
   confirmSave(event: any) {
     this.isConfirmedSave = false;
 
     if (event.target.id === "Save") {
-      if (this.theForm.controls['server'].value === 'HTTP') {
-        this.saveObjectHTTP(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['fileContent'].value);
-      } else {
-        this.saveObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['fileContent'].value);
+      if (this.currentAction==='save object with meta perso'){
+        this.uploadMetaPerso(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['fileContent'].value)
+      } else  if (this.currentAction==='save object'){
+
+        if (this.theForm.controls['server'].value === 'HTTP') {
+          this.saveObjectHTTP(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['fileContent'].value);
+        } else {
+          this.saveObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['fileContent'].value);
+        }
       }
     } else { this.currentAction = ""; }
 
