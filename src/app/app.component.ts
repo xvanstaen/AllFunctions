@@ -114,6 +114,9 @@ export class AppComponent {
         test_prod='test';
     }
 
+    // TO BE DELETED
+    test_prod='test';
+    InitconfigServer.baseUrl='http://localhost:8080';
     console.log(test_prod + ' baseUrl ' + InitconfigServer.baseUrl);
       
     InitconfigServer.test_prod=test_prod; // retrieve the corresponding record test or production
@@ -182,7 +185,9 @@ export class AppComponent {
       
           this.isCredentials=true;
 
-
+// TO BE DELETED
+this.isResetServer=true;
+//
           if (this.isResetServer===true){
             this.isResetServer=false;
             this.getLogin(this.theForm.controls['userId'].value,this.theForm.controls['psw'].value);
