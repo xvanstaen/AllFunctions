@@ -264,7 +264,6 @@
                 returnValue.action="ConfirmSave";
               }
               
-    
             } else if (Number(currentTime) <= Number(timeOutValue) && Number(lastInputAt) >= Number(bufferLastInput)
                                     && tabLock[iWait].lock === 1 && isRecordModified === true){
               //updateLockFile(iWait);

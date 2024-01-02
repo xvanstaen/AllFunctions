@@ -1,6 +1,5 @@
 <div class="skipLine"></div>
 
-
 <div style="margin-left:20px; width:100%; display:inline-block;">
         <form [formGroup]="theForm" >
 
@@ -85,17 +84,18 @@
     <div class="skipLine"></div>
 </div>
 
-
-<div *ngIf="currentAction==='list all buckets' && EventHTTPReceived[0]===true" class="response">
+<!-- currentAction==='list all buckets' &&  -->
+<div *ngIf="EventHTTPReceived[0]===true" class="response">
     <div class="skipLine"></div>
-    <span style='font-size:20px; font-style: italic; width:100%; display:inline-block; padding-top:15px; margin-left:150px;'> Response  on action {{currentAction}}</span> 
+    <span style='font-size:20px; font-style: italic; width:100%; display:inline-block; padding-top:15px; margin-left:150px;'> list all buckets</span> 
     <li style="list-style-type: none;" *ngFor="let listBucket of  TabBuckets; let i=index" id="bucket-{{listBucket.name}}" (click)="copySelection($event)">
         <span id="bucket-{{listBucket.name}}" class="theList" [ngClass]="{'even': i % 2 ===0, 'odd': i % 2 !==0}">{{listBucket.name}}</span>
     </li>
 </div>
-<div *ngIf="currentAction==='list all objects'  && EventHTTPReceived[1]===true" class="response">
+<!-- currentAction==='list all objects'  &&  -->
+<div *ngIf="EventHTTPReceived[1]===true" class="response">
     <div class="skipLine"></div>
-    <span style='font-size:20px; font-style: italic; width:100%; display:inline-block; padding-top:15px; margin-left:150px;'> Response  on action {{currentAction}}</span> 
+    <span style='font-size:20px; font-style: italic; width:100%; display:inline-block; padding-top:15px; margin-left:150px;'> List of objects from bucket {{theForm.controls['srcBucket'].value}}</span> 
     <div style=' width:100%; display:inline-block; border: solid 2px blue; overflow-y:scroll; height:300px;'>
         <li style="list-style-type: none;" *ngFor="let listObject of  myListOfObjects.items; let i=index"  id="object-{{listObject.name}}" (click)="copySelection($event)">
             <span id="object-{{listObject.name}}" class="theList" [ngClass]="{'even': i % 2 ===0, 'odd': i % 2 !==0}" >{{listObject.name}}</span>
@@ -103,10 +103,11 @@
         </li>
     </div>
 </div>
-<div *ngIf="currentAction==='get metadata for one object'  && EventHTTPReceived[4]===true" class="response">
+<!-- currentAction==='get metadata for one object'  && -->
+<div *ngIf=" EventHTTPReceived[4]===true" class="response">
     <div style=' width:100%; display:inline-block; border: solid 2px blue;'>
 
-        <span style='font-size:20px; font-style: italic; width:100%; display:inline-block; padding-top:15px; margin-left:150px;'> Response  on action {{currentAction}}</span> 
+        <span style='font-size:20px; font-style: italic; width:100%; display:inline-block; padding-top:15px; margin-left:150px;'> Metadata for object {{theForm.controls['srcObject'].value}}}</span> 
         <div class="skipLine"></div>
         <span class="theLine"><span class='label'>Bucket</span><span class='theMetadata'>{{oneMetadata.bucket}}</span></span>
         <span class="theLine"><span class='label'>Object</span><span class='theMetadata'>{{oneMetadata.name}}</span></span>
@@ -122,8 +123,9 @@
 
     </div>
 </div>
-<div *ngIf="currentAction==='get list metadata for all objects'  && EventHTTPReceived[3]===true" class="response">
-    <div style='font-size:20px; font-style: italic; width:100%; display:inline-block; padding-top:15px; margin-left:150px;' > Response  on action {{currentAction}}</div> 
+<!-- currentAction==='get list metadata for all objects'  &&  -->
+<div *ngIf="EventHTTPReceived[3]===true" class="response">
+    <div style='font-size:20px; font-style: italic; width:100%; display:inline-block; padding-top:15px; margin-left:150px;' > List metadata for all objects</div> 
     <div class="skipLine"></div>
     <div style=' width:100%; display:inline-block; border: solid 2px blue; overflow-y:scroll; height:300px;'>
         
@@ -147,20 +149,53 @@
     </div>
     
 </div>
-<div class="skipLine"></div>
-<div *ngIf="currentAction!=='' && currentAction!=='get list metadata for all objects' && currentAction!=='get metadata for one object' && currentAction!=='list all objects' && currentAction!=='list all buckets'" class="response">
-            <div style="height:30px; font-size:18px; text-align:center; background-color:cyan; width:80%; max-height:300px; display:inline-block; border:solid 2px green;"> Response on action {{currentAction}}</div> 
 
-            <div style="background-color:cyan; width:80%; max-height:300px; overflow-y:scroll; display:inline-block; border:solid 2px green;">
-                <div *ngIf="returnFileContent!==''" style='font-size:14px; font-style: normal; margin-left:10px; padding-right:10px; padding-top:5px; padding-bottom:5px; text-align: left;'>{{returnFileContent}} </div>
-                 <span *ngIf="error!==''" style='font-size:10px; font-style: normal;'>{{error}} </span>
+
+<!--
+<div *ngIf="(currentAction==='get memory File System' && this.EventHTTPReceived[11]===true) || (currentAction==='get memory File System'  && this.EventHTTPReceived[12]===true)" 
+        style="margin-left:20px;">
+-->
+<div *ngIf="this.EventHTTPReceived[11]===true || this.EventHTTPReceived[12]===true" 
+        style="margin-left:20px;">
+    <span *ngIf="error!==''" style="font-size:5px; color:red; background-color: cyan; width:120px; margin-left:10px; text-align: center; display:inline-block;">{{error}};</span>
+    <div *ngFor="let tab of memoryFS; let i=index ">
+        <span style=' width:100%; display:inline-block;'>
+            <span style=' width:470px; display:inline-block; border: solid 2px red; text-align: center;'>{{tab.fileName}} </span>
+        </span>
+    
+        <li *ngFor="let record of memoryFS[i].record; let j=index " style=' width:100%; display:inline-block; '>
+            <div style=' width:470px; display:inline-block; border: solid 2px red; '>
+                <div class="skipLine"></div>
+                <span class="theLine"> <span class='label'>Bucket</span><span class='theMetadata'>{{record.bucket}}</span></span>
+                <span class="theLine"><span class='label'>Object</span><span class='theMetadata'>{{record.object}}</span></span>
+                <span class="theLine"><span class='label'>By user</span><span class='theMetadata'>{{record.byUser}}</span></span>
+                <span class="theLine"><span class='label'>Created at</span><span class='theMetadata'>{{record.createdAt}}</span></span>
+                <span class="theLine"><span class='label'>Updated at</span><span class='theMetadata'>{{record.updatedAt}}</span></span>
+                <span class="theLine"><span class='label'>Credential date</span><span class='theMetadata'>{{record.credentialDate}}</span></span>
+                <span class="theLine"><span class='label'>User server id</span><span class='theMetadata'>{{record.userServerId}}</span></span>
+                <span class="theLine"><span class='label'>Lock</span><span class='theMetadata'>{{record.lock}}</span></span>
+                <span class="theLine"><span class='label'>Timeout hour(s)</span><span *ngIf="record.timeoutFileSystem!==undefined" class='theMetadata'>{{record.timeoutFileSystem.hh}}</span></span>
+                <span class="theLine"><span class='label'>Timeout minute(s)</span><span *ngIf="record.timeoutFileSystem!==undefined" class='theMetadata'>{{record.timeoutFileSystem.mn}}</span></span>
+                <div class="skipLine"></div>
             </div>
-   
-
+        </li>
+    </div>
 </div>
 
 
+<div class="skipLine"></div>
+<div *ngIf="currentAction!=='' && currentAction!=='get list metadata for all objects' && currentAction!=='get metadata for one object' && currentAction!=='list all objects' && currentAction!=='list all buckets' 
+            && currentAction!=='get memory File System' && currentAction!=='get memory File System'" 
+        class="response" style="width:700px;  display:inline-block;">
+            <div style="height:30px; font-size:18px; text-align:center; background-color:cyan; width:600px; display:inline-block; border:solid 2px green;"> Response on action {{currentAction}}</div> 
 
+            <div style="background-color:cyan; width:600px;  border:solid 2px green;">
+                <div *ngIf="returnFileContent!==''" style='display:inline-block; font-size:14px; width:570px; height:300px;  overflow-y:scroll; font-style: normal; margin-left:10px; padding-right:10px; padding-top:5px; padding-bottom:5px; text-align: left;'>{{returnFileContent}} </div>
+                 <span *ngIf="error!==''" style='font-size:10px; font-style: normal;'>{{error}} </span>
+            </div>
+</div>
+
+<div class="skipLine"></div>
 <div style=' width:600px; display:inline-block;  margin-left:20px; border: solid 2px blue;'> <!--  *ngIf="currentAction==='updateMetadata' -->
     <h2 style="margin-left:230px;">Create metadata</h2>
     <form [formGroup]="theForm" >

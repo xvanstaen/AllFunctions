@@ -21,8 +21,10 @@ import { BucketList, Bucket_List_Info, OneBucketInfo, classCredentials, classTab
 // configServer is needed to use ManageGoogleService
 // it is stored in MangoDB and accessed via ManageMangoDBService
 
-import { msginLogConsole } from '../consoleLog'
+import { msginLogConsole } from '../consoleLog';
 import { configServer, LoginIdentif, msgConsole } from '../JsonServerClass';
+
+import { classAccessFile, classFileSystem } from '../classFileSystem';
 
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
@@ -96,7 +98,8 @@ export class TestServerJSComponent {
   id_Animation: Array<number> = [];
   TabLoop: Array<number> = [];
   maxLoop: number = 5000;
-
+  tabLock:Array<classAccessFile>=[]; 
+  iWait:string="";
 
   theForm: FormGroup = new FormGroup({
     testProd: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
@@ -113,7 +116,7 @@ export class TestServerJSComponent {
   });
 
   tabAction: Array<string> = ['cancel', 'list all buckets', 'list all objects', 'get file content', 'get list metadata for all objects', 'get metadata for one object', 'update metadata for one object',  'save object', 'save object with meta perso' , 'rename object', 
-  'copy object', 'move object', 'delete object', 'cache console'];
+  'copy object', 'move object', 'delete object', 'cache console', 'get memory File System','reset memory File System'];
 
   tabServers: Array<string> = [
     'http://localhost:8080', 'https://test-server-359505.uc.r.appspot.com','https://xmv-it-consulting.uc.r.appspot.com'
@@ -126,15 +129,22 @@ export class TestServerJSComponent {
   tabMetaPerso: Array<classTabMetaPerso> = [];
   strMetaDataPerso:string="";
 
+  memoryFS:Array<any>=[{
+    fileName:"",
+    record:[]
+  }]
+
   ngOnInit() {
    // this.configServer.baseUrl = 'http://localhost:8080';
     this.reinitialise();
+    
     console.log('ngOnInit');
     for (var i = 0; i < this.maxEventHTTPrequest; i++) {
       this.TabLoop[i] = 0;
       this.EventHTTPReceived[i] = false;
     }
-
+    this.currentAction='list all buckets';
+    this.getListBuckets();
     for (var i = 0; i < 5; i++) {
       const classMeta=new classTabMetaPerso;
       this.tabMetaPerso.push(classMeta);
@@ -368,7 +378,14 @@ export class TestServerJSComponent {
       } else if (event.target.textContent.trim() === 'cache console') {
         this.getCacheConsole();
 
-      }else {
+      }  else if (event.target.textContent.trim() === 'get memory File System') {
+        this.getMemoryFS();
+
+      } else if (event.target.textContent.trim() === 'reset memory File System') {
+        this.resetMemoryFS(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
+
+        //'get memory File System','reset memory File System'
+      } else {
         this.error = 'ACTION UNKNOWN';
       }
     }
@@ -658,7 +675,7 @@ export class TestServerJSComponent {
 
   getCacheConsole() {
     this.EventHTTPReceived[10] = false;
-    this.waitHTTP(this.TabLoop[10], this.maxLoop, 6);
+    this.waitHTTP(this.TabLoop[10], this.maxLoop, 10);
     this.ManageGoogleService.getCacheConsole(this.configServer)
       .subscribe(
         (data) => {
@@ -669,6 +686,58 @@ export class TestServerJSComponent {
           //console.log('Error to move ' + err.status);
           this.error = JSON.stringify(err);
           this.EventHTTPReceived[10] = true;
+        });
+  }
+
+  tabNameFS:Array<string>=[];
+  
+  getMemoryFS() {
+    this.error="";
+    this.EventHTTPReceived[11] = false;
+    this.waitHTTP(this.TabLoop[11], this.maxLoop, 11);
+    this.ManageGoogleService.getMemoryFS(this.configServer)
+      .subscribe(
+        (data) => {
+          this.memoryFS.splice(0,this.memoryFS.length);
+          for (var i=0; i<data.data.length; i++){
+            this.memoryFS.push({fileName:"",record:[]});
+            this.memoryFS[i].fileName=data.data[i].fileName;
+            if (data.data[i].content.length===0){
+              this.error=this.error + " --- " + "File System " + this.memoryFS[i].fileName+ " memory is empty";
+            } else {
+              for (var j=0; j<data.data[i].content.length; j++){
+                const theClass=new classFileSystem;
+                this.memoryFS[i].record.push(theClass);
+                this.memoryFS[i].record[this.memoryFS[i].record.length-1]=data.data[i].content[j];
+                
+              }
+            }
+          }
+          
+          
+            this.EventHTTPReceived[11] = true;
+        },
+        err => {
+          //console.log('Error to move ' + err.status);
+          this.error = JSON.stringify(err);
+          this.EventHTTPReceived[11] = true;
+        });
+  }
+
+  resetMemoryFS(srcBucket:string, srcObject:string) {
+    
+    this.EventHTTPReceived[12] = false;
+    this.waitHTTP(this.TabLoop[12], this.maxLoop, 12);
+    this.ManageGoogleService.resetFS(this.configServer, srcBucket, srcObject,this.tabLock,this.iWait)
+      .subscribe(
+        (data) => {
+          this.returnFileContent = JSON.stringify(data);
+          this.EventHTTPReceived[12] = true;
+        },
+        err => {
+          //console.log('Error to move ' + err.status);
+          this.error = JSON.stringify(err);
+          this.EventHTTPReceived[12] = true;
         });
   }
 

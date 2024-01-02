@@ -114,6 +114,9 @@ export class AppComponent {
         test_prod='test';
     }
 
+    // TO BE DELETED
+    test_prod='test';
+    InitconfigServer.baseUrl='http://localhost:8080';
     console.log(test_prod + ' baseUrl ' + InitconfigServer.baseUrl);
       
     InitconfigServer.test_prod=test_prod; // retrieve the corresponding record test or production

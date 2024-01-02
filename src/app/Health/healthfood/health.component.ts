@@ -131,6 +131,10 @@ isAllDataModified:boolean=false;
 IsSaveConfirmedAll:boolean=false;
 IsCalculateCalories:boolean=false;
 isDisplayChart:boolean=false;
+isInputFood:boolean=false;
+strInputFood:string="";
+
+isForceReset:boolean=false;
 
 errorFn:string='';
 SelectedRecordNb:number=-1;
@@ -300,8 +304,6 @@ ngOnInit(): void {
   //this.getPosDivOthers();
   //this.getPosDivAfterTitle();
 
-
-
   for (var i=0; i<7; i++){
     const thePush=new classAccessFile;
     this.tabLock.push(thePush);
@@ -424,14 +426,10 @@ ngOnInit(): void {
   this.tabLock[3].bucket=this.identification.configFitness.bucket;
   this.tabLock[3].object=this.identification.configFitness.files.confHTML;
 
-
   // TO BE REVIEWED IN ORDER TO READ, MODIFY ONLINE AND SAVE
   //this.ConfigHTMLFitness.tabConfig[0].confTableAll=this.confTableAll;
   //this.SaveNewRecord(this.identification.configFitness.bucket, this.identification.configFitness.files.confHTML, this.ConfigHTMLFitness);
 
-
- 
- 
   this.getScreenWidth = window.innerWidth;
   this.getScreenHeight = window.innerHeight;
   this.device_type = navigator.userAgent;
@@ -450,7 +448,6 @@ ngOnInit(): void {
     } else if (this.triggerFunction===7){
       this.TheSelectDisplays.controls['DisplayChart'].setValue('Y');
     } 
-
     const theSelection='Y-'+this.triggerFunction;
     this.SelRadio(theSelection.trim());
   }
@@ -478,14 +475,15 @@ accessAllOtherFiles(){
   }
 }
 
-isForceReset:boolean=false;
+
 resetBooleans(){
   //this.isCopyFile=false;
   //this.isSelectedDateFound=false;
   this.isDeleteItem=false;
   this.dialogue[this.prevDialogue]=false;
   this.tabInputMeal.splice(0,this.tabInputMeal.length);
-  this.tabInputFood.splice(0,this.tabInputFood.length);
+  this.isInputFood=false;
+  //this.tabInputFood.splice(0,this.tabInputFood.length);
   if (this.tabLock[0].lock!==1 || this.isForceReset===true){
     this.isDeleteConfirmed=false;
     this.isDisplaySpecific=false;
@@ -522,11 +520,6 @@ SearchText(event:any){
 
 lastInputAt:string='';
 isMustSaveFile:boolean=false;
-
-fileSystem={
-  createdAt:'',
-  modifiedAt:''
-}
 
 reportCheckLockLimit(event:any){
   this.checkLockLimit(event.iWait, event.isDataModified, event.isSaveFile);
@@ -708,24 +701,35 @@ CreateTabFood(item:any, value:any){
   
   var iTab:number=-1;
   this.error_msg='';
-
+  var nbDelItem=0;
   if (item==='Food'){
-    this.tabInputFood.splice(0,this.tabInputFood.length);
-    this.tabFood.sort((a, b) => (a.name < b.name) ? -1 : 1);
+    if (this.tabInputFood.length>0 && value.substring(0,this.strInputFood.length).toLowerCase()===this.strInputFood.toLowerCase().trim()){
 
-    for (var i=0; i<this.tabFood.length; i++){
-      if (this.tabFood[i].name.toLowerCase().trim().indexOf(value.toLowerCase().trim()) !== -1){
-        iTab++;
-        this.tabInputFood.push({name:"",serving:"",unit:""});
-        this.tabInputFood[iTab].name=this.tabFood[i].name.toLowerCase().trim();
-        this.tabInputFood[iTab].serving=this.tabFood[i].serving;
-        this.tabInputFood[iTab].unit=this.tabFood[i].unit;
+      for (var i=this.tabInputFood.length-1; i>-1; i--){
+        if (this.tabInputFood[i].name.toLowerCase().trim().indexOf(value.toLowerCase().trim()) === -1){
+          this.tabInputFood.splice(i,1);
+          nbDelItem++
+        } 
+      }
+      console.log('nbDelItem='+nbDelItem);
+    } else {
+      this.tabInputFood.splice(0,this.tabInputFood.length);
+      //this.tabFood.sort((a, b) => (a.name < b.name) ? -1 : 1);
+
+      for (var i=0; i<this.tabFood.length; i++){
+        if (this.tabFood[i].name.toLowerCase().trim().indexOf(value.toLowerCase().trim()) !== -1){
+          iTab++;
+          this.tabInputFood.push({name:"",serving:"",unit:""});
+          this.tabInputFood[iTab].name=this.tabFood[i].name.toLowerCase().trim();
+          this.tabInputFood[iTab].serving=this.tabFood[i].serving;
+          this.tabInputFood[iTab].unit=this.tabFood[i].unit;
+        }
       }
     }
     if (this.tabInputFood.length===1){
       this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name =this.tabInputFood[0].name;
-      this.tabInputFood.splice(0,this.tabInputFood.length);
-    } else {
+      //this.tabInputFood.splice(0,this.tabInputFood.length);
+    } 
       this.sizeBoxContentFood=this.sizeBox.heightItem  * this.tabInputFood.length;
       if (this.sizeBoxContentFood>this.sizeBox.maxHeightContent){
         this.sizeBoxContentFood=this.sizeBox.maxHeightContent;
@@ -757,7 +761,7 @@ CreateTabFood(item:any, value:any){
       */
       this.styleBoxFood=getStyleDropDownContent(this.sizeBoxContentFood, this.sizeBox.widthContent );
       this.styleBoxOptionFood=getStyleDropDownBox(this.sizeBoxFood, this.sizeBox.widthOptions, this.offsetLeft + 100 , 5, this.sizeBox.scrollY); // this.offsetLeft - 25   this.posItem +40
-    }
+    
   }
   else if (item==='Meal'){
     this.tabInputMeal.splice(0,this.tabInputMeal.length);
@@ -822,29 +826,34 @@ onInputDailyA(event:any){
     this.manageIds(event.target.id);
     if (event.target.id.substring(0,3)!=='Sel'){
       this.errorFn='Cre';
-      if (fieldName==='date'){
+      if (fieldName==='ingr'){
+        this.isInputFood=true;
+        this.tabNewRecordAll[this.TabOfId[0]].meal[this.TabOfId[1]].food[this.TabOfId[2]].nb=1;
+        this.CreateTabFood('Food',event.target.value);
+        if (this.tabInputFood.length===1 && event.target.value>this.strInputFood){
+          this.HealthData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name=this.tabInputFood[0].name;
+          this.tabInputFood.splice(0, this.tabInputFood.length)
+        } else {
+          this.HealthData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name=event.target.value;
+        }
+        this.strInputFood=event.target.value;
+      }  else if (fieldName==='date'){
         this.CheckDupeDate(event.target.value);
         this.HealthData.tabDailyReport[this.TabOfId[0]].date=event.target.value;
+        this.tabNewRecordAll[this.TabOfId[0]].meal[this.TabOfId[1]].food[this.TabOfId[2]].nb=1;
       } else   if (fieldName==='meal'){
         this.HealthData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].name=event.target.value;
         this.CreateTabFood('Meal',event.target.value);
-
-      } else   if (fieldName==='ingr'){
-        this.HealthData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name=event.target.value;
-        this.CreateTabFood('Food',event.target.value);
-        if (this.tabInputFood.length===1){
-          this.HealthData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name=event.target.value;
-        } else {
-          this.HealthData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name=this.tabInputFood[0].name;
-          this.tabInputFood.splice(0, this.tabInputFood.length)
-        }
-
-      }  else   if (fieldName==='quan'){
+        this.tabNewRecordAll[this.TabOfId[0]].meal[this.TabOfId[1]].food[this.TabOfId[2]].nb=1;
+      } else      if (fieldName==='quan'){
         this.HealthData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].quantity=event.target.value;
+        this.tabNewRecordAll[this.TabOfId[0]].meal[this.TabOfId[1]].food[this.TabOfId[2]].nb=1;
       } else   if (fieldName==='unit'){
         this.HealthData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].unit=event.target.value;
+        this.tabNewRecordAll[this.TabOfId[0]].meal[this.TabOfId[1]].food[this.TabOfId[2]].nb=1;
       } else   if (fieldName==='burn'){
         this.HealthData.tabDailyReport[this.TabOfId[0]].burntCalories=event.target.value;
+        this.tabNewRecordAll[this.TabOfId[0]].meal[this.TabOfId[1]].food[this.TabOfId[2]].nb=1;
       }
     } else  if (event.target.id.substring(0,7)==='Selmeal'){
       this.errorFn='Sel';
@@ -893,9 +902,22 @@ onInputDailyAllA(event:any){
       const fieldName=event.target.id.substring(0,7);
       this.manageIds(event.target.id);
       if (fieldName==='ingrAll'){
-        this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name=event.target.value;
+        this.isInputFood=true;
         this.tabNewRecordAll[this.TabOfId[0]].meal[this.TabOfId[1]].food[this.TabOfId[2]].nb=1;
+
         this.CreateTabFood('Food',event.target.value);
+        console.log('after CreateTab tabInputFood.length=' + this.tabInputFood.length +
+          '  event.target.value'
+          + event.target.value + '  this.strInputFood=' + this.strInputFood + '  this.HealthAllData.tabDailyReport.length='+this.HealthAllData.tabDailyReport.length 
+          + '  event.target.value.length='+event.target.value.length + '  this.strInputFood.length='+this.strInputFood.length
+        );
+        if (this.tabInputFood.length===1  && event.target.value.length<this.strInputFood.length){
+          this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name=this.tabInputFood[0].name;
+          this.tabInputFood.splice(0, this.tabInputFood.length)
+        } else {
+          this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].name=event.target.value;
+        }
+        this.strInputFood=event.target.value;
       }  else   if (fieldName==='quanAll'){
         this.HealthAllData.tabDailyReport[this.TabOfId[0]].meal[this.TabOfId[1]].dish[this.TabOfId[2]].quantity=event.target.value;
         this.tabNewRecordAll[this.TabOfId[0]].meal[this.TabOfId[1]].food[this.TabOfId[2]].nb=1;
@@ -2604,12 +2626,11 @@ returnOnFileSystem(data:any, iWait:number){
         
         this.getDefaultCredentials(iWait, true); // update credentials & check File.updatedAt 
 
-      }  else if (data.status===956){
+      }  else if (data.status===956){  // record is locked by another user
         this.error_msg = this.error_msg + data.msg;
         this.theResetServer=true;
         this.tabLock[iWait].lock=3;
         this.onInputAction="";
-        // record is locked by another user
         this.tabLock[iWait].status=720;
         if (iWait===0){
           this.reAccessHealthFile();
@@ -2737,9 +2758,14 @@ getDefaultCredentials(iWait:number, checkFile:boolean){
 
 
 ngOnChanges(changes: SimpleChanges) { 
-    if (changes['credentials'].firstChange===false){
-        console.log('health component : credentials have been updated');
+  for (const propName in changes){
+    const j=changes[propName];
+    if (propName==='credentials'){
+      if (changes['credentials'].firstChange===false){
+          console.log('health component : credentials have been updated');
+      }
     }
+  }
 }
 
 getChartFiles(){
