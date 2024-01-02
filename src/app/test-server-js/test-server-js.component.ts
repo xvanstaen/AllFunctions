@@ -134,6 +134,8 @@ export class TestServerJSComponent {
     record:[]
   }]
 
+  memoryCacheConsole:Array<any>=[];
+
   ngOnInit() {
    // this.configServer.baseUrl = 'http://localhost:8080';
     this.reinitialise();
@@ -679,7 +681,16 @@ export class TestServerJSComponent {
     this.ManageGoogleService.getCacheConsole(this.configServer)
       .subscribe(
         (data) => {
-          this.returnFileContent = JSON.stringify(data);
+          this. memoryCacheConsole.splice(0,this. memoryCacheConsole.length);
+          for (var i=0; i<data.length; i++){
+            const theClass={theDate:'',msg:"",content:""};
+            this. memoryCacheConsole.push(theClass);
+            this. memoryCacheConsole[i]=data[i];
+            if (typeof data[i].content === 'object'){
+              this. memoryCacheConsole[i].content=JSON.stringify(data[i].content);
+            }
+          }
+
           this.EventHTTPReceived[10] = true;
         },
         err => {
