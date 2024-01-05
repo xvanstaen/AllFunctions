@@ -18,7 +18,7 @@ import { Observable } from 'rxjs';
 
 import { BucketList, Bucket_List_Info, OneBucketInfo, classCredentials, classTabMetaPerso } from '../JsonServerClass';
 
-// configServer is needed to use ManageGoogleService
+// retrievedConfigServer is needed to use ManageGoogleService
 // it is stored in MangoDB and accessed via ManageMangoDBService
 
 import { msginLogConsole } from '../consoleLog';
@@ -29,7 +29,6 @@ import { classAccessFile, classFileSystem } from '../classFileSystem';
 import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import { AccessConfigService } from 'src/app/CloudServices/access-config.service';
-
 
 
 @Component({
@@ -54,6 +53,9 @@ export class TestServerJSComponent {
 
   @Input() configServer = new configServer;
   @Input() credentials = new classCredentials;
+
+  retrievedConfigServer= new configServer;
+  updatedConfigServer= new configServer;
 
   HTTP_Address: string = 'https://storage.googleapis.com/upload/storage/v1/b/config-xmvit/o?uploadType=media&name=unloadfileSystem&metadata={cache-control:no-cache,no-store,max-age=0}';
   HTTP_AddressPOST: string = '';
@@ -105,6 +107,7 @@ export class TestServerJSComponent {
     testProd: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
     nameServer: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
     server: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
+    dataBase: new FormControl({ value: 'Google', disabled: false }, { nonNullable: true }),
     srcBucket: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
     srcObject: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
     destBucket: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
@@ -115,8 +118,11 @@ export class TestServerJSComponent {
     metaType: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
   });
 
-  tabAction: Array<string> = ['cancel', 'list all buckets', 'list all objects', 'get file content', 'get list metadata for all objects', 'get metadata for one object', 'update metadata for one object',  'save object', 'save object with meta perso' , 'rename object', 
+  tabAction: Array<string> = ['cancel', 'list all buckets', 'list all objects', 'get file content', 'get list metadata for all objects', 'get metadata for one object', 'create & save metadata' , 'update metadata for one object',  'save object', 'save object with meta perso' , 'rename object', 
   'copy object', 'move object', 'delete object', 'cache console', 'get memory File System','reset memory File System'];
+
+  tabActionMongo: Array<string> = ['cancel', 'list config', 'upload config', 'update config'];
+
 
   tabServers: Array<string> = [
     'http://localhost:8080', 'https://test-server-359505.uc.r.appspot.com','https://xmv-it-consulting.uc.r.appspot.com'
@@ -136,8 +142,11 @@ export class TestServerJSComponent {
 
   memoryCacheConsole:Array<any>=[];
 
+  isSelectServer:boolean=false;
+
   ngOnInit() {
    // this.configServer.baseUrl = 'http://localhost:8080';
+    
     this.reinitialise();
     
     console.log('ngOnInit');
@@ -146,7 +155,9 @@ export class TestServerJSComponent {
       this.EventHTTPReceived[i] = false;
     }
     this.currentAction='list all buckets';
-    this.getListBuckets();
+    if (this.theForm.controls['dataBase'].value==="Google"){
+      this.getListBuckets();
+    }
     for (var i = 0; i < 5; i++) {
       const classMeta=new classTabMetaPerso;
       this.tabMetaPerso.push(classMeta);
@@ -176,9 +187,12 @@ export class TestServerJSComponent {
 
   reinitialise() {
 
+    this.titleConfig = "theUpdate";
+
     this.theForm.controls['server'].setValue('server');
-    this.theForm.controls['nameServer'].setValue(this.tabServers[1]);
-    this.theForm.controls['testProd'].setValue('prod');
+    this.theForm.controls['nameServer'].setValue(this.tabServers[0]);
+    this.theForm.controls['testProd'].setValue('test');
+    this.theForm.controls['dataBase'].setValue('Mongo');
     this.theForm.controls['srcBucket'].setValue('');
     this.theForm.controls['srcObject'].setValue('');
     this.theForm.controls['destBucket'].setValue('');
@@ -261,7 +275,6 @@ export class TestServerJSComponent {
     }
 
     const strNewObject=JSON.stringify(newObject);
-    console.log('strNewObject= '+strNewObject);
 
     const receivedObject=this.stringToObject(strNewObject,refObject);
 
@@ -270,8 +283,8 @@ export class TestServerJSComponent {
 
   stringToObject(myString:string,inObject:any){
 
-    var strInObject=JSON.stringify(inObject);
-    console.log('strInObject= '+strInObject);
+    //var strInObject=JSON.stringify(inObject);
+    //console.log('strInObject= '+strInObject);
     var tabOpenParenthesis=[];
     var tabCloseParenthesis=[];
 
@@ -313,17 +326,23 @@ export class TestServerJSComponent {
     contentObjects[i]=myString.substring(tabOpenParenthesis[i],tabCloseParenthesis[tabCloseParenthesis.length-1-i]);
    } 
     
-    console.log('inObject= '+inObject);
+    //console.log('inObject= '+inObject);
     return (inObject);
   }
 
+
+  onActionServer(){
+    this.isSelectServer=true;
+  }
+
   selectServer(event: any) {
+    this.isSelectServer=false;
     this.configServer.baseUrl = event.target.textContent.trim();
     this.theForm.controls['nameServer'].setValue(event.target.textContent.trim());
   }
 
   selectAction(event: any) {
-    this.testConvertObject();
+    // this.testConvertObject();
 
     var testProd = this.theForm.controls['testProd'].value;
     this.configServer.test_prod = testProd.toLowerCase().trim();
@@ -357,6 +376,8 @@ export class TestServerJSComponent {
       } else if (event.target.textContent.trim() === 'get metadata for one object') {
         this.getMetaData(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
 
+      } else if (event.target.textContent.trim() === 'create & save metadata') {
+        this.inputMetaData();        
       }  else if (event.target.textContent.trim() === 'copy object') {
         this.copyObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['destBucket'].value, this.theForm.controls['destObject'].value);
 
@@ -387,11 +408,184 @@ export class TestServerJSComponent {
         this.resetMemoryFS(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
 
         //'get memory File System','reset memory File System'
+      }  else if (event.target.textContent.trim() === 'list config') {
+        this.listConfig();
+
+      } else if (event.target.textContent.trim() === 'update config') {
+        this.updateConfig();
+
+      } else if (event.target.textContent.trim() === 'upload config') {
+        this.uploadConfig();
+
       } else {
         this.error = 'ACTION UNKNOWN';
       }
     }
 
+  }
+
+  titleConfig:string="";
+  storeTitle(event:any){
+    this.titleConfig=event.target.value;;
+  }
+tabOfConfig:Array<configServer>=[]; 
+tabOfId:Array<string>=[]; 
+idMongo:string="";
+listConfig(){
+    var test_prod='';
+        
+    // this is for allFunctions only so that test BackendServer is used
+    this.EventHTTPReceived[13] = false;
+    this.configServer=new configServer;
+    this.configServer.baseUrl=this.theForm.controls['nameServer'].value;
+    this.configServer.test_prod=this.theForm.controls['testProd'].value; // retrieve the corresponding record test or production
+    this.configServer.GoogleProjectId='ConfigDB';
+    this.ManageMangoDBService.findAllConfig(this.configServer, 'configServer')
+  // this.ManageMangoDB.findConfigbyURL(this.configServer, 'retrievedConfigServer', '')
+        .subscribe(
+          (data) => {
+          this.retrievedConfigServer = new configServer;
+          if (Array.isArray(data) === false){
+            this.fillConfig(data,this.retrievedConfigServer);
+          } else {
+            this.tabOfConfig.splice(0,this.tabOfConfig.length);
+            this.tabOfId.splice(0,this.tabOfId.length);
+            this.tabOfConfig=data;
+            for (let i=0; i<data.length; i++){
+                this.tabOfId[i]=data[i].id;
+                if (data[i].title===this.titleConfig ){
+                  this.idMongo=data[i].id;
+                  this.retrievedConfigServer = new configServer;
+                  this.fillConfig(data[i],this.retrievedConfigServer);
+                } 
+              }
+          }
+          this.EventHTTPReceived[13] = true;
+        }, 
+        err =>{
+          console.log('List config error: ' + err);
+        })
+  }
+
+  onSelConfig(event:any){
+    if (event.target.id.substring(0,4)==="sel-"){
+      const i=Number(event.target.id.substring(4));
+      this.idMongo=this.tabOfId[i];
+      this.retrievedConfigServer = new configServer;
+      this.fillConfig(this.tabOfConfig[i],this.retrievedConfigServer);
+    }
+  }
+
+  onInputConfig(event:any){
+    if (event.target.id==='title'){
+      this.retrievedConfigServer.title=event.target.value;
+    } else if (event.target.id==='test_prod'){
+      this.retrievedConfigServer.test_prod=event.target.value;
+    } else if (event.target.id==='baseUrl'){
+      this.retrievedConfigServer.baseUrl=event.target.value;
+    } else if (event.target.id==='TOhh'){
+      this.retrievedConfigServer.timeoutFileSystem.hh=Number(event.target.value);
+    } else if (event.target.id==='TOmn'){
+      this.retrievedConfigServer.timeoutFileSystem.mn=Number(event.target.value);
+    } else if (event.target.id==='bufferTOhh'){
+      this.retrievedConfigServer.timeoutFileSystem.bufferTO.hh=Number(event.target.value);
+    } else if (event.target.id==='bufferTOmn'){
+      this.retrievedConfigServer.timeoutFileSystem.bufferTO.mn=Number(event.target.value);
+    } else if (event.target.id==='bufferInputhh'){
+      this.retrievedConfigServer.timeoutFileSystem.bufferInput.hh=Number(event.target.value);
+    } else if (event.target.id==='bufferInputmn'){
+      this.retrievedConfigServer.timeoutFileSystem.bufferInput.mn=Number(event.target.value);
+    } else if (event.target.id==='PoRBucket'){
+      this.retrievedConfigServer.PointOfRef.bucket=event.target.value;
+    } else if (event.target.id==='PoRBObject'){
+      this.retrievedConfigServer.PointOfRef.file=event.target.value;
+    }
+
+
+
+  }
+  onInputFileToCache(event:any){
+    const i=Number(event.target.id.substring(4))
+    if (event.target.id.substring(0,4)==='idxx-'){
+      this.retrievedConfigServer.UserSpecific[i].theId=event.target.value;
+    } else if (event.target.id.substring(0,4)==='type'){
+      this.retrievedConfigServer.UserSpecific[i].theType=event.target.value;
+    } else if (event.target.id.substring(0,4)==='logx-'){
+      this.retrievedConfigServer.UserSpecific[i].log=event.target.value;
+    } else if (event.target.id.substring(0,4)==='buck'){
+      this.retrievedConfigServer.filesToCache[i].bucket=event.target.value;
+    } else if (event.target.id.substring(0,4)==='obje'){
+      this.retrievedConfigServer.filesToCache[i].object=event.target.value;
+    } 
+  }
+
+  updateConfig(){
+
+    this.EventHTTPReceived[14] = false;
+    this.ManageMangoDBService.updateConfig(this.configServer, 'configServer', this.idMongo, this.retrievedConfigServer)
+ 
+        .subscribe(
+          (data) => {
+         
+          this.EventHTTPReceived[13] = true;
+        }, 
+        err =>{
+          console.log('error');
+        })
+
+  }
+
+  fillConfig(inFile:any,outFile:any){
+    outFile.title = inFile.title;
+    outFile.SourceJson_Google_Mongo = inFile.SourceJson_Google_Mongo;
+    outFile.test_prod = inFile.test_prod;
+    outFile.GoogleProjectId = inFile.GoogleProjectId;
+    outFile.Mongo_Google = inFile.Mongo_Google;
+    outFile.baseUrl = inFile.baseUrl;
+    outFile.IpAddress = inFile.IpAddress;
+    if (inFile.credentialDate!==undefined){
+      outFile.credentialDate = inFile.credentialDate;
+    } else {outFile.credentialDate = ""};
+    outFile.bucketFileSystem = inFile.bucketFileSystem;
+    outFile.objectFileSystem = inFile.objectFileSystem;
+    outFile.timeoutFileSystem.hh= inFile.timeoutFileSystem.hh;
+    outFile.timeoutFileSystem.mn = inFile.timeoutFileSystem.mn;
+    outFile.timeoutFileSystem.bufferTO.hh= inFile.timeoutFileSystem.bufferTO.hh;
+    outFile.timeoutFileSystem.bufferTO.mn = inFile.timeoutFileSystem.bufferTO.mn;
+    outFile.timeoutFileSystem.bufferInput.hh = inFile.timeoutFileSystem.bufferInput.hh;
+    outFile.timeoutFileSystem.bufferInput.mn = inFile.timeoutFileSystem.bufferInput.mn;
+    outFile.PointOfRef.bucket = inFile.PointOfRef.bucket;
+    outFile.PointOfRef.file = inFile.PointOfRef.file;
+    for (var i=0; i<inFile.filesToCache.length; i++){
+      const theClass={bucket:"",object:""}
+      outFile.filesToCache.push(theClass);
+      outFile.filesToCache[i].bucket = inFile.filesToCache[i].bucket;
+      outFile.filesToCache[i].object = inFile.filesToCache[i].object;
+    }
+    
+    if (outFile.UserSpecific!==undefined){
+      outFile.UserSpecific=inFile.UserSpecific;
+    } else {
+      const theClass={theId:"",theType:"",log:false}
+      this.retrievedConfigServer.UserSpecific.push(theClass);
+    }
+  }
+
+  uploadConfig(){
+    this.EventHTTPReceived[14] = false;
+    this.ManageMangoDBService.uploadConfig(this.configServer, 'configServer', this.retrievedConfigServer)
+        .subscribe(
+          (data) => {
+          this.EventHTTPReceived[13] = true;
+          }, 
+          err =>{
+            console.log('error='+err);
+          })
+    }
+
+  isInputMetadata:boolean=false;
+  inputMetaData(){
+    this.isInputMetadata=true;
   }
 
   actionUpdateMeta() {
@@ -403,7 +597,6 @@ export class TestServerJSComponent {
         this.tabMetaPerso.splice(i, 1);
       }
     }
-
     this.updateMetaData(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value,);
   }
 
@@ -832,7 +1025,7 @@ export class TestServerJSComponent {
   waitHTTP(loop: number, max_loop: number, eventNb: number) {
     const pas = 500;
     if (loop % pas === 0) {
-      console.log('waitHTTP ==> loop=' + loop + ' max_loop=' + max_loop);
+      console.log('waitHTTP ==> loop=' + loop + ' max_loop=' + max_loop + '  eventNb=' + eventNb);
     }
     loop++
 

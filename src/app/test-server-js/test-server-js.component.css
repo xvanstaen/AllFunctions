@@ -1,11 +1,17 @@
 
 
+
 .label{
     width:150px; color:blue; font-size:14px; display:inline-block; text-align: left; padding-left:10px;
 }
 
+.labelShort{
+  width:80px; color:blue; font-size:14px; display:inline-block; text-align: left; padding-left:10px; font-weight: bold;
+}
+
 .theInput{
     width:300px; color:blue; font-size:14px; display:inline-block; background-color: lightgrey;
+    padding-left:8px;
 }
 
 .theInput:hover {
@@ -17,7 +23,38 @@
 }
 
 .theLine{
-    width:100%; color:blue; font-size:12px; display:inline-block; 
+    width:100%; color:blue; font-size:12px; display:inline-block; height:28px;
+}
+
+.configInput{
+  width:120px; color:blue; font-size:14px; display:inline-block; background-color: lightgrey;
+  padding-left:8px;
+}
+
+.configInput:hover {
+  background-color: cyan;
+}
+
+.configInputShort{
+  width:60px; color:blue; font-size:14px; display:inline-block; background-color: lightgrey;
+  padding-left:8px;
+}
+
+.configInputShort:hover {
+  background-color: cyan;
+}
+
+.configInputLong{
+  width:250px; color:blue; font-size:14px; display:inline-block; background-color: lightgrey;
+  padding-left:8px;
+}
+
+.configInputLong:hover {
+  background-color: cyan;
+}
+
+.textCenter{
+  text-align: center;
 }
 
 .sizeButtons{
@@ -115,5 +152,22 @@
 }
 
 .even{
-    background-color: lightgrey;
+    background-color: rgb(47, 226, 226);
+}
+
+.odd:hover{
+  background-color: lightgreen;
+}
+
+.even:hover{
+  background-color: lightgreen;
+}
+
+.selTitle{
+  background-color: rgb(241, 109, 109);
+  width:200px; margin-left:15px;
+}
+
+.selTitle:hover{
+  background-color: rgb(243, 84, 84);
 }

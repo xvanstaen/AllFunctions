@@ -1,0 +1,113 @@
+body{
+    width:600px;
+    background-color: lightskyblue;
+    font-size:14px;
+}
+
+.skipLine{
+    width:100%;
+    display:inline-block;
+    height:2px;
+}
+
+.label{
+    width:80px;
+    display:inline-block;
+    color:blue;
+}
+
+.theInput{
+    width:190px;
+    display:inline-block;
+    color:blue;
+    background-color: lightgrey;
+}
+
+.theInputLong{
+    width:460px;
+    display:inline-block;
+    color:blue;
+    background-color: lightgrey;
+}
+
+.theInputLong:hover{
+    background-color: cyan;
+}
+
+.forHover{
+    border:solid 0px blue;
+}
+
+.forHover:hover{
+    background-color: rgb(34, 187, 34);
+}
+
+
+.sizeButtons{
+    width:100px;
+    height:50px;
+    font-size:14px;
+    margin-left:10px;
+    background-color:cyan;
+    border-radius: 5px;
+    background-image: linear-gradient(cyan, lightcyan);
+    box-shadow: 2px 2px blue;
+    border: solid 1px blue;
+    display:table-cell;
+    vertical-align:middle;
+}
+
+.sizeButtons:hover{
+    background-color:rgb(48, 89, 159);
+    background-image: linear-gradient(rgb(97, 166, 206), rgb(63, 153, 206));
+  }
+
+.theTitle{
+    width:100%;
+    height:40px;
+    font-size:16px;
+    background-color: cyan;
+    text-align: center;
+    border: solid 0px blue;
+    color:blue;
+    padding-top:8px;
+}
+
+.blockMgt{
+    width:100%; display:block; background-color: lightskyblue;
+}
+
+.subBlock{
+    width:100%; display:inline-block;
+    margin-top:3px;
+}
+
+.errMsg{
+    height:28px;
+    color:red;
+    font-weight: bolder;
+    padding-left:10px;
+    width:100%;
+    display: inline-block;
+    background-color: blue;
+    color:white;
+    padding-top:2px;
+    font-size:15px;
+}
+
+.even{
+    background-color:lightgreen;
+}
+
+.odd{
+    background-color:lightyellow;
+}
+
+.even:hover{
+    background-color:lightskyblue;
+}
+
+.odd:hover{
+    background-color:lightskyblue;
+}
+

@@ -103,7 +103,7 @@ ngOnInit(){
       this.getScreenWidth = window.innerWidth;
       this.getScreenHeight = window.innerHeight;
 
-      this.HTTP_AddressLog=this.Google_Bucket_Access_RootPOST + this.configServer.BucketConsole+ "/o?name="  ;
+      this.HTTP_AddressLog=this.Google_Bucket_Access_RootPOST + 'logconsole' + "/o?name="  ;
       this.myHeader=new HttpHeaders({
         'content-type': 'application/json',
         'cache-control': 'private, max-age=0'

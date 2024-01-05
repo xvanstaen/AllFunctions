@@ -314,7 +314,7 @@ getInfoToken(){
             this.errorMsg="";
 
 // TO BE DELETED
-this.selectApps=12;
+this.selectApps=16;
 //this.selHealthFunction=5
 this.isAppsSelected=true;
 //

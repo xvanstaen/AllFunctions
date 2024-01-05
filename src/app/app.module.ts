@@ -68,6 +68,7 @@ import { SportPerfRawDataMgtComponent } from './Sport/sport-perf-raw-data-mgt/sp
 import { SportPerformanceComponent } from './Sport/sport-performance/sport-performance.component';
 import { DisplayCircuitLoopComponent } from './Sport/display-circuit-loop/display-circuit-loop.component';
 import { BuildLoopFromPerfComponent } from './Sport/build-loop/build-loop-from-perf.component';
+import { TutorialsComponent } from './tutorials/tutorials.component';
 
 
 @NgModule({
@@ -119,7 +120,8 @@ import { BuildLoopFromPerfComponent } from './Sport/build-loop/build-loop-from-p
     SportPerfRawDataMgtComponent,
     SportPerformanceComponent,
     DisplayCircuitLoopComponent,
-    BuildLoopFromPerfComponent ,
+    BuildLoopFromPerfComponent,
+    TutorialsComponent ,
   ],
   imports: [
 

@@ -218,8 +218,8 @@ export class XMVTestProd{
 }
 
 export class UserParam{
-    id:string="XMVanstaen";
-    type:string="";
+    theId:string="XMVanstaen";
+    theType:string="";
     log:boolean=false;
   } 
 
@@ -267,13 +267,8 @@ export class configServer{
         mn:0
     }
   };
-  BucketConfig:string='';
-  BucketConsole:string='';
-  BucketContact:string='';
-  BucketUserInfo:string='';
-  BucketFitness:string='';
-  BucketRecipe:string='';
-  FilesToCache:Array<{bucket:"",object:""}>=[];
+
+  filesToCache:Array<{bucket:"",object:""}>=[];
   PointOfRef={
     bucket:"config-xmvit",
     file:"PointOfReference.json",
