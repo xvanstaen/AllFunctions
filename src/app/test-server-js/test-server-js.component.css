@@ -18,6 +18,15 @@
     background-color: cyan;
 }
 
+.theInputMid{
+  width:150px; color:blue; font-size:14px; display:inline-block; background-color: lightgrey;
+  padding-left:8px;
+}
+
+.theInputMid:hover {
+  background-color: cyan;
+}
+
 .theMetadata{
     width:60%; color:blue; font-size:12px; display:inline-block; 
 }

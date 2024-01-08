@@ -14,9 +14,9 @@
         </div>
         <div class="skipLine"></div>
     </div>
-    <div class="skipLine"></div>
-    <div class="blockMgt" style="background-color: lightyellow;">
-        <div class="theTitle" style="background-color: lightyellow;"> Global search and delete</div>
+
+    <div class="blockMgt" style="background-color: lightskyblue;">
+        <div class="theTitle" style="background-color: lightskyblue;"> Global search and delete</div>
         <div class="subBlock">
             <div class="label">Record type</div> <input type="text" class="theInput" value="{{typeRecord}}" (input)="onInput($event)" id="type">
         </div>
@@ -31,10 +31,12 @@
         <div class="subBlock">
             <div class="label">Object Id</div> <input type="text" class="theInput" value="{{objectId}}" (input)="onInput($event)" id="objectId">
        </div>
-       <div style="margin-left:20px; margin-top:8px;" >
+       <div style="margin-left:80px; margin-top:8px;" >
             <button class="sizeButtons" id="commonSearch" (click)="findByString($event)">Find by search</button> 
             <button class="sizeButtons" id="commonSearchId" (click)="findById($event)">Find by id</button> 
             <button class="sizeButtons" id="commonAll" (click)="findAll($event)">Get all</button> 
+        </div>
+        <div style="margin-left:80px; margin-top:8px;" >
             <button class="sizeButtons" id="commonDelAll" (click)="delAll()">Delete all</button> 
             <button class="sizeButtons" id="commonDelByString" (click)="delByString()">Delete by string</button> 
             <button class="sizeButtons" id="commonObjectId" (click)="delById($event)">Delete by ID</button> 

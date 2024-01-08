@@ -193,7 +193,7 @@ export class TestServerJSComponent {
 
   reinitialise() {
 
-    this.titleConfig = "theUpdate";
+    this.titleConfig = "";
 
     this.theForm.controls['server'].setValue('server');
     this.theForm.controls['nameServer'].setValue(this.tabServers[1]);
