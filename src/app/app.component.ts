@@ -139,6 +139,7 @@ export class AppComponent {
         
         this.configServer.baseUrl = InitconfigServer.baseUrl;
         this.configServer.IpAddress=this.IpAddress;
+        this.configServer.test_prod= InitconfigServer.test_prod;
         console.log('configServer is retrieved; we will be using ' + this.configServer.baseUrl);
           //this.getTokenOAuth2();
         if (this.credentials.access_token===""){

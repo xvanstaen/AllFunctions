@@ -1,16 +1,18 @@
 
-<form [formGroup]="theForm" >
-<label class="label" style="margin-top:5px;">Server name</label> <input type="text" class="theInput" formControlName="nameServer" (click)="onActionServer()">
-            <div *ngIf="isSelectServer===true" style="width:100%; display:inline-block;" >
-                <div  style=' width:300px; height:120px;  display:inline-block; margin-top:3px; margin-left:150px; border: solid 2px blue; background-color:cyan;'>
-                    <span style="text-align: center; font-size:16px; width:100%; display:inline-block; padding-top:6px;">Select the server</span>
-                    <li *ngFor="let server of tabServers; let m=index;" 
-                            class="Straight-options "  [ngClass]=" {'even': m % 2 ===0, 'odd': m % 2 !==0}" 
-                                (click)="selectServer($event)" id="selectedServer" [value]="server" >{{server}}
-                    </li>
-                </div>
-            </div>  
-</form>
+<div style="margin-left:20px; width:500px; display:inline-block; border:solid 2px green; ">
+    <form [formGroup]="theForm" >
+        <label class="label" style="margin-top:5px;">Server name</label> <input type="text" class="theInput" formControlName="nameServer" (click)="onActionServer()">
+        <div *ngIf="isSelectServer===true" style="width:100%; display:inline-block;" >
+            <div  style=' width:300px; height:120px;  display:inline-block; margin-top:3px; margin-left:150px; border: solid 2px blue; background-color:cyan;'>
+                <span style="text-align: center; font-size:16px; width:100%; display:inline-block; padding-top:6px;">Select the server</span>
+                <li *ngFor="let server of tabServers; let m=index;" 
+                        class="Straight-options "  [ngClass]=" {'even': m % 2 ===0, 'odd': m % 2 !==0}" 
+                            (click)="selectServer($event)" id="selectedServer" [value]="server" >{{server}}
+                </li>
+            </div>
+        </div>  
+    </form>
+</div>
 <div class="skipLine"></div>
 <div style="margin-left:20px; width:620px; display:block;" *ngIf="isInitDone===true">
         <app-tutorials [configServer]="newConfigServer" [credentials]="credentials"> 
