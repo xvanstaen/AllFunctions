@@ -1773,7 +1773,7 @@ RetrieveConfig(){
     this.configServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
     
     this.configServer.GoogleProjectId='ConfigDB';
-    this.ManageMangoDBService.findConfigbyString(this.configServer, 'configServer', '')
+    this.ManageMangoDBService.findConfig(this.configServer, 'configServer')
     .subscribe(
       data => {
      

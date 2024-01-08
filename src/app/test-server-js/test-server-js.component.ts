@@ -53,6 +53,7 @@ export class TestServerJSComponent {
 
   @Input() configServer = new configServer;
   @Input() credentials = new classCredentials;
+  newConfigServer = new configServer;
 
   retrievedConfigServer= new configServer;
   updatedConfigServer= new configServer;
@@ -143,9 +144,10 @@ export class TestServerJSComponent {
   memoryCacheConsole:Array<any>=[];
 
   isSelectServer:boolean=false;
+  isInitDone:boolean=false;
 
   ngOnInit() {
-   // this.configServer.baseUrl = 'http://localhost:8080';
+   //this.configServer.baseUrl = 'http://localhost:8080';
     
     this.reinitialise();
     
@@ -155,7 +157,7 @@ export class TestServerJSComponent {
       this.EventHTTPReceived[i] = false;
     }
     this.currentAction='list all buckets';
-    if (this.theForm.controls['dataBase'].value==="Google"){
+    if (this.theForm.controls['dataBase'].value.toLowerCase()==="google"){
       this.getListBuckets();
     }
     for (var i = 0; i < 5; i++) {
@@ -173,6 +175,10 @@ export class TestServerJSComponent {
         "Accept": this.accept,
       });
     }
+    this.newConfigServer=this.configServer;
+    this.newConfigServer.baseUrl = this.theForm.controls['nameServer'].value;
+    this.newConfigServer.test_prod=this.theForm.controls['testProd'].value;
+    this.isInitDone=true;
   }
 
 
@@ -190,7 +196,7 @@ export class TestServerJSComponent {
     this.titleConfig = "theUpdate";
 
     this.theForm.controls['server'].setValue('server');
-    this.theForm.controls['nameServer'].setValue(this.tabServers[0]);
+    this.theForm.controls['nameServer'].setValue(this.tabServers[1]);
     this.theForm.controls['testProd'].setValue('test');
     this.theForm.controls['dataBase'].setValue('Mongo');
     this.theForm.controls['srcBucket'].setValue('');
@@ -463,7 +469,7 @@ listConfig(){
           this.EventHTTPReceived[13] = true;
         }, 
         err =>{
-          console.log('List config error: ' + err);
+          console.log('List config error: ' + JSON.stringify(err));
         })
   }
 
@@ -696,7 +702,7 @@ listConfig(){
       },
         err => {
           //console.log('Metaobject not retrieved ' + err.status);
-          this.error = JSON.stringify(err);
+          this.error = "cannot retrieve file " + object + "   error==> " + JSON.stringify(err);
           this.EventHTTPReceived[2] = true;
         });
   }
@@ -874,14 +880,19 @@ listConfig(){
     this.ManageGoogleService.getCacheConsole(this.configServer)
       .subscribe(
         (data) => {
-          this. memoryCacheConsole.splice(0,this. memoryCacheConsole.length);
-          for (var i=0; i<data.length; i++){
-            const theClass={theDate:'',msg:"",content:""};
-            this. memoryCacheConsole.push(theClass);
-            this. memoryCacheConsole[i]=data[i];
-            if (typeof data[i].content === 'object'){
-              this. memoryCacheConsole[i].content=JSON.stringify(data[i].content);
+          if (Array.isArray(data.msg)=== true){
+            this. memoryCacheConsole.splice(0,this. memoryCacheConsole.length);
+            for (var i=0; i<data.msg.length; i++){
+              const theClass={theDate:'',msg:"",content:""};
+              this. memoryCacheConsole.push(theClass);
+              this. memoryCacheConsole[i].theDate=data.msg[i].theDate;
+              this. memoryCacheConsole[i].msg=data.msg[i].msg;
+              //if (typeof data.msg[i].content === 'object'){
+              this. memoryCacheConsole[i].content=JSON.stringify(data.msg[i].content);
+              //}
             }
+          } else {
+            this.error=data.msg;
           }
 
           this.EventHTTPReceived[10] = true;
@@ -1095,6 +1106,18 @@ listConfig(){
           console.log(JSON.stringify(err));
         })
   }
-
-
+/*
+  ngOnChanges(changes: SimpleChanges){
+    console.log('ngOnChanges()');
+    for (const propName in changes) {
+      const j = changes[propName];
+      if (propName === 'configServer' || propName === 'newConfigServer') {
+        if (changes['configServer'].firstChange === false) {
+          console.log('configServer has been updated');
+          this.newConfigServer=this.configServer;
+        }
+      }
+    }
+  }
+*/
 }

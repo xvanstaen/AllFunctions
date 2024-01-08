@@ -83,7 +83,7 @@ body{
 }
 
 .errMsg{
-    height:28px;
+    height:60px;
     color:red;
     font-weight: bolder;
     padding-left:10px;

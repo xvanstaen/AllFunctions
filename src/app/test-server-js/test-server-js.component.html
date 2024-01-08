@@ -1,14 +1,6 @@
-<div class="skipLine"></div>
-<div style="margin-left:20px; width:620px; display:block;">
-        <app-tutorials> [configServer]='configServer'
-        </app-tutorials>
-</div>
-<div class="skipLine"></div>
 
-<div style="margin-left:20px; width:500px; display:inline-block; max-height:240px; border:solid 2px green; overflow-y:scroll;">
-        <form [formGroup]="theForm" >
-
-            <label class="label" style="margin-top:5px;">Server name</label> <input type="text" class="theInput" formControlName="nameServer" (click)="onActionServer()">
+<form [formGroup]="theForm" >
+<label class="label" style="margin-top:5px;">Server name</label> <input type="text" class="theInput" formControlName="nameServer" (click)="onActionServer()">
             <div *ngIf="isSelectServer===true" style="width:100%; display:inline-block;" >
                 <div  style=' width:300px; height:120px;  display:inline-block; margin-top:3px; margin-left:150px; border: solid 2px blue; background-color:cyan;'>
                     <span style="text-align: center; font-size:16px; width:100%; display:inline-block; padding-top:6px;">Select the server</span>
@@ -18,6 +10,18 @@
                     </li>
                 </div>
             </div>  
+</form>
+<div class="skipLine"></div>
+<div style="margin-left:20px; width:620px; display:block;" *ngIf="isInitDone===true">
+        <app-tutorials [configServer]="newConfigServer" [credentials]="credentials"> 
+        </app-tutorials>
+</div>
+<div class="skipLine"></div>
+
+<div style="margin-left:20px; width:500px; display:inline-block; max-height:240px; border:solid 2px green; overflow-y:scroll;">
+        <form [formGroup]="theForm" >
+
+
         
             <span class="theLine">
                 <label class="label">Test or Prod</label> <input type="text" class="theInput" formControlName="testProd">
@@ -29,16 +33,16 @@
                 <label class="label">Google/Mongo</label> <input type="text" class="theInput" formControlName="dataBase">
             </span>
             <span class="theLine">
-                <label class="label">srcBucket</label> <input type="text" class="theInput" formControlName="srcBucket" id="srcBucket" (click)="pasteAction($event)">
+                <label class="label">srcBucket</label> <input type="text" class="theInput" formControlName="srcBucket" id="srcBucket" (contextmenu)="pasteAction($event)">
             </span>
             <span class="theLine">
-                <label class="label">destBucket</label> <input type="text" class="theInput" formControlName="destBucket" id="destBucket" (click)="pasteAction($event)">
+                <label class="label">destBucket</label> <input type="text" class="theInput" formControlName="destBucket" id="destBucket" (contextmenu)="pasteAction($event)">
             </span>
             <span class="theLine">
-                <label class="label">srcObject</label> <input type="text" class="theInput" formControlName="srcObject" id="srcObject" (click)="pasteAction($event)">
+                <label class="label">srcObject</label> <input type="text" class="theInput" formControlName="srcObject" id="srcObject" (contextmenu)="pasteAction($event)">
             </span>
             <span class="theLine">
-                <label class="label">destObject</label> <input type="text" class="theInput" formControlName="destObject" id="destObject" (click)="pasteAction($event)">
+                <label class="label">destObject</label> <input type="text" class="theInput" formControlName="destObject" id="destObject" (contextmenu)="pasteAction($event)">
             </span>
             <span class="theLine">
                 <label class="label">content</label> <input type="text" class="theInput" style='height:90px;' formControlName="fileContent">
@@ -50,18 +54,18 @@
 
 </div>
 
-<div style="width:320px; display:inline-block;"  [ngStyle]="{'margin-top.px': theForm.controls['dataBase'].value==='Google' ? 10 : -50}">
+<div style="width:320px; display:inline-block;"  [ngStyle]="{'margin-top.px': theForm.controls['dataBase'].value.toLowerCase()==='google' ? 10 : -50}">
     <div  style=' width:320px;  overflow-y:scroll; display:inline-block; margin-left:20px; border: solid 2px blue; background-color:lightyellow;'
-    [ngStyle]="{'height.px': theForm.controls['dataBase'].value==='Google' ? 240 : tabActionMongo.length * 30 + 36}">
+    [ngStyle]="{'height.px': theForm.controls['dataBase'].value.toLowerCase()==='google' ? 240 : tabActionMongo.length * 30 + 36}">
         <span style="text-align: center; font-size:16px; width:100%; display:inline-block; padding-top:6px;">Select the action</span>
-       <div *ngIf="theForm.controls['dataBase'].value==='Google'">
+       <div *ngIf="theForm.controls['dataBase'].value.toLowerCase()==='google'">
     
             <li *ngFor="let action of tabAction; let m=index;" 
                     class="Straight-options "  [ngClass]=" {'even': m % 2 ===0, 'odd': m % 2 !==0}" 
                         (click)="selectAction($event)" id="selectedAction" [value]="action" >{{action}}
             </li>
         </div>
-        <div *ngIf="theForm.controls['dataBase'].value==='Mongo'" >
+        <div *ngIf="theForm.controls['dataBase'].value.toLowerCase()==='mongo'" >
     
             <li *ngFor="let action of tabActionMongo; let m=index;" 
                     class="Straight-options " style="height:30px;" [ngClass]=" {'even': m % 2 ===0, 'odd': m % 2 !==0}" 

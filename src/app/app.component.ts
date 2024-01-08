@@ -50,7 +50,7 @@ export class AppComponent {
   selHealthFunction:number=0;
   credentials = new classCredentials;
   isCredentials:boolean=false;
-  myParams={server:"", scope:""};
+  myParams={server:"", scope:"test"};
 
   theForm: FormGroup = new FormGroup({ 
     userId: new FormControl({value:'Fitness', disabled:false}, { nonNullable: true }),

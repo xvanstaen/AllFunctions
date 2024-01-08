@@ -4,7 +4,6 @@
 
   
     <div class="theTitle" style="border:0px; font-size:18px; background-color: lightskyblue; margin-top:5px;"> Tests MONGO DB</div>
-    
     <div style="width:600px; display:block; background-color: cyan; text-align: center; border:solid 2px green;">
         <div class="theTitle"> Select the type of file</div>
         <div *ngFor="let tab of tabActions; let i=index" class="forHover" id="sel-{{i}}" (click)="onSelectType($event)"

@@ -16,17 +16,17 @@ export class ManageMangoDBService {
     return this.http.get<any>(http_get); 
   }
 
-  findConfigbyString(configServer:configServer,dataBase:string,searchString: any ): Observable<any> {
-    return this.http.get<any>(`${configServer.baseUrl}/configByString/${configServer.GoogleProjectId}/${configServer.test_prod}/${dataBase}?searchString=${searchString}`);
+  findConfigbyString(configServer:configServer,dataBase:string,searchBucket:string,searchString: any ): Observable<any> {
+    return this.http.get<any>(`${configServer.baseUrl}/configByString/${configServer.GoogleProjectId}/${configServer.test_prod}/${dataBase}/${searchBucket}?searchString=${searchString}`);
   } 
 
   findAllConfig(configServer:configServer,dataBase:string ): Observable<any> {
-    const http_get=configServer.baseUrl+'/allConfig/'+configServer.GoogleProjectId+'/'+configServer.test_prod+'/'+dataBase;
+    const http_get=configServer.baseUrl+'/allConfig/'+configServer.GoogleProjectId+'/'+configServer.test_prod+'/'+dataBase+'/'+"Nil";
     return this.http.get<any>(http_get);  // cache is not used
   }
 
-  findAllConfigbyString(configServer:configServer,dataBase:string,searchString: any ): Observable<any> {
-    return this.http.get<any>(`${configServer.baseUrl}/allConfigByString/${configServer.GoogleProjectId}/${configServer.test_prod}/${dataBase}?searchString=${searchString}`);
+  findAllConfigbyString(configServer:configServer,dataBase:string,searchBucket:string,searchString: any ): Observable<any> {
+    return this.http.get<any>(`${configServer.baseUrl}/allConfigByString/${configServer.GoogleProjectId}/${configServer.test_prod}/${dataBase}/${searchBucket}?searchString=${searchString}`);
   } // cache is not used
 
   resetConfig(configServer:configServer,dataBase:string ): Observable<any> {

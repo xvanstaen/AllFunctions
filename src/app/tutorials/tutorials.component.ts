@@ -1,5 +1,5 @@
 import {
-  Component, OnInit, Input, Output, HostListener, OnDestroy, HostBinding, ChangeDetectionStrategy,
+  Component, OnInit, Input, Output, OnChanges, HostListener, OnDestroy, HostBinding, ChangeDetectionStrategy,
   SimpleChanges, EventEmitter, AfterViewInit, AfterViewChecked, AfterContentChecked, Inject, LOCALE_ID
 } from '@angular/core';
 
@@ -16,7 +16,7 @@ import { ViewportScroller } from "@angular/common";
 import { FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 
 import { msginLogConsole } from '../consoleLog';
-import { configServer, LoginIdentif, msgConsole } from '../JsonServerClass';
+import { configServer, LoginIdentif, msgConsole, classCredentials } from '../JsonServerClass';
 
 import { classAccessFile, classFileSystem } from '../classFileSystem';
 
@@ -54,16 +54,11 @@ export class TutorialsComponent {
     private ManageMangoDBService: ManageMangoDBService,
     private ManageGoogleService: ManageGoogleService,
     private ManageTutorialService: TutorialService,
-    private datePipe: DatePipe,
 
-    //public auth: AuthService,
-
-    @Inject(LOCALE_ID) private locale: string,
   ) { }
 
   @Input() configServer = new configServer;
-
-  newConfig= new configServer;
+  @Input() credentials = new classCredentials;
 
   EventHTTPReceived: Array<boolean> = [];
   maxEventHTTPrequest: number = 20;
@@ -109,10 +104,13 @@ export class TutorialsComponent {
   selectedAction:number=4;
 
   ngOnInit(){
-    this.newConfig = new configServer;
-    this.newConfig.test_prod='test';
-    this.newConfig.baseUrl='http://localhost:8080';
+    //this.configServer = new configServer;
+    //this.newConfig.test_prod='test';
+    //this.newConfig.baseUrl='http://localhost:8080';
+    //this.newConfig.baseUrl="https://xmv-it-consulting.uc.r.appspot.com";
+    //this.newConfig.baseUrl='https://test-server-359505.uc.r.appspot.com';
     this.onReinit();    
+    console.log('test');
   }
 
   onReinit(){
@@ -142,6 +140,7 @@ export class TutorialsComponent {
     this.recordPSW.UserId="Xavier";
     this.recordPSW.method="AES";
     this.recordPSW.psw="thePSW"
+
   }
 
   onInput(event:any){
@@ -262,7 +261,7 @@ export class TutorialsComponent {
 
   createRecord(dataBase:any,collection:string,record:any){
     this.error='';
-    this.ManageTutorialService.upload(this.newConfig, dataBase, collection,record)
+    this.ManageTutorialService.upload(this.configServer, dataBase, collection,record)
     .subscribe(
       (data) => {
         console.log(data);
@@ -276,7 +275,7 @@ export class TutorialsComponent {
 
   updateRecord( dataBase:any, collection:string, record:any, objectId:any){
     this.error='';
-    this.ManageTutorialService.update(this.newConfig, dataBase, collection, objectId, record)
+    this.ManageTutorialService.update(this.configServer, dataBase, collection, objectId, record)
     .subscribe(
       (data) => {
         if (data.status!==undefined  && data.status===200){
@@ -334,7 +333,7 @@ export class TutorialsComponent {
   
   deleteById(dataBase:any, collection:string, id:any){
     this.error='';
-    this.ManageTutorialService.deleteById(this.newConfig, dataBase, collection, id)
+    this.ManageTutorialService.deleteById(this.configServer, dataBase, collection, id)
     .subscribe(
       (data) => {
         if (data.status!==undefined  && data.status!==200){
@@ -352,7 +351,7 @@ export class TutorialsComponent {
   deleteByString(dataBase:any, collection:string, searchString:string, searchField:string){
     this.error='';
     
-    this.ManageTutorialService.deleteByCriteria(this.newConfig, dataBase, collection, searchString, searchField)
+    this.ManageTutorialService.deleteByCriteria(this.configServer, dataBase, collection, searchString, searchField)
     .subscribe(
       (data) => {
         if (data.status!==undefined ){
@@ -369,7 +368,7 @@ export class TutorialsComponent {
 
   deleteAllRecords(dataBase:any,collection:string){
     this.error='';
-    this.ManageTutorialService.deleteAll(this.newConfig, dataBase, collection)
+    this.ManageTutorialService.deleteAll(this.configServer, dataBase, collection)
     .subscribe(
       (data) => {
         if (data.status!==undefined&& data.status===200 ){
@@ -420,7 +419,7 @@ export class TutorialsComponent {
     if (this.collection==="" || this.db==="" || this.typeRecord==="" || this.theSearch==="" || this.theSearchField===""){
       this.error='fields collection & db $ search string & fields must be filled in';
     }  else {
-        this.ManageTutorialService.getByCriteria(this.newConfig, this.db, this.collection,this.theSearch, this.theSearchField)
+        this.ManageTutorialService.getByCriteria(this.configServer, this.db, this.collection,this.theSearch, this.theSearchField)
         .subscribe(
           (data) => {
             this.processFind(data, type, iWait);
@@ -440,7 +439,7 @@ export class TutorialsComponent {
     if (this.collection==="" || this.db==="" || this.typeRecord==="" || this.objectId==="" ){
       this.error='fields collection & db $ search string & fields must be filled in';
     }  else {
-        this.ManageTutorialService.getById(this.newConfig, this.db, this.collection,this.objectId)
+        this.ManageTutorialService.getById(this.configServer, this.db, this.collection,this.objectId)
         .subscribe(
           (data) => {
             this.processFind(data, type, iWait);
@@ -460,12 +459,13 @@ export class TutorialsComponent {
     }
     this.EventHTTPReceived[iWait] = false;
     this.waitHTTP(this.TabLoop[iWait], this.maxLoop, iWait);
-    this.ManageTutorialService.getAll(this.newConfig, dataBase, collect)
+    this.ManageTutorialService.getAll(this.configServer, dataBase, collect)
       .subscribe(
         (data) => {
           this.processFind(data, type, iWait);
         },
         err => {
+          console.log('getAllRecords error=' + JSON.stringify(err));
           this.getError(err, "getAllRecords","");
         });
   }
@@ -593,7 +593,17 @@ export class TutorialsComponent {
       //}    
     }
   }
-
-
-
+/*
+  ngOnChanges(changes: SimpleChanges){
+    console.log('ngOnChanges()');
+    for (const propName in changes) {
+      const j = changes[propName];
+      if (propName === 'configServer' || propName === 'newConfigServer') {
+        if (changes['configServer'].firstChange === false) {
+          console.log('configServer has been updated');
+        }
+      }
+    }
+  }
+*/
 }
