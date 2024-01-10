@@ -19,7 +19,7 @@ import {ConfigFitness} from '../Health/ClassFitness';
 import {classConfHTMLFitHealth} from '../Health/classConfHTMLTableAll';
 import { classConfigChart, classchartHealth } from '../Health/classConfigChart';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
+import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
 
 
 @Component({
@@ -58,7 +58,7 @@ export class AdminJsonComponent {
     private http: HttpClient,
     private scroller: ViewportScroller,
     private ManageGoogleService: ManageGoogleService,
-    private ManageMangoDBService: ManageMangoDBService,
+    private ManageMongoDBService: ManageMongoDBService,
     ) {}
 
     getScreenWidth: any;

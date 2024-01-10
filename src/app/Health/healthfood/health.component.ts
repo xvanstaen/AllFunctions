@@ -14,7 +14,7 @@ import { Observable } from 'rxjs';
 import { BucketList, Bucket_List_Info } from '../../JsonServerClass';
 
 // configServer is needed to use ManageGoogleService
-// it is stored in MangoDB and accessed via ManageMangoDBService
+// it is stored in MongoDB and accessed via ManageMongoDBService
 
 import { msginLogConsole } from '../../consoleLog'
 import { configServer, LoginIdentif, msgConsole, classCredentials } from '../../JsonServerClass';
@@ -38,7 +38,7 @@ import { classConfigChart, classchartHealth } from '../classConfigChart';
 import { classAxis, classLegendChart, classPluginTitle, classTabFormChart, classFileParamChart } from '../classChart';
 import { classFileSystem, classAccessFile } from '../../classFileSystem';
 
-import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
+import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import { AccessConfigService } from 'src/app/CloudServices/access-config.service';
 
@@ -55,7 +55,7 @@ export class HealthComponent implements OnInit {
     private http: HttpClient,
     private fb: FormBuilder,
     private scroller: ViewportScroller,
-    private ManageMangoDBService: ManageMangoDBService,
+    private ManageMongoDBService: ManageMongoDBService,
     private ManageGoogleService: ManageGoogleService,
     private datePipe: DatePipe,
     @Inject(LOCALE_ID) private locale: string,

@@ -16,7 +16,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { configServer } from '../JsonServerClass';
 
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
+import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
 
 @Injectable({
     providedIn: 'root'
@@ -131,7 +131,7 @@ export class RoutingAppComponent implements OnInit {
     private router:Router, 
     private http: HttpClient,
     private ManageGoogleService: ManageGoogleService,
-    private ManageMangoDBService: ManageMangoDBService,
+    private ManageMongoDBService: ManageMongoDBService,
     
     ) {}
 

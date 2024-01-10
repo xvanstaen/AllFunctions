@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
+import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
 import { configServer } from '../JsonServerClass';
 
 import { environment } from 'src/environments/environment';
@@ -13,7 +13,7 @@ export class XmvcompanyRootComponent implements OnInit {
 
   constructor(
     private ManageGoogleService: ManageGoogleService,
-    private ManageMangoDBService: ManageMangoDBService,
+    private ManageMongoDBService: ManageMongoDBService,
     ) {}
       // import configuration files
       // access MongoDB
@@ -33,7 +33,7 @@ export class XmvcompanyRootComponent implements OnInit {
     InitconfigServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
     
     InitconfigServer.GoogleProjectId='ConfigDB';
-    this.ManageMangoDBService.findConfig(InitconfigServer, 'configServer')
+    this.ManageMongoDBService.findConfig(InitconfigServer, 'configServer')
     .subscribe(
       data => {
        // test if data is an array if (Array.isArray(data)===true){}

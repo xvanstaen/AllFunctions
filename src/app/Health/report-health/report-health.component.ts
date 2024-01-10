@@ -15,7 +15,7 @@ import { Observable } from 'rxjs';
 import { BucketList, Bucket_List_Info } from '../../JsonServerClass';
 
 // configServer is needed to use ManageGoogleService
-// it is stored in MangoDB and accessed via ManageMangoDBService
+// it is stored in MongoDB and accessed via ManageMongoDBService
 
 
 import { environment } from 'src/environments/environment';
@@ -33,7 +33,7 @@ import { classConfigChart, classchartHealth } from '../classConfigChart';
 import {classPosSlider} from '../../JsonServerClass';
 
 import { configServer,  LoginIdentif, msgConsole } from '../../JsonServerClass';
-import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
+import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import {AccessConfigService} from 'src/app/CloudServices/access-config.service';
 import { classAxis, classLegendChart, classPluginTitle , classTabFormChart, classFileParamChart, classReturnColor} from '../classChart';
@@ -53,7 +53,7 @@ export class ReportHealthComponent implements OnInit {
     private http: HttpClient,
     private fb: FormBuilder,
     private scroller: ViewportScroller,
-    private ManageMangoDBService: ManageMangoDBService,
+    private ManageMongoDBService: ManageMongoDBService,
     private ManageGoogleService: ManageGoogleService,
     private datePipe: DatePipe,
     @Inject(LOCALE_ID) private locale: string,
@@ -150,7 +150,7 @@ export class ReportHealthComponent implements OnInit {
   tabPeriod=['daily','weekly','monthly'];
 
   paramAllCharts= new FormGroup({ 
-    period:new FormControl({value:'', disabled:false}, { nonNullable: true }), //daily, weekly, monthly
+    period:new FormControl({value:'daily', disabled:false}, { nonNullable: true }), //daily, weekly, monthly
     startRange: new FormControl({value:'', disabled:false},[
       Validators.required,
       // validates date format yyyy-mm-dd with regular expression
@@ -594,6 +594,7 @@ ngOnInit() {
         this.changeCanvas(i);
       }
     }
+    this.paramAllCharts.controls['startRange'].setValue("01/01/2024");
   }
   
 enableForm(){
@@ -739,7 +740,7 @@ changeCanvas(i:number){
 forAllCharts(event:any){
   if (event.target.id==="clear"){
       this.paramAllCharts.controls['period'].setValue(this.tabPeriod[0]);
-      this.paramAllCharts.controls['startRange'].setValue('2023-01-01');
+      this.paramAllCharts.controls['startRange'].setValue('202401-01');
       this.paramAllCharts.controls['endRange'].setValue('');
 
   } else if (event.target.id==="apply"){

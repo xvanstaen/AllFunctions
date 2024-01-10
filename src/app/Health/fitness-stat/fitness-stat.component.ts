@@ -13,14 +13,14 @@ import { BucketList , Bucket_List_Info, OneBucketInfo} from '../../JsonServerCla
 
 
 // configServer is needed to use ManageGoogleService
-// it is stored in MangoDB and accessed via ManageMangoDBService
+// it is stored in MongoDB and accessed via ManageMongoDBService
 import { configServer, LoginIdentif } from '../../JsonServerClass';
 
 import { environment } from 'src/environments/environment';
 import {manage_input} from '../../manageinput';
 import {eventoutput, thedateformat} from '../../apt_code_name';
 
-import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
+import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import {AccessConfigService} from 'src/app/CloudServices/access-config.service';
 
@@ -49,7 +49,7 @@ export class FitnessStatComponent implements OnInit {
     private http: HttpClient,
     private fb: FormBuilder,
     private scroller: ViewportScroller,
-    private ManageMangoDBService: ManageMangoDBService,
+    private ManageMongoDBService: ManageMongoDBService,
     private ManageGoogleService: ManageGoogleService,
     private datePipe: DatePipe,
     @Inject(LOCALE_ID) private locale: string,
@@ -1773,7 +1773,7 @@ RetrieveConfig(){
     this.configServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
     
     this.configServer.GoogleProjectId='ConfigDB';
-    this.ManageMangoDBService.findConfig(this.configServer, 'configServer')
+    this.ManageMongoDBService.findConfig(this.configServer, 'configServer')
     .subscribe(
       data => {
      

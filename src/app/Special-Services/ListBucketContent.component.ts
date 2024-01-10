@@ -19,7 +19,7 @@ import { configServer } from '../JsonServerClass';
 
 
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
+import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
 
 @Component({
   selector: 'app-ListBucketContent',
@@ -34,7 +34,7 @@ export class ListBucketContentComponent {
     private http: HttpClient,
     private scroller: ViewportScroller,
     private ManageGoogleService: ManageGoogleService,
-    private ManageMangoDBService: ManageMangoDBService,
+    private ManageMongoDBService: ManageMongoDBService,
     ) {}
   
     @Input() configServer=new configServer;

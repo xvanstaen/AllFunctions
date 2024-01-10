@@ -6,7 +6,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ActivatedRoute, Router } from "@angular/router";
 
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
+import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
 import { LoginIdentif , configServer } from './JsonServerClass';
 import { environment } from 'src/environments/environment';
 import { classCredentials} from './JsonServerClass';
@@ -27,7 +27,7 @@ export class AppComponent {
   
   constructor(
     private ManageGoogleService: ManageGoogleService,
-    private ManageMangoDB: ManageMangoDBService,
+    private ManageMongoDB: ManageMongoDBService,
     private elementRef: ElementRef,
     private http: HttpClient,
     private route: ActivatedRoute,
@@ -119,8 +119,8 @@ export class AppComponent {
       
     InitconfigServer.test_prod=test_prod; // retrieve the corresponding record test or production
     InitconfigServer.GoogleProjectId='ConfigDB';
-    this.ManageMangoDB.findConfig(InitconfigServer, 'configServer')
-     // this.ManageMangoDB.findConfigbyURL(InitconfigServer, 'configServer', '')
+    this.ManageMongoDB.findConfig(InitconfigServer, 'configServer')
+     // this.ManageMongoDB.findConfigbyURL(InitconfigServer, 'configServer', '')
       .subscribe(
         data => {
          // test if data is an array if (Array.isArray(data)===true){}
@@ -154,7 +154,7 @@ export class AppComponent {
           console.log('error to retrieve the configuration file ;  error = ', error);
         });
   }
-
+/*
   getTokenOAuth2(){
     console.log('requestToken()');
     this.ManageGoogleService.getTokenOAuth2(this.configServer  )
@@ -168,7 +168,23 @@ export class AppComponent {
             console.log(JSON.stringify(err));
           });
   }
+
+  getInfoToken(){
+    console.log('getInfoToken()');
+    this.ManageGoogleService.getInfoToken(this.configServer, this.credentials.access_token  )
+    .subscribe(
+        (data ) => {
+            console.log(JSON.stringify(data));
+            //this.tokenValues=data.tokenValues;
+        },
+        err => {
+            console.log('return from getInfoToken() with error');
+            console.log(JSON.stringify(err));
+          });
+  }
   
+  */
+
   getDefaultCredentials(){
     console.log('getDefaultCredentials()');
     this.ManageGoogleService.getDefaultCredentials(this.configServer  )
@@ -195,19 +211,7 @@ export class AppComponent {
           });
   }
 
-getInfoToken(){
-    console.log('getInfoToken()');
-    this.ManageGoogleService.getInfoToken(this.configServer, this.credentials.access_token  )
-    .subscribe(
-        (data ) => {
-            console.log(JSON.stringify(data));
-            //this.tokenValues=data.tokenValues;
-        },
-        err => {
-            console.log('return from getInfoToken() with error');
-            console.log(JSON.stringify(err));
-          });
-  }
+
 
   assignNewServerUsrId(){
     this.ManageGoogleService.getNewServerUsrId(this.configServer)

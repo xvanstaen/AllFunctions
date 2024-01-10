@@ -18,7 +18,7 @@ import { Return_Data } from '../JsonServerClass';
 import { configServer } from '../JsonServerClass';
 
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
+import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
 
 @Component({
   selector: 'app-AdminUserInfo',
@@ -41,7 +41,7 @@ export class AdminUserInfoComponent {
     private scroller: ViewportScroller,
     private fb:FormBuilder,
     private ManageGoogleService: ManageGoogleService,
-    private ManageMangoDBService: ManageMangoDBService,
+    private ManageMongoDBService: ManageMongoDBService,
     ) {
     }
 

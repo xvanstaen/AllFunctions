@@ -19,16 +19,16 @@ import { Observable } from 'rxjs';
 import { BucketList, Bucket_List_Info, OneBucketInfo, classCredentials, classTabMetaPerso } from '../JsonServerClass';
 
 // retrievedConfigServer is needed to use ManageGoogleService
-// it is stored in MangoDB and accessed via ManageMangoDBService
+// it is stored in MongoDB and accessed via ManageMongoDBService
 
 import { msginLogConsole } from '../consoleLog';
 import { configServer, LoginIdentif, msgConsole } from '../JsonServerClass';
 
 import { classAccessFile, classFileSystem } from '../classFileSystem';
-
-import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
+import { ManageSecuredGoogleService } from 'src/app/CloudServices/ManageSecuredGoogle.service';
+import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { AccessConfigService } from 'src/app/CloudServices/access-config.service';
+import { TutorialService } from 'src/app/CloudServices/tutorial.service';
 
 
 @Component({
@@ -42,10 +42,10 @@ export class TestServerJSComponent {
     private http: HttpClient,
     private fb: FormBuilder,
     private scroller: ViewportScroller,
-    private ManageMangoDBService: ManageMangoDBService,
+    private ManageSecuredGoogleService: ManageSecuredGoogleService,
+    private ManageMongoDBService: ManageMongoDBService,
     private ManageGoogleService: ManageGoogleService,
-    private datePipe: DatePipe,
-
+    private ManageTutorialService: TutorialService,
     //public auth: AuthService,
 
     @Inject(LOCALE_ID) private locale: string,
@@ -122,7 +122,7 @@ export class TestServerJSComponent {
   tabAction: Array<string> = ['cancel', 'list all buckets', 'list all objects', 'get file content', 'get list metadata for all objects', 'get metadata for one object', 'create & save metadata' , 'update metadata for one object',  'save object', 'save object with meta perso' , 'rename object', 
   'copy object', 'move object', 'delete object', 'cache console', 'get memory File System','reset memory File System'];
 
-  tabActionMongo: Array<string> = ['cancel', 'list config', 'upload config', 'update config'];
+  tabActionMongo: Array<string> = ['cancel', 'list config', 'update config', 'upload config', 'delete config'];
 
 
   tabServers: Array<string> = [
@@ -198,7 +198,7 @@ export class TestServerJSComponent {
     this.theForm.controls['server'].setValue('server');
     this.theForm.controls['nameServer'].setValue(this.tabServers[1]);
     this.theForm.controls['testProd'].setValue('test');
-    this.theForm.controls['dataBase'].setValue('Mongo');
+    this.theForm.controls['dataBase'].setValue('Google');
     this.theForm.controls['srcBucket'].setValue('');
     this.theForm.controls['srcObject'].setValue('');
     this.theForm.controls['destBucket'].setValue('');
@@ -214,7 +214,7 @@ export class TestServerJSComponent {
     this.isConfirmedSave= false;
   }
 
-
+/*
   requestToken() {
     this.EventHTTPReceived[9] = false;
     this.waitHTTP(this.TabLoop[9], this.maxLoop, 9);
@@ -228,7 +228,7 @@ export class TestServerJSComponent {
           this.EventHTTPReceived[9] = true;
         });
   }
-
+*/
 
   onAction() {
     console.log('onAction');
@@ -344,6 +344,7 @@ export class TestServerJSComponent {
   selectServer(event: any) {
     this.isSelectServer=false;
     this.configServer.baseUrl = event.target.textContent.trim();
+    this.newConfigServer.baseUrl = event.target.textContent.trim();
     this.theForm.controls['nameServer'].setValue(event.target.textContent.trim());
   }
 
@@ -352,6 +353,7 @@ export class TestServerJSComponent {
 
     var testProd = this.theForm.controls['testProd'].value;
     this.configServer.test_prod = testProd.toLowerCase().trim();
+    this.newConfigServer.test_prod = testProd.toLowerCase().trim();
 
     this.isConfirmedDelete= false;
     this.isConfirmedSave= false;
@@ -423,17 +425,21 @@ export class TestServerJSComponent {
       } else if (event.target.textContent.trim() === 'upload config') {
         this.uploadConfig();
 
-      } else {
+      } else if (event.target.textContent.trim() === 'delete config') {
+        this.delConfigById();
+
+      }else {
         this.error = 'ACTION UNKNOWN';
       }
     }
 
   }
 
-  titleConfig:string="";
-  storeTitle(event:any){
+titleConfig:string="";
+storeTitle(event:any){
     this.titleConfig=event.target.value;;
-  }
+}
+
 tabOfConfig:Array<configServer>=[]; 
 tabOfId:Array<string>=[]; 
 idMongo:string="";
@@ -446,8 +452,8 @@ listConfig(){
     this.configServer.baseUrl=this.theForm.controls['nameServer'].value;
     this.configServer.test_prod=this.theForm.controls['testProd'].value; // retrieve the corresponding record test or production
     this.configServer.GoogleProjectId='ConfigDB';
-    this.ManageMangoDBService.findAllConfig(this.configServer, 'configServer')
-  // this.ManageMangoDB.findConfigbyURL(this.configServer, 'retrievedConfigServer', '')
+    this.ManageMongoDBService.findAllConfig(this.configServer, 'configServer')
+  // this.ManageMongoDB.findConfigbyURL(this.configServer, 'retrievedConfigServer', '')
         .subscribe(
           (data) => {
           this.retrievedConfigServer = new configServer;
@@ -528,14 +534,19 @@ listConfig(){
   updateConfig(){
 
     this.EventHTTPReceived[14] = false;
-    this.ManageMangoDBService.updateConfig(this.configServer, 'configServer', this.idMongo, this.retrievedConfigServer)
+    this.ManageMongoDBService.updateConfig(this.configServer, 'configServer', this.idMongo, this.retrievedConfigServer)
  
         .subscribe(
           (data) => {
-         
+            if (data.status=200){
+              this.error=data.message;
+            } else {
+              this.error = "status:" + data.status + " - " + data.message;
+            }
           this.EventHTTPReceived[13] = true;
         }, 
         err =>{
+          this.error = "status:" +err.err.status + " - " + err.err.message;
           console.log('error');
         })
 
@@ -579,14 +590,38 @@ listConfig(){
 
   uploadConfig(){
     this.EventHTTPReceived[14] = false;
-    this.ManageMangoDBService.uploadConfig(this.configServer, 'configServer', this.retrievedConfigServer)
+    this.ManageMongoDBService.uploadConfig(this.configServer, 'configServer', this.retrievedConfigServer)
         .subscribe(
           (data) => {
+            this.error="New configuration record created";
+            this.listConfig();
           this.EventHTTPReceived[13] = true;
           }, 
           err =>{
+            this.error="Error - config record is not created" + err.message;
             console.log('error='+err);
           })
+    }
+
+
+    delConfigById(){
+      this.error='';
+      
+
+        this.ManageTutorialService.deleteById(this.configServer, 'configDB', 'configServer', this.idMongo,)
+      .subscribe(
+        (data) => {
+          if (data.status!==undefined  && data.status!==200){
+            this.error=data.message;
+          } else {
+            this.error="Record successfully deleted";
+            this.listConfig();
+          }
+        },
+        err => {
+          this.error="Error - config record is not created" + err.message;
+          console.log('error='+err);
+        });
     }
 
   isInputMetadata:boolean=false;
@@ -877,7 +912,7 @@ listConfig(){
   getCacheConsole() {
     this.EventHTTPReceived[10] = false;
     this.waitHTTP(this.TabLoop[10], this.maxLoop, 10);
-    this.ManageGoogleService.getCacheConsole(this.configServer)
+    this.ManageSecuredGoogleService.getCacheConsole(this.configServer)
       .subscribe(
         (data) => {
           if (Array.isArray(data.msg)=== true){
@@ -910,7 +945,7 @@ listConfig(){
     this.error="";
     this.EventHTTPReceived[11] = false;
     this.waitHTTP(this.TabLoop[11], this.maxLoop, 11);
-    this.ManageGoogleService.getMemoryFS(this.configServer)
+    this.ManageSecuredGoogleService.getMemoryFS(this.configServer)
       .subscribe(
         (data) => {
           this.memoryFS.splice(0,this.memoryFS.length);
@@ -943,7 +978,7 @@ listConfig(){
     
     this.EventHTTPReceived[12] = false;
     this.waitHTTP(this.TabLoop[12], this.maxLoop, 12);
-    this.ManageGoogleService.resetFS(this.configServer, srcBucket, srcObject,this.tabLock,this.iWait)
+    this.ManageSecuredGoogleService.resetFS(this.configServer, srcBucket, srcObject,this.tabLock,this.iWait)
       .subscribe(
         (data) => {
           this.returnFileContent = JSON.stringify(data);

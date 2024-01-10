@@ -9,7 +9,7 @@ import { Router} from '@angular/router';
 import { ViewportScroller } from "@angular/common";
 import { FormGroup, FormControl, Validators, FormBuilder, FormArray} from '@angular/forms';
 import { Observable } from 'rxjs';
-import { ManageMangoDBService } from 'src/app/CloudServices/ManageMangoDB.service';
+import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import { configServer, LoginIdentif, msgConsole } from '../JsonServerClass';
 import { classFileSystem, classAccessFile }  from '../classFileSystem';
@@ -27,7 +27,7 @@ export class CheckFileUpdateComponent {
     private http: HttpClient,
     private fb: FormBuilder,
     private scroller: ViewportScroller,
-    private ManageMangoDBService: ManageMangoDBService,
+    private ManageMongoDBService: ManageMongoDBService,
     private ManageGoogleService: ManageGoogleService,
     private datePipe: DatePipe,
     @Inject(LOCALE_ID) private locale: string,

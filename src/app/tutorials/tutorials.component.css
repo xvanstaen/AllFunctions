@@ -111,3 +111,39 @@ body{
     background-color:lightskyblue;
 }
 
+
+.dropdown {
+    position: relative;
+    display: contents; 
+  }
+  
+
+.Straight-content{
+    position: absolute;
+    z-index: 1;
+  }
+
+.StraightDropDown{
+    width:400px;
+    height: 200px;
+    border: 2px solid green;
+    overflow: hidden;
+    background-color: lightgrey;
+    margin-left:60px;
+    margin-top:-240px;
+  }
+
+.StraightOptions{
+    margin-left:50px;
+    display:block;
+    margin-top:40px;
+
+}    
+
+.listRec{
+    margin-left:60px; width:400px; max-height:200px; overflow-y:scroll;
+}
+
+.listTitle{
+    margin-top:10px; margin-left:60px; width:400px;
+}
