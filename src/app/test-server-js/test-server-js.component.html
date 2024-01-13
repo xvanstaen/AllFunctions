@@ -384,7 +384,9 @@
             <div class="labelMid" style="text-align: right; padding-right:5px;">db</div> <input type="text" class="theInputShort" value="configDB" (input)="onInputConfig($event)"  id='dbConfig'>
         </div>
         <div class="subBlock">
-            <div class="labelMid">Project Id</div> <input type="text" class="theInput" style="width:310px;" value="{{dataConfigServer.GoogleProjectId}}" (input)="onInputConfig($event)"  id='projectId'>
+            <div class="labelMid">Project Id</div> <input type="text" class="theInput"  value="{{dataConfigServer.GoogleProjectId}}" (input)="onInputConfig($event)"  id='projectId'>
+            <div class="labelMid">Project </div> <input type="text" class="theInput" value="{{dataConfigServer.project}}" (input)="onInputConfig($event)"  id='project'>
+
         </div>
         <div class="subBlock">
             <div class="labelMid">id</div> <input type="text" class="theInput" style="width:310px;" value="{{idRecordConfig}}" (input)="onInputConfig($event)" id='idConfig'>

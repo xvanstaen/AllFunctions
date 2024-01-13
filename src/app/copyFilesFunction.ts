@@ -10,7 +10,7 @@ export function fillConfig(inFile:configServer){
     outFile.googleServer = inFile.googleServer;
     outFile.mongoServer = inFile.mongoServer;
     outFile.fileSystemServer = inFile.fileSystemServer;
-    
+    outFile.project = inFile.project;
     outFile.IpAddress = inFile.IpAddress;
     if (inFile.credentialDate!==undefined){
       outFile.credentialDate = inFile.credentialDate;

@@ -284,6 +284,8 @@ export class TutorialsComponent {
       this.recordConfig.IpAddress=event.target.value;
     } else if (event.target.id==='credential'){
       this.recordConfig.credentialDate=event.target.value;
+    } else if (event.target.id==='project'){
+      this.recordConfig.project=event.target.value;
     }
   }
 

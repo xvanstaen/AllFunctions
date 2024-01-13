@@ -961,6 +961,10 @@ listConfig(){
       this.dataConfigServer.objectFileSystem=event.target.value;
     } else if (event.target.id==='ipAddress'){
       this.dataConfigServer.IpAddress=event.target.value;
+    } else if (event.target.id==='project'){
+      this.dataConfigServer.project=event.target.value;
+    } else if (event.target.id==='credential'){
+      this.dataConfigServer.credentialDate=event.target.value;
     } 
   }
 
