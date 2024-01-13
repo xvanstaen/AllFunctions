@@ -16,9 +16,11 @@ import { ViewportScroller } from "@angular/common";
 import { FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 
 import { msginLogConsole } from '../consoleLog';
-import { configServer, LoginIdentif, msgConsole, classCredentials } from '../JsonServerClass';
+import { configServer, classFilesToCache, UserParam, LoginIdentif, msgConsole, classCredentials } from '../JsonServerClass';
 
 import { classAccessFile, classFileSystem } from '../classFileSystem';
+
+import { fillConfig } from '../copyFilesFunction'
 
 import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
@@ -59,6 +61,7 @@ export class TutorialsComponent {
 
   @Input() configServer = new configServer;
   @Input() credentials = new classCredentials;
+  @Input() configServerChanges:number=0;
 
   EventHTTPReceived: Array<boolean> = [];
   maxEventHTTPrequest: number = 20;
@@ -108,10 +111,15 @@ export class TutorialsComponent {
   dbConfig:string="ConfigDB";
   isSelectedIdConfig:number=0;
 
-  tabActions:Array<string>=['FS','PSW','Tuto','Config'];
+  tabActions:Array<string>=['FS','PSW','TUTO','CONFIG'];
   tabCollection:Array<string>=['filesystems','usrpsws','tutorials','configServer'];
   selectedAction:number=4;
 
+  itemFileToCache:number=-1;
+  itemUsrSpec:number=-1;
+  tabActionField:Array<string>=["cancel","add","delete"];
+  isDisplayTabActionField:boolean=false;
+  
   ngOnInit(){
 
     this.onReinit();    
@@ -242,8 +250,14 @@ export class TutorialsComponent {
       this.recordConfig.title=event.target.value;
     } else if (event.target.id==='test_prod'){
       this.recordConfig.test_prod=event.target.value;
-    } else if (event.target.id==='baseUrl'){
-      this.recordConfig.baseUrl=event.target.value;
+    } else if (event.target.id==='googleUrl'){
+      this.recordConfig.googleServer=event.target.value;
+    } else if (event.target.id==='mongoUrl'){
+      this.recordConfig.mongoServer=event.target.value;
+    } else if (event.target.id==='fileSystemUrl'){
+      this.recordConfig.fileSystemServer=event.target.value;
+    } else if (event.target.id==='console'){
+      this.recordConfig.consoleBucket=event.target.value;
     } else if (event.target.id==='TOhh'){
       this.recordConfig.timeoutFileSystem.hh=Number(event.target.value);
     } else if (event.target.id==='TOmn'){
@@ -264,12 +278,8 @@ export class TutorialsComponent {
       this.recordConfig.bucketFileSystem=event.target.value;
     } else if (event.target.id==='objectFS'){
       this.recordConfig.objectFileSystem=event.target.value;
-    } else if (event.target.id==='source'){
-      this.recordConfig.SourceJson_Google_Mongo=event.target.value;
     } else if (event.target.id==='projectId'){
       this.recordConfig.GoogleProjectId=event.target.value;
-    } else if (event.target.id==='MongoGoogle'){
-      this.recordConfig.Mongo_Google=event.target.value;
     } else if (event.target.id==='ipAddress'){
       this.recordConfig.IpAddress=event.target.value;
     } else if (event.target.id==='credential'){
@@ -308,7 +318,7 @@ export class TutorialsComponent {
   isDelAll:boolean=false;
  
   onActionDropDown(event:any){
-    if (event.target.id="confirm"){
+    if (event.target.id==="confirm"){
       if (this.isDelById===true){
         this.confirmDelById();
       } else if (this.isDelByString===true){
@@ -395,10 +405,16 @@ export class TutorialsComponent {
     
     if (event.target.id==="delIdFS"
       || event.target.id==="delIdPSW" || event.target.id==="delIdTuto"
-      || event.target.id==="delIdConfig" || event.target.idevent.target.id==="commonObjectId"){
+      || event.target.id==="delIdConfig" ){//this.error='id field is empty'
         this.isDelById=true;
         this.saveAction=event.target.id;
       
+    } else if (event.target.id==="commonObjectId"){
+      if (this.objectId!==""){
+        this.isDelById=true;
+        this.saveAction=event.target.id;
+      } else { this.error='id field is empty'}
+
     } else {
       this.isDelById=false;
       this.saveAction="";
@@ -421,7 +437,7 @@ export class TutorialsComponent {
     } else if (this.saveAction==="commonObjectId"){
       if (this.objectId!==""){
         this.deleteById(this.db, this.collection, this.objectId);
-      }
+      } 
     }   
     this.isDelById=false;
     this.saveAction="";
@@ -730,18 +746,22 @@ export class TutorialsComponent {
     this.tabRecordConfig.splice(0,this.tabRecordConfig.length);
     this.tabIdConfig.splice(0,this.tabIdConfig.length);
     if (Array.isArray(data) === false){
-        const theClass = new configServer;
-        this.tabRecordConfig.push(theClass);
-        this.fillConfig(data,this.tabRecordConfig[0]);
-        //this.tabRecordConfig[0]=data;
+        //const theClass = new configServer;
+        //this.tabRecordConfig.push(theClass);
+        //this.tabRecordConfig[0]=fillConfig(data);
+        //this.fillConfig(data,this.tabRecordConfig[0]);
+        this.tabRecordConfig[0]=fillConfig(data);
         this.tabIdConfig[0]=data.id;
         this.isSelectedIdConfig=0;
     } else {
         for (var i=0; i<data.length; i++){
+          /*
             const theClass= new configServer;
             this.tabRecordConfig.push(theClass);
             this.fillConfig(data[i],this.tabRecordConfig[i]);
+            */
             //this.tabRecordConfig[i]=data[i];
+            this.tabRecordConfig[i]=fillConfig(data[i]);
             this.tabIdConfig[i]=data[i].id;
             this.isSelectedIdConfig=0;
         }
@@ -749,48 +769,49 @@ export class TutorialsComponent {
     if (this.tabRecordConfig.length>0){
       
       // this.recordConfig=this.tabRecordConfig[0];
-      this.recordConfig = new configServer;
-      this.fillConfig(this.tabRecordConfig[0], this.recordConfig);
+      //this.recordConfig = new configServer;
+      //this.fillConfig(this.tabRecordConfig[0], this.recordConfig);
+      this.recordConfig=fillConfig(this.tabRecordConfig[0]);
       this.idRecordConfig=this.tabIdConfig[0];
     } else { this.error = "no record found"}
   }
 
 
-  fillConfig(inFile:any,outFile:any){
-    outFile.title = inFile.title;
-    outFile.SourceJson_Google_Mongo = inFile.SourceJson_Google_Mongo;
-    outFile.test_prod = inFile.test_prod;
-    outFile.GoogleProjectId = inFile.GoogleProjectId;
-    outFile.Mongo_Google = inFile.Mongo_Google;
-    outFile.baseUrl = inFile.baseUrl;
-    outFile.IpAddress = inFile.IpAddress;
-    if (inFile.credentialDate!==undefined){
-      outFile.credentialDate = inFile.credentialDate;
-    } else {outFile.credentialDate = ""};
-    outFile.bucketFileSystem = inFile.bucketFileSystem;
-    outFile.objectFileSystem = inFile.objectFileSystem;
-    outFile.timeoutFileSystem.hh= inFile.timeoutFileSystem.hh;
-    outFile.timeoutFileSystem.mn = inFile.timeoutFileSystem.mn;
-    outFile.timeoutFileSystem.bufferTO.hh= inFile.timeoutFileSystem.bufferTO.hh;
-    outFile.timeoutFileSystem.bufferTO.mn = inFile.timeoutFileSystem.bufferTO.mn;
-    outFile.timeoutFileSystem.bufferInput.hh = inFile.timeoutFileSystem.bufferInput.hh;
-    outFile.timeoutFileSystem.bufferInput.mn = inFile.timeoutFileSystem.bufferInput.mn;
-    outFile.PointOfRef.bucket = inFile.PointOfRef.bucket;
-    outFile.PointOfRef.file = inFile.PointOfRef.file;
-    for (var i=0; i<inFile.filesToCache.length; i++){
-      const theClass={bucket:"",object:""}
-      outFile.filesToCache.push(theClass);
-      outFile.filesToCache[i].bucket = inFile.filesToCache[i].bucket;
-      outFile.filesToCache[i].object = inFile.filesToCache[i].object;
-    }
-    
-    if (outFile.UserSpecific!==undefined){
-      outFile.UserSpecific=inFile.UserSpecific;
-    } else {
-      const theClass={theId:"",theType:"",log:false}
-      outFile.UserSpecific.push(theClass);
-    }
+  isConfConfigSave:boolean=false;
+  isConfConfigDelete:boolean=false;
+  isConfConfigUpdate:boolean=false;
+  
+  onActionConfig(event:any){
+    this.isDisplayTabActionField=false;
+    if (event.target.id.substring(0,12)==="fileToCache-"){
+      this.itemFileToCache=Number(event.target.id.substring(12));
+      this.itemUsrSpec=-1;
+      this.isDisplayTabActionField=true;
+    } else if (event.target.id.substring(0,8)==="usrSpec-"){
+      this.itemUsrSpec=Number(event.target.id.substring(8));
+      this.itemFileToCache=-1;
+      this.isDisplayTabActionField=true;
+    } else if (event.target.textContent.trim()==="add"){
+        
+        if (this.itemFileToCache!==-1){
+          const myClass=new classFilesToCache;
+          this.recordConfig.filesToCache.splice(this.itemFileToCache,0,myClass);
+          
+        } else if (this.itemUsrSpec !==-1){
+          const theClassUsr=new UserParam
+          this.recordConfig.UserSpecific.splice(this.itemUsrSpec,0, theClassUsr);
+        }
+  
+    } else if (event.target.textContent.trim()==="delete"){
+        if (this.itemFileToCache!==-1 && this.recordConfig.filesToCache.length>1){
+          this.recordConfig.filesToCache.splice(this.itemFileToCache,1);
+        } else if (this.itemUsrSpec !==-1 && this.recordConfig.UserSpecific.length>1){
+          this.recordConfig.UserSpecific.splice(this.itemUsrSpec,1);
+        }
+    } 
   }
+
+
 
   getError(err:any, process:any, byId:string){
     if (err.error.status===540 || err.error.status===510 || err.error.status===520 ){
@@ -822,17 +843,18 @@ export class TutorialsComponent {
       //}    
     }
   }
-/*
+
   ngOnChanges(changes: SimpleChanges){
-    console.log('ngOnChanges()');
+    console.log('tutorials ngOnChanges()');
     for (const propName in changes) {
       const j = changes[propName];
-      if (propName === 'configServer' || propName === 'newConfigServer') {
-        if (changes['configServer'].firstChange === false) {
+      console.log('tutorials ngOnChanges() - item ' + propName);
+      if (propName === 'configServerChanges') {
+        if (changes['configServerChanges'].firstChange === false) {
           console.log('configServer has been updated');
-        }
+        } 
       }
     }
   }
-*/
+
 }

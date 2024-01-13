@@ -55,19 +55,129 @@
     background-image: linear-gradient(rgb(97, 166, 206), rgb(63, 153, 206));
   }
 
+.skipLine{
+    margin-left:5px;
+    width:95%;
+    height:4px;
+    display:inline-block;
+    border:solid red 0px;
+   
+  }
+
+
+.dropdown {
+    position: relative;
+    display: contents; 
+  }
+  
+
+.Straight-content{
+    position: absolute;
+    z-index: 1;
+  }
+
+.StraightDropDown{
+    margin-top:20px;
+    width:305px;
+    height: 260px;
+    border: 0px solid green;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    background-color: lightgrey;
+    margin-left:40px;
+  }
+
+
+.Straight-options{
+    width:100%;
+    font-size:12px;
+    height:25px;
+    color:black;
+    text-align: left;
+    padding-left:5px;
+    padding-top:4px;
+    border:0px; 
+    display:inline-block;
+    float:none;
+  }
+
+.Straight-options:hover{
+    background-color:rgb(36, 199, 85);
+  }
+
+.error{
+    color:red;
+    font-size:14px;
+    background-color:cyan;
+    display:contents;
+  }
+
 .options{
   width:40%; display:inline-block; margin-left:8%;
 }
 
+.labelLong{
+  width:200px; color:blue; font-size:14px; display:inline-block; text-align: left; padding-left:10px;
+}
 
 .label{
   width:150px; color:blue; font-size:14px; display:inline-block; text-align: left; padding-left:10px;
 }
 
+.labelMid{
+width:110px; color:blue; font-size:14px; display:inline-block; text-align: left; padding-left:10px; font-weight: bold;
+}
+
+.labelShort{
+width:80px; color:blue; font-size:14px; display:inline-block; text-align: left; padding-left:10px; font-weight: bold;
+}
+
 .theInput{
-  width:300px; color:blue; font-size:14px; display:inline-block; background-color: lightgrey;
+  width:300px; color:blue; font-size:14px; display:inline-block; background-color: lightgrey; padding-left:8px;
 }
 
 .theInput:hover {
   background-color: cyan;
+}
+
+.theInputMid{
+  width:200px; color:blue; font-size:14px; display:inline-block; background-color: lightgrey;
+  padding-left:8px;
+}
+
+.theInputMid:hover {
+  background-color: cyan;
+}
+
+.theInputShort{
+  width:100px; color:blue; font-size:14px; display:inline-block; background-color: lightgrey;
+  padding-left:8px;
+}
+
+.theInputShort:hover {
+  background-color: cyan;
+}
+
+.odd{
+  background-color: cyan;
+}
+
+.even{
+  background-color: rgb(47, 226, 226);
+}
+
+.odd:hover{
+background-color: lightgreen;
+}
+
+.even:hover{
+background-color: lightgreen;
+}
+
+.forHover{
+  border:solid 0px blue;
+}
+
+.forHover:hover{
+  background-color: rgb(34, 187, 34);
 }

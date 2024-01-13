@@ -34,7 +34,9 @@ import { AdminJsonComponent}  from './Special-Services/AdminJson.component';
 import { AdminConsoleComponent}  from './Special-Services/AdminConsole.component';
 
 import { AdminUserInfoComponent } from './Special-Services/AdminUserInfo.component';
-
+import { Event27AugComponent}  from './Special-Services/Event-27AUG2022.component';
+import { Event02JULComponent}  from './Special-Services/Event-02JUL2022.component';
+import { AdminLoginComponent}  from './Special-Services/AdminLogin.component';
 import { ListBucketContentComponent}  from './Special-Services/ListBucketContent.component';
 import { ChangeSaveFileNameComponent}  from './Special-Services/ChangeSaveFileName.component';
 import { OneCalendarComponent } from './one-calendar/one-calendar.component';
@@ -69,6 +71,7 @@ import { SportPerformanceComponent } from './Sport/sport-performance/sport-perfo
 import { DisplayCircuitLoopComponent } from './Sport/display-circuit-loop/display-circuit-loop.component';
 import { BuildLoopFromPerfComponent } from './Sport/build-loop/build-loop-from-perf.component';
 import { TutorialsComponent } from './tutorials/tutorials.component';
+import { SelectServerComponent } from './select-server/select-server.component';
 
 
 @NgModule({
@@ -83,6 +86,9 @@ import { TutorialsComponent } from './tutorials/tutorials.component';
     LoginComponent,
     WeddingPhotosComponent,
     GetImagesComponent,
+    Event27AugComponent,
+    Event02JULComponent,
+    AdminLoginComponent,
     AdminJsonComponent,
     AdminConsoleComponent,
     AdminUserInfoComponent,
@@ -121,7 +127,8 @@ import { TutorialsComponent } from './tutorials/tutorials.component';
     SportPerformanceComponent,
     DisplayCircuitLoopComponent,
     BuildLoopFromPerfComponent,
-    TutorialsComponent ,
+    TutorialsComponent,
+    SelectServerComponent ,
   ],
   imports: [
 

@@ -1,38 +1,54 @@
 
+@import "../app.component.css";
 
 
-.label{
-    width:150px; color:blue; font-size:14px; display:inline-block; text-align: left; padding-left:10px;
+.mainBlock{
+  margin-left:20px; width:450px; max-width:650px; max-height:100px; background-color:skyblue; 
+  display:inline-block;  border:solid 2px green;
 }
 
-.labelShort{
-  width:80px; color:blue; font-size:14px; display:inline-block; text-align: left; padding-left:10px; font-weight: bold;
+.mainBlockOverride{
+  width:800px;
 }
 
-.theInput{
-    width:300px; color:blue; font-size:14px; display:inline-block; background-color: lightgrey;
-    padding-left:8px;
+.StraightDropDownOverride{
+  margin-top:30px;
+  width:350px;
+  height: 109px;
+  margin-left:60px;
+  background-color:lightgreen;
 }
 
-.theInput:hover {
-    background-color: cyan;
+.sizeButtonsOverride{
+  width:100px; height:50px;
+  font-size:14px; font-weight: bolder;
 }
 
-.theInputMid{
-  width:150px; color:blue; font-size:14px; display:inline-block; background-color: lightgrey;
-  padding-left:8px;
+h2{
+  text-align: center; width:100%; display:inline-block;
+  font-size:18px; height:20px; color:blue;
 }
 
-.theInputMid:hover {
+.inputA{
+  width:28px; display:inline-block; background-color: green;
+  text-align: center;
+}
+
+.inputA:hover{
   background-color: cyan;
 }
 
+.spanAction{
+  width:100px; display:inline-block;
+}
+
+
 .theMetadata{
-    width:60%; color:blue; font-size:12px; display:inline-block; 
+    width:60%; color:blue; font-size:14px; display:inline-block; 
 }
 
 .theLine{
-    width:100%; color:blue; font-size:12px; display:inline-block; height:28px;
+    width:100%; color:blue; font-size:12px; display:inline-block; height:28px; margin-top:5px;
 }
 
 .configInput{
@@ -66,82 +82,6 @@
   text-align: center;
 }
 
-.sizeButtons{
-    width:60px;
-    height:22px;
-    font-size:10px;
-    margin-left:10px;
-    background-color:cyan;
-    border-radius: 5px;
-    background-image: linear-gradient(cyan, lightcyan);
-    box-shadow: 2px 2px blue;
-    border: solid 1px blue;
-}
-
-.sizeButtons:hover{
-    background-color:rgb(48, 89, 159);
-    background-image: linear-gradient(rgb(97, 166, 206), rgb(63, 153, 206));
-  }
-
-
-.error{
-    color:red;
-    font-size:12px;
-    background-color:cyan;
-    display:contents;
-  }
-
-  .skipLine{
-    margin-left:5px;
-    width:95%;
-    height:4px;
-    display:inline-block;
-    border:solid red 0px;
-   
-  }
-
-
-.dropdown {
-    position: relative;
-    display: contents; 
-  }
-  
-
-.Straight-content{
-    position: absolute;
-    z-index: 1;
-  }
-
-.StraightDropDown{
-    margin-top:20px;
-    width:305px;
-    height: 260px;
-    border: 0px solid green;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    background-color: lightgrey;
-    margin-left:40px;
-  }
-
-
-    
-.Straight-options{
-    width:100%;
-    font-size:12px;
-    height:25px;
-    color:black;
-    text-align: left;
-    padding-left:5px;
-    padding-top:4px;
-    border:0px; 
-    display:inline-block;
-    float:none;
-  }
-
-.Straight-options:hover{
-    background-color:rgb(36, 199, 85);
-  }
-
 .theList{
    width:45%; 
 
@@ -156,20 +96,14 @@
     display:inline-block; width:80%; height:10px; color:blue; margin-left:20px; 
 }
 
-.odd{
-    background-color: cyan;
+.blockAction{
+  margin-top:4px; text-align: center; font-size:20px; 
+  font-style: italic; width:450px; display:inline-block; margin-left:10px;
 }
 
-.even{
-    background-color: rgb(47, 226, 226);
-}
-
-.odd:hover{
-  background-color: lightgreen;
-}
-
-.even:hover{
-  background-color: lightgreen;
+.blockScroll{
+  width:450px; display:block; border: solid 2px blue; 
+  overflow-y:scroll; max-height:200px;
 }
 
 .selTitle{
@@ -179,4 +113,44 @@
 
 .selTitle:hover{
   background-color: rgb(243, 84, 84);
+}
+
+.blockMgt{
+  width:580px; display:block; background-color: lightskyblue;
+}
+
+.subBlock{
+  width:100%; display:inline-block;
+  margin-top:3px;
+}
+
+
+.oddBis{
+  background-color: rgb(47, 226, 226);
+}
+
+.evenBis{
+  background-color: cyan;
+}
+
+.oddBis:hover{
+background-color: lightgreen;
+}
+
+.evenBis:hover{
+background-color: lightgreen;
+}
+
+/*** ====================================== ***/
+/*** ============== @media 850 ================ ***/
+/*** ====================================== ***/
+@media only screen and (max-width: 800px) {
+  .mainBlock{
+    width:450px; max-width:450px;
+  }
+
+  .mainBlockOverride{
+    width:450px;
+  }
+
 }

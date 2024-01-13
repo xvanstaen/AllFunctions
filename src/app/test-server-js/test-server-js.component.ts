@@ -22,15 +22,14 @@ import { BucketList, Bucket_List_Info, OneBucketInfo, classCredentials, classTab
 // it is stored in MongoDB and accessed via ManageMongoDBService
 
 import { msginLogConsole } from '../consoleLog';
-import { configServer, LoginIdentif, msgConsole } from '../JsonServerClass';
+import { configServer, classFilesToCache,  UserParam, LoginIdentif, msgConsole } from '../JsonServerClass';
 
 import { classAccessFile, classFileSystem } from '../classFileSystem';
 import { ManageSecuredGoogleService } from 'src/app/CloudServices/ManageSecuredGoogle.service';
 import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import { TutorialService } from 'src/app/CloudServices/tutorial.service';
-
-
+import { fillConfig } from '../copyFilesFunction';
 @Component({
   selector: 'app-test-server-js',
   templateUrl: './test-server-js.component.html',
@@ -53,6 +52,7 @@ export class TestServerJSComponent {
 
   @Input() configServer = new configServer;
   @Input() credentials = new classCredentials;
+  @Input() configServerChanges:number=0;
   newConfigServer = new configServer;
 
   retrievedConfigServer= new configServer;
@@ -106,7 +106,9 @@ export class TestServerJSComponent {
 
   theForm: FormGroup = new FormGroup({
     testProd: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
-    nameServer: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
+    googleServer: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
+    fileSystemServer: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
+    mongoServer: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
     server: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
     dataBase: new FormControl({ value: 'Google', disabled: false }, { nonNullable: true }),
     srcBucket: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
@@ -117,10 +119,24 @@ export class TestServerJSComponent {
     fileContent: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
     metaControl: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
     metaType: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
+    searchField: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
+    searchCriteria: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
+    idRecord: new FormControl({ value: '', disabled: false }, { nonNullable: true }),
   });
 
   tabAction: Array<string> = ['cancel', 'list all buckets', 'list all objects', 'get file content', 'get list metadata for all objects', 'get metadata for one object', 'create & save metadata' , 'update metadata for one object',  'save object', 'save object with meta perso' , 'rename object', 
-  'copy object', 'move object', 'delete object', 'cache console', 'get memory File System','reset memory File System'];
+  'copy object', 'move object', 'delete object', 'get cache console', 'reset cache console', 'get memory File System','reset memory File System','get cache file', 'reset cache file', 'reload cache file', 'get credentials', 'manage config'];
+  
+  tabConfig:Array<string>=['find cache config', 'reset cache config','find config by criteria', 'find all config', "update config by id", "upload config", "delete config by Id", "create config"]
+  /*
+  router.get("/config/:db/:testProd/:collection", config.findConfig);
+  router.get("/configByString/:db/:testProd/:collection/:searchField", config.findConfig); // contains the searchString query
+  router.get("/resetConfig/:db/:testProd/:collection", config.resetConfig);
+  router.get("/allConfig/:db/:testProd/:collection", config.getAllConfig);
+  router.put("/updateConfig/:db/:testProd/:collection/:id", config.updateConfig);
+  router.put("/uploadConfig/:db/:testProd/:collection", config.uploadConfig);
+  router.get("/delConfigById/:db/:testProd/:collection/:id", config.delConfigById);
+  */
 
   tabActionMongo: Array<string> = ['cancel', 'list config', 'update config', 'upload config', 'delete config'];
 
@@ -146,8 +162,28 @@ export class TestServerJSComponent {
   isSelectServer:boolean=false;
   isInitDone:boolean=false;
 
+  msgCacheFile={
+    status:0,
+    msg:"",
+    content:[{file:"",bucket:"",updated:true}]
+  };
+
+
+  titleConfig:string="";
+  tabOfConfig:Array<configServer>=[]; 
+  tabOfId:Array<string>=[]; 
+  idMongo:string="";
+  isInputMetadata:boolean=false;
+  metaDataMsg:string="";
+  tabListMetaPerso:Array<string>=[];
+  tabNameFS:Array<string>=[];
+
+  stringCredentials:string='';
+  serverVersion:string="";
+
+  isDisplayAction:boolean=false;
+
   ngOnInit() {
-   //this.configServer.baseUrl = 'http://localhost:8080';
     
     this.reinitialise();
     
@@ -175,10 +211,18 @@ export class TestServerJSComponent {
         "Accept": this.accept,
       });
     }
-    this.newConfigServer=this.configServer;
-    this.newConfigServer.baseUrl = this.theForm.controls['nameServer'].value;
+    //this.newConfigServer=this.configServer;
+    this.newConfigServer=fillConfig(this.configServer);
+
+    /*
+    this.newConfigServer.googleServer = this.theForm.controls['googleServer'].value;
+    this.newConfigServer.mongoServer = this.theForm.controls['mongoServer'].value;
+    this.newConfigServer.fileSystemServer = this.theForm.controls['fileSystemServer'].value;
     this.newConfigServer.test_prod=this.theForm.controls['testProd'].value;
+    */
     this.isInitDone=true;
+
+    this.getServerVersion();
   }
 
 
@@ -188,19 +232,17 @@ export class TestServerJSComponent {
     } else if (event.target.id.substring(0, 2) === "V-") {
       this.tabMetaPerso[Number(event.target.id.substring(2))].value = event.target.value;
     }
-
   }
 
   reinitialise() {
 
     this.titleConfig = "";
-
     this.theForm.controls['server'].setValue('server');
-    this.theForm.controls['nameServer'].setValue(this.tabServers[1]);
+    //this.theForm.controls['nameServer'].setValue(this.tabServers[1]);
     this.theForm.controls['testProd'].setValue('test');
     this.theForm.controls['dataBase'].setValue('Google');
-    this.theForm.controls['srcBucket'].setValue('');
-    this.theForm.controls['srcObject'].setValue('');
+    this.theForm.controls['srcBucket'].setValue('xav_fitness');
+    this.theForm.controls['srcObject'].setValue('Copie de HealthTracking');
     this.theForm.controls['destBucket'].setValue('');
     this.theForm.controls['destObject'].setValue('');
     this.theForm.controls['fileContent'].setValue('');
@@ -230,18 +272,16 @@ export class TestServerJSComponent {
   }
 */
 
-  onAction() {
-    console.log('onAction');
-    this.metaDataMsg='';
-    this.actionDropdown = true;
-  }
-
+  
+  /* =================== COPY/PASTE/CLEAR FIELD =============*/
   copySelection(event:any){
     if (event.target.id.indexOf('-')!==-1){
       this.copyData=event.target.id.substring(event.target.id.indexOf('-')+1);
+    } else if (event.target.id==='comment'){
+      this.copyData=this.returnFileContent;
     }
   }
-
+  
   pasteAction(event:any){
     if (event.target.id==="srcBucket"){
       this.theForm.controls['srcBucket'].setValue(this.copyData);
@@ -251,106 +291,78 @@ export class TestServerJSComponent {
       this.theForm.controls['srcObject'].setValue(this.copyData);
     } else if (event.target.id==="destObject"){
       this.theForm.controls['destObject'].setValue(this.copyData);
+    } else if (event.target.id==="comment"){
+      this.theForm.controls['fileContent'].setValue(this.copyData);
     }
 
   }
-
-  testConvertObject(){
-    const newObject = {
-      cacheControl: 'public,max-age=0,no-cache,no-store',
-      contentType: 'application/json',
-      myArrayOne:['val1','val2'],
-      myArrayTwo:[{key:'key1',val:'val1', tab:[{sK:"sk1",sV:"sv",sTab:[0,1,2]}]}, {key:'key2',val:'val2', tab:[{sK:"sk1",sV:"sv",sTab:[0,1,2]}]}, {key:'key3',val:'val3', tab:[{sK:"sk1",sV:"sv",sTab:[0,1,2]}]}],
-      subObject:{
-        title:"theTitle",
-        subsubObject:[{subkey:'subkey1',subval:'subval1'}, {subkey:'subkey1',subval:'subval1'}]
-        }
-      }
-
-    const refObject ={
-      cacheControl: '',
-      contentType: '',
-      inBeetween:0,
-      myArrayOne:[],
-      myArrayTwo:[],
-      subObject:{
-        title:"",
-        subsubObject:[]
-        },
-      undef:"",
+  clearField(event:any){
+    if (event.target.id==="srcBucket"){
+      this.theForm.controls['srcBucket'].setValue("");
+    } else if (event.target.id==="destBucket"){
+      this.theForm.controls['destBucket'].setValue("");
+    } else if (event.target.id==="srcObject"){
+      this.theForm.controls['srcObject'].setValue("");
+    } else if (event.target.id==="destObject"){
+      this.theForm.controls['destObject'].setValue("");
+    } else if (event.target.id==="comment"){
+      this.theForm.controls['fileContent'].setValue("");
     }
-
-    const strNewObject=JSON.stringify(newObject);
-
-    const receivedObject=this.stringToObject(strNewObject,refObject);
-
-    
   }
-
-  stringToObject(myString:string,inObject:any){
-
-    //var strInObject=JSON.stringify(inObject);
-    //console.log('strInObject= '+strInObject);
-    var tabOpenParenthesis=[];
-    var tabCloseParenthesis=[];
-
-    var tabOpenArray=[];
-    var tabCloseArray=[];
-    
-    var iTabOpPar=-1;
-    var iTabClPar=-1;
-    var iTabOpArr=-1;
-    var iTabClArr=-1;
-    var tabParenthesis=[];
-    var tabArray=[];
-    var iTabPar=-1;
-    var iTabArr=-1;
-    for (var iPos=0; iPos<myString.length; iPos++){
-      if (myString.substring(iPos,iPos+1)==='{'){
-        iTabOpPar++
-        tabOpenParenthesis[iTabOpPar]=iPos;
-      } else if (myString.substring(iPos,iPos+1)==='}'){
-        iTabClPar++
-        tabCloseParenthesis[iTabClPar]=iPos;
-      } else if (myString.substring(iPos,iPos+1)==='['){
-        iTabOpArr++
-        tabOpenArray[iTabOpArr]=iPos;
-      } else if (myString.substring(iPos,iPos+1)===']'){
-        iTabClArr++ 
-        tabCloseArray[iTabClArr]=iPos;
-      }
-
-    }
-
-   var contentTables=[];
-   for (var i=0; i<tabOpenArray.length; i++){
-    contentTables[i]=myString.substring(tabOpenArray[i],tabCloseArray[tabCloseArray.length-i]);
-   } 
-
-   var contentObjects=[];
-   for (var i=0; i<tabOpenParenthesis.length; i++){
-    contentObjects[i]=myString.substring(tabOpenParenthesis[i],tabCloseParenthesis[tabCloseParenthesis.length-1-i]);
-   } 
-    
-    //console.log('inObject= '+inObject);
-    return (inObject);
-  }
-
-
-  onActionServer(){
+/* =================== SERVER =============*/
+  saveSelectedServer:string="";
+  onActionServer(event:any){
+    this.saveSelectedServer=event.target.id;
     this.isSelectServer=true;
   }
 
   selectServer(event: any) {
     this.isSelectServer=false;
-    this.configServer.baseUrl = event.target.textContent.trim();
-    this.newConfigServer.baseUrl = event.target.textContent.trim();
-    this.theForm.controls['nameServer'].setValue(event.target.textContent.trim());
+    if (this.saveSelectedServer==='google'){
+      this.configServer.googleServer = event.target.textContent.trim();
+      this.newConfigServer.googleServer = event.target.textContent.trim();
+      this.theForm.controls['googleServer'].setValue(event.target.textContent.trim());
+    } else if (this.saveSelectedServer==='mongo'){
+      this.configServer.mongoServer = event.target.textContent.trim();
+      this.newConfigServer.mongoServer = event.target.textContent.trim();
+      this.theForm.controls['mongoServer'].setValue(event.target.textContent.trim());
+    } else if (this.saveSelectedServer==='fileSystem'){
+      this.configServer.fileSystemServer = event.target.textContent.trim();
+      this.newConfigServer.fileSystemServer = event.target.textContent.trim();
+      this.theForm.controls['fileSystemServer'].setValue(event.target.textContent.trim());
+    } 
+    
+    this.getServerVersion();
+  }
+
+  getServerVersion(){
+    this.EventHTTPReceived[15] = false;
+    this.ManageGoogleService.getServerVersion(this.configServer)
+        .subscribe(
+          (data) => {
+          this.serverVersion=data.version;
+          this.EventHTTPReceived[15] = true;
+        }, 
+        err =>{
+          this.serverVersion="";
+          this.error = "status:" +err.err.status + " - " + err.err.message;
+          console.log('error');
+        })
+  }
+
+
+storeTitle(event:any){
+    this.titleConfig=event.target.value;;
+}
+  /* =================== ACTION TO PERFORM  =============*/
+
+  onAction() {
+    console.log('onAction');
+    this.metaDataMsg='';
+    this.actionDropdown = true;
   }
 
   selectAction(event: any) {
-    // this.testConvertObject();
-
     var testProd = this.theForm.controls['testProd'].value;
     this.configServer.test_prod = testProd.toLowerCase().trim();
     this.newConfigServer.test_prod = testProd.toLowerCase().trim();
@@ -366,182 +378,604 @@ export class TestServerJSComponent {
     if (event.target.textContent.trim() !== "cancel") {
       this.theForm.controls['action'].setValue(event.target.textContent.trim());
       if (event.target.textContent.trim() === 'list all buckets') {
+        this.isDisplayAction=false;
         this.getListBuckets();
 
       } else if (event.target.textContent.trim() === 'list all objects') {
-        this.getListObjects(this.theForm.controls['srcBucket'].value);
-
-      } else if (event.target.textContent.trim() === 'get file content') {
-        if (this.theForm.controls['server'].value === 'HTTP') {
-          this.getFileContentHTTP(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
+        if (this.theForm.controls['srcBucket'].value==="" ){
+          this.error="Field srcBucket is empty";
         } else {
-          this.getFileContent(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
+          this.isDisplayAction=false;
+          this.getListObjects(this.theForm.controls['srcBucket'].value);
         }
 
+      } else if (event.target.textContent.trim() === 'get file content') {
+        if (this.theForm.controls['srcBucket'].value==="" || this.theForm.controls['srcObject'].value===""){
+          this.error="At least one field (srcBucket/srcObject) is empty";
+        } else {
+          this.isDisplayAction=true;
+          if (this.theForm.controls['server'].value === 'HTTP') {
+            this.getFileContentHTTP(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
+          } else {
+            this.getFileContent(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
+          }
+        }
+        
+
       } else if (event.target.textContent.trim() === 'get list metadata for all objects') {
-        this.listMetaDataObject(this.theForm.controls['srcBucket'].value);
-
+        if (this.theForm.controls['srcBucket'].value==="" ){
+          this.error="Field srcBucket is empty";
+        } else {
+          this.isDisplayAction=true;
+          this.listMetaDataObject(this.theForm.controls['srcBucket'].value);
+        }
+        
       } else if (event.target.textContent.trim() === 'get metadata for one object') {
-        this.getMetaData(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
-
+        if (this.theForm.controls['srcBucket'].value==="" || this.theForm.controls['srcObject'].value===""){
+          this.error="At least one field (srcBucket/srcObject) is empty";
+        } else {
+          this.isDisplayAction=true;
+          this.getMetaData(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
+        }
+        
       } else if (event.target.textContent.trim() === 'create & save metadata') {
-        this.inputMetaData();        
-      }  else if (event.target.textContent.trim() === 'copy object') {
-        this.copyObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['destBucket'].value, this.theForm.controls['destObject'].value);
-
+        if (this.theForm.controls['srcBucket'].value==="" || this.theForm.controls['srcObject'].value===""){
+          this.error="At least one field (srcBucket/srcObject) is empty";
+        } else {
+          this.inputMetaData();     
+        }
+           
+      } else if (event.target.textContent.trim() === 'update metadata for one object') {
+        if (this.theForm.controls['srcBucket'].value==="" || this.theForm.controls['srcObject'].value===""){
+          this.error="At least one field (srcBucket/srcObject) is empty";
+        } else {
+          this.modifyMetaData();     
+        }
+              
+      } else if (event.target.textContent.trim() === 'copy object') {
+        if (this.theForm.controls['srcBucket'].value==="" || this.theForm.controls['srcObject'].value==="" || this.theForm.controls['destBucket'].value==="" || this.theForm.controls['destObject'].value===""){
+          this.error="At least one field (srcBucket/srcObject/destBucket/destObject) is empty";
+        } else {
+          this.isDisplayAction=false;
+          this.copyObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['destBucket'].value, this.theForm.controls['destObject'].value);
+        }
+        
       } else if (event.target.textContent.trim() === 'move object') {
-        this.moveObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['destBucket'].value, this.theForm.controls['destObject'].value);
-      
+        if (this.theForm.controls['srcBucket'].value==="" || this.theForm.controls['srcObject'].value==="" || this.theForm.controls['destBucket'].value==="" || this.theForm.controls['destObject'].value===""){
+          this.error="At least one field (srcBucket/srcObject/destBucket/destObject) is empty";
+        } else {
+          this.isDisplayAction=false;
+          this.moveObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['destBucket'].value, this.theForm.controls['destObject'].value);
+        }
+        
       } else if (event.target.textContent.trim() === 'rename object') {
-        this.renameObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['destObject'].value);
+        if (this.theForm.controls['srcBucket'].value==="" || this.theForm.controls['srcObject'].value==="" || this.theForm.controls['destObject'].value===""){
+          this.error="At least one field (srcBucket/srcObject/destObject) is empty";
+        } else {
+          this.isDisplayAction=false;
+          this.renameObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['destObject'].value);
+        }
         
-      }  else if (event.target.textContent.trim() === 'delete object' && this.theForm.controls['srcObject'].value!=="" ) {
-        this.isConfirmedDelete = true;
+      }  else if (event.target.textContent.trim() === 'delete object'  ) {
+        if (this.theForm.controls['srcBucket'].value==="" || this.theForm.controls['srcObject'].value===""){
+          this.error="At least one field (srcBucket/srcObject) is empty";
+        } else {
+          this.isConfirmedDelete = true;
+        }
         
         
-      }else if (event.target.textContent.trim() === 'save object'  && this.theForm.controls['srcObject'].value!=="") {
-        this.isConfirmedSave = true;
+      } else if (event.target.textContent.trim() === 'save object' ) {
+        if (this.theForm.controls['srcBucket'].value==="" || this.theForm.controls['srcObject'].value==="" || this.theForm.controls['fileContent'].value===""){
+          this.error="At least one field (srcBucket/srcObject/Content) is empty";
+        } else {
+          this.isConfirmedSave = true;
+        }
 
-      } else if (event.target.textContent.trim() === 'save object with meta perso' && this.theForm.controls['srcObject'].value!=="") {
-        this.isConfirmedSave = true;
+      } else if (event.target.textContent.trim() === 'save object with meta perso' ) {
+        if (this.theForm.controls['srcBucket'].value==="" || this.theForm.controls['srcObject'].value==="" || this.theForm.controls['fileContent'].value===""){
+          this.error="At least one field (srcBucket/srcObject/Content) is empty";
+        } else {
+          this.isConfirmedSave = true;
+        }
        
-      
-      } else if (event.target.textContent.trim() === 'cache console') {
+      } else if (event.target.textContent.trim() === 'get cache console') {
+        this.isDisplayAction=false;
         this.getCacheConsole();
 
+      } else if (event.target.textContent.trim() === 'reset cache console') {
+        this.isDisplayAction=false;
+        this.resetCacheConsole();
+
       }  else if (event.target.textContent.trim() === 'get memory File System') {
+        this.isDisplayAction=false;
         this.getMemoryFS();
 
       } else if (event.target.textContent.trim() === 'reset memory File System') {
+        this.isDisplayAction=false;
         this.resetMemoryFS(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
 
         //'get memory File System','reset memory File System'
+        /****
       }  else if (event.target.textContent.trim() === 'list config') {
+        this.isDisplayAction=false;
         this.listConfig();
 
       } else if (event.target.textContent.trim() === 'update config') {
+        this.isDisplayAction=false;
         this.updateConfig();
 
       } else if (event.target.textContent.trim() === 'upload config') {
+        this.isDisplayAction=false;
         this.uploadConfig();
 
       } else if (event.target.textContent.trim() === 'delete config') {
+        this.isDisplayAction=false;
         this.delConfigById();
+      */
+      }  else if (event.target.textContent.trim() === 'reset cache file') {
+        this.isDisplayAction=false;
+        this.resetCacheFile();
 
-      }else {
+      } else if (event.target.textContent.trim() === 'get cache file') {
+        this.isDisplayAction=false;
+        this.getCacheFile();
+
+      }else if (event.target.textContent.trim() === 'reload cache file') {
+        this.isDisplayAction=false;
+        this.reloadCacheFile();
+
+      } else if (event.target.textContent.trim() === 'manage config') {
+        this.isDisplayAction=false;
+        this.manageConfig();
+
+      } else if (event.target.textContent.trim() === 'get credentials') {
+        this.isDisplayAction=false;
+        this.getDefaultCredentials();
+
+      } else {
         this.error = 'ACTION UNKNOWN';
       }
     }
-
   }
 
-titleConfig:string="";
-storeTitle(event:any){
-    this.titleConfig=event.target.value;;
+  /* =================== CACHE FILE =============*/
+
+  onInputFileToCache(event:any){
+    const i=Number(event.target.id.substring(4))
+    if (event.target.id.substring(0,4)==='idxx-'){
+      this.dataConfigServer.UserSpecific[i].theId=event.target.value;
+    } else if (event.target.id.substring(0,4)==='type'){
+      this.dataConfigServer.UserSpecific[i].theType=event.target.value;
+    } else if (event.target.id.substring(0,4)==='logx-'){
+      this.dataConfigServer.UserSpecific[i].log=event.target.value;
+    } else if (event.target.id.substring(0,4)==='buck'){
+      this.dataConfigServer.filesToCache[i].bucket=event.target.value;
+    } else if (event.target.id.substring(0,4)==='obje'){
+      this.dataConfigServer.filesToCache[i].object=event.target.value;
+    } 
+  }
+
+  resetCacheFile(){
+    this.resetObjectCacheFile();
+    this.ManageSecuredGoogleService.resetCacheFile(this.configServer, "All" )
+      .subscribe((data ) => {  
+        this.EventHTTPReceived[16]=true;
+        this.msgCacheFile.status=data.status;
+        this.msgCacheFile.msg=data.msg;
+        if (data.content!==undefined){
+          this.msgCacheFile.content=data.content;
+        }
+      }, 
+      err => {
+        this.error="Cache file could not be reset, error:" + err;
+        this.EventHTTPReceived[16]=false;
+      });
+  }
+
+  getCacheFile(){
+    this.resetObjectCacheFile();
+    this.ManageSecuredGoogleService.getCacheFile(this.configServer )
+    .subscribe((data ) => {  
+      this.EventHTTPReceived[16]=true;
+      this.msgCacheFile.status=data.status;
+      this.msgCacheFile.msg=data.msg;
+      this.msgCacheFile.content=data.cacheFiles;
+    }, 
+    err => {
+      this.error="Cache file could not be retrieved, error:" + err;
+      this.EventHTTPReceived[16]=false;
+    });
+  }
+
+  resetObjectCacheFile(){
+    this.msgCacheFile.status=0;
+    this.msgCacheFile.msg="";
+    this.msgCacheFile.content.splice(0,this.msgCacheFile.content.length);
+  }
+
+  reloadCacheFile(){
+    this.resetObjectCacheFile();
+    this.ManageSecuredGoogleService.reloadCacheFile(this.configServer )
+    .subscribe((data ) => {  
+      this.EventHTTPReceived[16]=true;
+      this.msgCacheFile.status=data.status;
+      this.msgCacheFile.msg=data.msg;
+      this.msgCacheFile.content=data.cacheFiles;
+    }, 
+    err => {
+      this.error="Cache file has not been reloaded, error:" + err;
+      this.EventHTTPReceived[16]=false;
+    });
+  }
+
+/* =================== MANAGE CONFIG =============*/
+
+isManageConfig:boolean=false;
+manageConfig(){
+  this.isManageConfig=true;
 }
 
-tabOfConfig:Array<configServer>=[]; 
-tabOfId:Array<string>=[]; 
-idMongo:string="";
+copyDataConfig=new configServer;
+copyConfig(){
+  //this.fillConfig(this.dataConfigServer,this.copyDataConfig);
+  this.copyDataConfig=fillConfig(this.dataConfigServer);
+
+}
+
+pasteConfig(){
+  //this.fillConfig(this.copyDataConfig, this.dataConfigServer);
+  this.dataConfigServer=fillConfig(this.copyDataConfig);
+}
+
+selectActionConfig(event:any){
+  
+ if (event.target.textContent.trim()==="find cache config"){
+    this.findCacheConfig();
+ } else if (event.target.textContent.trim()==="reset cache config"){
+    this.resetCacheConfig();
+
+ } else if (event.target.textContent.trim()==="find config by criteria"){
+  this.findConfigByString();
+
+ } else if (event.target.textContent.trim()==="find all config"){
+  this.findAllConfig();
+
+ } else if (event.target.textContent.trim()==="update config by id"){
+  
+  if (this.theForm.controls['idRecord'].value !==''){
+    this.isConfConfigUpdate=true;
+  } else {
+    this.errorConfig="update failed; id field is empty"
+  }
+  
+
+ } else if (event.target.textContent.trim()==="upload config"){
+  this.isConfConfigSave=true;
+ } else if (event.target.textContent.trim()==="delete config by Id"){
+  if (this.theForm.controls['idRecord'].value !==''){
+    this.isConfConfigDelete=true;
+  } else {
+    this.errorConfig="Delte failed; id field is empty"
+  }
+  
+  
+ } else if (event.target.textContent.trim()==="create config"){
+  this.createConfig();
+ }
+
+}
+
+createConfig(){
+this.dataConfigServer = new configServer;
+const myClass=new classFilesToCache;
+this.dataConfigServer.filesToCache.push(myClass);
+const theClassUsr=new UserParam;
+this.dataConfigServer.UserSpecific.push(theClassUsr);
+this.EventHTTPReceived[18]=true;
+this.idRecordConfig="";
+this.theForm.controls['idRecord'].setValue("");
+}
+
+
+dataConfigServer = new configServer;
+findCacheConfig(){
+  this.ManageMongoDBService.findConfig(this.configServer,'configServer' )
+  .subscribe((data ) => { 
+    this.error="Cache config has been successfully reset" ; 
+    console.log(data);
+    this.dataConfigServer = new configServer;
+    this.dataConfigServer = this.responseConfig(data, this.dataConfigServer);
+    this.EventHTTPReceived[18]=true;
+  }, 
+  err => {
+    this.error="Cache config has not been reset, error:" + err
+  });
+}
+
+findAllConfig(){
+  this.ManageMongoDBService.findAllConfig(this.configServer,'configServer' )
+  .subscribe((data ) => { 
+    this.dataConfigServer = new configServer;
+    this.dataConfigServer = this.responseConfig(data, this.dataConfigServer);
+    console.log(data);
+    this.EventHTTPReceived[18]=true;
+  }, 
+  err => {
+    this.error="Find all config, error:" + err
+  });
+}
+
+
+errorConfig:string="";
+itemFileToCache:number=-1;
+itemUsrSpec:number=-1;
+tabActionField:Array<string>=["cancel","add","delete"];
+isDisplayTabActionField:boolean=false;
+isConfConfigSave:boolean=false;
+isConfConfigDelete:boolean=false;
+isConfConfigUpdate:boolean=false;
+
+onActionConfig(event:any){
+  this.isDisplayTabActionField=false;
+  if (event.target.id.substring(0,12)==="fileToCache-"){
+    this.itemFileToCache=Number(event.target.id.substring(12));
+    this.itemUsrSpec=-1;
+    this.isDisplayTabActionField=true;
+  } else if (event.target.id.substring(0,8)==="usrSpec-"){
+    this.itemUsrSpec=Number(event.target.id.substring(8));
+    this.itemFileToCache=-1;
+    this.isDisplayTabActionField=true;
+  } else if (event.target.textContent.trim()==="add"){
+      
+      if (this.itemFileToCache!==-1){
+        const myClass=new classFilesToCache;
+        this.dataConfigServer.filesToCache.splice(this.itemFileToCache,0,myClass);
+        
+      } else if (this.itemUsrSpec !==-1){
+        const theClassUsr= new UserParam;
+        this.dataConfigServer.UserSpecific.splice(this.itemUsrSpec,0, theClassUsr);
+      }
+
+  } else if (event.target.textContent.trim()==="delete"){
+      if (this.itemFileToCache!==-1 && this.dataConfigServer.filesToCache.length>1){
+        this.dataConfigServer.filesToCache.splice(this.itemFileToCache,1);
+      } else if (this.itemUsrSpec !==-1 && this.dataConfigServer.UserSpecific.length>1){
+        this.dataConfigServer.UserSpecific.splice(this.itemUsrSpec,1);
+      }
+  } 
+}
+
+confActionConfig(event:any){
+  if (this.isConfConfigSave===true){
+    this.uploadConfig();
+  } if (this.isConfConfigUpdate===true){
+    this.updateConfigById();
+  } if (this.isConfConfigDelete===true){
+    this.deleteConfigById();
+  }
+  this.confActionCancel("");
+}
+
+confActionCancel(event:any){
+  this.isConfConfigSave=false;
+  this.isConfConfigUpdate=false;
+  this.isConfConfigDelete=false;
+}
+
+
+
+
+findConfigByString(){
+  if (this.theForm.controls['searchField'].value!=="" && this.theForm.controls['searchCriteria'].value!==""){
+    this.ManageMongoDBService.findConfigByString(this.configServer, 'configServer', this.theForm.controls['searchField'].value, this.theForm.controls['searchCriteria'].value )
+    .subscribe((data ) => { 
+      this.dataConfigServer = new configServer;
+      this.dataConfigServer= this.responseConfig(data, this.dataConfigServer);
+      console.log(data);
+      this.EventHTTPReceived[18]=true;
+    }, 
+    err => {
+      this.errorConfig="Find config by string, error:" + err;
+      this.EventHTTPReceived[18]=false;
+    });
+  } else {
+    this.errorConfig="search field & criteria are mandatory";
+  }
+  
+}
+
+updateConfigById(){
+  for (var i=0; i<this.tabOfId.length && this.tabOfId[i]!==this.theForm.controls['idRecord'].value; i++){}
+  if (i<this.tabOfId.length){
+    this.tabOfConfig[i]=fillConfig(this.dataConfigServer);
+  }
+  this.ManageMongoDBService.updateConfig(this.configServer,  'configServer', this.theForm.controls['idRecord'].value, this.dataConfigServer)
+  .subscribe((data ) => { 
+    this.errorConfig="Config has been successfully updated" ; 
+
+    console.log(data);
+  }, 
+  err => {
+    this.errorConfig="Config has not been updated, error:" + err
+  });
+}
+
+deleteConfigById(){
+  this.ManageMongoDBService.delConfigById(this.configServer,  'configServer', this.theForm.controls['idRecord'].value)
+  .subscribe((data ) => { 
+    this.errorConfig="Config has been successfully deleted" ; 
+    //console.log(data);
+    this.findAllConfig();
+  }, 
+  err => {
+    this.errorConfig="Config has not been deleted, error:" + err
+  });
+}
+
+uploadConfig(){
+  this.ManageMongoDBService.uploadConfig(this.configServer, 'configServer', this.dataConfigServer)
+  .subscribe((data ) => { 
+    this.errorConfig="Config has been successfully uploaded" ; 
+    this.findAllConfig();
+    console.log(data);
+  }, 
+  err => {
+    this.errorConfig="Config has not been uploaded, error:" + err
+  });
+}
+
+resetCacheConfig(){
+  this.ManageMongoDBService.resetCacheConfig(this.configServer,'configServer')
+  .subscribe((data ) => { 
+    this.error="Cache config has been successfully reset" ; 
+    console.log(data);
+  }, 
+  err => {
+    this.error="Cache config has not been reset, error:" + err
+  });
+}
+onInputTabConfig(event:any){
+  const i=Number(event.target.id.substring(4))
+  if (event.target.id.substring(0,4)==='idxx'){
+    this.dataConfigServer.UserSpecific[i].theId=event.target.value;
+  } else if (event.target.id.substring(0,4)==='type'){
+    this.dataConfigServer.UserSpecific[i].theType=event.target.value;
+  } else if (event.target.id.substring(0,4)==='logx'){
+    this.dataConfigServer.UserSpecific[i].log=event.target.value;
+
+  } else if (event.target.id.substring(0,4)==='buck'){
+    this.dataConfigServer.filesToCache[i].bucket=event.target.value;
+  } else if (event.target.id.substring(0,4)==='obje'){
+    this.dataConfigServer.filesToCache[i].object=event.target.value;
+  } 
+}
+
 listConfig(){
     var test_prod='';
         
     // this is for allFunctions only so that test BackendServer is used
     this.EventHTTPReceived[13] = false;
     this.configServer=new configServer;
-    this.configServer.baseUrl=this.theForm.controls['nameServer'].value;
+    this.configServer.googleServer=this.theForm.controls['googleServer'].value;
+    this.configServer.mongoServer=this.theForm.controls['mongoServer'].value;
+    this.configServer.fileSystemServer=this.theForm.controls['fileSystemServer'].value;
     this.configServer.test_prod=this.theForm.controls['testProd'].value; // retrieve the corresponding record test or production
     this.configServer.GoogleProjectId='ConfigDB';
     this.ManageMongoDBService.findAllConfig(this.configServer, 'configServer')
   // this.ManageMongoDB.findConfigbyURL(this.configServer, 'retrievedConfigServer', '')
         .subscribe(
           (data) => {
-          this.retrievedConfigServer = new configServer;
-          if (Array.isArray(data) === false){
-            this.fillConfig(data,this.retrievedConfigServer);
-          } else {
-            this.tabOfConfig.splice(0,this.tabOfConfig.length);
-            this.tabOfId.splice(0,this.tabOfId.length);
-            this.tabOfConfig=data;
-            for (let i=0; i<data.length; i++){
-                this.tabOfId[i]=data[i].id;
-                if (data[i].title===this.titleConfig ){
-                  this.idMongo=data[i].id;
-                  this.retrievedConfigServer = new configServer;
-                  this.fillConfig(data[i],this.retrievedConfigServer);
-                } 
-              }
-          }
-          this.EventHTTPReceived[13] = true;
+            this.dataConfigServer = new configServer;
+            this.dataConfigServer= this.responseConfig(data, this.dataConfigServer);
+            this.EventHTTPReceived[13] = true;
         }, 
         err =>{
           console.log('List config error: ' + JSON.stringify(err));
         })
-  }
+      }
+
+    responseConfig(data:any, retrievedConfigServer:any){
+        
+        if (Array.isArray(data) === false){
+          retrievedConfigServer== new configServer;
+          retrievedConfigServer=fillConfig(data);
+          this.idRecordConfig=data.id;
+          this.theForm.controls['idRecord'].setValue(this.idRecordConfig);
+        } else {
+          this.tabOfConfig.splice(0,this.tabOfConfig.length);
+          this.tabOfId.splice(0,this.tabOfId.length);
+          if (data.length>0){
+            for (let i=0; i<data.length; i++){
+                this.tabOfConfig[i]=fillConfig(data[i]);
+                this.tabOfId[i]=data[i].id;
+                //if (data[i].title===this.titleConfig ){
+                //  this.idMongo=data[i].id;
+                //  retrievedConfigServer = new configServer;
+                //  retrievedConfigServer= fillConfig(data[i]);
+                //} 
+            }
+            this.idRecordConfig=this.tabOfId[0];
+            this.theForm.controls['idRecord'].setValue(this.idRecordConfig);
+            retrievedConfigServer== new configServer;
+            retrievedConfigServer= fillConfig(this.tabOfConfig[0]);
+          }
+        }
+        return (retrievedConfigServer);
+      }
+
 
   onSelConfig(event:any){
     if (event.target.id.substring(0,4)==="sel-"){
       const i=Number(event.target.id.substring(4));
       this.idMongo=this.tabOfId[i];
-      this.retrievedConfigServer = new configServer;
-      this.fillConfig(this.tabOfConfig[i],this.retrievedConfigServer);
+      this.dataConfigServer = new configServer;
+      this.dataConfigServer=fillConfig(this.tabOfConfig[i]);
+
+    }
+  }
+
+  isSelectedIdConfig:number=0;
+  idRecordConfig:string="";
+
+  selectId(event:any){
+    if (event.target.id.substring(0,4)==="CON-"){
+      this.isSelectedIdConfig=Number(event.target.id.substring(4));
+      this.dataConfigServer=this.tabOfConfig[this.isSelectedIdConfig];
+      this.idRecordConfig=this.tabOfId[this.isSelectedIdConfig];
+      this.theForm.controls['idRecord'].setValue(this.idRecordConfig);
     }
   }
 
   onInputConfig(event:any){
     if (event.target.id==='title'){
-      this.retrievedConfigServer.title=event.target.value;
+      this.dataConfigServer.title=event.target.value;
     } else if (event.target.id==='test_prod'){
-      this.retrievedConfigServer.test_prod=event.target.value;
-    } else if (event.target.id==='baseUrl'){
-      this.retrievedConfigServer.baseUrl=event.target.value;
+      this.dataConfigServer.test_prod=event.target.value;
+    } else if (event.target.id==='googleUrl'){
+      this.dataConfigServer.googleServer=event.target.value;
+    } else if (event.target.id==='mongoUrl'){
+      this.dataConfigServer.mongoServer=event.target.value;
+    } else if (event.target.id==='fileSystemUrl'){
+      this.dataConfigServer.fileSystemServer=event.target.value;
     } else if (event.target.id==='TOhh'){
-      this.retrievedConfigServer.timeoutFileSystem.hh=Number(event.target.value);
+      this.dataConfigServer.timeoutFileSystem.hh=Number(event.target.value);
     } else if (event.target.id==='TOmn'){
-      this.retrievedConfigServer.timeoutFileSystem.mn=Number(event.target.value);
+      this.dataConfigServer.timeoutFileSystem.mn=Number(event.target.value);
     } else if (event.target.id==='bufferTOhh'){
-      this.retrievedConfigServer.timeoutFileSystem.bufferTO.hh=Number(event.target.value);
+      this.dataConfigServer.timeoutFileSystem.bufferTO.hh=Number(event.target.value);
     } else if (event.target.id==='bufferTOmn'){
-      this.retrievedConfigServer.timeoutFileSystem.bufferTO.mn=Number(event.target.value);
+      this.dataConfigServer.timeoutFileSystem.bufferTO.mn=Number(event.target.value);
     } else if (event.target.id==='bufferInputhh'){
-      this.retrievedConfigServer.timeoutFileSystem.bufferInput.hh=Number(event.target.value);
+      this.dataConfigServer.timeoutFileSystem.bufferInput.hh=Number(event.target.value);
     } else if (event.target.id==='bufferInputmn'){
-      this.retrievedConfigServer.timeoutFileSystem.bufferInput.mn=Number(event.target.value);
+      this.dataConfigServer.timeoutFileSystem.bufferInput.mn=Number(event.target.value);
     } else if (event.target.id==='PoRBucket'){
-      this.retrievedConfigServer.PointOfRef.bucket=event.target.value;
+      this.dataConfigServer.PointOfRef.bucket=event.target.value;
     } else if (event.target.id==='PoRBObject'){
-      this.retrievedConfigServer.PointOfRef.file=event.target.value;
-    }
-
-
-
-  }
-  onInputFileToCache(event:any){
-    const i=Number(event.target.id.substring(4))
-    if (event.target.id.substring(0,4)==='idxx-'){
-      this.retrievedConfigServer.UserSpecific[i].theId=event.target.value;
-    } else if (event.target.id.substring(0,4)==='type'){
-      this.retrievedConfigServer.UserSpecific[i].theType=event.target.value;
-    } else if (event.target.id.substring(0,4)==='logx-'){
-      this.retrievedConfigServer.UserSpecific[i].log=event.target.value;
-    } else if (event.target.id.substring(0,4)==='buck'){
-      this.retrievedConfigServer.filesToCache[i].bucket=event.target.value;
-    } else if (event.target.id.substring(0,4)==='obje'){
-      this.retrievedConfigServer.filesToCache[i].object=event.target.value;
+      this.dataConfigServer.PointOfRef.file=event.target.value;
+    } else if (event.target.id==='console'){
+      this.dataConfigServer.consoleBucket=event.target.value;
+    } else if (event.target.id==='bucketFS'){
+      this.dataConfigServer.bucketFileSystem=event.target.value;
+    } else if (event.target.id==='objectFS'){
+      this.dataConfigServer.objectFileSystem=event.target.value;
+    } else if (event.target.id==='ipAddress'){
+      this.dataConfigServer.IpAddress=event.target.value;
     } 
   }
 
-  updateConfig(){
+  /***
+  updateConfig(id:string,record:any){
 
     this.EventHTTPReceived[14] = false;
-    this.ManageMongoDBService.updateConfig(this.configServer, 'configServer', this.idMongo, this.retrievedConfigServer)
+    this.ManageMongoDBService.updateConfig(this.configServer, 'configServer', id, record)
  
         .subscribe(
           (data) => {
             if (data.status=200){
-              this.error=data.message;
+              this.errorConfig=data.message;
             } else {
-              this.error = "status:" + data.status + " - " + data.message;
+              this.errorConfig= "status:" + data.status + " - " + data.message;
             }
           this.EventHTTPReceived[13] = true;
         }, 
@@ -549,7 +983,17 @@ listConfig(){
           this.error = "status:" +err.err.status + " - " + err.err.message;
           console.log('error');
         })
+  }
+  ***/
 
+  getServerNames(event:any){
+    this.configServer.googleServer=event.google;;
+    this.configServer.mongoServer=event.mongo;
+    this.configServer.fileSystemServer=event.fileSystem;
+    this.newConfigServer.googleServer=event.google;;
+    this.newConfigServer.mongoServer=event.mongo;
+    this.newConfigServer.fileSystemServer=event.fileSystem;
+    this.configServerChanges++;
   }
 
   fillConfig(inFile:any,outFile:any){
@@ -557,8 +1001,10 @@ listConfig(){
     outFile.SourceJson_Google_Mongo = inFile.SourceJson_Google_Mongo;
     outFile.test_prod = inFile.test_prod;
     outFile.GoogleProjectId = inFile.GoogleProjectId;
-    outFile.Mongo_Google = inFile.Mongo_Google;
-    outFile.baseUrl = inFile.baseUrl;
+    outFile.googleServer = inFile.googleServer;
+    outFile.mongoServer = inFile.mongoServer;
+    outFile.fileSystemServer = inFile.mongoServer;
+    outFile.consoleBucket = inFile.consoleBucket;
     outFile.IpAddress = inFile.IpAddress;
     if (inFile.credentialDate!==undefined){
       outFile.credentialDate = inFile.credentialDate;
@@ -574,23 +1020,25 @@ listConfig(){
     outFile.PointOfRef.bucket = inFile.PointOfRef.bucket;
     outFile.PointOfRef.file = inFile.PointOfRef.file;
     for (var i=0; i<inFile.filesToCache.length; i++){
-      const theClass={bucket:"",object:""}
+      const theClass=new classFilesToCache
       outFile.filesToCache.push(theClass);
       outFile.filesToCache[i].bucket = inFile.filesToCache[i].bucket;
       outFile.filesToCache[i].object = inFile.filesToCache[i].object;
     }
     
-    if (outFile.UserSpecific!==undefined){
+    if (inFile.UserSpecific!==undefined){
       outFile.UserSpecific=inFile.UserSpecific;
     } else {
-      const theClass={theId:"",theType:"",log:false}
-      this.retrievedConfigServer.UserSpecific.push(theClass);
+      const theClass=new UserParam;
+      this.dataConfigServer.UserSpecific.push(theClass);
     }
   }
 
+
+  /****
   uploadConfig(){
     this.EventHTTPReceived[14] = false;
-    this.ManageMongoDBService.uploadConfig(this.configServer, 'configServer', this.retrievedConfigServer)
+    this.ManageMongoDBService.uploadConfig(this.configServer, 'configServer', this.dataConfigServer)
         .subscribe(
           (data) => {
             this.error="New configuration record created";
@@ -604,11 +1052,9 @@ listConfig(){
     }
 
 
-    delConfigById(){
-      this.error='';
-      
-
-        this.ManageTutorialService.deleteById(this.configServer, 'configDB', 'configServer', this.idMongo,)
+  delConfigById(){
+    this.error='';
+    this.ManageTutorialService.deleteById(this.configServer, 'configDB', 'configServer', this.idMongo,)
       .subscribe(
         (data) => {
           if (data.status!==undefined  && data.status!==200){
@@ -623,75 +1069,9 @@ listConfig(){
           console.log('error='+err);
         });
     }
+****/
 
-  isInputMetadata:boolean=false;
-  inputMetaData(){
-    this.isInputMetadata=true;
-  }
-
-  actionUpdateMeta() {
-    this.currentAction = "";
-    this.metaDataMsg="";
-
-    for (var i = this.tabMetaPerso.length-1; i > 0; i--) {
-      if (this.tabMetaPerso[i].key === "") {
-        this.tabMetaPerso.splice(i, 1);
-      }
-    }
-    this.updateMetaData(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value,);
-  }
-
-  metaDataMsg:string="";
-  updateMetaData(bucket: any, object: any) {
-
-    this.metaDataMsg="";
-    this.EventHTTPReceived[5] = false;
-    this.waitHTTP(this.TabLoop[5], this.maxLoop, 5);
-    this.strMetaDataPerso = "";
-    this.ManageGoogleService.updateMetaData(this.configServer, bucket, object, this.theForm.controls['metaControl'].value, this.theForm.controls['metaType'].value, this.tabMetaPerso)
-      .subscribe(
-        (data) => {
-          if (data.type === 4 && data.status === 200) {
-            this.returnFileContent = JSON.stringify(data);
-            this.metaDataMsg=data.body.message;
-            this.strMetaDataPerso = JSON.stringify(data.body.metaData.metadata);
-            this.fullSizeTabMeta();
-            this.EventHTTPReceived[5] = true;
-          }
-      
-        },
-        err => {
-          //console.log('Metadata not updated for unloadfileSystem');
-          this.error = JSON.stringify(err);
-          this.EventHTTPReceived[5] = true;
-        });
-  }
-
-
-  confirmDelete(event: any) {
-    this.isConfirmedDelete= false;
-    if (event.target.id === "Save") {
-      this.deleteObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
-    }
-  }
-
-  confirmSave(event: any) {
-    this.isConfirmedSave = false;
-
-    if (event.target.id === "Save") {
-      if (this.currentAction==='save object with meta perso'){
-        this.uploadMetaPerso(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['fileContent'].value)
-      } else  if (this.currentAction==='save object'){
-
-        if (this.theForm.controls['server'].value === 'HTTP') {
-          this.saveObjectHTTP(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['fileContent'].value);
-        } else {
-          this.saveObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['fileContent'].value);
-        }
-      }
-    } else { this.currentAction = ""; }
-
-  }
+  /* =================== MANAGE OBJECTS  =============*/
 
   getListBuckets() {
     this.EventHTTPReceived[0] = false;
@@ -760,7 +1140,127 @@ listConfig(){
         });
   }
 
-  tabListMetaPerso:Array<string>=[];
+  deleteObject(srcbucket: any, srcobject: any) {
+    this.EventHTTPReceived[7] = false;
+    this.waitHTTP(this.TabLoop[7], this.maxLoop, 7);
+    this.ManageGoogleService.deleteObject(this.configServer, srcbucket, srcobject)
+      .subscribe(
+        (data) => {
+          this.returnFileContent = JSON.stringify(data);
+          this.EventHTTPReceived[7] = true;
+        },
+        err => {
+          //console.log('Error to copy ' + err.status);
+          this.error = JSON.stringify(err);
+          this.EventHTTPReceived[7] = true;
+        });
+  }
+
+
+  renameObject(srcbucket: any, srcobject: any, destobject: any) {
+    this.EventHTTPReceived[7] = false;
+    this.waitHTTP(this.TabLoop[7], this.maxLoop, 7);
+    this.ManageGoogleService.renameObject(this.configServer, srcbucket, srcobject, destobject)
+      .subscribe(
+        (data) => {
+          this.returnFileContent = JSON.stringify(data);
+          this.EventHTTPReceived[7] = true;
+        },
+        err => {
+          //console.log('Error to copy ' + err.status);
+          this.error = JSON.stringify(err);
+          this.EventHTTPReceived[7] = true;
+        });
+  }
+
+  moveObject(srcbucket: any, srcobject: any, destbucket: any, destobject: any) {
+    this.EventHTTPReceived[7] = false;
+    this.waitHTTP(this.TabLoop[7], this.maxLoop, 7);
+    this.ManageGoogleService.moveObject(this.configServer, srcbucket, destbucket, srcobject, destobject)
+      .subscribe(
+        (data) => {
+          this.returnFileContent = JSON.stringify(data);
+          this.EventHTTPReceived[7] = true;
+        },
+        err => {
+          //console.log('Error to copy ' + err.status);
+          this.error = JSON.stringify(err);
+          this.EventHTTPReceived[7] = true;
+        });
+  }
+
+  copyObject(srcbucket: any, srcobject: any, destbucket: any, destobject: any) {
+    this.EventHTTPReceived[6] = false;
+    this.waitHTTP(this.TabLoop[6], this.maxLoop, 6);
+    this.ManageGoogleService.copyObject(this.configServer, srcbucket, destbucket, srcobject, destobject)
+      .subscribe(
+        (data) => {
+          this.returnFileContent = JSON.stringify(data);
+          this.EventHTTPReceived[6] = true;
+        },
+        err => {
+          //console.log('Error to move ' + err.status);
+          this.error = JSON.stringify(err);
+          this.EventHTTPReceived[6] = true;
+        });
+  }
+
+  /* =================== METADATA  =============*/
+
+  inputMetaData(){ // to input meta data before it s saved
+    this.isInputMetadata=true;
+  }
+
+  modifyMetaData(){ 
+    if (this.EventHTTPReceived[4] === true){ // metadata was retrieved
+      this.isInputMetadata=true;
+    } else if (this.theForm.controls['srcBucket'].value!=="" && this.theForm.controls['srcObject'].value){
+        this.isInputMetadata=true;
+        this.getMetaData(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
+    } else {
+      this.error="enter SrcBucket/srcObject"
+    }
+  }
+
+  actionUpdateMeta(event:any) {
+    this.currentAction = "";
+    if (event.target.id==="submit"){
+      this.isInputMetadata=false;
+      for (var i = this.tabMetaPerso.length-1; i > 0; i--) {
+        if (this.tabMetaPerso[i].key === "") {
+          this.tabMetaPerso.splice(i, 1);
+        }
+      }
+      this.updateMetaData(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
+    } else if (event.target.id==="cancelUpdates"){
+        this.getMetaData(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
+    }
+  }
+
+  updateMetaData(bucket: any, object: any) {
+    this.metaDataMsg="";
+    this.EventHTTPReceived[5] = false;
+    this.waitHTTP(this.TabLoop[5], this.maxLoop, 5);
+    this.strMetaDataPerso = "";
+    this.ManageGoogleService.updateMetaData(this.configServer, bucket, object, this.theForm.controls['metaControl'].value, this.theForm.controls['metaType'].value, this.tabMetaPerso)
+      .subscribe(
+        (data) => {
+          if (data.type === 4 && data.status === 200) {
+            this.returnFileContent = JSON.stringify(data);
+            this.metaDataMsg=data.body.message;
+            this.strMetaDataPerso = JSON.stringify(data.body.metaData.metadata);
+            this.fullSizeTabMeta();
+            this.EventHTTPReceived[5] = true;
+          }
+        },
+        err => {
+          //console.log('Metadata not updated for unloadfileSystem');
+          this.error = JSON.stringify(err);
+          this.EventHTTPReceived[5] = true;
+        });
+  }
+
+
   listMetaDataObject(bucket: any) {
     this.EventHTTPReceived[3] = false;
     this.waitHTTP(this.TabLoop[3], this.maxLoop, 3);
@@ -840,74 +1340,38 @@ listConfig(){
         err => {
           //console.log('Metaobject not retrieved ' + err.status);
           this.error = JSON.stringify(err);
-          this.EventHTTPReceived[4] = true;
+          this.EventHTTPReceived[4] = false;
         });
   }
 
-  deleteObject(srcbucket: any, srcobject: any) {
-    this.EventHTTPReceived[7] = false;
-    this.waitHTTP(this.TabLoop[7], this.maxLoop, 7);
-    this.ManageGoogleService.deleteObject(this.configServer, srcbucket, srcobject)
-      .subscribe(
-        (data) => {
+  uploadMetaPerso(srcbucket: any, srcobject: any, record: any) {
+
+    var myObject: any;
+    if (record.substring(0, 1) === "{") {
+      myObject = JSON.parse(record);
+    } else {
+      myObject = record;
+    }
+
+    var file = new File([JSON.stringify(myObject)], srcobject, { type: 'application/json' });
+    this.EventHTTPReceived[8] = false;
+    this.waitHTTP(this.TabLoop[8], this.maxLoop, 8);
+    this.ManageGoogleService.uploadObjectMetaPerso(this.configServer, srcbucket, file, srcobject, this.theForm.controls['metaControl'].value, this.theForm.controls['metaType'].value, this.tabMetaPerso)
+      .subscribe(data => {
+        if (data.type === 4 && data.status === 200) {
+          console.log(JSON.stringify(data));
           this.returnFileContent = JSON.stringify(data);
-          this.EventHTTPReceived[7] = true;
-        },
+          this.EventHTTPReceived[8] = true;
+        }
+      },
         err => {
-          //console.log('Error to copy ' + err.status);
+          console.log('Upload of object and meaPerso failed ' + err.status);
           this.error = JSON.stringify(err);
-          this.EventHTTPReceived[7] = true;
+          this.EventHTTPReceived[8] = true;
         });
   }
 
-
-  renameObject(srcbucket: any, srcobject: any, destobject: any) {
-    this.EventHTTPReceived[7] = false;
-    this.waitHTTP(this.TabLoop[7], this.maxLoop, 7);
-    this.ManageGoogleService.renameObject(this.configServer, srcbucket, srcobject, destobject)
-      .subscribe(
-        (data) => {
-          this.returnFileContent = JSON.stringify(data);
-          this.EventHTTPReceived[7] = true;
-        },
-        err => {
-          //console.log('Error to copy ' + err.status);
-          this.error = JSON.stringify(err);
-          this.EventHTTPReceived[7] = true;
-        });
-  }
-
-  moveObject(srcbucket: any, srcobject: any, destbucket: any, destobject: any) {
-    this.EventHTTPReceived[7] = false;
-    this.waitHTTP(this.TabLoop[7], this.maxLoop, 7);
-    this.ManageGoogleService.moveObject(this.configServer, srcbucket, destbucket, srcobject, destobject)
-      .subscribe(
-        (data) => {
-          this.returnFileContent = JSON.stringify(data);
-          this.EventHTTPReceived[7] = true;
-        },
-        err => {
-          //console.log('Error to copy ' + err.status);
-          this.error = JSON.stringify(err);
-          this.EventHTTPReceived[7] = true;
-        });
-  }
-
-  copyObject(srcbucket: any, srcobject: any, destbucket: any, destobject: any) {
-    this.EventHTTPReceived[6] = false;
-    this.waitHTTP(this.TabLoop[6], this.maxLoop, 6);
-    this.ManageGoogleService.copyObject(this.configServer, srcbucket, destbucket, srcobject, destobject)
-      .subscribe(
-        (data) => {
-          this.returnFileContent = JSON.stringify(data);
-          this.EventHTTPReceived[6] = true;
-        },
-        err => {
-          //console.log('Error to move ' + err.status);
-          this.error = JSON.stringify(err);
-          this.EventHTTPReceived[6] = true;
-        });
-  }
+  /* =================== CACHE CONSOLE  =============*/
 
   getCacheConsole() {
     this.EventHTTPReceived[10] = false;
@@ -939,8 +1403,20 @@ listConfig(){
         });
   }
 
-  tabNameFS:Array<string>=[];
-  
+  resetCacheConsole() {
+    this.EventHTTPReceived[10] = false;
+    this.waitHTTP(this.TabLoop[10], this.maxLoop, 10);
+    this.ManageSecuredGoogleService.resetCacheConsole(this.configServer)
+      .subscribe(
+        (data) => {
+          this.error="Cache console is reset";
+        },
+        err => {
+          this.error="Cache console is not reset; error=" + err;
+        })
+  }
+  /* =================== FILE SYSTEM & MEMORY FS  =============*/
+
   getMemoryFS() {
     this.error="";
     this.EventHTTPReceived[11] = false;
@@ -963,8 +1439,6 @@ listConfig(){
               }
             }
           }
-          
-          
             this.EventHTTPReceived[11] = true;
         },
         err => {
@@ -992,6 +1466,78 @@ listConfig(){
   }
 
 
+  onResetFS(){
+    const iWait=this.theForm.controls['iWait'].value;
+    this.tabLock[iWait].object=this.theForm.controls['dataFile'].value;
+    this.tabLock[iWait].objectName=this.theForm.controls['fileSystem'].value;
+    this.tabLock[iWait].bucket=this.theForm.controls['bucket'].value;
+    this.tabLock[iWait].user=this.theForm.controls['userId'].value;
+    if (this.theForm.controls['action'].value==='resetAll'){
+      this.tabLock[iWait].action='resetAll';
+    } else {
+      this.tabLock[iWait].action='resetFS';
+    }
+    
+    this.ManageSecuredGoogleService.resetFS(this.configServer, this.configServer.bucketFileSystem, 'fileSystem', this.tabLock, iWait.toString() )
+    .subscribe(
+      (data ) => {   
+          console.log('resetFS reponse is : ' + JSON.stringify(data));
+      },
+      err => {
+        console.log('error from resetFS : ' + JSON.stringify(err));
+      }
+      )
+      }
+
+  /* =================== CREDENTIALS  =============*/
+
+  getDefaultCredentials(){
+    this.stringCredentials="";
+    this.ManageGoogleService.getDefaultCredentials(this.configServer)
+          .subscribe(
+        (data ) => {
+            this.stringCredentials=JSON.stringify(data);
+            this.credentials.access_token=data.credentials.access_token;
+            this.credentials.id_token=data.credentials.id_token
+            this.credentials.refresh_token=data.credentials.refresh_token
+            this.credentials.token_type=data.credentials.token_type;
+            this.credentials.userServerId=data.credentials.userServerId;
+            this.credentials.creationDate=data.credentials.creationDate;
+            this.EventHTTPReceived[17]=true;
+        },
+        err => {
+          console.log(' error request credentials = '+ JSON.stringify(err));
+          this.EventHTTPReceived[17]=false;
+        });
+  }
+
+  /* =================== CONFIRM SAVE/DELETE  =============*/
+
+  confirmDelete(event: any) {
+    this.isConfirmedDelete= false;
+    if (event.target.id === "Save") {
+      this.deleteObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
+    }
+  }
+
+  confirmSave(event: any) {
+    this.isConfirmedSave = false;
+    if (event.target.id === "Save") {
+      if (this.currentAction==='save object with meta perso'){
+        this.uploadMetaPerso(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['fileContent'].value)
+      } else  if (this.currentAction==='save object'){
+
+        if (this.theForm.controls['server'].value === 'HTTP') {
+          this.saveObjectHTTP(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['fileContent'].value);
+        } else {
+          this.saveObject(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value, this.theForm.controls['fileContent'].value);
+        }
+      }
+    } else { 
+      this.currentAction = ""; 
+    }
+  }
+
   saveObject(srcbucket: any, srcobject: any, record: any) {
 
     var myObject: any;
@@ -1000,7 +1546,6 @@ listConfig(){
     } else {
       myObject = record;
     }
-
     var file = new File([JSON.stringify(myObject)], srcobject, { type: 'application/json' });
     this.EventHTTPReceived[8] = false;
     this.waitHTTP(this.TabLoop[8], this.maxLoop, 8);
@@ -1019,34 +1564,6 @@ listConfig(){
         });
   }
 
-  uploadMetaPerso(srcbucket: any, srcobject: any, record: any) {
-
-    var myObject: any;
-    if (record.substring(0, 1) === "{") {
-      myObject = JSON.parse(record);
-    } else {
-      myObject = record;
-    }
-
-    var file = new File([JSON.stringify(myObject)], srcobject, { type: 'application/json' });
-    this.EventHTTPReceived[8] = false;
-    this.waitHTTP(this.TabLoop[8], this.maxLoop, 8);
-    this.ManageGoogleService.uploadObjectMetaPerso(this.configServer, srcbucket, file, srcobject, this.theForm.controls['metaControl'].value, this.theForm.controls['metaType'].value, this.tabMetaPerso)
-      .subscribe(data => {
-        if (data.type === 4 && data.status === 200) {
-          console.log(JSON.stringify(data));
-          this.returnFileContent = JSON.stringify(data);
-          this.EventHTTPReceived[8] = true;
-        }
-      },
-        err => {
-          console.log('Upload of object and meaPerso failed ' + err.status);
-          this.error = JSON.stringify(err);
-          this.EventHTTPReceived[8] = true;
-        });
-  }
-
-
   saveObjectHTTP(srcbucket: any, srcobject: any, record: any) {
     var myObject: any;
     // check if must be used or not
@@ -1055,7 +1572,6 @@ listConfig(){
     } else {
       myObject = record;
     }
-
 
     this.HTTP_Address = this.Google_Bucket_Access_RootPOST + srcbucket + this.GoogleObject_Option + srcobject;
     this.http.post(this.HTTP_Address, record, { headers: this.theHeadersAll })
@@ -1087,13 +1603,8 @@ listConfig(){
 
 
   manageAuth() {
-
-
     const OAUTH_CLIENT = '699868766266-iimi67j8gvpnogsq45jul0fbuelecp4i.apps.googleusercontent.com';
     const OAUTH_SECRET = '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';
-
-
-
     const API_URL = "https://accounts.google.com/o/oauth2/v2/auth";
     const HTTP_OPTIONSA = {
       headers: new HttpHeaders({
@@ -1141,18 +1652,19 @@ listConfig(){
           console.log(JSON.stringify(err));
         })
   }
-/*
+
   ngOnChanges(changes: SimpleChanges){
-    console.log('ngOnChanges()');
+    console.log('test-server ngOnChanges()');
     for (const propName in changes) {
       const j = changes[propName];
-      if (propName === 'configServer' || propName === 'newConfigServer') {
-        if (changes['configServer'].firstChange === false) {
+      console.log('test-server ngOnChanges() - item ' + propName);
+      if (propName === 'configServerChanges') {
+        if (changes['configServerChanges'].firstChange === false) {
           console.log('configServer has been updated');
-          this.newConfigServer=this.configServer;
+          this.newConfigServer=fillConfig(this.configServer);
         }
       }
     }
   }
-*/
+
 }

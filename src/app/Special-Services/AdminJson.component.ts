@@ -347,7 +347,7 @@ UpdateconfigPhoto(){
   //if (this.IsFieldModified[1]===true){this.ModifconfigServer.BucketLogin=this.ModifiedField[1]};
   //if (this.IsFieldModified[2]===true){this.ModifconfigServer.BucketConsole=this.ModifiedField[2]};
   //if (this.IsFieldModified[3]===true){this.ModifconfigServer.BucketContact=this.ModifiedField[3]};
-  if (this.IsFieldModified[4]===true){this.ModifconfigServer.SourceJson_Google_Mongo=this.ModifiedField[4]};
+ // if (this.IsFieldModified[4]===true){this.ModifconfigServer.SourceJson_Google_Mongo=this.ModifiedField[4]};
   if (this.IsFieldModified[5]===true){this.ModifconfigPhoto.Max_Nb_Bucket_Wedding=Number(this.ModifiedField[5])};
   if (this.IsFieldModified[6]===true){
     if (this.ModifiedField[6]==='false'){this.ModifconfigPhoto.GetOneBucketOnly=false};

@@ -24,8 +24,8 @@ export class AccessConfigService {
 //getConfig():Observable<configServer>{
   getConfig(){
   var test_prod='prod';
-  //this.configServer.baseUrl='https://localhost:8080';
-  this.configServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
+  //this.configServer.mongoServer='https://localhost:8080';
+  this.configServer.mongoServer='https://test-server-359505.uc.r.appspot.com';
   
   this.configServer.GoogleProjectId='ConfigDB';
   this.ManageMongoDBService.findConfig(this.configServer, 'configServer' )

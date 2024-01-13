@@ -13,7 +13,7 @@ import { classCredentials} from './JsonServerClass';
 import { mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from './ClassConverter';
 import { classAccessFile } from './classFileSystem';
 
-
+import { fillConfig } from './copyFilesFunction';
 import { fnAddTime } from './MyStdFunctions'
 import { isArray } from 'chart.js/dist/helpers/helpers.core';
 
@@ -39,6 +39,8 @@ export class AppComponent {
       // import configuration files
       // access MongoDB
   configServer=new configServer;
+  initConfigServer=new configServer;
+  configServerChanges:number=0;
   //XMVConfig=new XMVConfig;
   isConfigServerRetrieved:boolean=false;
   identification=new LoginIdentif;
@@ -71,6 +73,10 @@ export class AppComponent {
   isResetServer:boolean=false;
 
   inData=new classAccessFile;
+  tabServers: Array<string> = [
+    'http://localhost:8080', 'https://test-server-359505.uc.r.appspot.com',
+    'https://xmv-it-consulting.uc.r.appspot.com', 'https://serverfs.ue.r.appspot.com/'
+  ]
 
   ngOnInit(){
    // const snapshotParam = this.route.snapshot.paramMap.get("server");
@@ -78,6 +84,10 @@ export class AppComponent {
 
   // http://localhost:4200/?server=8080&scope=test 
    // http://localhost:4200/?server=XMV&scope=prod 
+
+   this.initConfigServer.googleServer=this.tabServers[2];
+   this.initConfigServer.mongoServer=this.tabServers[1];
+   this.initConfigServer.fileSystemServer=this.tabServers[3];
     this.route.queryParams
       .subscribe(params => {
         console.log(params); 
@@ -88,39 +98,58 @@ export class AppComponent {
           (res:any)=>{
               this.IpAddress = res.ip;
           }, err=> {console.log("issue to retrieve ipAddress" + err)});
+
         this.RetrieveConfig();        
       }
     );
+  }
+
+      // this is for allFunctions only so that test BackendServer is used
+
+
+  getServerNames(event:any){
+    this.initConfigServer.googleServer=event.google;;
+    this.initConfigServer.mongoServer=event.mongo;
+    this.initConfigServer.fileSystemServer=event.fileSystem;
+    this.configServer.googleServer = this.initConfigServer.googleServer;
+    this.configServer.mongoServer = this.initConfigServer.mongoServer;
+    this.configServer.fileSystemServer = this.initConfigServer.fileSystemServer;
+    this.configServerChanges++;
   }
   
   RetrieveConfig(){
     console.log('RetrieveConfig()');
     var test_prod='';
         
-        // this is for allFunctions only so that test BackendServer is used
-    var InitconfigServer=new configServer;
+  
+    /**
     if (this.myParams.server==="8080"){
-          InitconfigServer.baseUrl='http://localhost:8080';
+          this.initConfigServer.googleServer='http://localhost:8080';
+          this.initConfigServer.mongoServer='http://localhost:8080';
+          this.initConfigServer.fileSystemServer='http://localhost:8080';
 
     } else  if (this.myParams.server==="XMV"){
-          InitconfigServer.baseUrl='https://xmv-it-consulting.uc.r.appspot.com';
+          this.initConfigServer.googleServer='https://xmv-it-consulting.uc.r.appspot.com';
+          this.initConfigServer.mongoServer='https://xmv-it-consulting.uc.r.appspot.com';
+          this.initConfigServer.fileSystemServer='https://xmv-it-consulting.uc.r.appspot.com';
             
     } else {
-      InitconfigServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
+          this.initConfigServer.googleServer='https://test-server-359505.uc.r.appspot.com';
+          this.initConfigServer.mongoServer='https://test-server-359505.uc.r.appspot.com';
+          this.initConfigServer.fileSystemServer='https://test-server-359505.uc.r.appspot.com';
     }
+     */
     if (this.myParams.scope==="prod"){
         test_prod='prod';
     } else {
         test_prod='test';
     }
-
-
-    console.log(test_prod + ' baseUrl ' + InitconfigServer.baseUrl);
       
-    InitconfigServer.test_prod=test_prod; // retrieve the corresponding record test or production
-    InitconfigServer.GoogleProjectId='ConfigDB';
-    this.ManageMongoDB.findConfig(InitconfigServer, 'configServer')
-     // this.ManageMongoDB.findConfigbyURL(InitconfigServer, 'configServer', '')
+    this.initConfigServer.test_prod=test_prod; // retrieve the corresponding record test or production
+    this.initConfigServer.GoogleProjectId='ConfigDB';
+    this.initConfigServer.project="AllFunctionsB";
+    this.ManageMongoDB.findConfig(this.initConfigServer, 'configServer')
+     // this.ManageMongoDB.findConfigbyURL(this.initConfigServer, 'configServer', '')
       .subscribe(
         data => {
          // test if data is an array if (Array.isArray(data)===true){}
@@ -128,19 +157,23 @@ export class AppComponent {
        
 
         if (Array.isArray(data) === false){
-          this.configServer = data;
+          this.configServer = fillConfig(data);
         } else {
           for (let i=0; i<data.length; i++){
               if (data[i].title==="configServer" && data[i].test_prod===test_prod){
-                  this.configServer = data[i];
+                  //this.configServer = data[i];
+                  this.configServer = fillConfig(data[i]);
               } 
             }
         }
         
-        this.configServer.baseUrl = InitconfigServer.baseUrl;
+        this.configServer.googleServer = this.initConfigServer.googleServer;
+        this.configServer.mongoServer = this.initConfigServer.googleServer;
+        this.configServer.fileSystemServer = this.initConfigServer.fileSystemServer;
         this.configServer.IpAddress=this.IpAddress;
-        this.configServer.test_prod= InitconfigServer.test_prod;
-        console.log('configServer is retrieved; we will be using ' + this.configServer.baseUrl);
+        this.configServer.test_prod= this.initConfigServer.test_prod;
+        this.configServer.project=this.initConfigServer.project;
+        console.log('configServer is retrieved; we will be using for google ' + this.configServer.googleServer);;
           //this.getTokenOAuth2();
         if (this.credentials.access_token===""){
             this.getDefaultCredentials();

@@ -29,8 +29,8 @@ export class XmvcompanyRootComponent implements OnInit {
   RetrieveConfig(){
     var test_prod='prod';
     const InitconfigServer=new configServer;
-    InitconfigServer.baseUrl='https://localhost:8080';
-    InitconfigServer.baseUrl='https://test-server-359505.uc.r.appspot.com';
+    InitconfigServer.googleServer='https://localhost:8080';
+    InitconfigServer.googleServer='https://test-server-359505.uc.r.appspot.com';
     
     InitconfigServer.GoogleProjectId='ConfigDB';
     this.ManageMongoDBService.findConfig(InitconfigServer, 'configServer')

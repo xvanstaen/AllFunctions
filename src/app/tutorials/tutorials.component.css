@@ -1,80 +1,29 @@
-body{
-    width:600px;
-    background-color: lightskyblue;
-    font-size:14px;
+@import "../app.component.css";
+
+
+.mainBlock{
+    width:550px; 
+    margin-left:20px;  max-height:100px; background-color:skyblue; display:inline-block; 
+    border:2px red solid;
 }
 
-.skipLine{
-    width:100%;
-    display:inline-block;
-    height:2px;
+.sizeButtonsOverride{
+    width:100px; height:50px;
+    font-size:14px; font-weight: bolder;
 }
-
-.label{
-    width:80px;
-    display:inline-block;
-    color:blue;
-}
-
-.theInput{
-    width:190px;
-    display:inline-block;
-    color:blue;
-    background-color: lightgrey;
-}
-
-.theInputLong{
-    width:460px;
-    display:inline-block;
-    color:blue;
-    background-color: lightgrey;
-}
-
-.theInputLong:hover{
-    background-color: cyan;
-}
-
-.forHover{
-    border:solid 0px blue;
-}
-
-.forHover:hover{
-    background-color: rgb(34, 187, 34);
-}
-
-
-.sizeButtons{
-    width:100px;
-    height:50px;
-    font-size:14px;
-    margin-left:10px;
-    background-color:cyan;
-    border-radius: 5px;
-    background-image: linear-gradient(cyan, lightcyan);
-    box-shadow: 2px 2px blue;
-    border: solid 1px blue;
-    display:table-cell;
-    vertical-align:middle;
-}
-
-.sizeButtons:hover{
-    background-color:rgb(48, 89, 159);
-    background-image: linear-gradient(rgb(97, 166, 206), rgb(63, 153, 206));
-  }
 
 .theTitle{
-    width:100%;
-    height:40px;
+    width:100%; height:40px;
     font-size:16px;
     background-color: cyan;
     text-align: center;
-    border: solid 0px blue;
-    color:blue;
+    border: solid 0px blue; color:blue;
     padding-top:8px;
 }
 
 .blockMgt{
-    width:100%; display:block; background-color: lightskyblue;
+    width:500px; display:inline-block; background-color: lightskyblue; 
+    margin-left:20px;
 }
 
 .subBlock{
@@ -95,40 +44,10 @@ body{
     font-size:15px;
 }
 
-.even{
-    background-color:lightgreen;
-}
 
-.odd{
-    background-color:lightyellow;
-}
-
-.even:hover{
-    background-color:lightskyblue;
-}
-
-.odd:hover{
-    background-color:lightskyblue;
-}
-
-
-.dropdown {
-    position: relative;
-    display: contents; 
-  }
-  
-
-.Straight-content{
-    position: absolute;
-    z-index: 1;
-  }
-
-.StraightDropDown{
+.StraightDropDownOverride{
     width:400px;
     height: 200px;
-    border: 2px solid green;
-    overflow: hidden;
-    background-color: lightgrey;
     margin-left:60px;
     margin-top:-240px;
   }
@@ -146,4 +65,51 @@ body{
 
 .listTitle{
     margin-top:10px; margin-left:60px; width:400px;
+}
+
+.inputA{
+    width:28px; display:inline-block; background-color: green;
+    text-align: center; margin-left:4px;
+  }
+  
+.inputA:hover{
+    background-color: cyan;
+  }
+
+.configInput{
+    width:120px; color:blue; font-size:14px; display:inline-block; background-color: lightgrey;
+    padding-left:8px;
+  }
+  
+  .configInput:hover {
+    background-color: cyan;
+  }
+  
+  .configInputShort{
+    width:60px; color:blue; font-size:14px; display:inline-block; background-color: lightgrey;
+    padding-left:8px;
+  }
+  
+  .configInputShort:hover {
+    background-color: cyan;
+  }
+  
+.straightOverr{
+  margin-left:0px; text-align: center;
+}
+
+.buttConfirm{
+  margin-top:30px; margin-left:140px; width:80px; height:30px; font-size:15px;
+}
+
+.buttCancel{
+  margin-top:30px; margin-left:20px;  width:80px; height:30px; font-size:15px;
+}
+/*** ====================================== ***/
+/*** ============== @media 850 ================ ***/
+/*** ====================================== ***/
+@media only screen and (max-width: 800px) {
+    .mainBlock{
+    width:450px; max-width:450px;
+    }
 }

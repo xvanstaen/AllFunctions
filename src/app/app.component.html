@@ -2,6 +2,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
 <body>
+
+<app-select-server [initConfigServer]="initConfigServer" 
+                    (returnServer)="getServerNames($event)">
+</app-select-server>
+
 <!--
 <div *ngIf="myParams.code!==undefined">
     <span style="width:94%; background-color: cyan; margin-left:10px; border:solid 2px red; display:inline-block; ">Parameter CODE = {{myParams.code}}</span>
@@ -95,7 +100,7 @@
         </app-recipe>
     </div>  
     <div *ngIf="selectApps===16">
-        <app-test-server-js   [configServer]="configServer" [credentials]="credentials">
+        <app-test-server-js   [configServer]="configServer" [credentials]="credentials" [configServerChanges]="configServerChanges" >
         </app-test-server-js>
     </div>  
     <div *ngIf="selectApps===17">
