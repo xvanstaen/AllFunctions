@@ -52,7 +52,10 @@ export class TestServerJSComponent {
 
   @Input() configServer = new configServer;
   @Input() credentials = new classCredentials;
+  @Input() credentialsMongo = new classCredentials;
+  @Input() credentialsFS = new classCredentials;
   @Input() configServerChanges:number=0;
+
   newConfigServer = new configServer;
 
   retrievedConfigServer= new configServer;
@@ -125,7 +128,7 @@ export class TestServerJSComponent {
   });
 
   tabAction: Array<string> = ['cancel', 'list all buckets', 'list all objects', 'get file content', 'get list metadata for all objects', 'get metadata for one object', 'create & save metadata' , 'update metadata for one object',  'save object', 'save object with meta perso' , 'rename object', 
-  'copy object', 'move object', 'delete object', 'get cache console', 'reset cache console', 'get memory File System','reset memory File System','get cache file', 'reset cache file', 'reload cache file', 'get credentials', 'manage config'];
+  'copy object', 'move object', 'delete object', 'get cache console', 'reset cache console', 'get memory File System','reset memory File System','get cache file', 'reset cache file', 'reload cache file', 'get credentials', 'manage config','get server version'];
   
   tabConfig:Array<string>=['find cache config', 'reset cache config','find config by criteria', 'find all config', "update config by id", "upload config", "delete config by Id", "create config"]
   /*
@@ -142,7 +145,7 @@ export class TestServerJSComponent {
 
 
   tabServers: Array<string> = [
-    'http://localhost:8080', 'https://test-server-359505.uc.r.appspot.com','https://xmv-it-consulting.uc.r.appspot.com'
+    'http://localhost:8080', 'https://test-server-359505.uc.r.appspot.com','https://xmv-it-consulting.uc.r.appspot.com',  'https://serverfs.ue.r.appspot.com'
   ]
   //   'delBucket'
   actionDropdown: boolean = false;
@@ -221,8 +224,6 @@ export class TestServerJSComponent {
     this.newConfigServer.test_prod=this.theForm.controls['testProd'].value;
     */
     this.isInitDone=true;
-
-    this.getServerVersion();
   }
 
 
@@ -332,19 +333,26 @@ export class TestServerJSComponent {
       this.theForm.controls['fileSystemServer'].setValue(event.target.textContent.trim());
     } 
     
-    this.getServerVersion();
   }
 
-  getServerVersion(){
+  tabVersionServer:Array<string>=['','','','',''];
+  isGetServerFunction:boolean=false;
+  getServerVersion(i:number){
     this.EventHTTPReceived[15] = false;
+    const saveGoogleServer=this.configServer.googleServer;
+    this.configServer.googleServer=this.tabServers[i];
     this.ManageGoogleService.getServerVersion(this.configServer)
         .subscribe(
           (data) => {
+          this.isGetServerFunction=true;
+          this.tabVersionServer[i]=data.version;
           this.serverVersion=data.version;
+          this.configServer.googleServer=saveGoogleServer;
           this.EventHTTPReceived[15] = true;
         }, 
         err =>{
           this.serverVersion="";
+          this.configServer.googleServer=saveGoogleServer;
           this.error = "status:" +err.err.status + " - " + err.err.message;
           console.log('error');
         })
@@ -401,7 +409,6 @@ storeTitle(event:any){
           }
         }
         
-
       } else if (event.target.textContent.trim() === 'get list metadata for all objects') {
         if (this.theForm.controls['srcBucket'].value==="" ){
           this.error="Field srcBucket is empty";
@@ -463,7 +470,6 @@ storeTitle(event:any){
           this.isConfirmedDelete = true;
         }
         
-        
       } else if (event.target.textContent.trim() === 'save object' ) {
         if (this.theForm.controls['srcBucket'].value==="" || this.theForm.controls['srcObject'].value==="" || this.theForm.controls['fileContent'].value===""){
           this.error="At least one field (srcBucket/srcObject/Content) is empty";
@@ -493,25 +499,6 @@ storeTitle(event:any){
       } else if (event.target.textContent.trim() === 'reset memory File System') {
         this.isDisplayAction=false;
         this.resetMemoryFS(this.theForm.controls['srcBucket'].value, this.theForm.controls['srcObject'].value);
-
-        //'get memory File System','reset memory File System'
-        /****
-      }  else if (event.target.textContent.trim() === 'list config') {
-        this.isDisplayAction=false;
-        this.listConfig();
-
-      } else if (event.target.textContent.trim() === 'update config') {
-        this.isDisplayAction=false;
-        this.updateConfig();
-
-      } else if (event.target.textContent.trim() === 'upload config') {
-        this.isDisplayAction=false;
-        this.uploadConfig();
-
-      } else if (event.target.textContent.trim() === 'delete config') {
-        this.isDisplayAction=false;
-        this.delConfigById();
-      */
       }  else if (event.target.textContent.trim() === 'reset cache file') {
         this.isDisplayAction=false;
         this.resetCacheFile();
@@ -531,13 +518,20 @@ storeTitle(event:any){
       } else if (event.target.textContent.trim() === 'get credentials') {
         this.isDisplayAction=false;
         this.getDefaultCredentials();
+        this.getCredentials();
+
+      }  else if (event.target.textContent.trim() === 'get server version') {
+        for (var i=0; i<this.tabServers.length;i++){
+          this.getServerVersion(i);
+        }
+        
 
       } else {
         this.error = 'ACTION UNKNOWN';
       }
     }
   }
-
+  
   /* =================== CACHE FILE =============*/
 
   onInputFileToCache(event:any){
@@ -559,12 +553,16 @@ storeTitle(event:any){
     this.resetObjectCacheFile();
     this.ManageSecuredGoogleService.resetCacheFile(this.configServer, "All" )
       .subscribe((data ) => {  
+        if (data.status===undefined || data.status===200){
         this.EventHTTPReceived[16]=true;
         this.msgCacheFile.status=data.status;
         this.msgCacheFile.msg=data.msg;
         if (data.content!==undefined){
           this.msgCacheFile.content=data.content;
         }
+      } else {
+        this.error=data.msg;
+      }
       }, 
       err => {
         this.error="Cache file could not be reset, error:" + err;
@@ -576,10 +574,14 @@ storeTitle(event:any){
     this.resetObjectCacheFile();
     this.ManageSecuredGoogleService.getCacheFile(this.configServer )
     .subscribe((data ) => {  
+      if (data.status===undefined || data.status===200){
       this.EventHTTPReceived[16]=true;
       this.msgCacheFile.status=data.status;
       this.msgCacheFile.msg=data.msg;
       this.msgCacheFile.content=data.cacheFiles;
+    } else {
+      this.error=data.msg;
+    }
     }, 
     err => {
       this.error="Cache file could not be retrieved, error:" + err;
@@ -597,10 +599,14 @@ storeTitle(event:any){
     this.resetObjectCacheFile();
     this.ManageSecuredGoogleService.reloadCacheFile(this.configServer )
     .subscribe((data ) => {  
+      if (data.status===undefined || data.status===200){
       this.EventHTTPReceived[16]=true;
       this.msgCacheFile.status=data.status;
       this.msgCacheFile.msg=data.msg;
       this.msgCacheFile.content=data.cacheFiles;
+    } else {
+      this.error=data.msg;
+    }
     }, 
     err => {
       this.error="Cache file has not been reloaded, error:" + err;
@@ -681,14 +687,18 @@ dataConfigServer = new configServer;
 findCacheConfig(){
   this.ManageMongoDBService.findConfig(this.configServer,'configServer' )
   .subscribe((data ) => { 
-    this.error="Cache config has been successfully reset" ; 
-    console.log(data);
-    this.dataConfigServer = new configServer;
-    this.dataConfigServer = this.responseConfig(data, this.dataConfigServer);
-    this.EventHTTPReceived[18]=true;
+    if (data.status ===200){
+      this.error="Cache config has been successfully reset" ; 
+      console.log(data);
+      this.dataConfigServer = new configServer;
+      this.dataConfigServer = this.responseConfig(data, this.dataConfigServer);
+      this.EventHTTPReceived[18]=true;
+    } else {
+      this.errorConfig=data.msg;
+    }
   }, 
   err => {
-    this.error="Cache config has not been reset, error:" + err
+    this.errorConfig="Cache config has not been reset, error:" + err
   });
 }
 
@@ -701,10 +711,9 @@ findAllConfig(){
     this.EventHTTPReceived[18]=true;
   }, 
   err => {
-    this.error="Find all config, error:" + err
+    this.errorConfig="Find all config, error:" + err
   });
 }
-
 
 errorConfig:string="";
 itemFileToCache:number=-1;
@@ -763,8 +772,6 @@ confActionCancel(event:any){
 }
 
 
-
-
 findConfigByString(){
   if (this.theForm.controls['searchField'].value!=="" && this.theForm.controls['searchCriteria'].value!==""){
     this.ManageMongoDBService.findConfigByString(this.configServer, 'configServer', this.theForm.controls['searchField'].value, this.theForm.controls['searchCriteria'].value )
@@ -791,9 +798,12 @@ updateConfigById(){
   }
   this.ManageMongoDBService.updateConfig(this.configServer,  'configServer', this.theForm.controls['idRecord'].value, this.dataConfigServer)
   .subscribe((data ) => { 
-    this.errorConfig="Config has been successfully updated" ; 
-
-    console.log(data);
+    if (data.status===200){
+      this.errorConfig="Config has been successfully updated" ; 
+      console.log(data.data);
+    } else {
+      this.errorConfig=data.msg;
+    }
   }, 
   err => {
     this.errorConfig="Config has not been updated, error:" + err
@@ -803,9 +813,13 @@ updateConfigById(){
 deleteConfigById(){
   this.ManageMongoDBService.delConfigById(this.configServer,  'configServer', this.theForm.controls['idRecord'].value)
   .subscribe((data ) => { 
-    this.errorConfig="Config has been successfully deleted" ; 
-    //console.log(data);
-    this.findAllConfig();
+    if (data.status===200){
+      this.errorConfig="Config has been successfully deleted" ; 
+      this.findAllConfig();
+      console.log(data.data);
+    } else {
+      this.errorConfig=data.msg;
+    }
   }, 
   err => {
     this.errorConfig="Config has not been deleted, error:" + err
@@ -815,9 +829,13 @@ deleteConfigById(){
 uploadConfig(){
   this.ManageMongoDBService.uploadConfig(this.configServer, 'configServer', this.dataConfigServer)
   .subscribe((data ) => { 
-    this.errorConfig="Config has been successfully uploaded" ; 
-    this.findAllConfig();
-    console.log(data);
+    if (data.status===200){
+      this.errorConfig="Config has been successfully uploaded" ; 
+      this.findAllConfig();
+      console.log(data.data);
+    } else {
+      this.errorConfig=data.msg;
+    }
   }, 
   err => {
     this.errorConfig="Config has not been uploaded, error:" + err
@@ -827,11 +845,11 @@ uploadConfig(){
 resetCacheConfig(){
   this.ManageMongoDBService.resetCacheConfig(this.configServer,'configServer')
   .subscribe((data ) => { 
-    this.error="Cache config has been successfully reset" ; 
+    this.errorConfig=data.msg; 
     console.log(data);
   }, 
   err => {
-    this.error="Cache config has not been reset, error:" + err
+    this.errorConfig=err.msg; 
   });
 }
 onInputTabConfig(event:any){
@@ -910,7 +928,6 @@ listConfig(){
       this.idMongo=this.tabOfId[i];
       this.dataConfigServer = new configServer;
       this.dataConfigServer=fillConfig(this.tabOfConfig[i]);
-
     }
   }
 
@@ -968,28 +985,6 @@ listConfig(){
     } 
   }
 
-  /***
-  updateConfig(id:string,record:any){
-
-    this.EventHTTPReceived[14] = false;
-    this.ManageMongoDBService.updateConfig(this.configServer, 'configServer', id, record)
- 
-        .subscribe(
-          (data) => {
-            if (data.status=200){
-              this.errorConfig=data.message;
-            } else {
-              this.errorConfig= "status:" + data.status + " - " + data.message;
-            }
-          this.EventHTTPReceived[13] = true;
-        }, 
-        err =>{
-          this.error = "status:" +err.err.status + " - " + err.err.message;
-          console.log('error');
-        })
-  }
-  ***/
-
   getServerNames(event:any){
     this.configServer.googleServer=event.google;;
     this.configServer.mongoServer=event.mongo;
@@ -1038,43 +1033,6 @@ listConfig(){
     }
   }
 
-
-  /****
-  uploadConfig(){
-    this.EventHTTPReceived[14] = false;
-    this.ManageMongoDBService.uploadConfig(this.configServer, 'configServer', this.dataConfigServer)
-        .subscribe(
-          (data) => {
-            this.error="New configuration record created";
-            this.listConfig();
-          this.EventHTTPReceived[13] = true;
-          }, 
-          err =>{
-            this.error="Error - config record is not created" + err.message;
-            console.log('error='+err);
-          })
-    }
-
-
-  delConfigById(){
-    this.error='';
-    this.ManageTutorialService.deleteById(this.configServer, 'configDB', 'configServer', this.idMongo,)
-      .subscribe(
-        (data) => {
-          if (data.status!==undefined  && data.status!==200){
-            this.error=data.message;
-          } else {
-            this.error="Record successfully deleted";
-            this.listConfig();
-          }
-        },
-        err => {
-          this.error="Error - config record is not created" + err.message;
-          console.log('error='+err);
-        });
-    }
-****/
-
   /* =================== MANAGE OBJECTS  =============*/
 
   getListBuckets() {
@@ -1083,9 +1041,14 @@ listConfig(){
     this.ManageGoogleService.getListBuckets(this.configServer)
       .subscribe((data) => {
         //console.log(JSON.stringify(data));
-        this.returnFileContent = JSON.stringify(data);
+        if (data.status===undefined || data.status===200){
+          this.returnFileContent = JSON.stringify(data);
         this.TabBuckets = data;
         this.EventHTTPReceived[0] = true;
+        } else { 
+          this.error=data.msg;
+        }
+        
       },
         err => {
           //console.log('Metaobject not retrieved ' + err.status);
@@ -1150,8 +1113,14 @@ listConfig(){
     this.ManageGoogleService.deleteObject(this.configServer, srcbucket, srcobject)
       .subscribe(
         (data) => {
-          this.returnFileContent = JSON.stringify(data);
-          this.EventHTTPReceived[7] = true;
+          var theResp:any;
+          theResp=data;
+          if (theResp.status===undefined || theResp.status===200){
+            this.returnFileContent = JSON.stringify(data);
+            this.EventHTTPReceived[7] = true;
+          } else {
+            this.error=theResp.msg;
+          }
         },
         err => {
           //console.log('Error to copy ' + err.status);
@@ -1166,9 +1135,15 @@ listConfig(){
     this.waitHTTP(this.TabLoop[7], this.maxLoop, 7);
     this.ManageGoogleService.renameObject(this.configServer, srcbucket, srcobject, destobject)
       .subscribe(
-        (data) => {
-          this.returnFileContent = JSON.stringify(data);
-          this.EventHTTPReceived[7] = true;
+        data => {
+          var theResp:any;
+          theResp=data;
+          if (theResp.status===undefined || theResp.status===200){
+            this.returnFileContent = JSON.stringify(data);
+            this.EventHTTPReceived[7] = true;
+          } else {
+            this.error=theResp.msg;
+          } 
         },
         err => {
           //console.log('Error to copy ' + err.status);
@@ -1180,11 +1155,17 @@ listConfig(){
   moveObject(srcbucket: any, srcobject: any, destbucket: any, destobject: any) {
     this.EventHTTPReceived[7] = false;
     this.waitHTTP(this.TabLoop[7], this.maxLoop, 7);
-    this.ManageGoogleService.moveObject(this.configServer, srcbucket, destbucket, srcobject, destobject)
+    this.ManageGoogleService.moveObject(this.configServer,srcbucket, destbucket, srcobject, destobject)
       .subscribe(
         (data) => {
-          this.returnFileContent = JSON.stringify(data);
-          this.EventHTTPReceived[7] = true;
+          var theResp:any;
+          theResp=data;
+          if (theResp.status===undefined || theResp.status===200){
+            this.returnFileContent = JSON.stringify(data);
+            this.EventHTTPReceived[7] = true;
+          } else {
+            this.error=theResp.msg;
+          }
         },
         err => {
           //console.log('Error to copy ' + err.status);
@@ -1199,8 +1180,14 @@ listConfig(){
     this.ManageGoogleService.copyObject(this.configServer, srcbucket, destbucket, srcobject, destobject)
       .subscribe(
         (data) => {
-          this.returnFileContent = JSON.stringify(data);
-          this.EventHTTPReceived[6] = true;
+          var theResp:any;
+          theResp=data;
+          if (theResp.status===undefined || theResp.status===200){
+            this.returnFileContent = JSON.stringify(data);
+            this.EventHTTPReceived[7] = true;
+          } else {
+            this.error=theResp.msg;
+          }
         },
         err => {
           //console.log('Error to move ' + err.status);
@@ -1255,7 +1242,11 @@ listConfig(){
             this.strMetaDataPerso = JSON.stringify(data.body.metaData.metadata);
             this.fullSizeTabMeta();
             this.EventHTTPReceived[5] = true;
-          }
+          } else if (data.type===undefined){
+            var response:any;
+            response=data;
+            this.error=response.msg;
+        }
         },
         err => {
           //console.log('Metadata not updated for unloadfileSystem');
@@ -1366,6 +1357,10 @@ listConfig(){
           console.log(JSON.stringify(data));
           this.returnFileContent = JSON.stringify(data);
           this.EventHTTPReceived[8] = true;
+        } else if (data.type===undefined){
+            var response:any;
+            response=data;
+            this.error=response.msg;
         }
       },
         err => {
@@ -1413,10 +1408,10 @@ listConfig(){
     this.ManageSecuredGoogleService.resetCacheConsole(this.configServer)
       .subscribe(
         (data) => {
-          this.error="Cache console is reset";
+          this.error=data.msg;
         },
         err => {
-          this.error="Cache console is not reset; error=" + err;
+          this.error= err;
         })
   }
   /* =================== FILE SYSTEM & MEMORY FS  =============*/
@@ -1428,22 +1423,26 @@ listConfig(){
     this.ManageSecuredGoogleService.getMemoryFS(this.configServer)
       .subscribe(
         (data) => {
-          this.memoryFS.splice(0,this.memoryFS.length);
-          for (var i=0; i<data.data.length; i++){
-            this.memoryFS.push({fileName:"",record:[]});
-            this.memoryFS[i].fileName=data.data[i].fileName;
-            if (data.data[i].content.length===0){
-              this.error=this.error + " --- " + "File System " + this.memoryFS[i].fileName+ " memory is empty";
-            } else {
-              for (var j=0; j<data.data[i].content.length; j++){
-                const theClass=new classFileSystem;
-                this.memoryFS[i].record.push(theClass);
-                this.memoryFS[i].record[this.memoryFS[i].record.length-1]=data.data[i].content[j];
-                
+          if (data.status===undefined || data.status===200){
+            this.memoryFS.splice(0,this.memoryFS.length);
+            for (var i=0; i<data.data.length; i++){
+              this.memoryFS.push({fileName:"",record:[]});
+              this.memoryFS[i].fileName=data.data[i].fileName;
+              if (data.data[i].content.length===0){
+                this.error=this.error + " --- " + "File System " + this.memoryFS[i].fileName+ " memory is empty";
+              } else {
+                for (var j=0; j<data.data[i].content.length; j++){
+                  const theClass=new classFileSystem;
+                  this.memoryFS[i].record.push(theClass);
+                  this.memoryFS[i].record[this.memoryFS[i].record.length-1]=data.data[i].content[j];
+                  
+                }
               }
             }
+          } else { 
+            this.error=data.msg;
           }
-            this.EventHTTPReceived[11] = true;
+          this.EventHTTPReceived[11] = true;
         },
         err => {
           //console.log('Error to move ' + err.status);
@@ -1456,11 +1455,12 @@ listConfig(){
     
     this.EventHTTPReceived[12] = false;
     this.waitHTTP(this.TabLoop[12], this.maxLoop, 12);
-    this.ManageSecuredGoogleService.resetFS(this.configServer, srcBucket, srcObject,this.tabLock,this.iWait)
+    this.ManageSecuredGoogleService.resetFS(this.configServer, srcBucket, srcObject,this.tabLock,0)
       .subscribe(
         (data) => {
-          this.returnFileContent = JSON.stringify(data);
-          this.EventHTTPReceived[12] = true;
+
+            this.error=data.msg;
+            this.EventHTTPReceived[12] = true;
         },
         err => {
           //console.log('Error to move ' + err.status);
@@ -1485,7 +1485,12 @@ listConfig(){
     this.ManageSecuredGoogleService.resetFS(this.configServer, this.configServer.bucketFileSystem, 'fileSystem', this.tabLock, iWait.toString() )
     .subscribe(
       (data ) => {   
+        if (data.status===undefined || data.status===200){
           console.log('resetFS reponse is : ' + JSON.stringify(data));
+          this.error="FS has been reset";
+        } else {
+          this.error=data.msg;
+        }
       },
       err => {
         console.log('error from resetFS : ' + JSON.stringify(err));
@@ -1514,6 +1519,27 @@ listConfig(){
           this.EventHTTPReceived[17]=false;
         });
   }
+
+  getCredentials(){
+    console.log('getDefaultCredentials()');
+    this.ManageGoogleService.getCredentials(this.configServer )
+    .subscribe(
+        (data ) => {
+          this.credentials.access_token=data.credentials.access_token;
+          this.credentials.id_token=data.credentials.id_token
+          this.credentials.refresh_token=data.credentials.refresh_token
+          this.credentials.token_type=data.credentials.token_type;
+          this.credentials.userServerId=data.credentials.userServerId;
+          this.credentials.creationDate=data.credentials.creationDate;
+         this.returnFileContent=JSON.stringify(data);
+         this.isDisplayAction=true;
+        },
+        err => {
+          console.log('return from requestToken() with error = '+ JSON.stringify(err));
+          });
+  }
+
+
 
   /* =================== CONFIRM SAVE/DELETE  =============*/
 

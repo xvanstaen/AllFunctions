@@ -7,15 +7,16 @@ import { ActivatedRoute, Router } from "@angular/router";
 
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
-import { LoginIdentif , configServer } from './JsonServerClass';
+import { LoginIdentif , configServer, classUserLogin } from './JsonServerClass';
 import { environment } from 'src/environments/environment';
 import { classCredentials} from './JsonServerClass';
 import { mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from './ClassConverter';
 import { classAccessFile } from './classFileSystem';
 
 import { fillConfig } from './copyFilesFunction';
-import { fnAddTime } from './MyStdFunctions'
+import { fnAddTime } from './MyStdFunctions';
 import { isArray } from 'chart.js/dist/helpers/helpers.core';
+import { fillCredentials } from './copyFilesFunction';
 
 @Component({
   selector: 'app-root',
@@ -51,6 +52,8 @@ export class AppComponent {
   convertOnly:boolean=true;
   selHealthFunction:number=0;
   credentials = new classCredentials;
+  credentialsFS = new classCredentials;
+  credentialsMongo = new classCredentials;
   isCredentials:boolean=false;
   myParams={server:"", scope:"test"};
 
@@ -75,7 +78,7 @@ export class AppComponent {
   inData=new classAccessFile;
   tabServers: Array<string> = [
     'http://localhost:8080', 'https://test-server-359505.uc.r.appspot.com',
-    'https://xmv-it-consulting.uc.r.appspot.com', 'https://serverfs.ue.r.appspot.com/'
+    'https://xmv-it-consulting.uc.r.appspot.com', 'https://serverfs.ue.r.appspot.com'
   ]
 
   ngOnInit(){
@@ -147,7 +150,7 @@ export class AppComponent {
       
     this.initConfigServer.test_prod=test_prod; // retrieve the corresponding record test or production
     this.initConfigServer.GoogleProjectId='ConfigDB';
-    this.initConfigServer.project="AllFunctionsB";
+    
     this.ManageMongoDB.findConfig(this.initConfigServer, 'configServer')
      // this.ManageMongoDB.findConfigbyURL(this.initConfigServer, 'configServer', '')
       .subscribe(
@@ -168,20 +171,25 @@ export class AppComponent {
         }
         
         this.configServer.googleServer = this.initConfigServer.googleServer;
-        this.configServer.mongoServer = this.initConfigServer.googleServer;
+        this.configServer.mongoServer = this.initConfigServer.mongoServer;
         this.configServer.fileSystemServer = this.initConfigServer.fileSystemServer;
         this.configServer.IpAddress=this.IpAddress;
         this.configServer.test_prod= this.initConfigServer.test_prod;
-        this.configServer.project=this.initConfigServer.project;
-        console.log('configServer is retrieved; we will be using for google ' + this.configServer.googleServer);;
+        this.configServer.project="AllFunctions";
+        //this.configServer.project=this.initConfigServer.project;
           //this.getTokenOAuth2();
         if (this.credentials.access_token===""){
-            this.getDefaultCredentials();
+            this.getDefaultCredentials('Google');
+        } if (this.credentialsFS.access_token===""){
+          this.getDefaultCredentials('FS');
+        } if (this.credentialsMongo.access_token===""){
+          this.getDefaultCredentials('Mongo');
         } 
         if (this.isNewUser===true){
             this.assignNewServerUsrId();
             this.isNewUser=false;
           }
+        this.isConfigServerRetrieved=true;
         },
         error => {
           console.log('error to retrieve the configuration file ;  error = ', error);
@@ -218,22 +226,20 @@ export class AppComponent {
   
   */
 
-  getDefaultCredentials(){
+  getDefaultCredentials(serverType:string){
     console.log('getDefaultCredentials()');
     this.ManageGoogleService.getDefaultCredentials(this.configServer  )
     .subscribe(
         (data ) => {
-          this.credentials.access_token=data.credentials.access_token;
-          this.credentials.id_token=data.credentials.id_token
-          this.credentials.refresh_token=data.credentials.refresh_token
-          this.credentials.token_type=data.credentials.token_type;
-          // this.credentials.userServerId=data.credentials.userServerId;
-          this.credentials.creationDate=data.credentials.creationDate;
-          // this.getInfoToken(); // this is a test
-      
+          if (serverType==='Google'){
+            this.credentials = fillCredentials(data);
+          } else if (serverType==='Mongo'){
+              this.credentialsMongo = fillCredentials(data);
+          } else if (serverType==='mongo'){
+              this.credentialsFS = fillCredentials(data);
+          }
+          
           this.isCredentials=true;
-
-
           if (this.isResetServer===true){
             this.isResetServer=false;
             this.getLogin(this.theForm.controls['userId'].value,this.theForm.controls['psw'].value);
@@ -241,11 +247,11 @@ export class AppComponent {
         },
         err => {
           console.log('return from requestToken() with error = '+ JSON.stringify(err));
-          });
+        });
   }
 
-
-
+  
+  
   assignNewServerUsrId(){
     this.ManageGoogleService.getNewServerUsrId(this.configServer)
     .subscribe(
@@ -283,11 +289,11 @@ export class AppComponent {
     } 
   }
 
-  fnResetServer(){
+  fnResetServer(event:any){
     this.isCredentials=false;
     this.isResetServer=true;
     this.isIdRetrieved=false;
-    this.getDefaultCredentials();
+    this.getDefaultCredentials(event);
     this.assignNewServerUsrId();
   }
 
@@ -338,23 +344,33 @@ export class AppComponent {
 
 
 
-  getLogin(object:string,psw:string){
+  getLogin(userId:string,psw:string){
     // this.ManageGoogleService.getContentObject(this.configServer, Bucket, GoogleObject )
+    this.configServer.userLogin.id=userId;
+    this.configServer.userLogin.psw=psw;
+    this.configServer.userLogin.accessLevel="";
     this.errorMsg="retrieving your information .... in progress";
-    this.ManageGoogleService.checkLogin(this.configServer, object, psw )
+    this.ManageGoogleService.checkLogin(this.configServer)
         .subscribe((data ) => {    
+          
+            this.getUserAccessLevel();
             this.identification=data;
             this.isIdRetrieved=true;
-            this.isConfigServerRetrieved=true;
+            
             this.identification.IpAddress=this.IpAddress;
             this.identification.userServerId=this.saveServerUsrId
             this.identification.credentialDate=this.credentials.creationDate;
             this.errorMsg="";
+            
 
 // TO BE DELETED
-this.selectApps=16;
-//this.selHealthFunction=5
-this.isAppsSelected=true;
+if (this.configServer.userLogin.accessLevel==="High" || this.configServer.userLogin.accessLevel==="Very High"){
+    this.selectApps=16;
+    //this.selHealthFunction=5
+    this.isAppsSelected=true;
+}
+
+
 //
 console.log("isResetServer= "+this.isResetServer + "  isIdRetrieved=" + this.isIdRetrieved + "  isConfigServerRetrieved=" + this.isConfigServerRetrieved
         )
@@ -364,6 +380,21 @@ console.log("isResetServer= "+this.isResetServer + "  isIdRetrieved=" + this.isI
           console.log('error to checkLogin - error status=' + err.status + ' '+ err.message );
           this.errorMsg="Identification failed; update the fields";
         })
+  }
+
+  getUserAccessLevel(){
+    this.ManageGoogleService.getSecurityAccess(this.configServer )
+    .subscribe((data ) => {  
+          if (data.status===200){
+            this.configServer.userLogin.accessLevel = data.accessLevel;
+          } else {
+            this.errorMsg=data.msg
+          }
+      },
+      err =>{
+          console.log('getSecurityAccess  error ' + err);
+          this.errorMsg="Server problem. Lower level of access has been assigned"
+      });
   }
 
   getFileContentHTTP(bucket:any, object:any){

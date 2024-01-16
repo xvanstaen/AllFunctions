@@ -32,11 +32,17 @@
 </div>
 
 <div style="display:block;" *ngIf="isInitDone===true">
-        <app-tutorials [configServer]="newConfigServer" [configServerChanges]="configServerChanges" [credentials]="credentials"> 
+        <app-tutorials [configServer]="newConfigServer" [configServerChanges]="configServerChanges" > 
         </app-tutorials>
 </div>
 <div class="skipLine"></div>
-
+<div *ngIf="isGetServerFunction===true" style="display:block;">
+    <div *ngFor="let tab of tabServers; let i=index">
+        <span class="theLine" style="margin-top:5px;">
+            <label class="label" style="width:180px; ">{{tab}} - {{tabVersionServer[i]}}</label> 
+        </span>
+    </div>
+</div>
 
 <div class="mainBlock"  style=" margin-top:5px; ">
     <span style="text-align: center; font-size:16px; font-weight:bolder; width:100%; display:inline-block; padding-top:2px; background-color:lightyellow;">Input the parameters</span>

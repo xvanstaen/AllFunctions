@@ -60,7 +60,6 @@ export class TutorialsComponent {
   ) { }
 
   @Input() configServer = new configServer;
-  @Input() credentials = new classCredentials;
   @Input() configServerChanges:number=0;
 
   EventHTTPReceived: Array<boolean> = [];
@@ -374,12 +373,13 @@ export class TutorialsComponent {
 
   actionUpdate(event:any){
     this.error='';
-    if (event.target.id==='updateFS' || event.target.id==='updatePSW' ||
-        event.target.id==='updateTuto' || event.target.id==='updateConfig'
+    if ((event.target.id==='updateFS' && this.idRecordFS!=="") || (event.target.id==='updatePSW' && this.idRecordPSW!=="") ||
+        (event.target.id==='updateTuto' && this.idRecordTuto!=="") ||(event.target.id==='updateConfig' && this.idRecordConfig!=="")
     ){
       this.saveAction=event.target.id;
       this.isUpdateSpecific=true;
     } else {
+      this.error='data is missing; update is impossible';
       this.saveAction="";
       this.isUpdateSpecific=false;
     }
@@ -472,7 +472,7 @@ export class TutorialsComponent {
       (data) => {
         console.log(data);
         if (data.status!==undefined ){
-          this.error=data.message;
+          this.error=data.msg;
         } else {
           this.error='record is created';
           this.getAllRecords(dataBase,collection, this.typeRecord, "keep");
@@ -490,11 +490,11 @@ export class TutorialsComponent {
     .subscribe(
       (data) => {
         if (data.status!==undefined  && data.status===200){
-          this.error=data.message;
+          this.error=data.msg;
           this.getAllRecords(dataBase,collection, this.typeRecord, "keep");
           
         } else if (data.status!==undefined  && data.status!==200){
-          this.error=data.message;
+          this.error=data.msg;
         }
       },
       err => {
@@ -509,7 +509,7 @@ export class TutorialsComponent {
     .subscribe(
       (data) => {
         if (data.status!==undefined  && data.status!==200){
-          this.error=data.message;
+          this.error=data.msg;
         } else {
           this.error=" Record successfully deleted";
           this.getAllRecords(dataBase,collection, this.typeRecord, "keep");
@@ -527,7 +527,7 @@ export class TutorialsComponent {
     .subscribe(
       (data) => {
         if (data.status!==undefined && data.status!==200){
-          this.error=data.message;
+          this.error=data.msg;
         } else {
           this.error = data.deletedCount +  " record(s) successfully deleted";
           this.getAllRecords(dataBase,collection, this.typeRecord, "keep");
@@ -547,7 +547,7 @@ export class TutorialsComponent {
           this.error=data.message;
           this.getAllRecords(dataBase,collection, this.typeRecord, "keep");
         } else {
-          this.error="No records deleted";
+          this.error=data.msg;
         }
       },
       err => {
@@ -599,7 +599,11 @@ export class TutorialsComponent {
         this.ManageTutorialService.getByCriteria(this.configServer, this.db, this.collection,this.theSearch, this.theSearchField)
         .subscribe(
           (data) => {
-            this.processFind(data, type, iWait);
+            if (data.status===undefined){
+              this.processFind(data, type, iWait);
+            } else {
+              this.error=data.msg;
+            }
           },
           err => {
             this.getError(err, "findByString","");
@@ -619,7 +623,11 @@ export class TutorialsComponent {
         this.ManageTutorialService.getById(this.configServer, this.db, this.collection,this.objectId)
         .subscribe(
           (data) => {
-            this.processFind(data, type, iWait);
+            if (data.status===undefined){
+              this.processFind(data, type, iWait);
+            } else {
+              this.error=data.msg;
+            }
           },
           err => {
             this.getError(err, "findById","id");
@@ -639,7 +647,12 @@ export class TutorialsComponent {
     this.ManageTutorialService.getAll(this.configServer, dataBase, collect)
       .subscribe(
         (data) => {
-          this.processFind(data, type, iWait);
+          if (data.status===undefined){
+            this.processFind(data, type, iWait);
+          } else {
+            this.error=data.msg;
+          }
+          
         },
         err => {
           console.log('getAllRecords error=' + JSON.stringify(err));

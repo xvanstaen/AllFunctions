@@ -28,7 +28,7 @@ export class SelectServerComponent {
 
   tabServers: Array<string> = [
     'http://localhost:8080', 'https://test-server-359505.uc.r.appspot.com',
-    'https://xmv-it-consulting.uc.r.appspot.com', 'https://serverfs.ue.r.appspot.com/'
+    'https://xmv-it-consulting.uc.r.appspot.com', 'https://serverfs.ue.r.appspot.com'
     ]
   
   isSelectServer:boolean=false;
