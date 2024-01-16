@@ -2225,7 +2225,7 @@ specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
               color:TitleColor,
               font:{
                   size:this.tabParamChart[nb].chartTitle.font.size,
-                  weight:Number(this.tabParamChart[nb].chartTitle.font.weight),
+                  weight:this.tabParamChart[nb].chartTitle.font.weight,
                   family:this.tabParamChart[nb].chartTitle.font.family,
                 }
             },
@@ -2242,7 +2242,7 @@ specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
                
                 font:{
                   size:theboxfontSize,
-                  weight:Number(this.tabParamChart[nb].legendBox.font.weight),
+                  weight:this.tabParamChart[nb].legendBox.font.weight,
                   family:this.tabParamChart[nb].legendBox.font.family,
                 }
                 
@@ -2261,7 +2261,7 @@ specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
                   },  
               font:{
                   size:this.tabParamChart[nb].legendTitle.font.size,
-                  weight:Number(this.tabParamChart[nb].legendTitle.font.weight),
+                  weight:this.tabParamChart[nb].legendTitle.font.weight,
                   family:this.tabParamChart[nb].legendTitle.font.family,
                 }
               },
@@ -2338,7 +2338,7 @@ specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
               color:TitleColor,
               font:{
                   size:this.tabParamChart[nb].chartTitle.font.size,
-                  weight:Number(this.tabParamChart[nb].chartTitle.font.weight),
+                  weight:this.tabParamChart[nb].chartTitle.font.weight,
                   family:this.tabParamChart[nb].chartTitle.font.family,
                 }
             },
@@ -2354,7 +2354,7 @@ specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
                 color:theColorBox,    
                 font:{
                   size:theboxfontSize,
-                  weight:Number(this.tabParamChart[nb].legendBox.font.weight),
+                  weight:this.tabParamChart[nb].legendBox.font.weight,
                   family:this.tabParamChart[nb].legendBox.font.family,
                 }
                 
@@ -2373,7 +2373,7 @@ specialDraw(dateLabel:Array<any>, theDatasets:Array<any>, nb:number){
                   },  
               font:{
                   size:this.tabParamChart[nb].legendTitle.font.size,
-                  weight:Number(this.tabParamChart[nb].legendTitle.font.weight),
+                  weight:this.tabParamChart[nb].legendTitle.font.weight,
                   family:this.tabParamChart[nb].legendTitle.font.family,
                 }
               },
