@@ -19,6 +19,8 @@ import {ConfigFitness} from '../Health/ClassFitness';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
 
+import { fillCredentials , fillConfig} from '../copyFilesFunction';
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -35,23 +37,13 @@ export class LoginComponent {
     ) {}
 
     @Input() configServer=new configServer;
+    @Input() credentials = new classCredentials;
+    @Input() credentialsMongo = new classCredentials;
+    @Input() credentialsFS = new classCredentials;
+    @Input() configServerChanges:number=0;
 
     @Input() identification=new LoginIdentif; 
 
-    @Input() ConfigChart=new classConfigChart;
-    
-    @Input() ConfigCaloriesFat=new mainClassCaloriesFat;
-
-    @Input() ConvertUnit=new mainClassConv;
-    @Input() ConvToDisplay=new mainConvItem;
-    @Input() theTabOfUnits=new mainClassUnit;
-    @Input() WeightRefTable=new mainRecordConvert;
-    @Input() ConfigHTMLFitHealth=new classConfHTMLFitHealth;
-  
-    @Input() MyConfigFitness=new ConfigFitness;
-  
-    @Input() HealthAllData=new mainDailyReport; 
-    @Input() credentials = new classCredentials;
 
     ConfigTestProd=new XMVTestProd;
 
@@ -62,9 +54,11 @@ export class LoginComponent {
     j_loop:Array<number>=[];
     max_j_loop:number=20000;
 
-    @Output() my_output1= new EventEmitter<any>();
+  
     @Output() my_output2= new EventEmitter<string>();
-    @Output() returnFile= new EventEmitter<any>();
+
+    @Output() resetServer= new EventEmitter<any>();
+    @Output() newCredentials= new EventEmitter<any>();
     
     
     myHeader= new  HttpHeaders();
@@ -86,7 +80,6 @@ export class LoginComponent {
     Crypto_Method:string='';
     Crypto_Error:string='';
     Crypto_Key:number=0;
-    Encrypt_Data=new LoginIdentif;
 
     Table_User_Data:Array<EventAug>=[];
     Table_DecryptPSW:Array<string>=[];
@@ -106,6 +99,11 @@ export class LoginComponent {
 
     EventHTTPReceived:Array<boolean>=[];
     FileType={TestProd:''};
+
+    tabServers: Array<string> = [
+      'http://localhost:8080', 'https://test-server-359505.uc.r.appspot.com',
+      'https://xmv-it-consulting.uc.r.appspot.com', 'https://serverfs.ue.r.appspot.com'
+      ]
   
   @HostListener('window:resize', ['$event'])
   onWindowResize() {
@@ -114,6 +112,9 @@ export class LoginComponent {
     }
 
   ngOnInit(){
+
+      this.getCredentialsFS();
+
       this.getScreenWidth = window.innerWidth;
       this.getScreenHeight = window.innerHeight;
       this.device_type = navigator.userAgent;
@@ -131,58 +132,121 @@ export class LoginComponent {
 
       this.routing_code=0;
       this.EventHTTPReceived[0]=false;
+console.log('Init login ID & PSW ' + this.configServer.userLogin.id + ' ' + this.configServer.userLogin.psw);
+console.log('this.identification.userId ' + this.identification.UserId );
+      if (this.configServer.userLogin.id!=='') {
+          this.myForm.controls['userId'].setValue(this.configServer.userLogin.id);
 
-      if (this.identification.UserId!=='') {
-          this.myForm.controls['userId'].setValue(this.identification.UserId);
-
-      } else {
-          this.myForm.controls['action'].setValue("");
+      } 
+      if (this.configServer.userLogin.psw!=='') {
+        if (this.identification.UserId!==""){
+          this.decryptAllPSW();
         }
+      } 
 
   }
+savePsw:string="";
+decryptAllPSW(){
+  this.ManageGoogleService.decryptAllFn(this.configServer,this.configServer.userLogin.psw, 1, 'AES', "Yes")
+      .subscribe((data ) => { 
+        if (data.status===undefined){
+          this.savePsw = data;
+          this.myForm.controls['password'].setValue(data);
 
+        } else {
+          this.error = data.msg;
+          this.myForm.controls['password'].setValue("");
+        }
+    },
+    err => {
+      this.error = err.msg;
+      this.myForm.controls['password'].setValue("");
+    })
+}
 
+getLogin(){
+ // this.configServer.googleServer=this.tabServers[0];
+ if (this.myForm.controls['userId'].value!==this.configServer.userLogin.id || this.myForm.controls['password'].value !== this.savePsw){
+    this.ManageGoogleService.encryptAllFn(this.configServer,this.myForm.controls['password'].value, 1, 'AES', 'Yes')
+    .subscribe((data ) => { 
+        if (data.status===undefined){
+          this.configServer.userLogin.id=this.myForm.controls['userId'].value;
+          this.configServer.userLogin.psw=data.response;
+          this.configServer.userLogin.accessLevel="";
+          this.checkLogin();
+        } else {
+          this.error = data.msg;
+        }
+      },
+      err => {
+        this.error = err.msg;
+      })
+  } else {
+    this.routing_code=1;
+    this.identification.userServerId=this.credentialsFS.userServerId;
+    this.identification.credentialDate=this.credentialsFS.creationDate;
+    this.identification.IpAddress=this.configServer.IpAddress;
+  }
+}
 
-getLogin(object:string,psw:string){
+checkLogin(){
     // this.ManageGoogleService.getContentObject(this.configServer, Bucket, GoogleObject )
-    this.configServer.userLogin.id=this.myForm.controls['userId'].value;
-    this.configServer.userLogin.psw=this.myForm.controls['password'].value;
-    this.configServer.userLogin.accessLevel="";
-
     this.ManageGoogleService.checkLogin(this.configServer )
         .subscribe((data ) => {    
-          this.ManageGoogleService.getSecurityAccess(this.configServer )
-          .subscribe((data ) => {  
-                if (data.status===200){
-                  this.configServer.userLogin.accessLevel = data.accessLevel;
-                } else {
-                  this.error=data.msg;
-                }
-            },
-            err =>{
-                console.log('getSecurityAccess  error ' + err);
-                this.error="pb to get security access level; lw access is assigned " + err
-            });
-
-            this.Encrypt_Data=data;
+         
+            this.getUserAccessLevel();
+            this.identification=data;
             this.routing_code=1;
-            this.Encrypt_Data.userServerId=this.credentials.userServerId;
-            this.Encrypt_Data.credentialDate=this.credentials.creationDate;
-            this.Encrypt_Data.IpAddress=this.configServer.IpAddress;
+            this.identification.userServerId=this.credentialsFS.userServerId;
+            this.identification.credentialDate=this.credentialsFS.creationDate;
+            this.identification.IpAddress=this.configServer.IpAddress;
             this.my_output2.emit(this.routing_code.toString());
       },
         err=> {
-          console.log('error to checkLogin - error status=' + err.status + ' '+ err.message );
+          if (err.error.status!==undefined && err.error.status==520){
+            this.error='invalid user-id/password';
+          } else {
+            this.error=err.msg;
+            console.log('error to checkLogin - error status=' + err.status + ' '+ err.message );
+          }
         })
+  }
+
+  getUserAccessLevel(){
+    this.ManageGoogleService.getSecurityAccess(this.configServer )
+    .subscribe((data ) => {  
+          if (data.status===200){
+            this.configServer.userLogin.accessLevel = data.accessLevel;
+            this.configServerChanges++
+          } else {
+            // this.error=data.msg
+          }
+      },
+      err =>{
+          console.log('getSecurityAccess  error ' + err);
+          this.error="Server problem. Lower level of access has been assigned"
+      });
   }
 
 
 
+getCredentialsFS(){
+  const theServer='fileSystem';
+  this.ManageGoogleService.getFSCredentials(this.configServer)
+      .subscribe(
+          (data ) => {
+            this.credentialsFS.creationDate = data.credentials.creationDate;
+            this.credentialsFS.userServerId = data.credentials.userServerId
+            console.log('getCredentials server='+theServer +' '+JSON.stringify(data));
+          },
+          err => {
+            console.log("return from getCredentials() for server '" + theServer + "' with error = "+ err.status);
+          });
+  }
+
 
 ValidateData(){
-
-  
-  console.log('validateData()');
+  //console.log('validateData()');
   if (this.myForm.controls['userId'].value==='')  {
     this.error=" provide your user id";
   }
@@ -193,7 +257,7 @@ ValidateData(){
   else
   {
     this.error='';
-    this.getLogin( this.myForm.controls['userId'].value, this.myForm.controls['password'].value);
+    this.getLogin();
   }
 }
 
@@ -211,80 +275,41 @@ onClear(){
 }
 
 
-ReceiveFiles(event:any){
-
-  if (event.fileType!=='' && 
-          event.fileType===this.identification.configFitness.fileType.convertUnit){ 
-      this.ConvertUnit=event;
-
-  } else if (event.fileType!=='' && 
-          event.fileType===this.identification.configFitness.fileType.convToDisplay){ 
-       this.ConvToDisplay=event;
-
-  } else if (event.fileType!=='' && 
-          event.fileType===this.identification.configFitness.fileType.tabOfUnits){ 
-      this.theTabOfUnits=event;
-
-  } else if (event.fileType!=='' && 
-        event.fileType===this.identification.configFitness.fileType.weightReference){ 
-      this.WeightRefTable=event;
-
-  } else if (event.fileType!=='' && 
-        event.fileType===this.identification.fitness.fileType.FitnessMyConfig){ 
-      this.MyConfigFitness=event;
-  }
-
-  else if (event.fileType!=='' && 
-        event.fileType===this.identification.fitness.fileType.Health){
-      this.HealthAllData=event;
-  }
-
-  else if (event.fileType!=='' && 
-        event.fileType===this.identification.configFitness.fileType.calories){ 
-      this.ConfigCaloriesFat=event;
-  }   
-  else if (event.fileType!=='' && 
-        event.fileType===this.identification.configFitness.fileType.confHTML){ 
-      this.ConfigHTMLFitHealth=event;
-    } else if (event.fileType!=='' && 
-        event.fileType===this.identification.configFitness.fileType.confChart){ 
-      this.ConfigChart=event;
-    }
-  this.returnFile.emit(event);
-}
-//ngOnChanges(changes: SimpleChanges) {   
-      //console.log('onChanges login.ts');
-//  }
-
 
 firstLoop:boolean=true;
 ngOnChanges(changes: SimpleChanges) { 
-    if (this.firstLoop===true){
-      this.firstLoop=false;
-    } else {
-      for (const propName in changes){
-        const j=changes[propName];
-        if (propName==='credentials'){
-            this.Encrypt_Data.userServerId=this.credentials.userServerId;
-            this.Encrypt_Data.credentialDate=this.credentials.creationDate;
-        }
+  for (const propName in changes){
+    const j=changes[propName];
+    if (propName==='credentialsFS'){
+      if (changes[propName].firstChange === false) {
+        this.identification.userServerId=this.credentialsFS.userServerId;
+        this.identification.credentialDate=this.credentialsFS.creationDate;
       }
     }
+  }
 }
 
-
-@Output() resetServer= new EventEmitter<any>();
-@Output() newCredentials= new EventEmitter<any>();
 
 fnResetServer(){
       this.resetServer.emit();
   }
 
 fnNewCredentials(credentials:any){
-  this.Encrypt_Data.userServerId=credentials.userServerId;
-  this.Encrypt_Data.credentialDate=credentials.creationDate;
+  this.identification.userServerId=credentials.userServerId;
+  this.identification.credentialDate=credentials.creationDate;
   this.newCredentials.emit(credentials);
 }
 
+
+changeServerName(event:any){
+  if (event==='FS'){
+    this.getCredentialsFS();
+  } else  if (event==='Google'){
+
+  } else  if (event==='Mongo'){
+
+  }
+  
+}
 
 }

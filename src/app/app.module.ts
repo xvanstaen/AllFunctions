@@ -72,6 +72,7 @@ import { DisplayCircuitLoopComponent } from './Sport/display-circuit-loop/displa
 import { BuildLoopFromPerfComponent } from './Sport/build-loop/build-loop-from-perf.component';
 import { TutorialsComponent } from './tutorials/tutorials.component';
 import { SelectServerComponent } from './select-server/select-server.component';
+import { UserFunctionsComponent } from './user-functions/user-functions.component';
 
 
 @NgModule({
@@ -128,7 +129,8 @@ import { SelectServerComponent } from './select-server/select-server.component';
     DisplayCircuitLoopComponent,
     BuildLoopFromPerfComponent,
     TutorialsComponent,
-    SelectServerComponent ,
+    SelectServerComponent,
+    UserFunctionsComponent ,
   ],
   imports: [
 

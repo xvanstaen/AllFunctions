@@ -8,6 +8,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
 import { LoginIdentif , configServer, classUserLogin } from './JsonServerClass';
+import { EventAug, configPhoto, StructurePhotos } from './JsonServerClass';
 import { environment } from 'src/environments/environment';
 import { classCredentials} from './JsonServerClass';
 import { mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from './ClassConverter';
@@ -74,6 +75,9 @@ export class AppComponent {
   isAppsSelected:boolean=false;
   errorMsg:string="";
   isResetServer:boolean=false;
+
+  @Input() LoginTable_User_Data:Array<EventAug>=[];
+  @Input() LoginTable_DecryptPSW:Array<string>=[];
 
   inData=new classAccessFile;
   tabServers: Array<string> = [
@@ -181,7 +185,7 @@ export class AppComponent {
         if (this.credentials.access_token===""){
             this.getDefaultCredentials('Google');
         } if (this.credentialsFS.access_token===""){
-          this.getDefaultCredentials('FS');
+          this.getCredentialsFS();
         } if (this.credentialsMongo.access_token===""){
           this.getDefaultCredentials('Mongo');
         } 
@@ -226,19 +230,31 @@ export class AppComponent {
   
   */
 
+  getCredentialsFS(){
+    const theServer='fileSystem';
+    this.ManageGoogleService.getFSCredentials(this.configServer)
+        .subscribe(
+            (data ) => {
+              this.credentialsFS.creationDate = data.credentials.creationDate;
+              this.credentialsFS.userServerId = data.credentials.userServerId
+              console.log('getCredentials server='+theServer +' '+JSON.stringify(data));
+            },
+            err => {
+              console.log("return from getCredentials() for server '" + theServer + "' with error = "+ err.status);
+            });
+    }
+  
+
   getDefaultCredentials(serverType:string){
     console.log('getDefaultCredentials()');
-    this.ManageGoogleService.getDefaultCredentials(this.configServer  )
+    this.ManageGoogleService.getCredentials(this.configServer  )
     .subscribe(
         (data ) => {
           if (serverType==='Google'){
-            this.credentials = fillCredentials(data);
+            this.credentials = fillCredentials(data.credentials);
           } else if (serverType==='Mongo'){
-              this.credentialsMongo = fillCredentials(data);
-          } else if (serverType==='mongo'){
-              this.credentialsFS = fillCredentials(data);
-          }
-          
+              this.credentialsMongo = fillCredentials(data.credentials);
+          } 
           this.isCredentials=true;
           if (this.isResetServer===true){
             this.isResetServer=false;
@@ -289,12 +305,18 @@ export class AppComponent {
     } 
   }
 
-  fnResetServer(event:any){
+  fnResetServer(){
+    /*
     this.isCredentials=false;
     this.isResetServer=true;
     this.isIdRetrieved=false;
     this.getDefaultCredentials(event);
     this.assignNewServerUsrId();
+    */
+  }
+
+  changeServerName(event:any){
+    
   }
 
   fnNewCredentials(credentials:any){
@@ -345,11 +367,27 @@ export class AppComponent {
 
 
   getLogin(userId:string,psw:string){
-    // this.ManageGoogleService.getContentObject(this.configServer, Bucket, GoogleObject )
-    this.configServer.userLogin.id=userId;
-    this.configServer.userLogin.psw=psw;
-    this.configServer.userLogin.accessLevel="";
-    this.errorMsg="retrieving your information .... in progress";
+
+    this.errorMsg="retrieving your information .... is in progress";
+    this.ManageGoogleService.encryptAllFn(this.configServer,psw, 1, 'AES', 'Yes')
+      .subscribe((data ) => { 
+        if (data.status===undefined){
+          this.configServer.userLogin.id=userId;
+          this.configServer.userLogin.psw=data.response;
+          this.configServer.userLogin.accessLevel="";
+          this.checkLogin();
+        } else {
+          this.errorMsg = data.msg;
+        }
+      },
+      err => {
+        this.errorMsg = err.msg;
+      })
+
+
+  }
+
+  checkLogin(){
     this.ManageGoogleService.checkLogin(this.configServer)
         .subscribe((data ) => {    
           
@@ -357,9 +395,9 @@ export class AppComponent {
             this.identification=data;
             this.isIdRetrieved=true;
             
-            this.identification.IpAddress=this.IpAddress;
-            this.identification.userServerId=this.saveServerUsrId
-            this.identification.credentialDate=this.credentials.creationDate;
+            this.identification.userServerId=this.credentialsFS.userServerId;
+            this.identification.credentialDate=this.credentialsFS.creationDate;
+            this.identification.IpAddress=this.configServer.IpAddress;
             this.errorMsg="";
             
 
@@ -371,10 +409,10 @@ if (this.configServer.userLogin.accessLevel==="High" || this.configServer.userLo
 }
 
 
-//
-console.log("isResetServer= "+this.isResetServer + "  isIdRetrieved=" + this.isIdRetrieved + "  isConfigServerRetrieved=" + this.isConfigServerRetrieved
-        )
-//
+        //
+        console.log("isResetServer= "+this.isResetServer + "  isIdRetrieved=" + this.isIdRetrieved + "  isConfigServerRetrieved=" + this.isConfigServerRetrieved
+                )
+        //
       },
         err=> {
           console.log('error to checkLogin - error status=' + err.status + ' '+ err.message );
@@ -415,7 +453,8 @@ console.log("isResetServer= "+this.isResetServer + "  isIdRetrieved=" + this.isI
                     console.log('Error = ' + ' ' + err.error.error.code  + ' ' + err.error.error.message)
                 }
               });
-      }   
+      }  
+      
 
 }
 
