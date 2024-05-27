@@ -39,6 +39,11 @@
     >
     </app-user-functions>
 </div>
+<div style="display:inline-block; font-size:14px; color:blue; width:100%;  width:200px; margin-left:20px; background-color: lightskyblue;">
+    <div  *ngIf="isConfigServerRetrieved===false">
+        Configuration is being retrieved
+    </div>
+</div>
 <!--
 <div  *ngIf="isIdRetrieved===true && isConfigServerRetrieved===true" style=" max-width: 440px; ">
     <span style="width:94%; background-color: cyan; margin-left:20px; border:solid 2px red; display:inline-block; ">

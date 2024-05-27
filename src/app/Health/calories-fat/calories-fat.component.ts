@@ -14,7 +14,7 @@ import { BucketList, Bucket_List_Info} from '../../JsonServerClass';
 
 // configServer is needed to use ManageGoogleService
 // it is stored in MongoDB and accessed via ManageMongoDBService
-import { configServer, LoginIdentif} from '../../JsonServerClass';
+import { configServer, LoginIdentif, classtheEvent} from '../../JsonServerClass';
 import {classPosDiv, getPosDiv} from '../../getPosDiv';
 import { environment } from 'src/environments/environment';
 import {manage_input} from '../../manageinput';
@@ -27,14 +27,15 @@ import {mainClassCaloriesFat, ClassCaloriesFat, ClassItem} from '../ClassHealthC
 
 import {ClassSubConv, mainConvItem, mainRecordConvert, mainClassUnit} from '../../ClassConverter'
 import {mainClassConv, ClassConv, ClassUnit, ConvItem, recordConvert} from '../../ClassConverter'
-
+import { classFileSystem, classAccessFile , classReturnDataFS, classHeaderReturnDataFS} from '../../classFileSystem';
 import {classConfCaloriesFat} from '../classConfHTMLTableAll';
 
-import { strDateTime } from '../../MyStdFunctions';
 import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import {AccessConfigService} from 'src/app/CloudServices/access-config.service';
-import { classFileSystem, classAccessFile}  from '../../classFileSystem';
+import { fnAddTime, convertDate, strDateTime, fnCheckTimeOut, defineMyDate, formatDateInSeconds, formatDateInMilliSeconds, findIds } from '../../MyStdFunctions';
+import { drawNumbers, drawHourHand, drawMinuteHand, drawSecondHand, classPosSizeClock} from '../../clockFunctions'
+
 
 @Component({
   selector: 'app-calories-fat',
@@ -55,39 +56,60 @@ export class CaloriesFatComponent implements OnInit {
 
   @Input() configServer = new configServer;
   @Input() identification= new LoginIdentif;
+
   @Input() ConfigCaloriesFat=new mainClassCaloriesFat;
   @Input() inFileRecipe=new mainClassCaloriesFat;
   @Input() HTMLCaloriesFat=new classConfCaloriesFat;
-  @Input() tabLock= new classAccessFile; //.lock ++> 0=unlocked; 1=locked by user; 2=locked by other user; 3=must be checked;
-  @Input() saveCalFatMsg:string="";
+  @Input() actionCalFat:number=0;
+  @Input() actionRecipe:number=0;
+  //@Input() tabLock= new classAccessFile; //.lock ++> 0=unlocked; 1=locked by user; 2=locked by other user; 3=must be checked;
+  @Input() tabLock: Array<classAccessFile> = [];
+  @Input() calFatFileRetrieved:number=0;
+  @Input() recipeFileRetrieved:number=0;
+
+  // @Input() saveCalFatMsg:string="";
   // @Input() posDivCalFat= new classPosDiv;
 
-  ConvToDisplay=new mainConvItem;
+  @Input() convToDisplay=new mainConvItem;
 
- 
+  @Input() returnDataFSCalFat = new classHeaderReturnDataFS;
+  @Input() returnDataFSRecipe = new classHeaderReturnDataFS;
+  @Input() resultCheckLimitCalFat:number =0;
+  @Input() statusSaveFn:any;
+  @Input() callSaveFunctionCalFat:number=0;
+  @Input() triggerCheckToLimit:number=7000;
           
-  @Output() myEmit= new EventEmitter<any>();
-  @Output() myEmitRecipe= new EventEmitter<any>();
-  @Output() reportCheckLockLimit= new EventEmitter<any>();
-  @Output() cancelSaveOther = new EventEmitter<any>();
+  //@Output() myEmit= new EventEmitter<any>();
+  //@Output() myEmitRecipe= new EventEmitter<any>();
+  @Output() checkLockLimit= new EventEmitter<any>();
+  @Output() processSave= new EventEmitter<any>();
+  @Output() retrieveRecord = new EventEmitter<any>();
+  @Output() unlockFile = new EventEmitter<any>();
 
   outConfigCaloriesFat=new mainClassCaloriesFat;
   outFileRecipe=new mainClassCaloriesFat;
+  secondaryLevelFn:boolean=true;
+  openFileAccess:boolean=false;
 
-  EventHTTPReceived:Array<boolean>=[];
+  //EventHTTPReceived:Array<boolean>=[];
 
-  IsSaveConfirmed:boolean=false;
-  IsSaveRecipeConfirmed:boolean=false;
+  isSaveConfirmed:boolean=false;
+  isSaveRecipeConfirmed:boolean=false;
+  isCalFatModified:boolean=false;
+  isRecipeModified:boolean=false;
+  isSaveFileRecipe:boolean=false;
+  isSaveFileCalFat:boolean=false;
+
   SpecificForm=new FormGroup({
-        FileName: new FormControl(''),
-        FileNameRecipe: new FormControl(''),
+        FileName: new FormControl('', { nonNullable: true }),
+        FileNameRecipe: new FormControl('', { nonNullable: true }),
       })
 
   getScreenWidth: any;
   getScreenHeight: any;
   device_type:string='';
 
-  error_msg:string='';
+  errorMsg:string='';
 
   TabOfId:Array<number>=[];    
 
@@ -110,11 +132,8 @@ export class CaloriesFatComponent implements OnInit {
   TabAction:Array<any>=[{name:'',action:''}];
   TabActionRecipe:Array<any>=[{name:'',action:''}];
 
-
-
   // to open DROPDOWN box 
   dialogueCalFat:Array<boolean>=[false, false,false,false]; // first is for type and second one is for food/ingredient
-
 
   selType:string='';
   selFood:string='';
@@ -136,13 +155,14 @@ export class CaloriesFatComponent implements OnInit {
   myAction:string='';
   myType:string='';
       
-  theEvent={
-    target:{
-      id:'',
-      textContent:''
-    }
-  }
+  onInputAction:string="";
 
+  lastInputAt:string="";
+
+  theEvent = new classtheEvent
+
+  errorTimeOut:string="";
+  userActivity:string= "";
   posDeletedItem:number=0;
   posType=585;
   posFood=660;
@@ -157,8 +177,33 @@ export class CaloriesFatComponent implements OnInit {
   selectedPosition ={ 
     x: 0,
     y: 0} ;
+
     
-titleHeight:number=0;
+  titleHeight:number=0;
+
+  returnEmit={
+    saveAction:'',
+    saveCode:''
+  }
+
+  inputReadOnly:boolean=true;
+
+  conversion:number=0;
+
+  offsetHeight:number=0;
+  offsetLeft:number=0;
+  offsetTop:number=0;
+  offsetWidth:number=0;
+  scrollHeight:number=0;
+  scrollTop:number=0;
+  sizeBoxRecipeFood:number=0;
+  heightItemOptionBox:number=25;
+
+  isRecipeFoodInput:boolean=false;
+  checkText:string='';
+
+  posSizeClock=new classPosSizeClock;
+
 @HostListener('window:mouseup', ['$event'])
 onMouseUp(event: MouseEvent) {
     this.selectedPosition = { x: event.pageX, y: event.pageY };
@@ -187,87 +232,176 @@ onMouseUp(event: MouseEvent) {
     this.posDivItem=getPosDiv(type);
 
   } 
-posItemAction:number=0;
+  posItemAction:number=0;
 
+  @HostListener('window:resize', ['$event'])
+  onWindowResize() {
+    this.getScreenWidth = window.innerWidth ;
+    this.getScreenHeight = window.innerHeight;
+    }
 
-@HostListener('window:resize', ['$event'])
-onWindowResize() {
-  this.getScreenWidth = window.innerWidth ;
-  this.getScreenHeight = window.innerHeight;
-  }
-
-ngOnInit(){
- 
-  if (this.tabLock.lock===1){
-    this.inputReadOnly=false;
-  } else {
-    this.inputReadOnly=true;
-  }
-
-  this.posDivTable=getPosDiv("posStartTable");
-
-   this.titleHeight=Number(this.HTMLCaloriesFat.title.height.substring(0,this.HTMLCaloriesFat.title.height.indexOf('px')));
-
-
-  this.onWindowResize();
-  this.device_type = navigator.userAgent;
-  this.device_type = this.device_type.substring(10, 48);
-
-  this.EventHTTPReceived[0]=false;
-  this.getRecord(this.identification.configFitness.bucket,this.identification.configFitness.files.convToDisplay,0);
-
-  this.TabAction[0].name='Cancel';
-  this.TabAction[0].action='';
-  this.TabActionRecipe[0].name='Cancel';
-  this.TabActionRecipe[0].action='';
-  var itemName='Type';
+  ngOnInit(){
   
-  for (var i=0; i<this.typeAction.length; i++){
-      const myAction={name:'',action:''};
-      this.TabAction.push(myAction);
-      this.TabAction[this.TabAction.length-1].name=itemName;
-      this.TabAction[this.TabAction.length-1].action=this.typeAction[i];
-      const myActionRec={name:'',action:''};
-      this.TabActionRecipe.push(myActionRec);
-      this.TabActionRecipe[this.TabActionRecipe.length-1].name='Recipe';
-      this.TabActionRecipe[this.TabActionRecipe.length-1].action=this.typeAction[i];
+    if (this.tabLock[1].lock===1){
+      this.inputReadOnly=false;
+    } else {
+      this.inputReadOnly=true;
+    }
+
+    this.posDivTable=getPosDiv("posStartTable");
+
+    this.titleHeight=Number(this.HTMLCaloriesFat.title.height.substring(0,this.HTMLCaloriesFat.title.height.indexOf('px')));
+
+
+    this.onWindowResize();
+    this.device_type = navigator.userAgent;
+    this.device_type = this.device_type.substring(10, 48);
+
+    //this.EventHTTPReceived[0]=false;
+    //this.getRecord(this.identification.configFitness.bucket,this.identification.configFitness.files.convToDisplay,0);
+
+    this.TabAction[0].name='Cancel';
+    this.TabAction[0].action='';
+    this.TabActionRecipe[0].name='Cancel';
+    this.TabActionRecipe[0].action='';
+    var itemName='Type';
+    
+    for (var i=0; i<this.typeAction.length; i++){
+        const myAction={name:'',action:''};
+        this.TabAction.push(myAction);
+        this.TabAction[this.TabAction.length-1].name=itemName;
+        this.TabAction[this.TabAction.length-1].action=this.typeAction[i];
+        const myActionRec={name:'',action:''};
+        this.TabActionRecipe.push(myActionRec);
+        this.TabActionRecipe[this.TabActionRecipe.length-1].name='Recipe';
+        this.TabActionRecipe[this.TabActionRecipe.length-1].action=this.typeAction[i];
+    }
+
+    itemName='Food';
+    for (i=0; i<this.typeAction.length; i++){
+        const myAction={name:'',action:''};
+        this.TabAction.push(myAction);
+        this.TabAction[this.TabAction.length-1].name=itemName;
+        this.TabAction[this.TabAction.length-1].action=this.typeAction[i];
+        const myActionRec={name:'',action:''};
+        this.TabActionRecipe.push(myActionRec);
+        this.TabActionRecipe[this.TabActionRecipe.length-1].name=itemName;
+        this.TabActionRecipe[this.TabActionRecipe.length-1].action=this.typeAction[i];
+    }
+    
+    const myActionRec={name:'Calculate',action:'Total'};
+    this.TabActionRecipe.push(myActionRec);
+
+    const myActionRec1={name:'Recipe',action:'Transfer'};
+    this.TabActionRecipe.push(myActionRec1);
+
+    this.initialiseFiles('calFat');
+    this.initialiseFiles('recipe');
+
+    this.SpecificForm.controls['FileName'].setValue(this.identification.configFitness.files.calories);
+
+    this.posSizeClock.margLeft = 840;
+    this.posSizeClock.margTop = -20;
+    this.posSizeClock.width = 60;
+    this.posSizeClock.height = 60;
+    this.posSizeClock.displayAnalog = false;
+    this.posSizeClock.displayDigital = true;
+
+    this.lastInputAt = strDateTime();
+    this.refDate=new Date();
+    this.callTimeToGo();
+
   }
 
-  itemName='Food';
-  for (i=0; i<this.typeAction.length; i++){
-      const myAction={name:'',action:''};
-      this.TabAction.push(myAction);
-      this.TabAction[this.TabAction.length-1].name=itemName;
-      this.TabAction[this.TabAction.length-1].action=this.typeAction[i];
-      const myActionRec={name:'',action:''};
-      this.TabActionRecipe.push(myActionRec);
-      this.TabActionRecipe[this.TabActionRecipe.length-1].name=itemName;
-      this.TabActionRecipe[this.TabActionRecipe.length-1].action=this.typeAction[i];
-  }
-  
-  const myActionRec={name:'Calculate',action:'Total'};
-  this.TabActionRecipe.push(myActionRec);
+  isSaveFile:boolean=false;
+  isDataModified:boolean=false;
+  isUserTimeOut:boolean=false;
+  refDate=new Date();
+  displaySec:number=0;
+  displayMin:number=0;
+  displayHour:number=0;
+  idAnimation:any;
 
-  const myActionRec1={name:'Recipe',action:'Transfer'};
-  this.TabActionRecipe.push(myActionRec1);
+  timeOutactivity(iWait: number, isDataModified: boolean, isSaveFile: boolean,theAction:string){
 
-  if (this.ConfigCaloriesFat.tabCaloriesFat.length===0){
-    this.initOutTab(this.ConfigCaloriesFat,'calories');
-  } else { 
-    this.fillConfig(this.outConfigCaloriesFat, this.ConfigCaloriesFat,'Calories');
-  }
-  this.initTrackRecord();
-  this.SpecificForm.controls['FileName'].setValue(this.identification.configFitness.files.calories);
- 
-  if (this.inFileRecipe.tabCaloriesFat.length===0){
-    this.initOutTab(this.outFileRecipe,'Recipe');
-  } else { 
-    this.fillConfig(this.outFileRecipe, this.inFileRecipe, 'Recipe');
-  }
-  this.isInitComplete=true;
-}
+      window.cancelAnimationFrame(this.idAnimation);
+      this.callTimeToGo();
+      this.refDate=new Date();
+      this.lastInputAt = strDateTime();
 
-isInitComplete:boolean=false;
+      if (theAction==="only"){
+        this.openFileAccess=true;
+        this.theEvent.checkLock.action='checkTO';
+        this.theEvent.checkLock.iWait=iWait;
+        this.theEvent.checkLock.isDataModified=isDataModified;
+        this.theEvent.checkLock.isSaveFile=isSaveFile;
+        this.theEvent.checkLock.iCheck=true;
+        this.theEvent.checkLock.lastInputAt=this.lastInputAt;
+        this.theEvent.checkLock.nbCalls++;
+        this.triggerCheckToLimit++
+
+        //this.checkLockLimit.emit({iWait:iWait,isDataModified:isDataModified,isSaveFile:isSaveFile, lastInputAt:this.lastInputAt, iCheck:true,nbCalls:0,action:theAction});
+      }
+      //this.checkLockLimit.emit({iWait:iWait,isDataModified:isDataModified,isSaveFile:isSaveFile, lastInputAt:this.lastInputAt, iCheck:true,nbCalls:0});
+    
+  }
+
+  callTimeToGo(){
+    const currSeconds=this.refDate.getSeconds() ;
+    const currMinutes=this.refDate.getMinutes();
+    const currHour=this.refDate.getHours();
+    const currentDateSec = currHour*3600+currMinutes*60+currSeconds;
+    this.timeToGo(currentDateSec,this.configServer.timeoutFileSystem.userTimeOut.hh * 3600 +this.configServer.timeoutFileSystem.userTimeOut.mn * 60 + this.configServer.timeoutFileSystem.userTimeOut.ss);
+    
+  }
+
+  timeToGo(refDateSec:any, timeOutSec:any){
+    // nb of seconds before timeout is reached
+    const theDate=new Date();
+    const currentDateSec = theDate.getHours()*3600+theDate.getMinutes()*60+theDate.getSeconds();
+    const timeSpent = Number(currentDateSec) - Number(refDateSec);
+    const timeLeft= timeOutSec - timeSpent;
+
+    if (timeLeft <= 0 && (this.isRecipeModified===true || this.isCalFatModified===true) ){
+        this.errorMsg = "your modifications are going to be lost if you don't save them";
+        /*
+        window.cancelAnimationFrame(this.idAnimation);
+        this.isUserTimeOut=true;
+        this.unlockFile.emit(1);
+        this.isInitComplete = false;
+        this.isRecipeModified = false;
+        this.isCalFatModified = false;
+        */
+    } else {
+        this.displayHour = Math.floor(timeLeft / 3600);
+        const minSec = timeLeft % 3600 ;
+        this.displayMin = Math.floor(minSec / 60);
+        this.displaySec = minSec % 60 ;
+        this.idAnimation=window.requestAnimationFrame(() => this.timeToGo(refDateSec,timeOutSec));
+    }
+  }
+
+  isInitComplete:boolean=false;
+
+  initialiseFiles(theFunction:string){
+    if (theFunction==="calFat"){
+      this.outConfigCaloriesFat.tabCaloriesFat.splice(0,this.outConfigCaloriesFat.tabCaloriesFat.length);
+      this.outFileRecipe.tabCaloriesFat.splice(this.outFileRecipe.tabCaloriesFat.length);
+      if (this.ConfigCaloriesFat.tabCaloriesFat.length>0){
+        this.fillConfig(this.outConfigCaloriesFat, this.ConfigCaloriesFat,'Calories');
+      } else { 
+        this.initOutTab(this.ConfigCaloriesFat,'calories');
+      }
+      this.initTrackRecord();
+    } else if (theFunction==="recipe"){
+      if (this.inFileRecipe.tabCaloriesFat.length>0){
+        this.fillConfig(this.outFileRecipe, this.inFileRecipe, 'Recipe');
+      } else { 
+        this.initOutTab(this.outFileRecipe,'Recipe');
+      }
+    }
+    this.isInitComplete=true;
+  }
 
 fillConfig(outFile:any,inFile:any, type:string){
   if (type==='Calories'){
@@ -339,13 +473,12 @@ fillConfig(outFile:any,inFile:any, type:string){
       this.tabInputRecipeFood[0].name='cancel';
       this.tabRecipeFood.sort((a, b) => (a.name < b.name) ? -1 : 1);
       this.tabRecipeFood[0].name='cancel';
-      this.sizeBoxRecipeFood=this.tabInputRecipeFood.length * this.heightItemOptionBox;
+      this.sizeBoxRecipeFood=(this.tabInputRecipeFood.length +1)  * this.heightItemOptionBox;
     }
 }
 
-sizeBoxRecipeFood:number=0;
-heightItemOptionBox:number=25;
-initTrackRecord(){
+  initTrackRecord(){
+  this.tabNewRecord.splice(0, this.tabNewRecord.length);
     for (var i=0; i<this.outConfigCaloriesFat.tabCaloriesFat.length; i++){
       if (this.tabNewRecord.length===0 || i!==0){
         const trackNew={nb:0,food:[{nb:0}]};
@@ -362,7 +495,7 @@ initTrackRecord(){
   }
 
 findAction(idString:string){
-  this.error_msg='';
+  this.errorMsg='';
   var j=-1;
   for (var i=1; i<idString.length && idString.substring(i,i+1)!=='-'; i++){
   }
@@ -371,20 +504,37 @@ findAction(idString:string){
 }
 
 onAction(event:any){
+  this.lastInputAt = strDateTime();
   
-  var iAction=0;
   this.dialogueCalFat[0]=false;
   this.dialogueCalFat[1]=false;
+ 
+  this.errorMsg='';
+  this.onInputAction="onAction";
+  if (event.currentTarget.id !==''){
+    this.theEvent.target.id=event.currentTarget.id;
+    this.theEvent.target.value=event.currentTarget.value;
+  } else if (event.target.id!==''){
+    this.theEvent.target.id=event.target.id;
+    this.theEvent.target.value=event.target.value;
+  } else if (event.target.textContent!==''){
+    this.theEvent.target.id="";
+    this.theEvent.target.textContent = event.target.textContent;
+  }
+  this.timeOutactivity(1,this.isCalFatModified,false,"only");
+  
+}
+
+onActionA(event:any){
+  var iAction=0;
   var trouve=false;
-  this.error_msg='';
-  this.reportCheckLockLimit.emit({iWait:1,isDataModified:true,isSaveFile:false});
   if (event.currentTarget.id !==''){
       this.theEvent.target.id=event.currentTarget.id;
-      this.findIds(event.currentTarget.id); 
+      this.manageIds(event.currentTarget.id); 
       iAction=Number(event.currentTarget.value);
   } else if (event.target.id!==''){
       this.theEvent.target.id=event.target.id;
-      this.findIds(event.target.id); 
+      this.manageIds(event.target.id); 
       iAction=Number(event.target.value); 
   } else if (event.target.textContent!==''){
       this.findAction(event.target.textContent);
@@ -402,7 +552,9 @@ onAction(event:any){
       if (iAction===0){
         this.isDeleteRecipe=false;
         this.isDeleteRecipeFood=false;    
-      } else if (this.TabActionRecipe[iAction].name==='Recipe'){
+      } else {
+        this.isRecipeModified = true;
+        if (this.TabActionRecipe[iAction].name==='Recipe'){
           if (this.TabActionRecipe[iAction].action==='add before'){
               this.createAfterBefore(this.TabOfId[0],'Recipe');
           } else if (this.TabActionRecipe[iAction].action==='add after'){
@@ -410,7 +562,7 @@ onAction(event:any){
           }  else if (this.TabActionRecipe[iAction].action==='delete'){
           if (this.outFileRecipe.tabCaloriesFat.length==1 ){
               this.nameDeletedItem='';
-              this.error_msg='only one item - cannot be deleted';
+              this.errorMsg='only one item - cannot be deleted';
           } else {
             this.nameDeletedItem='Type item: '+ this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Type;
             this.posDeletedItem=this.posType;
@@ -430,52 +582,57 @@ onAction(event:any){
         } else if (this.TabActionRecipe[iAction].action==='delete'){
           if (this.outFileRecipe.tabCaloriesFat.length==1 && this.outFileRecipe.tabCaloriesFat[0].Content.length===1){
             this.nameDeletedItem='';  
-            this.error_msg='only one food item - cannot be deleted';
+            this.errorMsg='only one food item - cannot be deleted';
           } else {
             this.nameDeletedItem='food item: '+ this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name;
             this.posDeletedItem=this.posFood;
             this.isDeleteRecipeFood=true;
           }
+        }
         } 
       }
-    } else if (this.theEvent.target.id.substring(0,10)==='openAction'){
+    } // calFat
+    
+    else if (this.theEvent.target.id.substring(0,10)==='openAction'){
       this.dialogueCalFat[0]=true;
       this.getPosItem("Action");
     } else  if (this.theEvent.target.id.substring(0,9)==='selAction'){
       if (iAction===0){
         this.isDeleteType=false;
         this.isDeleteFood=false;    
-      } else 
-      if (this.TabAction[iAction].name==='Type'){
-        if (this.TabAction[iAction].action==='add before'){
-            this.createAfterBefore(this.TabOfId[0],'Type');
-        } else if (this.TabAction[iAction].action==='add after'){
-            this.createAfterBefore(this.TabOfId[0]+1,'Type');
-        } else if (this.TabAction[iAction].action==='delete'){
-          if (this.outConfigCaloriesFat.tabCaloriesFat.length==1 ){
-            this.nameDeletedItem='';
-            this.error_msg='only one item - cannot be deleted';
-        } else {
-          this.nameDeletedItem='Type item: '+ this.outConfigCaloriesFat.tabCaloriesFat[this.TabOfId[0]].Type;
-          this.posDeletedItem=this.posType;
-          this.isDeleteType=true;
-            }
-        } 
-      } else if (this.TabAction[iAction].name==='Food'){
-        if (this.TabAction[iAction].action==='add before'){
-          this.createAfterBefore(this.TabOfId[1],'Food');
-        } else if (this.TabAction[iAction].action==='add after'){
-          this.createAfterBefore(this.TabOfId[1]+1,'Food');
-        } else if (this.TabAction[iAction].action==='delete'){
-          if (this.outConfigCaloriesFat.tabCaloriesFat.length==1 && this.outConfigCaloriesFat.tabCaloriesFat[0].Content.length===1){
-            this.nameDeletedItem='';  
-            this.error_msg='only one item - cannot be deleted';
+      } else {
+        this.isCalFatModified = true;
+        if (this.TabAction[iAction].name==='Type'){
+          if (this.TabAction[iAction].action==='add before'){
+              this.createAfterBefore(this.TabOfId[0],'Type');
+          } else if (this.TabAction[iAction].action==='add after'){
+              this.createAfterBefore(this.TabOfId[0]+1,'Type');
+          } else if (this.TabAction[iAction].action==='delete'){
+            if (this.outConfigCaloriesFat.tabCaloriesFat.length==1 ){
+              this.nameDeletedItem='';
+              this.errorMsg='only one item - cannot be deleted';
           } else {
-            this.nameDeletedItem='food item: '+ this.outConfigCaloriesFat.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name;
-            this.posDeletedItem=this.posFood;
-            this.isDeleteFood=true;
-          }
-        } 
+            this.nameDeletedItem='Type item: '+ this.outConfigCaloriesFat.tabCaloriesFat[this.TabOfId[0]].Type;
+            this.posDeletedItem=this.posType;
+            this.isDeleteType=true;
+              }
+          } 
+        } else if (this.TabAction[iAction].name==='Food'){
+          if (this.TabAction[iAction].action==='add before'){
+            this.createAfterBefore(this.TabOfId[1],'Food');
+          } else if (this.TabAction[iAction].action==='add after'){
+            this.createAfterBefore(this.TabOfId[1]+1,'Food');
+          } else if (this.TabAction[iAction].action==='delete'){
+            if (this.outConfigCaloriesFat.tabCaloriesFat.length==1 && this.outConfigCaloriesFat.tabCaloriesFat[0].Content.length===1){
+              this.nameDeletedItem='';  
+              this.errorMsg='only one item - cannot be deleted';
+            } else {
+              this.nameDeletedItem='food item: '+ this.outConfigCaloriesFat.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name;
+              this.posDeletedItem=this.posFood;
+              this.isDeleteFood=true;
+            }
+          } 
+        }
       }
     } else if (this.theEvent.target.id.substring(0,6)==='YesDel'){
       if (this.isDeleteType===true){
@@ -545,34 +702,25 @@ initOutTab(inFile:any,type:string){
   inFile.tabCaloriesFat[inFile.tabCaloriesFat.length-1].Content.push(itemClass);
 }
 
-offsetHeight:number=0;
-offsetLeft:number=0;
-offsetTop:number=0;
-offsetWidth:number=0;
-scrollHeight:number=0;
-scrollTop:number=0;
-
-
 onInput(event:any){
   this.returnEmit.saveAction="";
   if (this.identification.triggerFileSystem==="Yes"){
-    this.reportCheckLockLimit.emit({iWait:1,isDataModified:true,isSaveFile:false});
-  }
-  //this.getPosAfterTitle();
-  //this.offsetHeight= event.currentTarget.offsetHeight;
-  this.offsetLeft = event.currentTarget.offsetLeft;
-  //this.offsetTop = event.currentTarget.offsetTop;
-  this.offsetWidth = event.currentTarget.offsetWidth;
-  //this.scrollHeight = event.currentTarget.scrollHeight;
-  //this.scrollTop = event.currentTarget.scrollTop;
-  //console.log('offsetHeight='+this.offsetHeight +'  offsetLeft= '+this.offsetLeft + ' offsetTop=' + this.offsetTop 
-  //+ ' scrollHeight='+this.scrollHeight+ '  scrollTop=' +this.scrollTop);
-  this.tabInputType.splice(0,this.tabInputType.length);
-  //this.tabInputFood.splice(0,this.tabInputFood.length);
-  var iTab:number=0;
-  this.error_msg='';
+    this.isCalFatModified = true;
+    this.theEvent.target.id=event.target.id;
+    this.theEvent.target.value=event.target.value;
+    this.onInputAction="onInput";
+    this.timeOutactivity(1,true,false,"only");
+  } else { this.onInputA(event)}
+}
 
-  this.findIds(event.target.id);
+onInputA(event:any){
+  this.offsetLeft = event.currentTarget.offsetLeft;
+  this.offsetWidth = event.currentTarget.offsetWidth;
+  this.tabInputType.splice(0,this.tabInputType.length);
+  var iTab:number=0;
+  this.errorMsg='';
+
+  this.manageIds(event.target.id);
   if (event.target.id.substring(0,4)==='type'){
     this.getPosItem("Type");
     this.outConfigCaloriesFat.tabCaloriesFat[this.TabOfId[0]].Type=event.target.value.toLowerCase().trim();
@@ -587,16 +735,6 @@ onInput(event:any){
   } else if (event.target.id.substring(0,4)==='name'){
     this.getPosItem("Food");
     this.outConfigCaloriesFat.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name=event.target.value.toLowerCase().trim();
-  // check if first letters already exists
-  /*
-    iTab=-1;
-    for (var i=0; i<this.tabType.length; i++){
-      if (this.tabFood[i].name.substr(0,event.target.value.trim().length)===event.target.value.toLowerCase().trim()){
-        iTab++;
-        this.tabInputFood[iTab]=this.tabFood[i].name.toLowerCase().trim();
-      }
-    }
-    */
   } else if (event.target.id.substring(0,4)==='serv'){
     this.outConfigCaloriesFat.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Serving=Number(event.target.value);
   } else if (event.target.id.substring(0,4)==='unit'){
@@ -623,7 +761,7 @@ onInput(event:any){
 searchFoodCalories(foodName:string, iRecipe:number, jRecipe:number){
   var trouve=false;
   if (this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Serving!==0 && 
-    this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Name!=='' && this.EventHTTPReceived[0]===true){
+    this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Name!=='' ){ // && this.EventHTTPReceived[0]===true
       for (var i=0; i<this.outConfigCaloriesFat.tabCaloriesFat.length && trouve===false; i++){
           for (var j=0; j<this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length && trouve===false; j++){
             if (this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Name.toLowerCase().trim()===foodName.toLowerCase().trim() ){
@@ -699,394 +837,563 @@ calculateTotal( iRecipe:number){
       this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Fat.Saturated;
       this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Fat.Total=this.outFileRecipe.tabCaloriesFat[iRecipe].Total.Fat.Total +
       this.outFileRecipe.tabCaloriesFat[iRecipe].Content[jRecipe].Fat.Total;
+  }
+}
+
+  convertUnits(from:string,to:string){
     
-      
+    for (var i=0; i<this.convToDisplay.tabConvItem.length && ( 
+              this.convToDisplay.tabConvItem[i].from!==from || this.convToDisplay.tabConvItem[i].to!==to ); i++){
+    }
+    if (i<this.convToDisplay.tabConvItem.length){
+        this.conversion=this.convToDisplay.tabConvItem[i].valueFromTo;
+    } else { // from-to not found; try to ind to-from
+      for (var i=0; i<this.convToDisplay.tabConvItem.length && ( 
+        this.convToDisplay.tabConvItem[i].from!==to || this.convToDisplay.tabConvItem[i].to!==from ); i++){
+        }
+        if (i<this.convToDisplay.tabConvItem.length){
+          this.conversion=1/this.convToDisplay.tabConvItem[i].valueFromTo;
+        }
+    }
+
   }
 
-}
 
-conversion:number=0;
-convertUnits(from:string,to:string){
-  
-  for (var i=0; i<this.ConvToDisplay.tabConvItem.length && ( 
-            this.ConvToDisplay.tabConvItem[i].from!==from || this.ConvToDisplay.tabConvItem[i].to!==to ); i++){
+  onSelRecipeFood(event:any){ 
+    this.errorMsg=''; 
+    this.theEvent.target.id=event.target.id;
+    this.theEvent.target.textContent= event.target.textContent.toLowerCase().trim()
+    this.onInputAction="onSelRecipeFood";
+    this.timeOutactivity(1,true,false,"only");
   }
-  if (i<this.ConvToDisplay.tabConvItem.length){
-      this.conversion=this.ConvToDisplay.tabConvItem[i].valueFromTo;
-  } else { // from-to not found; try to ind to-from
-    for (var i=0; i<this.ConvToDisplay.tabConvItem.length && ( 
-      this.ConvToDisplay.tabConvItem[i].from!==to || this.ConvToDisplay.tabConvItem[i].to!==from ); i++){
-      }
-      if (i<this.ConvToDisplay.tabConvItem.length){
-        this.conversion=1/this.ConvToDisplay.tabConvItem[i].valueFromTo;
-      }
-  }
-
-}
-
-onSelRecipeFood(event:any){ 
-  this.error_msg=''; 
-  this.findIds(event.target.id);
-  if (event.target.id.substring(0,13)==='selRecipeFood'){
-    if (event.target.textContent.trim()!=='cancel')
-    this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name =event.target.textContent.toLowerCase().trim();
-    this.tabInputRecipeFood.splice(0,this.tabInputRecipeFood.length);
-    for (var i=0; i<this.tabRecipeFood.length; i++){
-      this.tabInputRecipeFood.push({name:''});
-      this.tabInputRecipeFood[this.tabInputRecipeFood.length-1].name=this.tabRecipeFood[i].name;
-    }
-    if (this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].lockData!=='Y'){
-      this.searchFoodCalories(event.target.textContent.toLowerCase().trim(), this.TabOfId[0], this.TabOfId[1]);
-    }
-    this.isRecipeFoodInput=false;
-  } 
-}
-
-isRecipeFoodInput:boolean=false;
-onInputRecipe(event:any){ 
-  this.returnEmit.saveAction="";
-  //this.offsetHeight= event.currentTarget.offsetHeight;
-  this.offsetLeft = event.currentTarget.offsetLeft;
-  //this.offsetTop = event.currentTarget.offsetTop;
-  this.offsetWidth = event.currentTarget.offsetWidth;
-  this.isRecipeFoodInput=false;
-
-  var iTab:number=0;
-  this.error_msg='';
-
-  this.findIds(event.target.id);
-  if (event.target.id.substring(0,6)==='Recipe'){
-    this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Type=event.target.value.toLowerCase().trim();
-
-    this.tabInputRecipe.splice(0,this.tabInputType.length);
-    // check if recipe already exists
-    iTab=-1;
-    for (var i=0; i<this.tabRecipe.length && this.tabRecipe[i].name.toLowerCase().trim()!==event.target.value.toLowerCase().trim(); i++){};
-    if (i<this.tabRecipe.length){
-        this.error_msg='recipe ' + event.target.value + ' already exists';
-    }
-  } else if (event.target.id.substring(0,4)==='name'){
-    this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name=event.target.value.toLowerCase().trim();
-    // check if first letters already exists
+  onSelRecipeFoodA(event:any){ 
+    this.manageIds(event.target.id);
+    if (event.target.id.substring(0,13)==='selRecipeFood'){
+      if (event.target.textContent.trim()!=='cancel')
+      this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name =event.target.textContent;
       this.tabInputRecipeFood.splice(0,this.tabInputRecipeFood.length);
-      this.isRecipeFoodInput=true;
-      iTab=-1;
-      for (var i=0; i<this.tabFood.length; i++){
-        if (this.tabFood[i].name.indexOf(event.target.value.toLowerCase().trim())!==-1){
-          iTab++;
-          this.tabInputRecipeFood.push({name:''});
-          this.tabInputRecipeFood[iTab].name=this.tabFood[i].name.toLowerCase().trim();
-        }
-
-/*
-        if (this.tabFood[i].name.substring(0,event.target.value.trim().length)===event.target.value.toLowerCase().trim()){
-          iTab++;
-          this.tabInputRecipeFood.push({name:''});
-          this.tabInputRecipeFood[iTab].name=this.tabFood[i].name.toLowerCase().trim();
-        }
-*/
+      for (var i=0; i<this.tabRecipeFood.length; i++){
+        this.tabInputRecipeFood.push({name:''});
+        this.tabInputRecipeFood[this.tabInputRecipeFood.length-1].name=this.tabRecipeFood[i].name;
       }
-      if (this.tabInputRecipeFood.length===1 && this.tabInputRecipeFood[0]=== event.target.value.toLowerCase().trim() && this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].lockData!=='Y'){
-          this.searchFoodCalories(event.target.value.toLowerCase().trim(), this.TabOfId[0], this.TabOfId[1]);
-          this.isRecipeFoodInput=false;
+      if (this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].lockData!=='Y'){
+        this.searchFoodCalories(event.target.textContent, this.TabOfId[0], this.TabOfId[1]);
       }
-      if (this.tabInputRecipeFood.length>9){
-        this.sizeBoxRecipeFood= 9 * this.heightItemOptionBox; 
-      } else {
-        this.sizeBoxRecipeFood=(this.tabInputRecipeFood.length + 1) * this.heightItemOptionBox; 
-      }
-           
-
-  } else if (event.target.id.substring(0,4)==='serv'){
-    this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Serving=Number(event.target.value);
-    this.searchFoodCalories(this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name, this.TabOfId[0], this.TabOfId[1]);
-  } else if (event.target.id.substring(0,4)==='unit'){
-    this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].ServingUnit=event.target.value.toLowerCase().trim();
-  } else if (event.target.id.substring(0,4)==='calo'){
-    this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Calories=Number(event.target.value);
-  } else if (event.target.id.substring(0,4)==='prot'){
-    this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Protein=Number(event.target.value);
-  } else if (event.target.id.substring(0,4)==='carb'){
-    this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Carbs=Number(event.target.value);
-  } else if (event.target.id.substring(0,4)==='glyi'){
-    this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].GlyIndex=Number(event.target.value);
-  } else if (event.target.id.substring(0,4)==='suga'){
-    this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Sugar=Number(event.target.value);
-  } else if (event.target.id.substring(0,4)==='chol'){
-    this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Cholesterol=Number(event.target.value);
-  } else if (event.target.id.substring(0,4)==='satu'){
-    this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Fat.Saturated=Number(event.target.value);
-  } else if (event.target.id.substring(0,4)==='tota'){
-    this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Fat.Total=Number(event.target.value);
-  } else if (event.target.id.substring(0,4)==='lock'){
-    if (event.target.value.toUpperCase().trim()==='Y' || event.target.value.toUpperCase().trim()==="N"){
-      this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].lockData=event.target.value.toUpperCase().trim();
-      if (this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].lockData==='N'){
-        this.searchFoodCalories(this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name.toLowerCase().trim(), this.TabOfId[0], this.TabOfId[1]);
-    }
-    }
-    else {
-      this.error_msg="Lock value must be 'Y' or 'N'";
-    }  
-  }
-}
-
-
-
-checkText:string='';
-SearchText(event:any){
-  this.returnEmit.saveAction="";
-  if (event.currentTarget.id==='search' && event.currentTarget.value!==''){
-    this.checkText=event.currentTarget.value.toLowerCase().trim();
-  } else { 
-    this.checkText=''; 
-  }
-}
-onFilter(event:any){
-  this.returnEmit.saveAction="";
-  this.filterType=false;
-  this.filterFood=false;
-  this.filterRecipe=false;
-  this.filterRecipeFood=false;
-  this.selType='';
-  this.selFood='';
-  this.RecipeSel='';
-  this.RecipeSelFood='';
-
-  if (event.target.id==='Recipe'){
-    this.filterRecipe=true;
-  } else if (event.target.id==='RecipeFood'){
-    this.filterRecipeFood=true;
-  } else if (event.target.id.substring(0,6)==='Recipe'){
-    if (event.target.textContent.indexOf('cancel')===-1){
-      if (event.target.id==='RecipeSel'){
-        this.RecipeSel=event.target.textContent.trim();
-      } else if (event.target.id==='RecipeSelFood'){
-        this.RecipeSelFood=event.target.textContent.trim();
-      }   
+      this.isRecipeFoodInput=false;
     } 
   }
-    
- else if (event.target.id==='Type'){
-    this.filterType=true;
-  } else if (event.target.id==='Food'){
-    this.filterFood=true;
-  } else if (event.target.textContent.indexOf('cancel')===-1){
-    if (event.target.id==='selType'){
-      this.selType=event.target.textContent.trim();
-    } else if (event.target.id==='selFood'){
-      this.selFood=event.target.textContent.trim();
-    }   
-  }
-}
 
-transferToCalFat(iRecipe:number){
-  // check if name of recipe already exists under Type='recipe'
-  var j=0;
-  for (var i=0; i< this.outConfigCaloriesFat.tabCaloriesFat.length && this.outConfigCaloriesFat.tabCaloriesFat[i].Type!=='Recipe'; i++){
+  onInputRecipe(event:any){ 
+    if (this.identification.triggerFileSystem==="Yes"){
+      this.isRecipeModified = true;
+      this.theEvent.target.id=event.target.id;
+      this.theEvent.target.value=event.target.value;
+      this.onInputAction="onInputRecipe";
+      //this.timeOutactivity(1,true,false);
+      this.timeOutactivity(6,true,false,"only");
+    } else { this.onInputRecipeA(event)}
   }
-  if (i=== this.outConfigCaloriesFat.tabCaloriesFat.length){
-    // Type='Recipe' has not been found; create it
-    this.createAfterBefore(this.outConfigCaloriesFat.tabCaloriesFat.length,'Type');
-    i=this.outConfigCaloriesFat.tabCaloriesFat.length-1;
-    this.outConfigCaloriesFat.tabCaloriesFat[i].Type='Recipe';
-    j=0;
-  } else {
-    // check if item food already exists and if yes overide figures otherwise create new food item
-    this.TabOfId[0]=i;
-    for (j=0; j<this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length && 
-      this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Name.toLowerCase().trim() !== this.outFileRecipe.tabCaloriesFat[iRecipe].Type.toLowerCase().trim();j++){
 
-    }  
-    if (j===this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length){
-      this.TabOfId[1]=this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length;
-      this.createAfterBefore(this.TabOfId[1],'Food');
-      j=this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length-1;
+  onInputRecipeA(event:any){ 
+    this.returnEmit.saveAction="";
+    //this.offsetHeight= event.currentTarget.offsetHeight;
+    this.offsetLeft = event.currentTarget.offsetLeft;
+    //this.offsetTop = event.currentTarget.offsetTop;
+    this.offsetWidth = event.currentTarget.offsetWidth;
+    this.isRecipeFoodInput=false;
+
+    var iTab:number=0;
+    this.errorMsg='';
+
+    this.manageIds(event.target.id);
+    if (event.target.id.substring(0,6)==='Recipe'){
+      this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Type=event.target.value.toLowerCase().trim();
+
+      this.tabInputRecipe.splice(0,this.tabInputType.length);
+      // check if recipe already exists
+      iTab=-1;
+      for (var i=0; i<this.tabRecipe.length && this.tabRecipe[i].name.toLowerCase().trim()!==event.target.value.toLowerCase().trim(); i++){};
+      if (i<this.tabRecipe.length){
+          this.errorMsg='recipe ' + event.target.value + ' already exists';
+      }
+    } else if (event.target.id.substring(0,4)==='name'){
+      this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name=event.target.value.toLowerCase().trim();
+      // check if first letters already exists
+        this.tabInputRecipeFood.splice(0,this.tabInputRecipeFood.length);
+        this.isRecipeFoodInput=true;
+        iTab=-1;
+        for (var i=0; i<this.tabFood.length; i++){
+          if (this.tabFood[i].name.indexOf(event.target.value.toLowerCase().trim())!==-1){
+            iTab++;
+            this.tabInputRecipeFood.push({name:''});
+            this.tabInputRecipeFood[iTab].name=this.tabFood[i].name.toLowerCase().trim();
+          }
+
+        }
+        if (this.tabInputRecipeFood.length===1 && this.tabInputRecipeFood[0].name.toLowerCase().trim()=== event.target.value.toLowerCase().trim() && this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].lockData!=='Y'){
+            this.searchFoodCalories(event.target.value.toLowerCase().trim(), this.TabOfId[0], this.TabOfId[1]);
+            this.isRecipeFoodInput=false;
+        }
+        if (this.tabInputRecipeFood.length>9){
+          this.sizeBoxRecipeFood= 9 * this.heightItemOptionBox; 
+        } else {
+          this.sizeBoxRecipeFood=(this.tabInputRecipeFood.length + 1) * this.heightItemOptionBox; 
+        }
+            
+
+    } else if (event.target.id.substring(0,4)==='serv'){
+      this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Serving=Number(event.target.value);
+      this.searchFoodCalories(this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name, this.TabOfId[0], this.TabOfId[1]);
+    } else if (event.target.id.substring(0,4)==='unit'){
+      this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].ServingUnit=event.target.value.toLowerCase().trim();
+    } else if (event.target.id.substring(0,4)==='calo'){
+      this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Calories=Number(event.target.value);
+    } else if (event.target.id.substring(0,4)==='prot'){
+      this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Protein=Number(event.target.value);
+    } else if (event.target.id.substring(0,4)==='carb'){
+      this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Carbs=Number(event.target.value);
+    } else if (event.target.id.substring(0,4)==='glyi'){
+      this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].GlyIndex=Number(event.target.value);
+    } else if (event.target.id.substring(0,4)==='suga'){
+      this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Sugar=Number(event.target.value);
+    } else if (event.target.id.substring(0,4)==='chol'){
+      this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Cholesterol=Number(event.target.value);
+    } else if (event.target.id.substring(0,4)==='satu'){
+      this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Fat.Saturated=Number(event.target.value);
+    } else if (event.target.id.substring(0,4)==='tota'){
+      this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Fat.Total=Number(event.target.value);
+    } else if (event.target.id.substring(0,4)==='lock'){
+      if (event.target.value.toUpperCase().trim()==='Y' || event.target.value.toUpperCase().trim()==="N"){
+        this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].lockData=event.target.value.toUpperCase().trim();
+        if (this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].lockData==='N'){
+          this.searchFoodCalories(this.outFileRecipe.tabCaloriesFat[this.TabOfId[0]].Content[this.TabOfId[1]].Name.toLowerCase().trim(), this.TabOfId[0], this.TabOfId[1]);
+      }
+      }
+      else {
+        this.errorMsg="Lock value must be 'Y' or 'N'";
+      }  
     }
   }
-  this.copyContent(this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j],this.outFileRecipe.tabCaloriesFat[iRecipe].Total);
-// name of the recipe
-  this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Name=this.outFileRecipe.tabCaloriesFat[iRecipe].Type;
-}
 
-
-findIds(theId:string){
-  this.error_msg='';
-  var TabDash=[];
-  this.TabOfId.splice(0,this.TabOfId.length);
-  var j=-1;
-  for (var i=4; i<theId.length; i++){
-    if (theId.substring(i,i+1)==='-'){
-        j++;
-        TabDash[j]=i+1;
-        TabDash.push(0);
+  SearchText(event:any){
+    this.returnEmit.saveAction="";
+    if (event.currentTarget.id==='search' && event.currentTarget.value!==''){
+      this.checkText=event.currentTarget.value.toLowerCase().trim();
+    } else { 
+      this.checkText=''; 
     }
   }
-  TabDash[j+1]=theId.length+1;
+  onFilter(event:any){
+    this.returnEmit.saveAction="";
+    this.filterType=false;
+    this.filterFood=false;
+    this.filterRecipe=false;
+    this.filterRecipeFood=false;
+    this.selType='';
+    this.selFood='';
+    this.RecipeSel='';
+    this.RecipeSelFood='';
 
-  i=0;
-  for (j=0; j<TabDash.length-1; j++){
-    this.TabOfId[i]=parseInt(theId.substring(TabDash[j],TabDash[j+1]-1));
-    //this.TabOfId.push(0);
-    i++;
+    if (event.target.id==='Recipe'){
+      this.filterRecipe=true;
+    } else if (event.target.id==='RecipeFood'){
+      this.filterRecipeFood=true;
+    } else if (event.target.id.substring(0,6)==='Recipe'){
+      if (event.target.textContent.indexOf('cancel')===-1){
+        if (event.target.id==='RecipeSel'){
+          this.RecipeSel=event.target.textContent.trim();
+        } else if (event.target.id==='RecipeSelFood'){
+          this.RecipeSelFood=event.target.textContent.trim();
+        }   
+      } 
+    }
+  else if (event.target.id==='Type'){
+      this.filterType=true;
+    } else if (event.target.id==='Food'){
+      this.filterFood=true;
+    } else if (event.target.textContent.indexOf('cancel')===-1){
+      if (event.target.id==='selType'){
+        this.selType=event.target.textContent.trim();
+      } else if (event.target.id==='selFood'){
+        this.selFood=event.target.textContent.trim();
+      }   
+    }
   }
-}
+iRecipeSave:number=0;
+  transferToCalFat(iRecipe:number){
+    // check if name of recipe already exists under Type='recipe'
+    this.iRecipeSave = iRecipe;
+    this.isCalFatModified = true;
+    this.onInputAction="transferToCalFat";
+    this.timeOutactivity(1,true,false,"only");
+  }
 
-ConfirmSave(event:any){
-  // check if there is no dupes of FOOD
-  if (event.target.id==='RecipeSave'){
-    this.IsSaveRecipeConfirmed=true;
-    this.SpecificForm.controls['FileNameRecipe'].setValue(this.identification.fitness.files.recipe);
-  } else {
-
- 
-    this.tabType.splice(0,this.tabType.length);
-    this.tabFood.splice(0,this.tabFood.length);
-    var i=0;
+  transferToCalFatA(){
+    const iRecipe = this.iRecipeSave;
     var j=0;
+    for (var i=0; i< this.outConfigCaloriesFat.tabCaloriesFat.length && this.outConfigCaloriesFat.tabCaloriesFat[i].Type!=='Recipe'; i++){
+    }
+    if (i=== this.outConfigCaloriesFat.tabCaloriesFat.length){
+      // Type='Recipe' has not been found; create it
+      this.createAfterBefore(this.outConfigCaloriesFat.tabCaloriesFat.length,'Type');
+      i=this.outConfigCaloriesFat.tabCaloriesFat.length-1;
+      this.outConfigCaloriesFat.tabCaloriesFat[i].Type='Recipe';
+      j=0;
+    } else {
+      // check if item food already exists and if yes overide figures otherwise create new food item
+      this.TabOfId[0]=i;
+      for (j=0; j<this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length && 
+        this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Name.toLowerCase().trim() !== this.outFileRecipe.tabCaloriesFat[iRecipe].Type.toLowerCase().trim();j++){
 
-    for (i=0; i<this.outConfigCaloriesFat.tabCaloriesFat.length; i++){
+      }  
+      if (j===this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length){
+        this.TabOfId[1]=this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length;
+        this.createAfterBefore(this.TabOfId[1],'Food');
+        j=this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length-1;
+      }
+    }
+    this.copyContent(this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j],this.outFileRecipe.tabCaloriesFat[iRecipe].Total);
+  // name of the recipe
+    this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Name=this.outFileRecipe.tabCaloriesFat[iRecipe].Type;
+  }
+
+
+  manageIds(theId: string) {
+    this.errorMsg = '';
+    this.TabOfId.splice(0, this.TabOfId.length);
+    const theValue = findIds(theId, "-");
+    this.TabOfId = theValue.tabOfId;
+    /*
+    for (var i = 0; i < theValue.tabOfId.length; i++) {
+      this.TabOfId[i] = theValue.tabOfId[i];
+    }
+    */
+  }
+
+  ConfirmSave(event:any){
+    // check if there is no dupes of FOOD
+    if (event.target.id==='RecipeSave'){
+      this.isSaveRecipeConfirmed=true;
+      this.SpecificForm.controls['FileNameRecipe'].setValue(this.identification.fitness.files.recipe);
+    } else {
+
+  
+      this.tabType.splice(0,this.tabType.length);
+      this.tabFood.splice(0,this.tabFood.length);
+      var i=0;
+      var j=0;
+
+      for (i=0; i<this.outConfigCaloriesFat.tabCaloriesFat.length; i++){
+          this.tabType.push({name:''});
+          this.tabType[this.tabType.length-1].name=this.outConfigCaloriesFat.tabCaloriesFat[i].Type.toLowerCase().trim();
+          for (j=0; j<this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length; j++){
+            this.tabFood.push({name:''});
+            this.tabFood[this.tabFood.length-1].name=this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Name.toLowerCase().trim();;
+          }
+      }
+      this.tabType.sort((a, b) => (a.name < b.name) ? -1 : 1);
+      this.tabFood.sort((a, b) => (a.name < b.name) ? -1 : 1);
+
+      var trouve=false;
+      for (i=1; i<this.tabType.length && trouve===false; i++){
+          if (this.tabType[i].name===this.tabType[i-1].name){
+            trouve=true;
+          }
+      }
+      if (trouve!== true){
+        for (j=1; j<this.tabFood.length && trouve===false; j++){
+          if (this.tabFood[j].name===this.tabFood[j-1].name){
+            trouve=true;
+          }
+      }
+      }
+      if (trouve!== true){
+        this.isSaveConfirmed=true;
+      } else {
+        if (i<this.tabType.length){
+          this.errorMsg='you have created dupe type-element   ' + this.tabType[i-1].name;
+        } else if (j<this.tabFood.length){
+          this.errorMsg='you have created dupe food-element   ' + this.tabFood[j-1].name;
+        }
+      }
+    }
+  }
+
+  CancelTheSave(event:any){
+    if (event.target.id==='RecipeCancel'){
+      this.isSaveRecipeConfirmed=false;
+    // this.cancelSave.emit(6);
+    } else {
+      this.isSaveConfirmed=false;
+      //this.cancelSave.emit(1);
+    }
+    
+  }
+
+  CancelUpdates(event:any){
+    if (this.isRecipeModified===true || this.isCalFatModified===true){
+      this.timeOutactivity(1,false,false,"only");
+      if (event.target.id==='RecipeCancel'){
+        this.isSaveRecipeConfirmed=false;
+        this.isRecipeModified = false;
+        this.initialiseFiles('recipe');
+        //===== file should be reset
+      } else {
+        this.isSaveConfirmed=false;
+        this.isCalFatModified = false;
+        this.initialiseFiles('calFat');
+      }
+    }
+  }
+
+
+  SaveFile(event: any) {
+    this.errorMsg = '';
+    this.returnEmit.saveAction=event.target.id;
+    this.theEvent.target.id = event.target.id;
+    this.theEvent.checkLock.isDataModified=true;
+    this.theEvent.checkLock.isSaveFile=true;
+    this.theEvent.checkLock.lastInputAt=this.lastInputAt;
+    this.theEvent.checkLock.iCheck=true;
+    //this.theEvent.fileName = this.SpecificForm.controls['FileName'].value;
+    if (event.target.id==='RecipeSave'){
+      this.isSaveRecipeConfirmed=false;
+      this.fillConfig(this.inFileRecipe, this.outFileRecipe, 'Recipe');
+      this.outFileRecipe.updatedAt=strDateTime();
+      this.theEvent.checkLock.iWait=6;
+      this.onInputAction = "saveRecipe";
+      this.theEvent.checkLock.action="saveRecipe";
+      this.theEvent.fileName = this.SpecificForm.controls['FileNameRecipe'].value
+    } else {
+      this.isSaveConfirmed=false;
+      this.fillConfig(this.ConfigCaloriesFat,this.outConfigCaloriesFat, 'Calories');
+      this.outConfigCaloriesFat.updatedAt=strDateTime();
+      this.theEvent.checkLock.iWait=1;
+      this.onInputAction = "saveCalFat";
+      this.theEvent.checkLock.action="saveCalFat";
+      this.theEvent.fileName = this.SpecificForm.controls['FileName'].value;
+    }
+    this.timeOutactivity(5, true, true,this.onInputAction);
+    this.processSave.emit(this.theEvent);
+  }
+
+  saveCalFatRecipeAfterCheckToLimit(){
+   // this.theEvent.checkLock.isSaveFile=false;
+   // this.theEvent.checkLock.isDataModified=false;
+  //this.processSaveCalFatRecipe.emit(this.theEvent);    
+  }
+
+  SaveFileOld(event:any){
+    this.returnEmit.saveAction=event.target.id;
+    this.theEvent.target.id = event.target.id;
+    this.theEvent.checkLock.isDataModified=true;
+    this.theEvent.checkLock.isSaveFile=true;
+    this.theEvent.checkLock.lastInputAt=this.lastInputAt;
+  
+    if (event.target.id==='RecipeSave'){
+      this.fillConfig(this.inFileRecipe, this.outFileRecipe, 'Recipe');
+      this.theEvent.checkLock.iWait=6;
+      this.onInputAction = "saveRecipe";
+      this.theEvent.fileName = this.SpecificForm.controls['FileNameRecipe'].value
+      this.processSave.emit(this.theEvent);
+      this.isSaveRecipeConfirmed=false;
+
+    } else {
+      this.fillConfig(this.ConfigCaloriesFat,this.outConfigCaloriesFat, 'Calories');
+      this.theEvent.fileName = this.SpecificForm.controls['FileName'].value;
+      this.outConfigCaloriesFat.updatedAt=strDateTime();
+      this.theEvent.checkLock.iWait=1;
+      this.onInputAction = "saveCalFat";
+      this.processSave.emit(this.theEvent);
+      this.initTrackRecord();
+      this.isSaveConfirmed=false;
+      // rebuild the filter tabs
+      this.tabType.splice(0,this.tabType.length);
+      this.tabFood.splice(0,this.tabFood.length);
+      //var iFood=0;
+
+      for (var i=0; i<this.outConfigCaloriesFat.tabCaloriesFat.length; i++){
         this.tabType.push({name:''});
         this.tabType[this.tabType.length-1].name=this.outConfigCaloriesFat.tabCaloriesFat[i].Type.toLowerCase().trim();
-        for (j=0; j<this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length; j++){
+        for (var j=0; j<this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length; j++){
+          //iFood++
           this.tabFood.push({name:''});
           this.tabFood[this.tabFood.length-1].name=this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Name.toLowerCase().trim();;
-        }
+          }
+      }
+      this.tabType.sort((a, b) => (a.name < b.name) ? -1 : 1);
+      this.tabFood.sort((a, b) => (a.name < b.name) ? -1 : 1);
+      this.tabType.splice(0,0,{name:'cancel'});
+      this.tabFood.splice(0,0,{name:'cancel'});
+      //this.tabType[0].name='cancel';
+      //this.tabFood[0].name='cancel';
+      //this.tabNewRecord.splice(0, this.tabNewRecord.length);
+      //this.initTrackRecord();
+      //this.myEmit.emit(this.SpecificForm.controls['FileName'].value);
+      //this.myEmit.emit(this.outConfigCaloriesFat);
     }
-    this.tabType.sort((a, b) => (a.name < b.name) ? -1 : 1);
-    this.tabFood.sort((a, b) => (a.name < b.name) ? -1 : 1);
+  }
 
-    var trouve=false;
-    for (i=1; i<this.tabType.length && trouve===false; i++){
-        if (this.tabType[i].name===this.tabType[i-1].name){
-          trouve=true;
-        }
+
+  resultAccessFile(theEvent:any){
+    if (this.returnDataFSCalFat.errorCode!==0 && this.returnDataFSCalFat.errorCode!==200){
+      this.errorMsg = this.returnDataFSCalFat.errorMsg;
+    } else if (this.returnDataFSRecipe.errorCode!==0 && this.returnDataFSRecipe.errorCode!==200){ //  
+      this.errorMsg = this.returnDataFSRecipe.errorMsg;
+    } else  if (this.tabLock[1].lock === 1 && this.onInputAction === "onAction") {
+      this.onInputAction="";
+      this.onActionA(this.theEvent);
+      
+    } else  if (this.tabLock[1].lock === 1 && this.onInputAction === "onInput") {
+      this.onInputA(this.theEvent);
+      this.onInputAction="";
+    } else  if (this.tabLock[1].lock === 1 && this.onInputAction === "transferToCalFat") {
+      this.transferToCalFatA();
+      this.onInputAction="";
+    } else  if (this.tabLock[1].lock === 1 && this.onInputAction === "onInputRecipe") {
+      this.onInputRecipeA(this.theEvent);
+      this.onInputAction="";
+    } else  if (this.tabLock[1].lock === 1 && this.onInputAction === "onSelRecipeFood") {
+      this.onSelRecipeFoodA(this.theEvent);
+      this.onInputAction="";
+    }  else  if (this.tabLock[1].lock === 1 && this.onInputAction === "saveCalFat") {
+      this.onInputAction="";
+      this.saveCalFatRecipeAfterCheckToLimit();
+    }  else  if (this.tabLock[1].lock === 1 && this.onInputAction === "saveRecipe") {
+      this.onInputAction="";
+      this.saveCalFatRecipeAfterCheckToLimit();
     }
-    if (trouve!== true){
-      for (j=1; j<this.tabFood.length && trouve===false; j++){
-        if (this.tabFood[j].name===this.tabFood[j-1].name){
-          trouve=true;
-        }
-    }
-    }
-    if (trouve!== true){
-      this.IsSaveConfirmed=true;
+
+
+    console.log(theEvent);
+  }
+
+  firstLoop:boolean=true;
+  ngOnChanges(changes: SimpleChanges) {
+    var saveLoop=0;
+    if (this.tabLock[1].lock===1){
+      this.inputReadOnly=false;
     } else {
-      if (i<this.tabType.length){
-        this.error_msg='you have created dupe type-element   ' + this.tabType[i-1].name;
-      } else if (j<this.tabFood.length){
-        this.error_msg='you have created dupe food-element   ' + this.tabFood[j-1].name;
+      this.inputReadOnly=true;
+    }
+    if (this.firstLoop===true){
+      this.firstLoop=false;
+    } else {
+   
+      var i = 0;
+      for (const propName in changes) {
+        const j = changes[propName];
+        if (propName === 'resultCheckLimitCalFat' ) {
+          if (this.returnDataFSCalFat.errorCode!==0 && this.returnDataFSCalFat.errorCode!==200){
+            this.errorMsg = this.returnDataFSCalFat.errorMsg;
+          } else if (this.returnDataFSRecipe.errorCode!==0 && this.returnDataFSRecipe.errorCode!==200){ //  
+            this.errorMsg = this.returnDataFSRecipe.errorMsg;
+          } else  if (this.tabLock[1].lock === 1 && this.onInputAction === "onAction") {
+            this.onInputAction="";
+            this.onActionA(this.theEvent);
+            
+          } else  if (this.tabLock[1].lock === 1 && this.onInputAction === "onInput") {
+            this.onInputA(this.theEvent);
+            this.onInputAction="";
+          } else  if (this.tabLock[1].lock === 1 && this.onInputAction === "transferToCalFat") {
+            this.transferToCalFatA();
+            this.onInputAction="";
+          } else  if (this.tabLock[1].lock === 1 && this.onInputAction === "onInputRecipe") {
+            this.onInputRecipeA(this.theEvent);
+            this.onInputAction="";
+          } else  if (this.tabLock[1].lock === 1 && this.onInputAction === "onSelRecipeFood") {
+            this.onSelRecipeFoodA(this.theEvent);
+            this.onInputAction="";
+          }  else  if (this.tabLock[1].lock === 1 && this.onInputAction === "saveCalFat") {
+            this.onInputAction="";
+            this.saveCalFatRecipeAfterCheckToLimit();
+          }  else  if (this.tabLock[1].lock === 1 && this.onInputAction === "saveRecipe") {
+            this.onInputAction="";
+            this.saveCalFatRecipeAfterCheckToLimit();
+          }
+        } else if (propName === 'actionCalFat'  ) {
+            if (this.onInputAction==='saveCalFat'){
+              if ( this.actionCalFat > 0) {
+                  this.errorMsg = 'File '+ this.SpecificForm.controls['FileName'].value + ' is saved';
+                  this.isCalFatModified=false;
+              } else {
+                  this.errorMsg = 'Error when trying to save file '+ this.SpecificForm.controls['FileName'].value + ', try again';
+              }
+              this.onInputAction = "";
+            }
+        } else if (propName === 'actionRecipe' && changes[propName].firstChange === false) {
+            if (this.onInputAction==='saveRecipe'){
+              if ( this.actionRecipe > 0) {
+                  this.errorMsg = 'File '+ this.SpecificForm.controls['FileNameRecipe'].value + ' is saved';
+                  this.isRecipeModified=false;
+              } else {
+                  this.errorMsg = 'Error when trying to save file '+ this.SpecificForm.controls['FileNameRecipe'].value + ', try again';
+              }
+              this.onInputAction = "";
+            }
+        } else if (propName==='returnDataFSCalFat' && changes[propName].firstChange === false) {
+          var cancelUpdate=false;
+          if (this.tabLock[1].lock !== 1 && (this.onInputAction === "saveRecipe" || this.onInputAction === "saveCalFat")){
+              this.errorMsg = "file has been locked by another user; all your updates are lost (" +  this.returnDataFSCalFat.errorMsg + ")" + " status=" + this.tabLock[1].status;
+              this.onInputAction = "";
+              // reinitialise the two tables
+              cancelUpdate=true;
+              console.log(this.errorMsg);
+    
+          } else if (this.tabLock[1].lock === 2) {
+              cancelUpdate=true;
+          } else {
+              console.log('File is locked; no specific action; process continues');
+          }
+          if (cancelUpdate===true){
+            if (this.isCalFatModified===true){
+              this.theEvent.target.id='calFatCancel'
+              this.CancelUpdates(this.theEvent);
+            }
+            if (this.isRecipeModified===true){
+              this.theEvent.target.id='RecipeCancel'
+              this.CancelUpdates(this.theEvent);
+            }
+          }
+        } else if (propName==='calFatFileRetrieved' &&  changes[propName].firstChange === false){
+            this.theEvent.target.id='RecipeCancel'
+            this.CancelUpdates(this.theEvent);
+        }  else if (propName==='recipeFileRetrieved' &&  changes[propName].firstChange === false){
+            this.theEvent.target.id='calFatCancel'
+            this.CancelUpdates(this.theEvent);
+        } else if (propName === 'callSaveFunction' || propName === 'callSaveFunctionCalFat' && saveLoop===0) {
+          saveLoop++
+          if (this.statusSaveFn.status===200 || this.statusSaveFn.status===0){
+            this.errorMsg='File has been successfully saved';
+          } else {
+            this.errorMsg=this.statusSaveFn.err;
+          }
+          if (this.theEvent.target.id==='RecipeSave'){
+            this.isSaveRecipeConfirmed=false;
+            this.isRecipeModified = false;
+
+          } else {
+            this.initTrackRecord();
+            this.isSaveConfirmed=false;
+            this.isCalFatModified = false;
+            // rebuild the filter tabs
+            this.tabType.splice(0,this.tabType.length);
+            this.tabFood.splice(0,this.tabFood.length);
+            for (var i=0; i<this.outConfigCaloriesFat.tabCaloriesFat.length; i++){
+              this.tabType.push({name:''});
+              this.tabType[this.tabType.length-1].name=this.outConfigCaloriesFat.tabCaloriesFat[i].Type.toLowerCase().trim();
+              for (var jK=0; jK<this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length; jK++){
+                this.tabFood.push({name:''});
+                this.tabFood[this.tabFood.length-1].name=this.outConfigCaloriesFat.tabCaloriesFat[i].Content[jK].Name.toLowerCase().trim();;
+                }
+            }
+            this.tabType.sort((a, b) => (a.name < b.name) ? -1 : 1);
+            this.tabFood.sort((a, b) => (a.name < b.name) ? -1 : 1);
+            this.tabType.splice(0,0,{name:'cancel'});
+            this.tabFood.splice(0,0,{name:'cancel'});
+          }
+        } 
       }
     }
   }
-}
-
-CancelSave(event:any){
-  
-  if (event.target.id==='RecipeCancel'){
-    this.IsSaveRecipeConfirmed=false;
-    this.cancelSaveOther.emit(6);
-  } else {
-    this.IsSaveConfirmed=false;
-    this.cancelSaveOther.emit(1);
-  }
-  
-}
-
-CancelUpdates(event:any){
-  if (event.target.id==='RecipeCancel'){
-    this.IsSaveRecipeConfirmed=false;
-  } else {
-    this.IsSaveConfirmed=false;
-    this.outConfigCaloriesFat.tabCaloriesFat.splice(0, this.outConfigCaloriesFat.tabCaloriesFat.length);
-    this.tabNewRecord.splice(0, this.tabNewRecord.length);
-    if (this.ConfigCaloriesFat.tabCaloriesFat.length===0){
-      this.initOutTab(this.ConfigCaloriesFat,'calories');
-    } else {
-      this.fillConfig(this.outConfigCaloriesFat, this.ConfigCaloriesFat,'Calories');
-      this.initTrackRecord();
-    }
-  }
-}
-
-returnEmit={
-  saveAction:'',
-  saveCode:''
-}
-
-SaveFile(event:any){
-  this.returnEmit.saveAction=event.target.id;
-  if (event.target.id==='RecipeSave'){
-    this.IsSaveRecipeConfirmed=false;
-    this.myEmitRecipe.emit(this.SpecificForm.controls['FileNameRecipe'].value);
-    this.myEmitRecipe.emit(this.outFileRecipe);
-  } else {
-    this.IsSaveConfirmed=false;
-    // rebuild the filter tabs
-    this.tabType.splice(0,this.tabType.length);
-    this.tabFood.splice(0,this.tabFood.length);
-    //var iFood=0;
-
-    for (var i=0; i<this.outConfigCaloriesFat.tabCaloriesFat.length; i++){
-      this.tabType.push({name:''});
-      this.tabType[this.tabType.length-1].name=this.outConfigCaloriesFat.tabCaloriesFat[i].Type.toLowerCase().trim();
-      for (var j=0; j<this.outConfigCaloriesFat.tabCaloriesFat[i].Content.length; j++){
-        //iFood++
-        this.tabFood.push({name:''});
-        this.tabFood[this.tabFood.length-1].name=this.outConfigCaloriesFat.tabCaloriesFat[i].Content[j].Name.toLowerCase().trim();;
-        }
-    }
-    this.tabType.sort((a, b) => (a.name < b.name) ? -1 : 1);
-    this.tabFood.sort((a, b) => (a.name < b.name) ? -1 : 1);
-    this.tabType.splice(0,0,{name:'cancel'});
-    this.tabFood.splice(0,0,{name:'cancel'});
-    //this.tabType[0].name='cancel';
-    //this.tabFood[0].name='cancel';
-    this.tabNewRecord.splice(0, this.tabNewRecord.length);
-    this.initTrackRecord();
-    this.outConfigCaloriesFat.updatedAt=strDateTime();
-    this.myEmit.emit(this.SpecificForm.controls['FileName'].value);
-    this.myEmit.emit(this.outConfigCaloriesFat);
-  }
-}
-
-getRecord(Bucket:string,GoogleObject:string, iWait:number){
-  
-  this.ManageGoogleService.getContentObject(this.configServer, Bucket, GoogleObject )
-      .subscribe((data ) => {    
-        this.ConvToDisplay=data;
-        this.EventHTTPReceived[iWait]=true;
-    },
-    error_handler => {
-
-    })
-}
-
-initTabLock1:number=0;
-//firstLoop:boolean=true;
-inputReadOnly:boolean=true;
-
-ngOnChanges(changes: SimpleChanges) { 
- //console.log('ngOnChanges CalFat' + JSON.stringify(changes));
- for (const propName in changes){
-    if (propName==="saveCalFatMsg"){
-            this.error_msg = this.saveCalFatMsg;
-        }
-    else 
-    if (propName==="tabLock" && changes['tabLock'].firstChange===true){
-        console.log('report chart ==> ngOnChange this.firstLoop===true   current value of tabLock[1]=' + changes['tabLock'].currentValue.lock +  
-                '  & previous value initTabLock1 was=' + this.initTabLock1 + '  & input() TabLock[1]=' + this.tabLock.lock + '  & status =' + this.tabLock.status+ '  & iWait =' + this.tabLock.iWait);
-                //this.firstLoop=false;
-             
-    } else if (propName==="tabLock" && changes['tabLock'].firstChange===false){
-        console.log('report chart ==> ngOnChange this.firstLoop===false   current tabLock[1]=' + changes['tabLock'].currentValue.lock + 
-                        '  & previous value initTabLock1 was=' + this.initTabLock1 + '  & input() TabLock[1]=' + this.tabLock.lock+ '  & status =' + this.tabLock.status + '  & iWait =' + this.tabLock.iWait);
-                        //this.firstLoop=false;
-        
-      }
-    }
-  } 
-
-
-
 }

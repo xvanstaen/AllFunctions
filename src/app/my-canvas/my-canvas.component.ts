@@ -1,8 +1,10 @@
 //import { ValueConverter } from '@angular/compiler/src/render3/view/template';
 import { Component,  SimpleChanges, ViewChild, AfterViewInit, OnInit,  OnChanges,
-  Output, Input, HostListener, EventEmitter } from '@angular/core';
-  import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
+        Output, Input, HostListener, EventEmitter } from '@angular/core';
+import { FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
   // import {point_circle} from '.././MyStdFunctions'
+import { drawNumbers, drawHourHand, drawMinuteHand, drawSecondHand, classPosSizeClock} from '../clockFunctions'
+
 
 @Component({
   selector: 'app-my-canvas',
@@ -12,15 +14,75 @@ import { Component,  SimpleChanges, ViewChild, AfterViewInit, OnInit,  OnChanges
 export class MyCanvasComponent implements OnInit {
   
 
-  constructor() { }
+  constructor(      private fb: FormBuilder,) { }
   
-  @ViewChild('TestCanvas', { static: true })
+  @ViewChild('baseCanvas', { static: true })
 
+  champagne:string='🍾';
+  //=============== DATA FOR CLOCK
+  posSizeClock= new classPosSizeClock;
+
+  loopClock:number=0;
+  maxLoopClock:number=10000;
+
+  
+  theSeconds:number=0;
+  theMinutes:number=0;
+  theHours:number=0;
+
+  lenRectClock:number=0;  // size of the rectangle
+  wLineClock:number=4; // width of the line
+  xClock:number=0;
+  yClock:number=0;
+  radiusClock:number=0;
+  background = new Image();  
+  idAnimationClock:number=0;
+  
+  clockCanvas:any;
+  ctxClock:any;
+
+  //=========================
+
+  posSizeSunEarth= new classPosSizeClock;
+  idAnimationSunEarth:number=0;
+  
+  SunEarthCanvas:any;
+  ctxSunEarth:any;
+
+  loopSunEarth:number=0;
+  maxLoopSunEarth:number=1000;
+  lenRectSunEarth:number=0;  // size of the rectangle
+  wLineSunEarth:number=4; // width of the line
+  xSunEarth:number=0;
+  ySunEarth:number=0;
+  radiusSunEarth:number=0;
+
+  moon = new Image();
+  earth = new Image();
+  sun = new Image();
+
+  //=========================
+
+  posSizeCircleRotation= new classPosSizeClock;
+  idAnimationCircleRotation:number=0;
+  
+  CircleRotationCanvas:any;
+  ctxCircleRotation:any;
+
+  loopCircleRotation:number=0;
+  maxLoopCircleRotation:number=1000;
+  lenRectCircleRotation:number=0;  // size of the rectangle
+  wLineCircleRotation:number=4; // width of the line
+  xCircleRotation:number=0;
+  yCircleRotation:number=0;
+  radiusCircleRotation:number=0;
+  //=========================
 
   var_i:number=0;
   var_j:number=0;
   var_k:number=0;
 
+  posSize= new classPosSizeClock;
   theCanvas:any;
   ctx:any;
 
@@ -41,14 +103,11 @@ export class MyCanvasComponent implements OnInit {
   x_Pas:number=0;
   y_Pas:number=0;
   i_loop:number=0;
-  j_loop:number=0;
-  k_loop:number=0;
 
   max_loop:number=10000; // just for security
 
   theta_v:number=0;
   theta_pas_v:number=0;
-
 
   angle_moon:number=0;
   angle_moonBis:number=0;
@@ -67,41 +126,68 @@ export class MyCanvasComponent implements OnInit {
 
   app_to_display:string='';
 
-  TheCanvasForm: FormGroup = new FormGroup({ 
-    ReturnToPage: new FormControl({ nonNullable: true }),
-    xPos: new FormControl( { nonNullable: true }),
-    yPos: new FormControl({ nonNullable: true }),
-    radius: new FormControl({ nonNullable: true }),
-    sAngle: new FormControl({ nonNullable: true }),
-    eAngle: new FormControl({ nonNullable: true }),
-    Clockwise: new FormControl({ nonNullable: true }),
-    theta: new FormControl({ nonNullable: true }),
-    theta_pas: new FormControl({ nonNullable: true }),
-
-  });
-  MoveCanvasForm: FormGroup = new FormGroup({ 
-    xFrom: new FormControl({ nonNullable: true }),
-    yFrom: new FormControl({ nonNullable: true }),
-    xTo: new FormControl({ nonNullable: true }),
-    yTo: new FormControl({ nonNullable: true }),
-    radius: new FormControl({ nonNullable: true }),
-    xPas: new FormControl({ nonNullable: true }),
-    yPas: new FormControl({ nonNullable: true }),
-
+  TheCanvasForm = new FormGroup({ 
+    ReturnToPage: new FormControl("",{ nonNullable: true }),
+    xPos: new FormControl(160,{ nonNullable: true }),
+    yPos: new FormControl(160,{ nonNullable: true }),
+    radius: new FormControl(100,{ nonNullable: true }),
+    sAngle: new FormControl(0,{ nonNullable: true }),
+    eAngle: new FormControl(2,{ nonNullable: true }),
+    Clockwise: new FormControl(true,{ nonNullable: true }),
+    theta: new FormControl(0,{ nonNullable: true }),
+    theta_pas: new FormControl(15,{ nonNullable: true }),
   });
 
-  moon = new Image();
-  earth = new Image();
-  sun = new Image();
-  champagne:string='';
-  
+  MoveCanvasForm = new FormGroup({ 
+    xFrom: new FormControl(230,{ nonNullable: true }),
+    yFrom: new FormControl(290,{ nonNullable: true }),
+    xTo: new FormControl(230,{ nonNullable: true }),
+    yTo: new FormControl(290,{ nonNullable: true }),
+    radius: new FormControl(5,{ nonNullable: true }),
+    xPas: new FormControl(10,{ nonNullable: true }),
+    yPas: new FormControl(10,{ nonNullable: true }),
+  });
+
+  clockCanvasForm = new FormGroup({ 
+    width: new FormControl(50,{ nonNullable: true }),
+    height: new FormControl(50,{ nonNullable: true }),
+    margLeft: new FormControl(30,{ nonNullable: true }),
+    margTop: new FormControl(30,{ nonNullable: true }),
+    stopClock: new FormControl(false,{ nonNullable: true }),
+    displayDigital: new FormControl(true,{ nonNullable: true }),
+    displayAnalog: new FormControl(true,{ nonNullable: true }),
+  });
+
+  sunEarthCanvasForm = new FormGroup({ 
+    width: new FormControl(150,{ nonNullable: true }),
+    height: new FormControl(150,{ nonNullable: true }),
+    margLeft: new FormControl(130,{ nonNullable: true }),
+    margTop: new FormControl(30,{ nonNullable: true }),
+    stopClock: new FormControl(false,{ nonNullable: true }),
+  });
+
+  circleRotationCanvasForm = new FormGroup({ 
+    width: new FormControl(250,{ nonNullable: true }),
+    height: new FormControl(250,{ nonNullable: true }),
+    margLeft: new FormControl(30,{ nonNullable: true }),
+    margTop: new FormControl(130,{ nonNullable: true }),
+    stopClock: new FormControl(false,{ nonNullable: true }),
+  });
+
+  CanvasForm = new FormGroup({ 
+    width: new FormControl(250,{ nonNullable: true }),
+    height: new FormControl(250,{ nonNullable: true }),
+    margLeft: new FormControl(300,{ nonNullable: true }),
+    margTop: new FormControl(130,{ nonNullable: true }),
+    stopClock: new FormControl(false,{ nonNullable: true }),
+  });
+
   max_i_loop:number=10000;
-  max_j_loop:number=10000;
-  max_k_loop:number=10000;
- 
+
   ngOnInit() {
     this.radioValue='';
     this.app_to_display='';
+    /*
     this.TheCanvasForm.controls['xPos'].setValue(160);
     this.TheCanvasForm.controls['yPos'].setValue(160);
     this.TheCanvasForm.controls['radius'].setValue(100);
@@ -118,43 +204,81 @@ export class MyCanvasComponent implements OnInit {
     this.MoveCanvasForm.controls['radius'].setValue(5);
     this.MoveCanvasForm.controls['xPas'].setValue(10);
     this.MoveCanvasForm.controls['yPas'].setValue(10);
-    this.champagne=' 🍾';
-  this.sun.src = 'https://mdn.mozillademos.org/files/1456/Canvas_sun.png';
-  this.moon.src = 'https://mdn.mozillademos.org/files/1443/Canvas_moon.png';
-  this.earth.src = 'https://mdn.mozillademos.org/files/1429/Canvas_earth.png';
-  //this.moon.src = '../assets/MoonNew.png';
+    */
 
-
-  this.var_j=45 * Math.PI / 180;
-  this.var_j=this.var_j/10;
- 
+    this.sun.src = 'https://mdn.mozillademos.org/files/1456/Canvas_sun.png';
+    this.moon.src = 'https://mdn.mozillademos.org/files/1443/Canvas_moon.png';
+    this.earth.src = 'https://mdn.mozillademos.org/files/1429/Canvas_earth.png';
+    //this.moon.src = '../assets/MoonNew.png';
+    this.var_j=45 * Math.PI / 180 / 10;
   }
 
-  ngAfterViewInit() { 
-      this.theCanvas=document.getElementById('canvasElem');
-            
-      if (!this.ctx) { //true
-          this.ctx=this.theCanvas.getContext('2d');
-      }
+fillPosSize(posSize:any,formCtrl:any){
+  posSize.width=formCtrl.controls['width'].value;
+  posSize.height=formCtrl.controls['height'].value;
+  posSize.margLeft=formCtrl.controls['margLeft'].value;
+  posSize.margTop=formCtrl.controls['margTop'].value;
+  return posSize;
 
+}
+
+  ngAfterViewInit() { 
+    this.background.src = "../../../assets/clockImage.jpeg";
+    this.posSizeClock.displayAnalog=this.clockCanvasForm.controls['displayAnalog'].value;
+    this.posSizeClock.displayDigital=this.clockCanvasForm.controls['displayDigital'].value;
+    this.posSizeClock=this.fillPosSize(this.posSizeClock, this.clockCanvasForm);
+    this.xClock=this.posSizeClock.width/2; // x axis of the center
+    this.yClock=this.posSizeClock.height/2; // x axis of the center
+    this.radiusClock = this.posSizeClock.height / 2; // diameter of the circle
+    this.lenRectClock=this.posSizeClock.width;        
+    this.loopClock=0;
+    if (this.posSizeClock.displayAnalog===true){
+      this.theCanvas=document.getElementById('clockCanvas');
+      if (!this.ctxClock) { //true
+          this.ctxClock=this.theCanvas.getContext('2d');
+      } 
+      this.clockCanvas.width=this.posSizeClock.width;
+      this.clockCanvas.height=this.posSizeClock.height;
     }
 
-  drawCanvas(){
+    this.background.src = "../../../assets/clockImage.jpeg";
+    this.posSizeSunEarth=this.fillPosSize(this.posSizeSunEarth, this.sunEarthCanvasForm);
+    this.xSunEarth=this.posSizeClock.width/2; // x axis of the center
+    this.ySunEarth=this.posSizeClock.height/2; // x axis of the center
+    this.radiusSunEarth = this.posSizeClock.height / 2; // diameter of the circle
+    this.lenRectSunEarth=this.posSizeClock.width;        
+    this.loopSunEarth=0;
 
+    this.theCanvas=document.getElementById('SunEarthCanvas');
+    if (!this.ctxSunEarth) { //true
+        this.ctxSunEarth=this.theCanvas.getContext('2d');
+    } 
+    this.SunEarthCanvas.width=this.posSizeSunEarth.width;
+    this.SunEarthCanvas.height=this.posSizeSunEarth.height;
+
+    this.posSizeCircleRotation=this.fillPosSize(this.posSizeCircleRotation, this.circleRotationCanvasForm);
+    this.xCircleRotation=this.posSizeCircleRotation.width/2; // x axis of the center
+    this.yCircleRotation=this.posSizeCircleRotation.height/2; // x axis of the center
+    this.radiusCircleRotation = this.posSizeCircleRotation.height / 2; // diameter of the circle
+    this.lenRectCircleRotation=this.posSizeCircleRotation.width;        
+    this.loopCircleRotation=0;
+    this.theCanvas=document.getElementById('circleRotationCanvas');
+    if (!this.ctxCircleRotation) { //true
+        this.ctxCircleRotation=this.CircleRotationCanvas.getContext('2d');
+    } 
+    this.CircleRotationCanvas.width=this.posSizeCircleRotation.width;
+    this.CircleRotationCanvas.height=this.posSizeCircleRotation.height;
+
+    this.posSize=this.fillPosSize(this.posSize, this.CanvasForm);
+    this.theCanvas=document.getElementById('canvasElem');      
+    if (!this.ctx) { //true
+        this.ctx=this.theCanvas.getContext('2d');
+    }
+  }
+
+  drawCircle(){
       // DRAW a circle
       this.ctx.beginPath(); //	Begins a path, or resets the current path
-      
-      // context.arc(x,y,r,sAngle,eAngle,counterclockwise);
-      // The x-coordinate of the center of the circle
-      // The y-coordinate of the center of the circle
-      // The radius of the circle
-      // The starting angle, in radians (0 is at the 3 o'clock position of the arc's circle) e.g. 1.75 * Math.PI
-      // The ending angle, in radians e.g. 1.75 * Math.PI
-
-      // counterclockwise	(true or false) Optional. Specifies whether the drawing should be counterclockwise or clockwise. False is default, and indicates clockwise, while true indicates counter-clockwise.
-      //for (this.startangle=0; this.startangle<8;){
-         
-      
       this.ctx.arc(this.x_coordinate, this.y_coordinate, this.theRadius, this.startangle, this.endangle * Math.PI,this.DirectionClock); //Creates an arc/curve (used to create circles, or parts of circles)
       this.ctx.stroke(); // Actually draws the path you have defined
     
@@ -171,7 +295,7 @@ export class MyCanvasComponent implements OnInit {
       this.y_To=this.MoveCanvasForm.controls['yTo'].value;
       this.x_Pas=this.MoveCanvasForm.controls['xPas'].value;
       this.y_Pas=this.MoveCanvasForm.controls['yPas'].value;
-      this.theRadiusBis=this.MoveCanvasForm.controls['radius'].value;
+  this.theRadiusBis=this.MoveCanvasForm.controls['radius'].value;   
       this.theta_v=this.TheCanvasForm.controls['theta'].value;
       this.theta_pas_v=this.TheCanvasForm.controls['theta_pas'].value;
     }
@@ -184,7 +308,7 @@ export class MyCanvasComponent implements OnInit {
       } else  {this.radioValue= this.TheCanvasForm.controls['ReturnToPage'].value};
       if (this.radioValue==='Circle') {
         this.GetParam();
-        this.drawCanvas();
+        this.drawCircle();
         // at the center of the circle insert character 'A' and also draw a line 
         this.ctx.beginPath();
         this.ctx.font = 'bold 18px serif';
@@ -207,29 +331,32 @@ export class MyCanvasComponent implements OnInit {
         this.ngOnInit();
       }
       else if (this.radioValue==='Sun_Earth') {
-          this.j_loop=0;
+          this.loopSunEarth=0;
           this.Sun_Earth();
       }  
       else if (this.radioValue==='CircleRotate') {
-        this.k_loop=0;
-        this.circle_rotation();
+        this.loopCircleRotation=0;
+        this.circleRotation();
     }  
-    else if (this.radioValue==='StopAnim') {
-      this.stopAnimation();
-      
-  }  
+      else if (this.radioValue==='StopAnim') {
+        this.stopAnimation();
+    }   
+      else if (this.radioValue==='clock') {
+        this.loopClock=0;
+        this.Clock();
+    } 
       else {    this.app_to_display='other'};
     }
 
 
     AllAnimationsn(){
 
-      this.k_loop=0;
+      this.loopCircleRotation=0;
       this.i_loop=0;
-      this.j_loop=0;
+      this.loopSunEarth=0;
       this.draw_animation();
       this.Sun_Earth();
-      this.circle_rotation();
+      this.circleRotation();
     }
 
     ClearCanvas(){
@@ -242,8 +369,6 @@ export class MyCanvasComponent implements OnInit {
 
 
     MoveCanvas(type_action:string){
-
-
       this.GetParam();
       for (this.x_From=this.MoveCanvasForm.controls['xFrom'].value;  this.x_From<this.x_To; this.i_loop<this.max_loop)
       {
@@ -253,7 +378,7 @@ export class MyCanvasComponent implements OnInit {
           this.y_coordinate=this.y_From;
           this.i_loop=this.i_loop+1;
           if (type_action==='Create' ){
-            this.drawCanvas();
+            this.drawCircle();
           }
           else if (type_action==='Clear'){
             this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
@@ -281,23 +406,11 @@ export class MyCanvasComponent implements OnInit {
 
       //To be analyzed https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame
     
-      //this.theta_v+=pas
-      //this.new_x = this.x_coordinate + this.theRadius * Math.cos(this.theta_v);
-      //this.new_y = this.y_coordinate + this.theRadius * Math.sin(this.theta_v);
       this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
       // delete the max size of the rectangle which is the image 'sun'
       this.ctx.beginPath();
-      //this.ctx.clearRect(this.prev_x -(this.x_translate/2) - 1, this.prev_y -(this.y_translate/2) - 1, this.theRadiusBis  + this.x_translate+ 2, this.theRadiusBis  + this.y_translate+2);
-      //this.ctx.clearRect(this.x_coordinate - this.theRadius*2 - this.theRadiusBis- 1, this.y_coordinate - this.theRadiusBis- this.theRadius*2 - 1, this.theRadius *4  + this.theRadiusBis*4+ 2, this.theRadius *4   + this.theRadiusBis*4+2);
       this.ctx.clearRect(this.x_coordinate-w_size_image/2,this.y_coordinate-h_size_image/2, w_size_image, h_size_image);  
       this.ctx.stroke();
-      //this.ctx.fillStyle = 'lightblue'; // color inside circle
-      //this.ctx.fill();
-      //this.ctx.fillRect(this.x_coordinate-w_size_image/2,this.y_coordinate-h_size_image/2, w_size_image, h_size_image);  
-      //this.ctx.stroke();
-      // prev may not be needed
-      //this.prev_x=this.new_x;
-      //this.prev_y=this.new_y;
 
       this.i_loop++;   
 
@@ -305,12 +418,8 @@ export class MyCanvasComponent implements OnInit {
       // This is equivalent to earth moving around the sun
       //
       this.ctx.beginPath(); // critical
-      //this.ctx.setTransform(1, 0, 0, 1, 0, 0); // not needed as there has been no change of the position
       this.ctx.drawImage(this.sun,this.x_coordinate-w_size_image/2,this.y_coordinate-h_size_image/2, w_size_image, h_size_image);               
       this.ctx.arc( this.x_coordinate, this.y_coordinate, this.theRadius, 0, 2 * Math.PI);
-      //this.ctx.fillStyle = 'lightblue'; // color inside circle
-      //this.ctx.fill();
-
       this.ctx.strokeStyle= 'lightblue'; // color line cycle
       this.ctx.lineWidth = 3; // weight of the line
       this.ctx.closePath();
@@ -356,209 +465,174 @@ export class MyCanvasComponent implements OnInit {
       } 
     } // draw_animation()
 
+
+
    draw_with_interval(){
 
     const i= setInterval(() => {
-
-      //this.angle_moon=this.angle_moon+(0.1/360); // pas = 0.1
-      //if (this.angle_moon>360){ 
-      //  this.angle_moon=0;
-      //}
-      // this.ctx.rotate(this.angle_moon * Math.PI / 180);
-
       if (this.i_loop===1500){
-            clearInterval(i);
-          }
-      //if (this.theta_v >= 2 * Math.PI){
-      //            clearInterval(i);
-      //          }
-
-      }, 80); // setInterval(()
+            clearInterval(i); 
+      }}, 80); // setInterval(()
 
 
 //======= OTHER SOLUTION
-       const j= () => {
-          this.id_Animation_two=window.requestAnimationFrame(j) ;
-           if (this.j_loop>30000){
-                   window.cancelAnimationFrame(this.id_Animation_two);
-          } 
-         } 
-        j();
+    const j= () => {
+      this.id_Animation_two=window.requestAnimationFrame(j) ;
+      if (this.loopSunEarth>30000){
+          window.cancelAnimationFrame(this.id_Animation_two);
+      } 
+    } 
+    j();
 
    }
 
-    Sun_Earth(){
-
-    const x=290;
-    const y=640;
-    const w_size_image=300;
+  Sun_Earth(){
+    const w_size_image=300; 
     const h_size_image=300;
     const distEarthMoon=29;
     const distEarthSun=105;
     const radiusMoon=5;
     const radiusEarth=12;
 
-      this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
-      this.j_loop++;   
-      this.ctx.globalCompositeOperation = 'destination-over';
-      this.ctx.clearRect(x-w_size_image/2, y-h_size_image/2, w_size_image, h_size_image);
-      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-      this.ctx.strokeStyle = 'rgba(0, 153, 255, 0.4)';
-      this.ctx.save();
-      this.ctx.translate(x,y);
+    this.ctxSunEarth.setTransform(1, 0, 0, 1, 0, 0); 
+    this.loopSunEarth++;   
+    this.ctxSunEarth.globalCompositeOperation = 'destination-over';
+    this.ctxSunEarth.clearRect(this.xSunEarth-w_size_image/2, this.ySunEarth-h_size_image/2, w_size_image, h_size_image);
+    this.ctxSunEarth.fillStyle = 'rgba(0, 0, 0, 0.4)';
+    this.ctxSunEarth.strokeStyle = 'rgba(0, 153, 255, 0.4)';
+    this.ctxSunEarth.save();
+    this.ctxSunEarth.translate(this.xSunEarth,this.ySunEarth);
 
-      // Earth
-      const time = new Date();
+    // Earth
+    const time = new Date();
       
-      const angle=((2 * Math.PI) / 60) * time.getSeconds() + ((2 * Math.PI) / 60000) * time.getMilliseconds();
-      this.ctx.rotate(angle);
-      this.ctx.translate(distEarthSun, 0);
+    const angle=((2 * Math.PI) / 60) * time.getSeconds() + ((2 * Math.PI) / 60000) * time.getMilliseconds();
+    this.ctxSunEarth.rotate(angle);
+    this.ctxSunEarth.translate(distEarthSun, 0);
 
-      //this.ctx.fillRect(0, -radiusEarth, distEarthMoon, 2*radiusEarth); // Shadow)
-      this.ctx.drawImage(this.earth, -radiusEarth, -radiusEarth);
+    //this.ctxSunEarth.fillRect(0, -radiusEarth, distEarthMoon, 2*radiusEarth); // Shadow)
+    this.ctxSunEarth.drawImage(this.earth, -radiusEarth, -radiusEarth);
         
-      // Moon
-      //this.ctx.save();
-      this.ctx.rotate(angle*10);
-      this.ctx.translate(0, distEarthMoon);
-      this.ctx.drawImage(this.moon,-radiusMoon, -radiusMoon, 15, 15);
-      //this.ctx.restore();
+    // Moon
+    //this.ctxSunEarth.save();
+    this.ctxSunEarth.rotate(angle*10);
+    this.ctxSunEarth.translate(0, distEarthMoon);
+    this.ctxSunEarth.drawImage(this.moon,-radiusMoon, -radiusMoon, 15, 15);
+    //this.ctxSunEarth.restore();
         
-      this.ctx.restore();
+    this.ctxSunEarth.restore();
           
-      this.ctx.beginPath();
-      this.ctx.arc(x,y, distEarthSun, 0, Math.PI * 2, false); // Earth orbit
-      this.ctx.stroke();
+    this.ctxSunEarth.beginPath();
+    this.ctxSunEarth.arc(this.xSunEarth,this.ySunEarth, distEarthSun, 0, Math.PI * 2, false); // Earth orbit
+    this.ctxSunEarth.stroke();
 
-      // Sun
-      this.ctx.drawImage(this.sun,x-w_size_image/2, y-h_size_image/2, w_size_image,h_size_image);
+    // Sun
+    this.ctxSunEarth.drawImage(this.sun,this.xSunEarth-w_size_image/2, this.ySunEarth-h_size_image/2, w_size_image,h_size_image);
 
-      this.id_Animation_two=window.requestAnimationFrame(() => this.Sun_Earth());
-      if (this.j_loop>this.max_j_loop){
-        window.cancelAnimationFrame(this.id_Animation_two);
-        this.ClearCanvas();
-        } 
+    this.idAnimationSunEarth=window.requestAnimationFrame(() => this.Sun_Earth());
+    if (this.loopSunEarth>this.maxLoopSunEarth){
+      window.cancelAnimationFrame(this.idAnimationSunEarth);
+      this.ClearSunEarthCanvas();
+    } 
 
   }
+
+  ClearSunEarthCanvas(){
+    this.ctxSunEarth.setTransform(1, 0, 0, 1, 0, 0); 
+    this.ctxSunEarth.beginPath();
+    this.ctxSunEarth.clearRect(0,0,this.SunEarthCanvas.width,this.SunEarthCanvas.height);
+    this.ctxSunEarth.closePath();
+  }
     
-stopAnimation(){
-  this.i_loop=this.max_i_loop+1;
-  this.j_loop=this.max_j_loop+1;
-  this.k_loop=this.max_k_loop+1;
+  stopAnimation(){
+    this.i_loop=this.max_i_loop+1;
+    this.loopSunEarth=this.maxLoopSunEarth+1;
+    this.loopCircleRotation=this.maxLoopCircleRotation+1;
+  }
 
+  circleRotation(){
 
-}
-
-  circle_rotation(){
-    const x=90;
-    const y=400;
-    const radius=18;
-    const lenRect=60;
-    const wLine=1;
     const time = new Date();
-    this.k_loop++
+    this.loopCircleRotation++
 
-    this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
+    this.ctxCircleRotation.setTransform(1, 0, 0, 1, 0, 0); 
    
-    this.ctx.translate(x, y); 
+    this.ctxCircleRotation.translate(this.xCircleRotation, this.yCircleRotation); 
     // clear previous picture
-    this.ctx.beginPath();
-    //this.ctx.clearRect(-50, -50, 100 ,100);
+    this.ctxCircleRotation.beginPath();
     // clear the drawing area
-    this.ctx.clearRect(-(lenRect + radius+wLine), -(lenRect + radius + wLine), (lenRect + radius+ wLine)*2,(lenRect + radius+wLine)*2);
+    this.ctxCircleRotation.clearRect(-(this.lenRectCircleRotation + this.radiusCircleRotation+this.wLineCircleRotation), -(this.lenRectCircleRotation + this.radiusCircleRotation + this.wLineCircleRotation), 
+        (this.lenRectCircleRotation + this.radiusCircleRotation+ this.wLineCircleRotation)*2,(this.lenRectCircleRotation + this.radiusCircleRotation+this.wLineCircleRotation)*2);
   
+    this.ctxCircleRotation.rotate(((2 * Math.PI) / 6) * time.getSeconds() + ((2 * Math.PI) / 6000) * time.getMilliseconds());
 
-// MAY NOT BE NEEDED - TO BE TESTED
-//      this.ctx.stroke();
+    // draw a small rectangle from the centre
+    this.ctxCircleRotation.fillStyle = "lightblue";
+    this.ctxCircleRotation.fillRect(0, 0, 4, this.lenRectCircleRotation); // Shadow
+    //this.ctx.stroke();
 
-
- //     this.ctx.beginPath();
-       // this.ctx.rotate(this.angle_moonBis * Math.PI / 180);
-      this.ctx.rotate(((2 * Math.PI) / 6) * time.getSeconds() + ((2 * Math.PI) / 6000) * time.getMilliseconds());
-
-      // draw a small rectangle from the centre
-      //this.ctx.beginPath(); 
-      this.ctx.fillStyle = "lightblue";
-      this.ctx.fillRect(0, 0, 4, lenRect); // Shadow
-      //this.ctx.stroke();
-
-      // draw a circle at the top of the small rectangle which length is lenRect
-      this.ctx.arc(0, lenRect, radius, 0, 2 * Math.PI); 
-      this.ctx.strokeStyle= 'dark'; // color line cycle
-      this.ctx.lineWidth = wLine; // weight of the line
-      this.ctx.fillStyle = "pink";
-      this.ctx.fill();
-      this.ctx.stroke();
+    // draw a circle at the top of the small rectangle which length is lenRect
+    this.ctxCircleRotation.arc(0, this.lenRectCircleRotation, this.radiusCircleRotation, 0, 2 * Math.PI); 
+    this.ctxCircleRotation.strokeStyle= 'dark'; // color line cycle
+    this.ctxCircleRotation.lineWidth = this.wLineCircleRotation; // weight of the line
+    this.ctxCircleRotation.fillStyle = "pink";
+    this.ctxCircleRotation.fill();
+    this.ctxCircleRotation.stroke();
 
    
-    this.id_Animation=window.requestAnimationFrame(() => this.circle_rotation());
-    if (this.k_loop>this.max_k_loop){
-      window.cancelAnimationFrame(this.id_Animation);
-      this.ClearCanvas();
+    this.idAnimationCircleRotation=window.requestAnimationFrame(() => this.circleRotation());
+    if (this.loopCircleRotation>this.maxLoopCircleRotation){
+      window.cancelAnimationFrame(this.idAnimationCircleRotation);
+      this.ClearCanvasCircleRotation();
       } 
   }
 
-save_text(){
-  /* THESE ARE JUST COMMENTS
-  ==========================
-                this.ctx.beginPath(); 
-                this.ctx.moveTo(0, 0);
-                this.ctx.lineTo(0, 0+30);
-                this.ctx.strokeStyle= 'black'; // color line cycle
-                this.ctx.lineWidth = 2; // weight of the line
-                this.ctx.fill();
-                this.ctx.stroke();
-              */
+  ClearCanvasCircleRotation(){
+    this.ctxCircleRotation.setTransform(1, 0, 0, 1, 0, 0); 
+    this.ctxCircleRotation.beginPath();
+    this.ctxCircleRotation.clearRect(0,0,this.CircleRotationCanvas.width,this.CircleRotationCanvas.height);
+    this.ctxCircleRotation.closePath();
+  }
+  Clock(){
 
+    this.loopClock++
+    const theDate = new Date();
+    if (this.posSizeClock.displayDigital===true){
+      this.theSeconds=theDate.getSeconds() ;
+      this.theMinutes=theDate.getMinutes();
+      this.theHours=theDate.getHours();
+    }
 
-                /* ============ ANOTHER DRAWING =============
-                if (this.i_loop===1){
-                  this.ctx.beginPath(); 
-                  // draw a circle only
-                  this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-                  this.ctx.arc( this.x_coordinate + 180, this.y_coordinate + 180, this.theRadius, 0, 2 * Math.PI);
-                  this.ctx.lineWidth = 1;
-                  this.ctx.strokeStyle= 'dark';
-                  this.ctx.fillStyle = "green";
-                  this.ctx.fill();
-                  this.ctx.stroke();
-                }
+    //var degrees = (hours * 360 / 12) % 360; 
+    //const innerRadius = radius * 0.89; 
+    if (this.posSizeClock.displayAnalog===true){
+      this.ctxClock.setTransform(1, 0, 0, 1, 0, 0); 
+      this.ctxClock.translate(this.xClock, this.yClock); 
 
-                this.ctx.beginPath(); 
-                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-                this.ctx.arc(this.new_x + 180, this.new_y + 180, this.theRadiusBis, 0, 2 * Math.PI); 
-                this.ctx.strokeStyle= 'dark';
-                this.ctx.lineWidth = 2;
-                this.ctx.fillStyle = "yellow";
-                this.ctx.fill();
-                this.ctx.stroke();
-                this.ctx.closePath();
+      this.ctxClock.clearRect(-this.xClock, -this.yClock, this.posSizeClock.width, this.posSizeClock.height);
 
-                *******************/
+      this.ctxClock.drawImage(this.background, -this.xClock, -this.yClock, this.posSizeClock.width, this.posSizeClock.height); 
+      this.ctxClock.stroke();
 
+      this.ctxClock = drawHourHand(this.ctxClock, theDate, this.radiusClock * 0.6, this.radiusClock * 0.05); 
+      this.ctxClock = drawMinuteHand(this.ctxClock, theDate, this.radiusClock * 0.8, this.radiusClock * 0.04); 
+      this.ctxClock = drawSecondHand(this.ctx, theDate, this.radiusClock * 0.9, this.radiusClock * 0.03); 
+    }
+    this.idAnimationClock=window.requestAnimationFrame(() => this.Clock());
+    
+    if (this.posSizeClock.stopClock===true){
+      window.cancelAnimationFrame(this.idAnimationClock);
+      this.ClearClockCanvas();
+    } 
+    
+  }
 
-
-                // refer to 
-                // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/canvas
-                // and
-                // https://www.w3schools.com/tags/ref_canvas.asp
-                
-                
-                //this.ctx.font='bold 48px serif'
-
-                // this.ctx.filter = 'blur(4px)';
-                // brightness()  contrast() drop-shadow(x, y, blur_radius, color) grayscale(x%)
-                // hue-rotate(angle) rotation of the drawing ==> angle = n degree
-                // hue-rotate(%) opacity(%) saturate(% sepia(%) 
-                // if multiple filters then this.ctx.filter='contrast(1.4) sepia(1) drop-shadow(-9px 9px 3px #e81)';
-
-
-                // ctx.lineWidth = 15;
-                // ctx.lineCap = 'round'; ==> butt round square
-                // ctx.setLineDash([4, 16]);
-                // ctx.lineJoin = 'round'; ==> "round", "bevel", "miter"
-}
-
+  ClearClockCanvas(){
+    this.ctxClock.setTransform(1, 0, 0, 1, 0, 0); 
+    this.ctxClock.beginPath();
+    this.ctxClock.clearRect(0,0,this.clockCanvas.width,this.clockCanvas.height);
+    this.ctxClock.closePath();
+  }
 
   }
 

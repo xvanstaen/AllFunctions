@@ -2,17 +2,47 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 
-<div *ngIf="app_to_display===''; else appRouting">
 <button class="dropmenu" style="margin-top:20px;"> <span class="material-symbols-outlined "  >
     menu</span></button> 
 
-<div style="float:left;">
+<div [ngStyle]="{'width.px':posSize.width, 'height.px':posSize.width, 'margin-top.px':posSize.margTop, 'margin-left.px':posSize.margLeft}"
+    >
     <canvas 
-    #TestCanvas 
+    #baseCanvas 
     id='canvasElem' 
     class="position" 
-    width="450" 
-    height="800" 
+    [ngStyle]="{'width.px':posSize.width, 'height.px':posSize.width}" 
+    >
+    </canvas>
+</div>
+<div *ngIf="this.posSizeClock.displayAnalog===true || this.posSizeClock.displayDigital===true" 
+                [ngStyle]="{'width.px':posSizeClock.width, 'height.px':posSizeClock.width, 'margin-top.px':posSizeClock.margTop, 'margin-left.px':posSizeClock.margLeft}">
+    <div *ngIf="this.posSizeClock.displayAnalog===true" >   
+        <canvas 
+        #baseCanvas 
+            id='clockCanvas' 
+            class="position" 
+            [ngStyle]="{'width.px':posSizeClock.width, 'height.px':posSizeClock.width}" 
+        >
+        </canvas>
+    </div>
+    <div *ngIf="this.posSizeClock.displayDigital===true" style="width:100%; display:inline-block; text-align: center; margin-top:2px; ">{{theHours | number:'2.0-0'}}:{{theMinutes | number:'2.0-0'}}:{{theSeconds | number:'2.0-0'}}</div>
+</div>
+<div [ngStyle]="{'width.px':posSizeSunEarth.width, 'height.px':posSizeSunEarth.width, 'margin-top.px':posSizeSunEarth.margTop, 'margin-left.px':posSizeSunEarth.margLeft}">
+        <canvas 
+        #baseCanvas 
+            id='SunEarthCanvas' 
+            class="position" 
+            [ngStyle]="{'width.px':posSizeSunEarth.width, 'height.px':posSizeSunEarth.width}" 
+        >
+        </canvas>
+ </div>
+ <div [ngStyle]="{'width.px':posSizeCircleRotation.width, 'height.px':posSizeCircleRotation.width, 'margin-top.px':posSizeCircleRotation.margTop, 'margin-left.px':posSizeCircleRotation.margLeft}">
+    <canvas 
+    #baseCanvas 
+        id='circleRotationCanvas' 
+        class="position" 
+        [ngStyle]="{'width.px':posSizeCircleRotation.width, 'height.px':posSizeCircleRotation.width}" 
     >
     </canvas>
 </div>
@@ -21,37 +51,38 @@
 
     
     <div class="dropdown" >  
-       <button class="dropmenu" > <span class="material-symbols-outlined "  >
-        menu</span></button> 
-        <div class="dropdown-content">  
-            <div class="block_one_bis">
-                <span  (click)='RadioActions("/myKEHP")' > /myKEHP</span>
-                <span  (click)='RadioActions("/Master")'> /TopicURL</span>
-                <span  (click)='RadioActions("Circle")'> Draw Circle</span>
-                <span  (click)='RadioActions("MoveCircle")'> Move Circle</span>
-                <span  (click)='RadioActions("DrawAnimation")'>Draw Animation</span>
-                <span  (click)='RadioActions("Sun_Earth")'> Sun_Earth</span>
-                <span  (click)='RadioActions("CircleRotate")'> Circle Rotation</span>
-                <span  (click)='AllAnimationsn()'> All animations</span>
-                <span  (click)='RadioActions("Clear")'> Clear</span>
-                <span  (click)='RadioActions("StopAnim")'> Stop Animations</span>
-             </div>
-        </div>  
-    </div>  
+        <button class="dropmenu" > <span class="material-symbols-outlined "  >
+         menu</span></button> 
+         <div class="dropdown-content">  
+             <div class="block_one_bis">
+                 <span  (click)='RadioActions("Circle")'> Draw Circle</span>
+                 <span  (click)='RadioActions("MoveCircle")'> Move Circle</span>
+                 <span  (click)='RadioActions("DrawAnimation")'>Draw Animation</span>
+                 <span  (click)='RadioActions("Sun_Earth")'> Sun_Earth</span>
+                 <span  (click)='RadioActions("CircleRotate")'> Circle Rotation</span>
+                 <span  (click)='RadioActions("Clock")'> Clock</span>
+                 <span  (click)='AllAnimationsn()'> All animations</span>
+                 <span  (click)='RadioActions("Clear")'> Clear</span>
+                 <span  (click)='RadioActions("StopAnim")'> Stop Animations</span>
+              </div>
+         </div>  
+     </div>  
 
-    <div class="param_one_down">  
+     <div class="param_one_down">  
         <button class="dropbtn" > Parameters to draw a circle</button>  
         <div class="dropdown-content">  
             <div class="block_one_bis">
                 <div  class="position-parameters">
-                    <span><label class="position-field">xPos </label><input formControlName="xPos" type="number" class="input-field" ></span>
-                    <span><label class="position-field">yPos </label><input formControlName="yPos" type="number" class="input-field"></span>
-                    <span><label class="position-field">radius </label><input formControlName="radius" type="number" class="input-field"></span>
-                    <span><label class="position-field">sAngle </label><input formControlName="sAngle" type="number" class="input-field"></span>
-                    <span><label class="position-field">eAngle </label><input formControlName="eAngle" type="number"class="input-field"></span>
-                    <span><label class="position-field">Clockwise </label><input formControlName="Clockwise" type="boolean"class="input-field"></span>
-                    <span><label class="position-field">theta </label><input formControlName="theta" type="number"class="input-field"></span>
-                    <span><label class="position-field">theta_pas </label><input formControlName="theta_pas" type="number"class="input-field"></span>
+                    <form  [formGroup]="TheCanvasForm" >
+                        <span><label class="position-field">xPos </label><input formControlName="xPos" value="xPos" type="number" class="input-field" ></span>
+                        <span><label class="position-field">yPos </label><input formControlName="yPos" value="yPos" type="number" class="input-field"></span>
+                        <span><label class="position-field">radius </label><input formControlName="radius" value="radius" type="number" class="input-field"></span>
+                        <span><label class="position-field">sAngle </label><input formControlName="sAngle" value="sAngle" type="number" class="input-field"></span>
+                        <span><label class="position-field">eAngle </label><input formControlName="eAngle" value="eAngle" type="number"class="input-field"></span>
+                        <span><label class="position-field">Clockwise </label><input formControlName="Clockwise" type="boolean"class="input-field"></span>
+                        <span><label class="position-field">theta </label><input formControlName="theta" value="theta" type="number"class="input-field"></span>
+                        <span><label class="position-field">theta_pas </label><input formControlName="theta_pas" value="theta_pas" type="number"class="input-field"></span>
+                    </form>
                 </div>
             </div>
 
@@ -63,13 +94,15 @@
         <div class="dropdown-content">  
             <div class="block_one_bis">
                 <div  class="position-moveparameters">
-                    <span><label class="position-field">xFrom </label><input formControlName="xFrom" type="number" class="input-field" ></span>
-                    <span><label class="position-field">yFrom </label><input formControlName="yFrom" type="number" class="input-field"></span>
-                    <span><label class="position-field">xTo </label><input formControlName="xTo" type="number" class="input-field"></span>
-                    <span><label class="position-field">yTo </label><input formControlName="yTo" type="number" class="input-field"></span>
-                    <span><label class="position-field">radius </label><input formControlName="radius" type="number"class="input-field"></span>
-                    <span><label class="position-field">xPas </label><input formControlName="xPas" type="number"class="input-field"></span>
-                    <span><label class="position-field">yPas </label><input formControlName="yPas" type="number"class="input-field"></span>
+                    <form  [formGroup]="MoveCanvasForm"  >
+                        <span><label class="position-field">xFrom </label><input formControlName="xFrom" value="xFrom" type="number" class="input-field" ></span>
+                        <span><label class="position-field">yFrom </label><input formControlName="yFrom" value="yFrom" type="number" class="input-field"></span>
+                        <span><label class="position-field">xTo </label><input formControlName="xTo" value="xTo" type="number" class="input-field"></span>
+                        <span><label class="position-field">yTo </label><input formControlName="yTo" value="yTo" type="number" class="input-field"></span>
+                        <span><label class="position-field">radius </label><input formControlName="radius" value="radius" type="number"class="input-field"></span>
+                        <span><label class="position-field">xPas </label><input formControlName="xPas" value="xPas" type="number"class="input-field"></span>
+                        <span><label class="position-field">yPas </label><input formControlName="yPas" value="yPas" type="number"class="input-field"></span>
+                    </form>
                 </div>
             </div>
         </div>
@@ -80,73 +113,4 @@
 <!-- 
     <img src = '../assets/MoonNew.png'>
 -->
-
-</div>
-
-<ng-template #appRouting>
-    <div *ngIf="radioValue==='/Master'; else KEhp">
-        <!-- 16MAY2023 TO BE CORRECTED
-        <app-routing-app></app-routing-app>
-        -->
-    </div>
-</ng-template>
-
-<ng-template #KEhp>
-    <div *ngIf="radioValue==='/myKEHP'">
-        <!-- 16MAY2023 TO BE CORRECTED
-        <KEHomePage></KEHomePage>
-        -->
-    </div>
-</ng-template>
-
-
-
-
-
-
-<!--
-    ========== MENU =========
--->
-
-
-<!--
-
-<div class="block_one">
-    <div [formGroup]="TheCanvasForm" class="position-parameters">
-        Parameters to draw a circle
-        <div><label class="position-field">xPos </label><input formControlName="xPos" type="number" class="input-field" ></div>
-        <div><label class="position-field">yPos </label><input formControlName="yPos" type="number" class="input-field"></div>
-        <div><label class="position-field">radius </label><input formControlName="radius" type="number" class="input-field"></div>
-        <div><label class="position-field">sAngle </label><input formControlName="sAngle" type="number" class="input-field"></div>
-        <div><label class="position-field">eAngle </label><input formControlName="eAngle" type="number"class="input-field"></div>
-        <div><label class="position-field">Clockwise </label><input formControlName="Clockwise" type="boolean"class="input-field"></div>
-        <div><label class="position-field">theta </label><input formControlName="theta" type="number"class="input-field"></div>
-        <div><label class="position-field">theta_pas </label><input formControlName="theta_pas" type="number"class="input-field"></div>
-    </div>
-</div>
-<div class="block_move">
-    <div [formGroup]="MoveCanvasForm" class="position-moveparameters">
-        Parameters to move the circle
-        <div><label class="position-field">xFrom </label><input formControlName="xFrom" type="number" class="input-field" ></div>
-        <div><label class="position-field">yFrom </label><input formControlName="yFrom" type="number" class="input-field"></div>
-        <div><label class="position-field">xTo </label><input formControlName="xTo" type="number" class="input-field"></div>
-        <div><label class="position-field">yTo </label><input formControlName="yTo" type="number" class="input-field"></div>
-        <div><label class="position-field">xPas </label><input formControlName="xPas" type="number"class="input-field"></div>
-        <div><label class="position-field">yPas </label><input formControlName="yPas" type="number"class="input-field"></div>
-    </div>
-</div>
--->
-<!--
-
-<div [formGroup]="TheCanvasForm" class="position-radio">
-    <input  id="R1" type="radio" formControlName="ReturnToPage" value="/myKEHP"> /myKEHP
-    <input  id="R2" type="radio" formControlName="ReturnToPage" value="/Master"> /TopicURL
-    <input  id="R3" type="radio" formControlName="ReturnToPage" value="Circle"> Draw Circle
-    <input  id="R4" type="radio" formControlName="ReturnToPage" value="MoveCircle"> Move Circle
-    <input  id="R5" type="radio" formControlName="ReturnToPage" value="Clear"> Clear
-    <input  id="R6" type="radio" formControlName="ReturnToPage" value="CircleByPoint"> CircleByPoint
-    <input type="submit" value="Action" (click)="RadioActions('')"> 
-</div>
--->
-
 

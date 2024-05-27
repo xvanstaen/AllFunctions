@@ -16,7 +16,6 @@ import { Router } from '@angular/router';
 import { FormGroup, FormControl, UntypedFormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 import { Observable } from 'rxjs';
 
-import { BucketList, Bucket_List_Info } from '../../JsonServerClass';
 
 // configServer is needed to use ManageGoogleService
 // it is stored in MongoDB and accessed via ManageMongoDBService
@@ -25,7 +24,6 @@ import { BucketList, Bucket_List_Info } from '../../JsonServerClass';
 import { environment } from 'src/environments/environment';
 
 import { classPosDiv, getPosDiv } from '../../getPosDiv';
-import { strDateTime } from '../../MyStdFunctions';
 
 import { manage_input } from '../../manageinput';
 import { eventoutput, thedateformat } from '../../apt_code_name';
@@ -36,14 +34,17 @@ import { mainConvItem, mainRecordConvert, mainClassUnit, mainClassConv } from '.
 import { classConfigChart, classchartHealth } from '../classConfigChart';
 import { classPosSlider } from '../../JsonServerClass';
 
-import { configServer, LoginIdentif, msgConsole } from '../../JsonServerClass';
+import { configServer, LoginIdentif, msgConsole, classtheEvent } from '../../JsonServerClass';
 import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
 import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
 import { AccessConfigService } from 'src/app/CloudServices/access-config.service';
 import { classAxis, classLegendChart, classPluginTitle, classTabFormChart, classFileParamChart, classReturnColor } from '../classChart';
-import { classFileSystem, classAccessFile } from '../../classFileSystem';
+import { classFileSystem, classAccessFile, classReturnDataFS, classHeaderReturnDataFS } from '../../classFileSystem';
+import { fnAddTime, addMonthDay, convertDate, strDateTime, fnCheckTimeOut, defineMyDate, formatDateInSeconds, formatDateInMilliSeconds, findIds } from '../../MyStdFunctions';
+import { drawNumbers, drawHourHand, drawMinuteHand, drawSecondHand, classPosSizeClock} from '../../clockFunctions'
 
-import { addMonthDay } from '../../MyStdFunctions';
+import { buildBarChartDataSet,buildLineChartDataSet, specialDraw } from '../../manageChartFn';
+import { fillHealthDataSet } from '../../fillChartData'
 @Component({
   selector: 'app-report-health',
   templateUrl: './report-health.component.html',
@@ -82,27 +83,43 @@ export class ReportHealthComponent implements OnInit {
   @Input() identification = new LoginIdentif;
   @Input() HealthAllData = new mainDailyReport;
   @Input() ConfigChartHealth = new classchartHealth;
-  @Input() INFileParamChart = new classFileParamChart;
+  @Input() inFileParamChart = new classFileParamChart;
   @Input() configServer = new configServer;
 
+  @Input() triggerCheckToLimit:number=9000;
+
   //inData=new classAccessFile;
-  @Input() tabLock = new classAccessFile; //.lock ++> 0=unlocked; 1=locked by user; 2=locked by other user; 3=must be checked;
+  //@Input() tabLock = new classAccessFile; //.lock ++> 0=unlocked; 1=locked by user; 2=locked by other user; 3=must be checked;
+  @Input() tabLock: Array<classAccessFile> = [];
+  @Input() returnDataFSParamChart = new classHeaderReturnDataFS;
+  @Input() actionParamChart:number = 0;
+  @Input() resultCheckLimitParamChart:number = 0;
+  @Input() statusSaveFn:any;
+  //@Input() callSaveFn:any;
 
   posSlider = new classPosSlider;
   posPalette = new classPosSlider;
   paramChange: number = 0; // used to trigger the change on slider position
-  @Output() returnFile = new EventEmitter<any>();
-  @Output() reportCheckLockLimit = new EventEmitter<any>();
-  @Output() cancelSaveOther = new EventEmitter<any>();
+
+  @Output() checkLockLimit = new EventEmitter<any>();
+  @Output() processSave = new EventEmitter<any>();
+  @Output() retrieveRecord = new EventEmitter<any>();
+  @Output() unlockFile = new EventEmitter<any>();
+  @Output() cancelUpdates = new EventEmitter<any>();
 
   @ViewChild('baseChart', { static: true })
+
+  secondaryLevelFn:boolean=true;
+
+isSaveParamChart:boolean=false;
+isMustSaveFile:boolean=false;
+
 
   // DEBUG
   debugPhone: boolean = false;
 
   current_Chart: number = 0;
-  tabParamChart: Array<classTabFormChart> = [];
-  initTabParamChart: Array<classTabFormChart> = [];
+  tabParamChart: Array<classTabFormChart> = []; // working table
 
   tabCtx: Array<any> = [];
   tabChart: Array<any> = [];
@@ -117,7 +134,7 @@ export class ReportHealthComponent implements OnInit {
     left: 10,
   }
 
-  tabCanvasId: Array<string> = ['canvas1', 'canvas2', 'canvas3', 'canvas4'];
+  tabCanvasId: Array<string> = ['canvas1', 'canvas2', 'canvas3', 'canvas4', 'canvas5'];
 
   //tabofLabels:Array<string>=['Calories burnt', 'Calories intake', 'Cholesterol', 'Saturated fat', 'Total fat', 'Proteins', 'Carbs','Sugar'];
   //tabofExistLabels:Array<boolean>=[true,true,true,true,true,true,true,false]
@@ -153,10 +170,11 @@ export class ReportHealthComponent implements OnInit {
 
   lineChartType: Array<string> = [];
 
-  tabPeriod = ['daily', 'weekly', 'monthly'];
+  tabPeriod = ['daily', 'weekly'];
 
   paramAllCharts = new FormGroup({
-    period: new FormControl({ value: 'daily', disabled: false }, { nonNullable: true }), //daily, weekly, monthly
+    period: new FormControl({ value: 'daily', disabled: false }, { nonNullable: true }), //daily, weekly
+    nbWeeks: new FormControl({ value: 1, disabled: false }, { nonNullable: true }), //nb of weeks if option 'weekly' is defined
     startRange: new FormControl({ value: '', disabled: false }, [
       Validators.required,
       // validates date format yyyy-mm-dd with regular expression
@@ -192,7 +210,8 @@ export class ReportHealthComponent implements OnInit {
     boxradius: new FormControl({ value: 0, disabled: true }, { nonNullable: true }),
     boxfontWeight: new FormControl({ value: '', disabled: true }, { nonNullable: true }),
     boxfontFamily: new FormControl({ value: '', disabled: true }, { nonNullable: true }),
-    period: new FormControl({ value: '', disabled: true }, { nonNullable: true }), //daily, weekly, monthly
+    period: new FormControl({ value: '', disabled: true }, { nonNullable: true }), //daily, weekly
+    nbWeeks: new FormControl({ value: 1, disabled: true }, { nonNullable: true }), 
     startRange: new FormControl({ value: '', disabled: true }, [
       Validators.required,
       // validates date format yyyy-mm-dd with regular expression
@@ -372,6 +391,27 @@ export class ReportHealthComponent implements OnInit {
 
   eventClientY: number = 0;
   eventPageY: number = 0;
+
+  onInputAction:string="";
+
+  lastInputAt:string="";
+
+  theEvent = new classtheEvent;
+
+  errorTimeOut:string="";
+  userActivity:string= "";
+
+  posSizeClock=new classPosSizeClock;
+  maxCanvas:number=5;
+
+  SpecificForm = new FormGroup({
+    FileName: new FormControl('', { nonNullable: true }),
+  })
+
+  isConfirmSaveA:boolean=false;
+  IsSaveConfirmed: boolean = false;
+
+  lockValueBeforeCheck:number=0;
   @HostListener('window:mouseup', ['$event'])
   onMouseUp(event: MouseEvent) {
     //this.selectedPosition = { x: event.pageX, y: event.pageY };
@@ -381,11 +421,11 @@ export class ReportHealthComponent implements OnInit {
       this.eventClientY = event.clientY;
       this.eventPageY = event.pageY;
     }
-
   }
 
 
   ngAfterViewInit() { // this.ConfigChartHealth.barChart.length     
+
     for (var i = 0; i < this.tabCanvasId.length; i++) {
       this.tabChart[i] = document.getElementById(this.tabCanvasId[i]);
 
@@ -394,20 +434,22 @@ export class ReportHealthComponent implements OnInit {
       this.overallTabLimit.push({ dataset: [], label: [] });
       this.collectSpecialData(i, this.overallTab[i].datasetBar, this.overallTab[i].labelBar, this.overallTabLimit[i].dataset, this.overallTabLimit[i].label);
     }
-    const theDate = new Date();
-    const newDate = addMonthDay(theDate, -1, 0, '-') // minus 1 month
-    this.paramAllCharts.controls['startRange'].setValue(newDate);
+    
+
     const event = {
       target: {
         id: 'apply'
       }
     }
     this.forAllCharts(event);
+    
   }
 
 
   ngOnInit() {
     console.log('===> ngOnInit report-health');
+
+
     if (this.debugPhone === true) {
       this.posDivPosSlider = getPosDiv("posDivSlider");
       //this.getPosDivPosSlider();
@@ -455,12 +497,12 @@ export class ReportHealthComponent implements OnInit {
     }
 
     this.tabParamChart.splice(0, this.tabParamChart.length);
-    this.initTabParamChart.splice(0, this.initTabParamChart.length);
-    if (this.INFileParamChart.fileType !== undefined && this.INFileParamChart.fileType !== '') {
-      for (i = 0; i < 4; i++) {
+
+    if (this.inFileParamChart.fileType !== undefined && this.inFileParamChart.fileType !== '') {
+      for (i = 0; i < this.inFileParamChart.data.length; i++) {
         const classParam = new classTabFormChart;
         this.tabParamChart.push(classParam);
-        this.fillInCharts(this.INFileParamChart.data[i], this.tabParamChart[i]);
+        this.fillInCharts(this.inFileParamChart.data[i], this.tabParamChart[i]);
         if (this.tabParamChart[i].labels.length === 0) {
           for (var k = 0; k < this.ConfigChartHealth.barDefault.datasets.fieldsToSelect.length; k++) {
             if (this.ConfigChartHealth.barDefault.datasets.fieldsToSelect[k] === false) {
@@ -475,139 +517,136 @@ export class ReportHealthComponent implements OnInit {
             this.tabParamChart[i].labelsColor[j] = this.ConfigChartHealth.barDefault.datasets.borderColor[j];
           }
         }
-        const initParam = new classTabFormChart;
-        this.initTabParamChart.push(initParam);
-        this.fillInCharts(this.INFileParamChart.data[i], this.initTabParamChart[i]);
 
         this.fillInFormFromTab(i);
         this.canvas.push({ width: '', height: '', background: 0, marginLeft: '' });
         this.changeCanvas(i);
       }
+      for (i = i; i < this.maxCanvas; i++) {
+          this.initTabParamCanvas(i);
+      }
     } else {
-      for (i = 0; i < 4; i++) {
-        const classParam = new classTabFormChart;
-        this.tabParamChart.push(classParam);
-        const initParam = new classTabFormChart;
-        this.initTabParamChart.push(initParam);
-        this.tabParamChart[this.tabParamChart.length - 1].chartType = 'line';
-        this.initTabParamChart[this.tabParamChart.length - 1].chartType = 'line';
+      for (i = 0; i < this.maxCanvas; i++) {
+        this.initTabParamCanvas(i);
+        
+      }
 
-        this.tabParamChart[this.tabParamChart.length - 1].chartTitle.display = this.ConfigChartHealth.barDefault.options.plugins.title.display;
-        this.tabParamChart[this.tabParamChart.length - 1].chartTitle.text = this.ConfigChartHealth.barDefault.options.plugins.title.text;
-        this.tabParamChart[this.tabParamChart.length - 1].chartTitle.position = this.ConfigChartHealth.barDefault.options.plugins.title.position;
-        this.tabParamChart[this.tabParamChart.length - 1].chartTitle.padding.top = this.ConfigChartHealth.barDefault.options.plugins.title.padding.top;
-        this.tabParamChart[this.tabParamChart.length - 1].chartTitle.padding.bottom = this.ConfigChartHealth.barDefault.options.plugins.title.padding.bottom;
-        this.tabParamChart[this.tabParamChart.length - 1].chartTitle.align = this.ConfigChartHealth.barDefault.options.plugins.title.align;
-        this.tabParamChart[this.tabParamChart.length - 1].chartTitle.color = this.ConfigChartHealth.barDefault.options.plugins.title.color;
-        this.tabParamChart[this.tabParamChart.length - 1].chartTitle.font.size = this.ConfigChartHealth.barDefault.options.plugins.title.font.size;
-        this.tabParamChart[this.tabParamChart.length - 1].chartTitle.font.weight = this.ConfigChartHealth.barDefault.options.plugins.title.font.weight;
-        this.tabParamChart[this.tabParamChart.length - 1].chartTitle.font.family = this.ConfigChartHealth.barDefault.options.plugins.title.font.family;
+      this.lockValueBeforeCheck=this.tabLock[5].lock;
+  
+    }
 
-        this.tabParamChart[this.tabParamChart.length - 1].legendTitle.display = this.ConfigChartHealth.barDefault.options.plugins.legend.title.display;
-        this.tabParamChart[this.tabParamChart.length - 1].legendTitle.text = this.ConfigChartHealth.barDefault.options.plugins.legend.title.text;
-        this.tabParamChart[this.tabParamChart.length - 1].legendTitle.position = this.ConfigChartHealth.barDefault.options.plugins.legend.title.position;
-        this.tabParamChart[this.tabParamChart.length - 1].legendTitle.padding.top = this.ConfigChartHealth.barDefault.options.plugins.legend.title.padding.top;
-        this.tabParamChart[this.tabParamChart.length - 1].legendTitle.padding.bottom = this.ConfigChartHealth.barDefault.options.plugins.legend.title.padding.bottom;
-        this.tabParamChart[this.tabParamChart.length - 1].legendTitle.padding.left = this.ConfigChartHealth.barDefault.options.plugins.legend.title.padding.left;
-        this.tabParamChart[this.tabParamChart.length - 1].legendTitle.align = this.ConfigChartHealth.barDefault.options.plugins.legend.title.align;
-        this.tabParamChart[this.tabParamChart.length - 1].legendTitle.color = this.ConfigChartHealth.barDefault.options.plugins.legend.title.color;
-        this.tabParamChart[this.tabParamChart.length - 1].legendTitle.font.size = this.ConfigChartHealth.barDefault.options.plugins.legend.title.font.size;
-        this.tabParamChart[this.tabParamChart.length - 1].legendTitle.font.weight = this.ConfigChartHealth.barDefault.options.plugins.legend.title.font.weight;
-        this.tabParamChart[this.tabParamChart.length - 1].legendTitle.font.family = this.ConfigChartHealth.barDefault.options.plugins.legend.title.font.family;
+    const theDate = new Date();
+    const newDate = addMonthDay(theDate, -1, 0, '-') // minus 1 month
+    this.paramAllCharts.controls['startRange'].setValue(newDate);
+    for (var nb = 0; nb < this.maxCanvas; nb++) {
+      this.tabParamChart[nb].period = this.paramAllCharts.controls['period'].value.toLowerCase().trim();
+      this.tabParamChart[nb].nbWeeks = this.paramAllCharts.controls['nbWeeks'].value;
+      this.tabParamChart[nb].startRange = newDate;
+      this.tabParamChart[nb].endRange = "";
 
-        this.tabParamChart[this.tabParamChart.length - 1].legendBox.boxWidth = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.boxWidth;
-        this.tabParamChart[this.tabParamChart.length - 1].legendBox.boxHeight = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.boxHeight;
-        this.tabParamChart[this.tabParamChart.length - 1].legendBox.usePointStyle = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.usePointStyle;
-        this.tabParamChart[this.tabParamChart.length - 1].legendBox.pointStyle = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.pointStyle;
-        this.tabParamChart[this.tabParamChart.length - 1].legendBox.borderRadius = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.borderRadius;
-        this.tabParamChart[this.tabParamChart.length - 1].legendBox.color = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.color;
-        this.tabParamChart[this.tabParamChart.length - 1].legendBox.font.size = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.font.size;
-        this.tabParamChart[this.tabParamChart.length - 1].legendBox.font.weight = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.font.weight;
-        this.tabParamChart[this.tabParamChart.length - 1].legendBox.font.family = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.font.family;
+      //this.fillInFormFromTab(nb);
 
-        this.tabParamChart[this.tabParamChart.length - 1].bar = this.ConfigChartHealth.barChart.datasets;
-        this.tabParamChart[this.tabParamChart.length - 1].line = this.ConfigChartHealth.lineChart.datasetsDefault;
+    }
 
-        this.tabParamChart[this.tabParamChart.length - 1].canvasBackground = this.ConfigChartHealth.barDefault.canvas.backgroundcolor;
-        this.tabParamChart[this.tabParamChart.length - 1].canvasHeight = this.ConfigChartHealth.barDefault.canvas.height
-        this.tabParamChart[this.tabParamChart.length - 1].canvasMarginLeft = this.ConfigChartHealth.barDefault.canvas.marginleft;
-        this.tabParamChart[this.tabParamChart.length - 1].canvasWidth = this.ConfigChartHealth.barDefault.canvas.width;
+    this.posSizeClock.margLeft = 440;
+    this.posSizeClock.margTop = -20;
+    this.posSizeClock.width = 60;
+    this.posSizeClock.height = 60;
+    this.posSizeClock.displayAnalog = false;
+    this.posSizeClock.displayDigital = true;
 
+    this.lastInputAt = strDateTime();
+    this.refDate=new Date();
+    this.callTimeToGo();
+    if (this.tabLock[5].lock===1){
+      this.enableForm();
+    } else {
+      this.disableForm();
+    }
+    
 
-        for (var l = 0; l < this.ConfigChartHealth.barDefault.datasets.labelsLimits.length; l++) {
-          if (this.ConfigChartHealth.barDefault.datasets.fieldsLimitsToSelect[l] === true) {
-            this.tabParamChart[this.tabParamChart.length - 1].limitLabels[l] = "Y";
-            this.selectedLimitFields[l] = "Y";
-          } else {
-            this.tabParamChart[this.tabParamChart.length - 1].limitLabels[l] = "N";
-            this.selectedLimitFields[l] = "N";
-          }
-          if (l > 0) {
-            const myLimitRgba = { slider: new classReturnColor, palette: new classReturnColor }
-            this.tabParamChart[this.tabParamChart.length - 1].limitRgbaLabels.push(myLimitRgba);
-          }
+  }
+/*
+  ngAfterViewChecked(){
+    for (var i = 0; i < this.tabCanvasId.length; i++) {
+      this.collectSpecialData(i, this.overallTab[i].datasetBar, this.overallTab[i].labelBar, this.overallTabLimit[i].dataset, this.overallTabLimit[i].label);
+    }
 
-          this.tabParamChart[this.tabParamChart.length - 1].limitRgbaLabels[l].palette.rgba = "";
-          this.tabParamChart[this.tabParamChart.length - 1].limitRgbaLabels[l].palette.xPos = 0;
-          this.tabParamChart[this.tabParamChart.length - 1].limitRgbaLabels[l].palette.yPos = 0;
-          this.tabParamChart[this.tabParamChart.length - 1].limitRgbaLabels[l].slider.rgba = "";
-          this.tabParamChart[this.tabParamChart.length - 1].limitRgbaLabels[l].slider.xPos = 0;
-          this.tabParamChart[this.tabParamChart.length - 1].limitRgbaLabels[l].slider.yPos = 0;
-          this.tabParamChart[this.tabParamChart.length - 1].limitLabelsColor[l] = this.ConfigChartHealth.barDefault.datasets.borderColorLimits[l];
-        }
+    const theDate = new Date();
+    const newDate = addMonthDay(theDate, -1, 0, '-') // minus 1 month
+    this.paramAllCharts.controls['startRange'].setValue(newDate);
+    const event = {
+      target: {
+        id: 'apply'
+      }
+    }
+    this.forAllCharts(event);
 
-        for (var l = 0; l < this.ConfigChartHealth.barDefault.datasets.fieldsToSelect.length; l++) {
-          if (this.ConfigChartHealth.barDefault.datasets.fieldsToSelect[l] === true) {
-            this.tabParamChart[this.tabParamChart.length - 1].labels[l] = "Y";
-            this.selectedFields[l] = "Y";
+  }
 
-          } else {
-            this.tabParamChart[this.tabParamChart.length - 1].labels[l] = "N";
-            this.selectedFields[l] = "N";
-          }
+*/
 
-          this.tabParamChart[this.tabParamChart.length - 1].labelsColor[l] = this.ConfigChartHealth.barDefault.datasets.borderColor[l];
-          if (l > 0) {
-            const myRgba = { slider: new classReturnColor, palette: new classReturnColor }
-            this.tabParamChart[this.tabParamChart.length - 1].rgbaLabels.push(myRgba);
-          }
-          this.tabParamChart[this.tabParamChart.length - 1].rgbaLabels[l].palette.rgba = "";
-          this.tabParamChart[this.tabParamChart.length - 1].rgbaLabels[l].palette.xPos = 0;
-          this.tabParamChart[this.tabParamChart.length - 1].rgbaLabels[l].palette.yPos = 0;
-          this.tabParamChart[this.tabParamChart.length - 1].rgbaLabels[l].slider.rgba = "";
-          this.tabParamChart[this.tabParamChart.length - 1].rgbaLabels[l].slider.xPos = 0;
-          this.tabParamChart[this.tabParamChart.length - 1].rgbaLabels[l].slider.yPos = 0;
-        }
+  //isSaveFile:boolean=false;
+  isDataModified:boolean=false;
+  isUserTimeOut:boolean=false;
+  refDate=new Date();
+  displaySec:number=0;
+  displayMin:number=0;
+  displayHour:number=0;
+  idAnimation:any;
 
-        this.tabParamChart[this.tabParamChart.length - 1].period = 'daily';
-        this.tabParamChart[this.tabParamChart.length - 1].ratio = 2;
+  openFileAccess:boolean=false;
 
-        this.tabParamChart[this.tabParamChart.length - 1].axisX.border.color = this.ConfigChartHealth.barDefault.options.scales.axisX.border.color;
-        this.tabParamChart[this.tabParamChart.length - 1].axisX.border.width = this.ConfigChartHealth.barDefault.options.scales.axisX.border.width;
-        this.tabParamChart[this.tabParamChart.length - 1].axisX.position = this.ConfigChartHealth.barDefault.options.scales.axisX.position;
-        this.tabParamChart[this.tabParamChart.length - 1].axisX.stacked = this.ConfigChartHealth.barDefault.options.scales.axisX.stacked;
-        this.tabParamChart[this.tabParamChart.length - 1].axisX.ticks = this.ConfigChartHealth.barDefault.options.scales.axisX.ticks;
-
-        this.tabParamChart[this.tabParamChart.length - 1].axisY.border.color = this.ConfigChartHealth.barDefault.options.scales.axisY.border.color;
-        this.tabParamChart[this.tabParamChart.length - 1].axisY.border.width = this.ConfigChartHealth.barDefault.options.scales.axisY.border.width;
-        this.tabParamChart[this.tabParamChart.length - 1].axisY.position = this.ConfigChartHealth.barDefault.options.scales.axisY.position;
-        this.tabParamChart[this.tabParamChart.length - 1].axisY.stacked = this.ConfigChartHealth.barDefault.options.scales.axisY.stacked;
-        this.tabParamChart[this.tabParamChart.length - 1].axisY.ticks = this.ConfigChartHealth.barDefault.options.scales.axisY.ticks;
-
-
-        this.tabParamChart[this.tabParamChart.length - 1].legendBoxRgba.palette.rgba = "";
-        this.tabParamChart[this.tabParamChart.length - 1].legendBoxRgba.palette.xPos = 0;
-        this.tabParamChart[this.tabParamChart.length - 1].legendBoxRgba.palette.yPos = 0;
-        this.tabParamChart[this.tabParamChart.length - 1].legendBoxRgba.slider.rgba = "";
-        this.tabParamChart[this.tabParamChart.length - 1].legendBoxRgba.slider.xPos = 0;
-        this.tabParamChart[this.tabParamChart.length - 1].legendBoxRgba.slider.yPos = 0;
-        this.fillInCharts(this.tabParamChart[this.tabParamChart.length - 1], this.initTabParamChart[this.tabParamChart.length - 1]);
-        //this.fillInFormFromTab(i);
-        this.canvas.push({ width: '', height: '', background: 0, marginLeft: '' });
-        this.changeCanvas(i);
+  timeOutactivity(iWait: number, isDataModified: boolean, isSaveFile: boolean,theAction:string){
+      window.cancelAnimationFrame(this.idAnimation);
+      this.callTimeToGo();
+      this.refDate=new Date();
+      this.lastInputAt = strDateTime();
+      if (theAction==="only"){
+        this.openFileAccess=true;
+        this.theEvent.checkLock.action='checkTO';
+        this.theEvent.checkLock.iWait=iWait;
+        this.theEvent.checkLock.isDataModified=isDataModified;
+        this.theEvent.checkLock.isSaveFile=isSaveFile;
+        this.theEvent.checkLock.iCheck=true;
+        this.theEvent.checkLock.lastInputAt=this.lastInputAt;
+        this.theEvent.checkLock.nbCalls++;
+        this.triggerCheckToLimit++
+        this.lockValueBeforeCheck=this.tabLock[5].lock;
+        //this.checkLockLimit.emit({iWait:iWait,isDataModified:isDataModified,isSaveFile:isSaveFile, lastInputAt:this.lastInputAt, iCheck:true,nbCalls:0,action:theAction});
       }
     }
 
+  callTimeToGo(){
+    const currSeconds=this.refDate.getSeconds() ;
+    const currMinutes=this.refDate.getMinutes();
+    const currHour=this.refDate.getHours();
+    const currentDateSec = currHour*3600+currMinutes*60+currSeconds;
+    this.timeToGo(currentDateSec,this.configServer.timeoutFileSystem.userTimeOut.hh * 3600 +this.configServer.timeoutFileSystem.userTimeOut.mn * 60 + this.configServer.timeoutFileSystem.userTimeOut.ss);
+    
+  }
+
+  timeToGo(refDateSec:any, timeOutSec:any){
+    // nb of seconds before timeout is reached
+    const theDate=new Date();
+    const currentDateSec = theDate.getHours()*3600+theDate.getMinutes()*60+theDate.getSeconds();
+    const timeSpent = Number(currentDateSec) - Number(refDateSec);
+    const timeLeft= timeOutSec - timeSpent;
+
+    if (timeLeft <= 0 ){
+        window.cancelAnimationFrame(this.idAnimation);
+        this.isUserTimeOut=true;
+        this.unlockFile.emit(5);
+        //this.isSaveFile=false;
+        this.isDataModified=false;
+        this.resetBooleans();
+    } else {
+        this.displayHour = Math.floor(timeLeft / 3600);
+        const minSec = timeLeft % 3600 ;
+        this.displayMin = Math.floor(minSec / 60);
+        this.displaySec = minSec % 60 ;
+        this.idAnimation=window.requestAnimationFrame(() => this.timeToGo(refDateSec,timeOutSec));
+    }
   }
 
   enableForm() {
@@ -634,6 +673,7 @@ export class ReportHealthComponent implements OnInit {
     this.selectChart.get('boxfontWeight')?.enable();
     this.selectChart.get('boxfontFamily')?.enable();
     this.selectChart.get('period')?.enable();
+    this.selectChart.get('nbWeeks')?.enable();
     this.selectChart.get('startRange')?.enable();
     this.selectChart.get('endRange')?.enable();
 
@@ -693,6 +733,7 @@ export class ReportHealthComponent implements OnInit {
     this.selectChart.get('boxfontWeight')?.disable();
     this.selectChart.get('boxfontFamily')?.disable();
     this.selectChart.get('period')?.disable();
+    this.selectChart.get('nbWeeks')?.disable();
     this.selectChart.get('startRange')?.disable();
     this.selectChart.get('endRange')?.disable();
 
@@ -753,15 +794,16 @@ export class ReportHealthComponent implements OnInit {
   forAllCharts(event: any) {
     if (event.target.id === "clear") {
       this.paramAllCharts.controls['period'].setValue(this.tabPeriod[0]);
-
+      this.paramAllCharts.controls['nbWeeks'].setValue(0);
       const theDate = new Date();
       const newDate = addMonthDay(theDate, -1, 0, '-') // minus 1 month
       this.paramAllCharts.controls['startRange'].setValue(newDate);
       this.paramAllCharts.controls['endRange'].setValue('');
 
     } else if (event.target.id === "apply") {
-      for (var nb = 0; nb < 4; nb++) {
+      for (var nb = 0; nb < this.maxCanvas; nb++) {
         this.tabParamChart[nb].period = this.paramAllCharts.controls['period'].value.toLowerCase().trim();
+        this.tabParamChart[nb].nbWeeks = this.paramAllCharts.controls['nbWeeks'].value;
         if (this.paramAllCharts.controls['startRange'].value !== null) {
           this.tabParamChart[nb].startRange = this.paramAllCharts.controls['startRange'].value;
         }
@@ -771,15 +813,12 @@ export class ReportHealthComponent implements OnInit {
         this.fillInFormFromTab(nb);
         this.buildChart(nb);
       }
-
-
     }
-
   }
 
   selectedChart: number = 0;
   SelChart(event: any) {
-    this.reportCheckLockLimit.emit({ iWait: 5, isDataModified: true, isSaveFile: false });
+    this.timeOutactivity(5, true, false,"only");
 
     if (this.selectedChart !== 0) {
 
@@ -799,16 +838,18 @@ export class ReportHealthComponent implements OnInit {
       this.selectedChart = 3;
     } else if (event.target.id === 'Chart4') {
       this.selectedChart = 4;
+    } else if (event.target.id === 'Chart5') {
+      this.selectedChart = 5;
     }
     this.fillInFormFromTab(this.selectedChart - 1);
     if (this.debugPhone === true) {
       this.posDivPosSlider = getPosDiv("posDivSlider");
       //this.getPosDivPosSlider();
     }
-
   }
 
   cancelChartParam(event: any) {
+    this.timeOutactivity(5, true, false,"only");
     if (event.target.id === "allChartParam") {
       this.selectedChart = 0;
       this.isParamTitle = false;
@@ -825,10 +866,10 @@ export class ReportHealthComponent implements OnInit {
     } else if (event.target.id === "axis") {
       this.isParamAxis = false;
     }
-
   }
 
   processAxis(event: any) {
+    this.timeOutactivity(5, true, false,"only");
     this.isParamAxis = false;
     if (this.selectAxisX.controls['stacked'].value === 'false') {
       this.tabParamChart[this.selectedChart - 1].axisX.stacked = false;
@@ -841,10 +882,131 @@ export class ReportHealthComponent implements OnInit {
       this.tabParamChart[this.selectedChart - 1].axisY.stacked = true;
     }
 
-
     this.selectChart.controls['stackedX'].setValue(this.tabParamChart[this.selectedChart - 1].axisX.stacked);
     this.selectChart.controls['stackedY'].setValue(this.tabParamChart[this.selectedChart - 1].axisY.stacked);
   }
+
+
+  initTabParamCanvas(i:number){
+    const classParam = new classTabFormChart;
+    this.tabParamChart.push(classParam);
+    this.tabParamChart[this.tabParamChart.length - 1].chartType = 'line';
+
+    this.tabParamChart[this.tabParamChart.length - 1].chartTitle.display = this.ConfigChartHealth.barDefault.options.plugins.title.display;
+    this.tabParamChart[this.tabParamChart.length - 1].chartTitle.text = this.ConfigChartHealth.barDefault.options.plugins.title.text;
+    this.tabParamChart[this.tabParamChart.length - 1].chartTitle.position = this.ConfigChartHealth.barDefault.options.plugins.title.position;
+    this.tabParamChart[this.tabParamChart.length - 1].chartTitle.padding.top = this.ConfigChartHealth.barDefault.options.plugins.title.padding.top;
+    this.tabParamChart[this.tabParamChart.length - 1].chartTitle.padding.bottom = this.ConfigChartHealth.barDefault.options.plugins.title.padding.bottom;
+    this.tabParamChart[this.tabParamChart.length - 1].chartTitle.align = this.ConfigChartHealth.barDefault.options.plugins.title.align;
+    this.tabParamChart[this.tabParamChart.length - 1].chartTitle.color = this.ConfigChartHealth.barDefault.options.plugins.title.color;
+    this.tabParamChart[this.tabParamChart.length - 1].chartTitle.font.size = this.ConfigChartHealth.barDefault.options.plugins.title.font.size;
+    this.tabParamChart[this.tabParamChart.length - 1].chartTitle.font.weight = this.ConfigChartHealth.barDefault.options.plugins.title.font.weight;
+    this.tabParamChart[this.tabParamChart.length - 1].chartTitle.font.family = this.ConfigChartHealth.barDefault.options.plugins.title.font.family;
+
+    this.tabParamChart[this.tabParamChart.length - 1].legendTitle.display = this.ConfigChartHealth.barDefault.options.plugins.legend.title.display;
+    this.tabParamChart[this.tabParamChart.length - 1].legendTitle.text = this.ConfigChartHealth.barDefault.options.plugins.legend.title.text;
+    this.tabParamChart[this.tabParamChart.length - 1].legendTitle.position = this.ConfigChartHealth.barDefault.options.plugins.legend.title.position;
+    this.tabParamChart[this.tabParamChart.length - 1].legendTitle.padding.top = this.ConfigChartHealth.barDefault.options.plugins.legend.title.padding.top;
+    this.tabParamChart[this.tabParamChart.length - 1].legendTitle.padding.bottom = this.ConfigChartHealth.barDefault.options.plugins.legend.title.padding.bottom;
+    this.tabParamChart[this.tabParamChart.length - 1].legendTitle.padding.left = this.ConfigChartHealth.barDefault.options.plugins.legend.title.padding.left;
+    this.tabParamChart[this.tabParamChart.length - 1].legendTitle.align = this.ConfigChartHealth.barDefault.options.plugins.legend.title.align;
+    this.tabParamChart[this.tabParamChart.length - 1].legendTitle.color = this.ConfigChartHealth.barDefault.options.plugins.legend.title.color;
+    this.tabParamChart[this.tabParamChart.length - 1].legendTitle.font.size = this.ConfigChartHealth.barDefault.options.plugins.legend.title.font.size;
+    this.tabParamChart[this.tabParamChart.length - 1].legendTitle.font.weight = this.ConfigChartHealth.barDefault.options.plugins.legend.title.font.weight;
+    this.tabParamChart[this.tabParamChart.length - 1].legendTitle.font.family = this.ConfigChartHealth.barDefault.options.plugins.legend.title.font.family;
+
+    this.tabParamChart[this.tabParamChart.length - 1].legendBox.boxWidth = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.boxWidth;
+    this.tabParamChart[this.tabParamChart.length - 1].legendBox.boxHeight = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.boxHeight;
+    this.tabParamChart[this.tabParamChart.length - 1].legendBox.usePointStyle = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.usePointStyle;
+    this.tabParamChart[this.tabParamChart.length - 1].legendBox.pointStyle = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.pointStyle;
+    this.tabParamChart[this.tabParamChart.length - 1].legendBox.borderRadius = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.borderRadius;
+    this.tabParamChart[this.tabParamChart.length - 1].legendBox.color = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.color;
+    this.tabParamChart[this.tabParamChart.length - 1].legendBox.font.size = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.font.size;
+    this.tabParamChart[this.tabParamChart.length - 1].legendBox.font.weight = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.font.weight;
+    this.tabParamChart[this.tabParamChart.length - 1].legendBox.font.family = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.font.family;
+
+    this.tabParamChart[this.tabParamChart.length - 1].bar = this.ConfigChartHealth.barChart.datasets;
+    this.tabParamChart[this.tabParamChart.length - 1].line = this.ConfigChartHealth.lineChart.datasetsDefault;
+
+    this.tabParamChart[this.tabParamChart.length - 1].canvasBackground = this.ConfigChartHealth.barDefault.canvas.backgroundcolor;
+    this.tabParamChart[this.tabParamChart.length - 1].canvasHeight = this.ConfigChartHealth.barDefault.canvas.height
+    this.tabParamChart[this.tabParamChart.length - 1].canvasMarginLeft = this.ConfigChartHealth.barDefault.canvas.marginleft;
+    this.tabParamChart[this.tabParamChart.length - 1].canvasWidth = this.ConfigChartHealth.barDefault.canvas.width;
+
+
+    for (var l = 0; l < this.ConfigChartHealth.barDefault.datasets.labelsLimits.length; l++) {
+      if (this.ConfigChartHealth.barDefault.datasets.fieldsLimitsToSelect[l] === true) {
+        this.tabParamChart[this.tabParamChart.length - 1].limitLabels[l] = "Y";
+        this.selectedLimitFields[l] = "Y";
+      } else {
+        this.tabParamChart[this.tabParamChart.length - 1].limitLabels[l] = "N";
+        this.selectedLimitFields[l] = "N";
+      }
+      if (l > 0) {
+        const myLimitRgba = { slider: new classReturnColor, palette: new classReturnColor }
+        this.tabParamChart[this.tabParamChart.length - 1].limitRgbaLabels.push(myLimitRgba);
+      }
+
+      this.tabParamChart[this.tabParamChart.length - 1].limitRgbaLabels[l].palette.rgba = "";
+      this.tabParamChart[this.tabParamChart.length - 1].limitRgbaLabels[l].palette.xPos = 0;
+      this.tabParamChart[this.tabParamChart.length - 1].limitRgbaLabels[l].palette.yPos = 0;
+      this.tabParamChart[this.tabParamChart.length - 1].limitRgbaLabels[l].slider.rgba = "";
+      this.tabParamChart[this.tabParamChart.length - 1].limitRgbaLabels[l].slider.xPos = 0;
+      this.tabParamChart[this.tabParamChart.length - 1].limitRgbaLabels[l].slider.yPos = 0;
+      this.tabParamChart[this.tabParamChart.length - 1].limitLabelsColor[l] = this.ConfigChartHealth.barDefault.datasets.borderColorLimits[l];
+    }
+
+    for (var l = 0; l < this.ConfigChartHealth.barDefault.datasets.fieldsToSelect.length; l++) {
+      if (this.ConfigChartHealth.barDefault.datasets.fieldsToSelect[l] === true) {
+        this.tabParamChart[this.tabParamChart.length - 1].labels[l] = "Y";
+        this.selectedFields[l] = "Y";
+
+      } else {
+        this.tabParamChart[this.tabParamChart.length - 1].labels[l] = "N";
+        this.selectedFields[l] = "N";
+      }
+
+      this.tabParamChart[this.tabParamChart.length - 1].labelsColor[l] = this.ConfigChartHealth.barDefault.datasets.borderColor[l];
+      if (l > 0) {
+        const myRgba = { slider: new classReturnColor, palette: new classReturnColor }
+        this.tabParamChart[this.tabParamChart.length - 1].rgbaLabels.push(myRgba);
+      }
+      this.tabParamChart[this.tabParamChart.length - 1].rgbaLabels[l].palette.rgba = "";
+      this.tabParamChart[this.tabParamChart.length - 1].rgbaLabels[l].palette.xPos = 0;
+      this.tabParamChart[this.tabParamChart.length - 1].rgbaLabels[l].palette.yPos = 0;
+      this.tabParamChart[this.tabParamChart.length - 1].rgbaLabels[l].slider.rgba = "";
+      this.tabParamChart[this.tabParamChart.length - 1].rgbaLabels[l].slider.xPos = 0;
+      this.tabParamChart[this.tabParamChart.length - 1].rgbaLabels[l].slider.yPos = 0;
+    }
+
+    this.tabParamChart[this.tabParamChart.length - 1].period = 'daily';
+    this.tabParamChart[this.tabParamChart.length - 1].nbWeeks = 0;
+    this.tabParamChart[this.tabParamChart.length - 1].ratio = 2;
+
+    this.tabParamChart[this.tabParamChart.length - 1].axisX.border.color = this.ConfigChartHealth.barDefault.options.scales.axisX.border.color;
+    this.tabParamChart[this.tabParamChart.length - 1].axisX.border.width = this.ConfigChartHealth.barDefault.options.scales.axisX.border.width;
+    this.tabParamChart[this.tabParamChart.length - 1].axisX.position = this.ConfigChartHealth.barDefault.options.scales.axisX.position;
+    this.tabParamChart[this.tabParamChart.length - 1].axisX.stacked = this.ConfigChartHealth.barDefault.options.scales.axisX.stacked;
+    this.tabParamChart[this.tabParamChart.length - 1].axisX.ticks = this.ConfigChartHealth.barDefault.options.scales.axisX.ticks;
+
+    this.tabParamChart[this.tabParamChart.length - 1].axisY.border.color = this.ConfigChartHealth.barDefault.options.scales.axisY.border.color;
+    this.tabParamChart[this.tabParamChart.length - 1].axisY.border.width = this.ConfigChartHealth.barDefault.options.scales.axisY.border.width;
+    this.tabParamChart[this.tabParamChart.length - 1].axisY.position = this.ConfigChartHealth.barDefault.options.scales.axisY.position;
+    this.tabParamChart[this.tabParamChart.length - 1].axisY.stacked = this.ConfigChartHealth.barDefault.options.scales.axisY.stacked;
+    this.tabParamChart[this.tabParamChart.length - 1].axisY.ticks = this.ConfigChartHealth.barDefault.options.scales.axisY.ticks;
+
+
+    this.tabParamChart[this.tabParamChart.length - 1].legendBoxRgba.palette.rgba = "";
+    this.tabParamChart[this.tabParamChart.length - 1].legendBoxRgba.palette.xPos = 0;
+    this.tabParamChart[this.tabParamChart.length - 1].legendBoxRgba.palette.yPos = 0;
+    this.tabParamChart[this.tabParamChart.length - 1].legendBoxRgba.slider.rgba = "";
+    this.tabParamChart[this.tabParamChart.length - 1].legendBoxRgba.slider.xPos = 0;
+    this.tabParamChart[this.tabParamChart.length - 1].legendBoxRgba.slider.yPos = 0;
+
+    this.canvas.push({ width: '', height: '', background: 0, marginLeft: '' });
+    this.changeCanvas(i);
+  }
+
 
   fillInTabOfCharts(nb: number) {
 
@@ -897,6 +1059,7 @@ export class ReportHealthComponent implements OnInit {
     this.tabParamChart[nb].axisY.ticks.color = this.selectAxisY.controls['ticksColor'].value;
 
     this.tabParamChart[nb].period = this.selectChart.controls['period'].value.toLowerCase().trim();
+    this.tabParamChart[nb].nbWeeks = this.selectChart.controls['nbWeeks'].value;
     this.tabParamChart[nb].startRange = this.selectChart.controls['startRange'].value;
     this.tabParamChart[nb].endRange = this.selectChart.controls['endRange'].value;
 
@@ -907,15 +1070,18 @@ export class ReportHealthComponent implements OnInit {
     }
 
     for (var i = 0; i < this.selectedLimitFields.length; i++) {
-      this.tabParamChart[nb].limitLabels[i] = this.selectedLimitFields[i];
+      this. tabParamChart[nb].limitLabels[i] = this.selectedLimitFields[i];
       this.tabParamChart[nb].limitLabelsColor[i] = this.tabOfLimitLabelsColor[i];
+      if (this.tabParamChart[nb].limitRgbaLabels[i] === undefined) {
+        const myRgba = { slider: new classReturnColor, palette: new classReturnColor }
+        this.tabParamChart[nb].limitRgbaLabels.push(myRgba);
+      }
       this.fillRgba(this.tabLimitLabelRgba[i], this.tabParamChart[nb].limitRgbaLabels[i]);
     }
 
     this.fillRgba(this.returnCanvasRgba, this.tabParamChart[nb].rgbaCanvas);
 
   }
-
 
   fillInCharts(inFile: any, outFile: any) {
 
@@ -956,8 +1122,6 @@ export class ReportHealthComponent implements OnInit {
     outFile.canvasMarginLeft = inFile.canvasMarginLeft;
     this.fillRgba(inFile.rgbaCanvas, outFile.rgbaCanvas);
 
-
-
     outFile.axisX.stacked = inFile.axisX.stacked;
     outFile.axisX.border.color = inFile.axisX.border.color;
     outFile.axisX.border.width = inFile.axisX.border.width;
@@ -971,6 +1135,12 @@ export class ReportHealthComponent implements OnInit {
     outFile.axisY.ticks = inFile.axisY.ticks;
 
     outFile.period = inFile.period.toLowerCase().trim();
+    if (inFile.nbWeeks!==undefined){
+      outFile.nbWeeks = inFile.nbWeeks;
+    } else {
+      outFile.nbWeeks = 1;
+    }
+    
     outFile.startRange = inFile.startRange;
     outFile.endRange = inFile.endRange;
 
@@ -1012,7 +1182,7 @@ export class ReportHealthComponent implements OnInit {
     outFile.palette.xPos = inFile.palette.xPos;
     outFile.palette.yPos = inFile.palette.yPos;
     outFile.slider.rgba = inFile.slider.rgba;
-    outFile.slider.xPosa = inFile.slider.xPos;
+    outFile.slider.xPos = inFile.slider.xPos;
     outFile.slider.yPos = inFile.slider.xPoy;
   }
 
@@ -1049,6 +1219,11 @@ export class ReportHealthComponent implements OnInit {
 
 
     this.selectChart.controls['period'].setValue(this.tabParamChart[nb].period.toLowerCase().trim());
+    if (this.tabParamChart[nb].nbWeeks!==undefined){
+      this.selectChart.controls['nbWeeks'].setValue(this.tabParamChart[nb].nbWeeks);
+    } else {
+      this.selectChart.controls['nbWeeks'].setValue(1);
+    }
     this.selectChart.controls['startRange'].setValue(this.tabParamChart[nb].startRange);
     this.selectChart.controls['endRange'].setValue(this.tabParamChart[nb].endRange);
     this.selectChart.controls['canvasMarginLeft'].setValue(this.tabParamChart[nb].canvasMarginLeft);
@@ -1171,14 +1346,11 @@ export class ReportHealthComponent implements OnInit {
       outFile.padding.left = this.selectTitle.controls['paddingLeft'].value;
       this.selectChart.controls['chartTitle'].setValue(outFile.text);
       this.selectChart.controls['colorChartTitle'].setValue(outFile.color);
-
-
     }
-
-
   }
 
   selectType(event: any) {
+    this.timeOutactivity(5, true, false,"only");
     this.resetBooleans();
     if (event.target.id === 'selType') {
       this.isTypeSelected = true;
@@ -1220,6 +1392,7 @@ export class ReportHealthComponent implements OnInit {
   }
 
   selectPeriod(event: any) {
+    this.timeOutactivity(5, true, false,"only");
     this.resetBooleans();
     if (event.target.id === 'selPeriod') {
       this.isPeriodSelected = true;
@@ -1230,6 +1403,7 @@ export class ReportHealthComponent implements OnInit {
   }
 
   selectPeriodAll(event: any) {
+    this.timeOutactivity(5, true, false,"only");
     this.resetBooleans();
     if (event.target.id === 'selPeriod') {
       this.isPeriodSelected = true;
@@ -1239,35 +1413,9 @@ export class ReportHealthComponent implements OnInit {
     }
   }
 
-  resetBooleans() {
-    this.isTypeSelected = false;
-    this.isPeriodSelected = false;
-    this.isSelectLegendColor = false;
-    this.isSelectBoxColor = false;
-    this.isSelectCanvasColor = false;
-    this.isSelectLChartTitleColor = false;
-    this.isSelectChartTitleColor = false;
-    this.isSelectLabColor = false;
-    this.dialogLabColor[this.currentLabColor] = false;
-
-    this.isSliderSelected = false;
-    //this.selectedChart=0;
-
-    this.isFontWeight = false;
-    this.isTextAlign = false;
-    this.isTitlePosition = false;
-    this.isTitleDisplay = false;
-
-    this.isSelectXBorderColor = false;
-    this.isSelectXTicksColor = false;
-    this.isSelectYBorderColor = false;
-    this.isSelectYTicksColor = false;
-    this.isPosDivSliderTrue = false;
-  }
-
-
   selectColorAxis(event: any) {
-    if (this.tabLock.lock !== 2) {
+    if (this.tabLock[5].lock !== 2) {
+      this.timeOutactivity(5, true, false,"only");
       this.resetBooleans();
       this.mainWindow.top = 120;
       this.posSlider.div.top = this.mainWindow.top + this.subWindow.top;
@@ -1304,12 +1452,10 @@ export class ReportHealthComponent implements OnInit {
     }
   }
 
-
-
   selectColor(event: any) {
-    if (this.tabLock.lock !== 2) {
+    if (this.tabLock[5].lock !== 2) {
       this.resetBooleans();
-
+      this.timeOutactivity(5, true, false,"only");
       this.mainWindow.top = 120;
       this.posSlider.div.top = this.mainWindow.top + this.subWindow.top;
       if (event === 'canvasColor') {
@@ -1424,7 +1570,9 @@ export class ReportHealthComponent implements OnInit {
 
 
   fnExitPalette(event: any) {
-    if (this.tabLock.lock !== 2) {
+   
+    if (this.tabLock[5].lock !== 2) {
+      this.timeOutactivity(5, true, false,"only");
       if (event === 'Cancel') {
         this.resetBooleans();
       } else if (event === 'Save') {
@@ -1512,107 +1660,9 @@ export class ReportHealthComponent implements OnInit {
       this.isSliderSelected = false;
     }
   }
-
-
-
-  error_msg: string = '';
-  fnSelectChart() {
-    this.error_msg = '';
-
-    // check that all parameters are correct
-    if (this.selectChart.controls['chartType'].value !== '') {
-      for (var i = 0; i < this.lineChartType.length && this.selectChart.controls['chartType'].value.toLowerCase().trim() !== this.lineChartType[i].toLowerCase().trim(); i++) {
-      }
-      if (i === this.lineChartType.length) {
-        this.error_msg = 'Field TYPE is unknown; please update it';
-      }
-    }
-    if (this.error_msg === '' && this.selectChart.controls['period'].value !== '') {
-      for (var i = 0; i < this.tabPeriod.length && this.selectChart.controls['period'].value.toLowerCase().trim() !== this.tabPeriod[i].toLowerCase().trim(); i++) {
-      }
-      if (i === this.tabPeriod.length) {
-        this.error_msg = 'Field PERIOD is unknown; please update it';
-      }
-    }
-    if (this.error_msg === '' && this.selectChart.controls['startRange'].value !== '' && this.selectChart.controls['endRange'].value !== '' && this.selectChart.controls['endRange'].value < this.selectChart.controls['startRange'].value) {
-      this.error_msg = 'end date cannot be before start date; please update';
-    }
-
-    if (this.error_msg === '' && isNaN(this.selectChart.controls['canvasWidth'].value)) {
-      this.error_msg = 'Field CANVAS WIDTH is not a numeric';
-    }
-    if (this.error_msg === '' && isNaN(this.selectChart.controls['canvasHeight'].value)) {
-      this.error_msg = 'Field CANVAS HEIGHT is not a numeric';
-    }
-    if (this.error_msg === '' && isNaN(this.selectChart.controls['ratio'].value)) {
-      this.error_msg = 'Field RATIO is not a numeric';
-    }
-    if (this.error_msg === '') {
-      this.fillInTabOfCharts(this.selectedChart - 1);
-      this.buildChart(this.selectedChart - 1);
-    }
-
-  }
-
-  returnEmit = {
-    saveAction: '',
-    saveCode: ''
-  }
-
-
-  SaveCancel(event: string) {
-    this.error_msg = '';
-    if (event === 'save') {
-      this.fillInTabOfCharts(this.selectedChart - 1);
-      if (this.error_msg === '') {
-        this.fillInCharts(this.tabParamChart[this.selectedChart - 1], this.initTabParamChart[this.selectedChart - 1]);
-        this.returnEmit.saveAction = 'save';
-        this.returnFile.emit(this.initTabParamChart);
-
-      }
-
-    } else if (event === 'saveAll') {
-      this.fillInTabOfCharts(this.selectedChart - 1);
-      if (this.error_msg === '') {
-        for (var i = 0; i < this.tabParamChart.length; i++) {
-          this.fillInCharts(this.tabParamChart[i], this.initTabParamChart[i]);
-        }
-        this.returnEmit.saveAction = 'saveAll';
-        this.returnFile.emit(this.tabParamChart);
-
-      }
-    } else if (event === 'cancelAll') {
-      this.cancelSaveOther.emit(5);
-      this.resetBooleans();
-      for (var i = 0; i < this.tabParamChart.length; i++) {
-        this.fillInCharts(this.initTabParamChart[i], this.tabParamChart[i]);
-        this.fillInFormFromTab(i);
-        this.buildChart(i);
-      }
-    } else if (event === 'cancelOne') {
-      this.cancelSaveOther.emit(5);
-      this.resetBooleans();
-      this.fillInCharts(this.initTabParamChart[this.selectedChart - 1], this.tabParamChart[this.selectedChart - 1]);
-      this.fillInFormFromTab(this.selectedChart - 1);
-      this.buildChart(this.selectedChart - 1);
-    }
-  }
-
-  buildChart(nb: number) {
-
-    this.changeCanvas(nb);
-    //if (this.tabParamChart[nb].chartType==='bar'){
-    if (nb < this.myTabChart.length ){
-      this.myTabChart[nb].destroy();
-    }
-    
-    this.collectSpecialData(nb, this.overallTab[nb].datasetBar, this.overallTab[nb].labelBar, this.overallTabLimit[nb].dataset, this.overallTabLimit[nb].label);
-    //}
-  }
-
-
   selectLabelColor(event: any) {
-    if (this.tabLock.lock !== 2) {
+    if (this.tabLock[5].lock !== 2) {
+      this.timeOutactivity(5, true, false,"only");
       const i = event.target.id.indexOf('-');
       this.dialogLabColor[this.currentLabColor] = false;
       this.dialogLimitLabColor[this.currentLabColor] = false;
@@ -1622,13 +1672,9 @@ export class ReportHealthComponent implements OnInit {
       } else {
         this.dialogLabColor[this.currentLabColor] = true;
       }
-
       this.isSelectLabColor = true;
-
-
       this.returnPalette = this.tabLabelRgba[this.currentLabColor].palette;
       this.returnSlider = this.tabLabelRgba[this.currentLabColor].slider;
-
       if (this.returnSlider.rgba !== '') {
         this.my_input_child2 = this.returnSlider.rgba;
       }
@@ -1642,14 +1688,12 @@ export class ReportHealthComponent implements OnInit {
     }
   }
 
-
   SelRadio(event: any) {
     //console.log('event.target.id='+event.target.id+ "  event.currentTarget.id=" + event.currentTarget.id );
-    const i = event.target.id.indexOf('-');
-    const item = Number(event.target.id.substring(i + 1));
-    if (this.tabLock.lock !== 2) {
-
-
+    if (this.tabLock[5].lock !== 2) {
+      this.timeOutactivity(5, true, false,"only");
+      const i = event.target.id.indexOf('-');
+      const item = Number(event.target.id.substring(i + 1));
       if (event.target.id === 'submit') {
 
       } else if (event.target.id.substring(0, 1) === 'A') {
@@ -1676,315 +1720,76 @@ export class ReportHealthComponent implements OnInit {
     }
   }
 
+
+  errorMsg: string = '';
+  fnSelectChart() {
+    this.errorMsg = '';
+    this.timeOutactivity(5, true, false,"only");
+    // check that all parameters are correct
+    if (this.selectChart.controls['chartType'].value !== '') {
+      for (var i = 0; i < this.lineChartType.length && this.selectChart.controls['chartType'].value.toLowerCase().trim() !== this.lineChartType[i].toLowerCase().trim(); i++) {
+      }
+      if (i === this.lineChartType.length) {
+        this.errorMsg = 'Field TYPE is unknown; please update it';
+      }
+    }
+    if (this.errorMsg === '' && this.selectChart.controls['period'].value !== '') {
+      for (var i = 0; i < this.tabPeriod.length && this.selectChart.controls['period'].value.toLowerCase().trim() !== this.tabPeriod[i].toLowerCase().trim(); i++) {
+      }
+      if (i === this.tabPeriod.length) {
+        this.errorMsg = 'Field PERIOD is unknown; please update it';
+      }
+    }
+    if (this.errorMsg === '' && this.selectChart.controls['startRange'].value !== '' && this.selectChart.controls['endRange'].value !== '' && this.selectChart.controls['endRange'].value < this.selectChart.controls['startRange'].value) {
+      this.errorMsg = 'end date cannot be before start date; please update';
+    }
+
+    if (this.errorMsg === '' && isNaN(this.selectChart.controls['canvasWidth'].value)) {
+      this.errorMsg = 'Field CANVAS WIDTH is not a numeric';
+    }
+    if (this.errorMsg === '' && isNaN(this.selectChart.controls['canvasHeight'].value)) {
+      this.errorMsg = 'Field CANVAS HEIGHT is not a numeric';
+    }
+    if (this.errorMsg === '' && isNaN(this.selectChart.controls['ratio'].value)) {
+      this.errorMsg = 'Field RATIO is not a numeric';
+    }
+    if (this.errorMsg === '') {
+      this.fillInTabOfCharts(this.selectedChart - 1);
+      this.buildChart(this.selectedChart - 1);
+    }
+
+  }
+
+  //nbPass:number=0;
+  buildChart(nb: number) {
+    this.changeCanvas(nb);
+    if (this.tabChart[nb]){
+      this.tabChart[nb].destroy();
+    }
+    this.collectSpecialData(nb, this.overallTab[nb].datasetBar, this.overallTab[nb].labelBar, this.overallTabLimit[nb].dataset, this.overallTabLimit[nb].label);
+  }
+
+ 
+
   //********************** */
   collectSpecialData(nb: number, datasetsSpecialBar: Array<any>, dateLabelSpecial: Array<any>, datasetsLimit: Array<any>, dateLabelLimit: Array<any>) {
     var i = 0;
     var j = 0;
-    var theHealthDate = formatDate(this.HealthAllData.tabDailyReport[0].date, 'yyyy-MM-dd', this.locale).toString();
-    var iDataset = -1;
-    var constLab: Array<string> = [];
-    var colorLab = [];
-    var iLabel = 0;
-    var k = -1;
-    var nbLabel = 0;
-    var strStart = '';
-    var strEnd = '';
-    var cal = 0;
     var addWeekly: number = 0;
-    var iSpecBorder: number = 0;
-    var nbWeeks = 0;
-    var iWeekly = -1;
-
-    this.refDailySaturated.splice(0, this.refDailySaturated.length);
-    datasetsSpecialBar.splice(0, datasetsSpecialBar.length);
-    dateLabelSpecial.splice(0, dateLabelSpecial.length);
-
-    for (var i = 0; i < this.tabParamChart[nb].labels.length; i++) {
-      if (this.tabParamChart[nb].labels[i] === 'Y') {
-        constLab[iLabel] = this.ConfigChartHealth.barDefault.datasets.labels[i];
-        colorLab[iLabel] = this.tabParamChart[nb].labelsColor[i];
-        iLabel++;
-      }
-    };
-
-    if (iLabel !== 0) { nbLabel = iLabel; }
-    else { nbLabel = this.ConfigChartHealth.barDefault.datasets.labels.length; }
-    for (i = 0; i < nbLabel; i++) {
-      var order = i + 1;
-      if (this.tabParamChart[nb].chartType === 'bar') {
-        datasetsSpecialBar.push({
-          label: "",
-          backgroundColor: [], // The line fill color.
-          data: [],
-          datalabels: {
-            align: 'center',
-            anchor: 'center',
-          },
-          order: order,
-          borderColor: [],
-          borderWidth: [],
-          barThickness: '',
-        });
-      } else if (this.tabParamChart[nb].chartType === 'line') {
-        datasetsSpecialBar.push({
-          label: "",
-          backgroundColor: '',
-          borderColor: [], //The line color.
-          data: [],
-          borderWidth: 3, //The line width (in pixels).
-          showLine: true,
-          fill: false, //true 
-          order: 1,
-          pointRadius: 2,
-          pointBorderColor: '',
-          pointBackgroundColor: '',
-          pointBorderWidth: 0,//2, 
-          tension: 0.2,
-          pointStyle: "line",
-          hoverBackgroundColor: "",
-          pointHoverBackgroundColor: ''
-        });
-      }
-
-      if (this.tabParamChart[nb].chartType === 'bar') {
-        if (this.tabParamChart[nb].bar.barThickness !== 0) {
-          datasetsSpecialBar[i].barThickness = this.tabParamChart[nb].bar.barThickness;
-        } else {
-          datasetsSpecialBar[i].barThickness = this.ConfigChartHealth.barChart.datasets.barThickness;
-        }
-      }
-
-      if (this.tabParamChart[nb].chartType === 'line') {
-        if (i < this.ConfigChartHealth.lineChart.datasets.length && this.ConfigChartHealth.lineChart.datasets[i].borderColor !== undefined) {
-          iSpecBorder = 0;
-          for (var iBorder = 0; iBorder < this.ConfigChartHealth.lineChart.datasets[i].borderColor.length; iBorder++) {
-            if (this.tabParamChart[nb].labelsColor.length > 0 && this.tabParamChart[nb].labels[iBorder] === 'Y') {
-              datasetsSpecialBar[i].borderColor[iSpecBorder] = this.ConfigChartHealth.lineChart.datasets[i].borderColor[iBorder];
-              iSpecBorder++
-            }
-          }
-        } else if (this.ConfigChartHealth.lineChart.datasetsDefault.borderColor !== undefined) {
-          iSpecBorder = 0;
-          for (var iBorder = 0; iBorder < this.ConfigChartHealth.lineChart.datasetsDefault.borderColor.length; iBorder++) {
-            if (this.tabParamChart[nb].labelsColor.length > 0 && this.tabParamChart[nb].labels[iBorder] === 'Y') {
-              datasetsSpecialBar[i].borderColor[iSpecBorder] = this.ConfigChartHealth.lineChart.datasetsDefault.borderColor[iBorder];
-              iSpecBorder++
-            }
-          }
-        } else if (this.ConfigChartHealth.barDefault.datasets.borderColor.length > 0) {
-          iSpecBorder = 0;
-          for (var iBorder = 0; iBorder < this.ConfigChartHealth.barDefault.datasets.borderColor.length; iBorder++) {
-            if (this.tabParamChart[nb].labelsColor.length > 0 && this.tabParamChart[nb].labels[iBorder] === 'Y') {
-              datasetsSpecialBar[i].borderColor[iSpecBorder] = this.ConfigChartHealth.barDefault.datasets.borderColor[iBorder];
-              iSpecBorder++
-            }
-          }
-        }
-
-        if (this.tabParamChart[nb].labelsColor.length > 0) {
-          iSpecBorder = 0;
-          for (var iBorder = 0; iBorder < this.tabParamChart[nb].labelsColor.length; iBorder++) {
-
-            if (this.tabParamChart[nb].labelsColor[iBorder] !== '' && this.tabParamChart[nb].labels[iBorder] === 'Y') {
-              datasetsSpecialBar[i].borderColor[iSpecBorder] = this.tabParamChart[nb].labelsColor[iBorder];
-              iSpecBorder++
-            }
-          }
-        }
-        if (i < this.ConfigChartHealth.lineChart.datasets.length) {
-          if (this.ConfigChartHealth.lineChart.datasets[i].borderWidth !== undefined) {
-            datasetsSpecialBar[i].borderWidth = this.ConfigChartHealth.lineChart.datasets[i].borderWidth;
-          } else {
-            datasetsSpecialBar[i].borderWidth = this.ConfigChartHealth.lineChart.datasetsDefault.borderWidth;
-          }
-          if (this.ConfigChartHealth.lineChart.datasets[i].pointRadius !== undefined) {
-            datasetsSpecialBar[i].pointRadius = this.ConfigChartHealth.lineChart.datasets[i].pointRadius;
-          } else {
-            datasetsSpecialBar[i].pointRadius = this.ConfigChartHealth.lineChart.datasetsDefault.pointRadius;
-          }
-          if (this.ConfigChartHealth.lineChart.datasets[i].pointBorderColor !== undefined) {
-            datasetsSpecialBar[i].pointBorderColor = this.ConfigChartHealth.lineChart.datasets[i].pointBorderColor;
-          } else {
-            datasetsSpecialBar[i].pointBorderColor = this.ConfigChartHealth.lineChart.datasetsDefault.pointBorderColor;
-          }
-
-          if (datasetsSpecialBar[i].borderColor[i] !== undefined) {
-            datasetsSpecialBar[i].pointBackgroundColor = datasetsSpecialBar[i].borderColor[i];
-          } else {
-            datasetsSpecialBar[i].pointBackgroundColor = datasetsSpecialBar[i].borderColor[i];
-          }
-
-
-          if (this.ConfigChartHealth.lineChart.datasets[i].pointBorderWidth !== undefined) {
-            datasetsSpecialBar[i].pointBorderWidth = this.ConfigChartHealth.lineChart.datasets[i].pointBorderWidth;
-          } else {
-            datasetsSpecialBar[i].pointBorderWidth = this.ConfigChartHealth.lineChart.datasetsDefault.pointBorderWidth;
-          }
-          if (this.ConfigChartHealth.lineChart.datasets[i].tension !== undefined) {
-            datasetsSpecialBar[i].tension = this.ConfigChartHealth.lineChart.datasets[i].tension;
-          } else {
-            datasetsSpecialBar[i].tension = this.ConfigChartHealth.lineChart.datasetsDefault.tension;
-          }
-          if (this.ConfigChartHealth.lineChart.datasets[i].pointStyle !== undefined) {
-            datasetsSpecialBar[i].pointStyle = this.ConfigChartHealth.lineChart.datasets[i].pointStyle;
-          } else {
-            datasetsSpecialBar[i].pointStyle = this.ConfigChartHealth.lineChart.datasetsDefault.pointStyle;
-          }
-          if (this.ConfigChartHealth.lineChart.datasets[i].fill !== undefined) {
-            datasetsSpecialBar[i].fill = this.ConfigChartHealth.lineChart.datasets[i].fill;
-          } else {
-            datasetsSpecialBar[i].fill = this.ConfigChartHealth.lineChart.datasetsDefault.fill;
-          }
-
-          //datasetsSpecialBar[i].hoverBackgroundColor =this.ConfigChartHealth.lineChart.datasets[i].hoverBackgroundColor ;
-          //datasetsSpecialBar[i].pointHoverBackgroundColor =this.ConfigChartHealth.lineChart.datasets[i].pointHoverBackgroundColor ;
-
-        } else {
-          datasetsSpecialBar[i].borderWidth = this.ConfigChartHealth.lineChart.datasetsDefault.borderWidth;
-          datasetsSpecialBar[i].pointRadius = this.ConfigChartHealth.lineChart.datasetsDefault.pointRadius;
-          datasetsSpecialBar[i].pointBorderColor = this.ConfigChartHealth.lineChart.datasetsDefault.pointBorderColor;
-          datasetsSpecialBar[i].pointBackgroundColor = datasetsSpecialBar[i].borderColor[i]; //this.ConfigChartHealth.lineChart.datasetsDefault.pointBackgroundColor ;
-          datasetsSpecialBar[i].tension = this.ConfigChartHealth.lineChart.datasetsDefault.tension;
-          datasetsSpecialBar[i].pointStyle = this.ConfigChartHealth.lineChart.datasetsDefault.pointStyle;
-          datasetsSpecialBar[i].fill = this.ConfigChartHealth.lineChart.datasetsDefault.fill;
-          //datasetsSpecialBar[i].hoverBackgroundColor =this.ConfigChartHealth.lineChart.datasetsDefault.hoverBackgroundColor ;
-          //datasetsSpecialBar[i].pointHoverBackgroundColor =this.ConfigChartHealth.lineChart.datasetsDefault.pointHoverBackgroundColor ;
-
-        }
-        datasetsSpecialBar[i].order = i;
-      }
-
-
-
-
-      if (iLabel !== 0) {
-        datasetsSpecialBar[i].label = constLab[i];
-      } else {
-        datasetsSpecialBar[i].label = this.ConfigChartHealth.barDefault.datasets.labels[i];
-      }
-      if (iLabel !== 0 && colorLab[i] !== '') {
-        datasetsSpecialBar[i].backgroundColor = colorLab[i];
-
-      }
-      else if (this.ConfigChartHealth.barChart.datasets.backgroundColor === undefined) {
-        datasetsSpecialBar[i].backgroundColor = this.ConfigChartHealth.barDefault.datasets.backgroundColor[i];
-
-      } else {
-        datasetsSpecialBar[i].backgroundColor = this.ConfigChartHealth.barChart.datasets.backgroundColor[i];
-      }
-
-
+   
+    const returnData = fillHealthDataSet(dateLabelSpecial, datasetsSpecialBar, this.HealthAllData,this.tabParamChart[nb], this.ConfigChartHealth, addWeekly, this.identification);
+    var refDailySaturated: Array<number> = [];
+    var refDailySugar: Array<number> = [];
+    var refDailyCarbs: Array<number> = [];
+    if (returnData!==undefined) {
+        datasetsSpecialBar = returnData.datasets;
+        refDailySaturated = returnData.refSaturated;
+        refDailySugar = returnData.refSugar;
+        refDailyCarbs = returnData.refCarbs;
     }
-
-
-
-    var myDaily = -1;
-    var myWeekly = -1;
-    if (this.tabParamChart[nb].period === '' || this.tabParamChart[nb].period === 'daily') {
-      strStart = this.tabParamChart[nb].startRange;
-      strEnd = this.tabParamChart[nb].endRange;
-      myDaily = 0;
-    }
-
-    if (this.tabParamChart[nb].period === 'weekly') {
-      myWeekly = 0;
-    }
-    var myMonthly = -1;
-    if (this.tabParamChart[nb].period === 'monthly') {
-
-    }
-
-    for (i = this.HealthAllData.tabDailyReport.length - 1; i >= 0; i--) {
-      // for (i=0; i<this.HealthAllData.tabDailyReport.length; i++){
-      theHealthDate = formatDate(this.HealthAllData.tabDailyReport[i].date, 'yyyy-MM-dd', this.locale).toString();
-
-      if ((strStart === '' && strEnd === '') || (strStart !== '' && strEnd === '' && theHealthDate >= this.tabParamChart[nb].startRange)
-        || (strStart === '' && strEnd !== '' && theHealthDate <= this.tabParamChart[nb].endRange)
-        || (strStart !== '' && strEnd !== '' && theHealthDate >= this.tabParamChart[nb].startRange && theHealthDate <= this.tabParamChart[nb].endRange)
-      ) {
-
-        if (myDaily === 0) {
-
-          iDataset++;
-          dateLabelSpecial[iDataset] = this.HealthAllData.tabDailyReport[i].date;
-        } else if (myWeekly === 0 || myWeekly === 7) {
-          myWeekly = 0;
-          iDataset++;
-          iWeekly = 0;
-          nbWeeks++;
-          dateLabelSpecial[iDataset] = '#' + nbWeeks;
-          addWeekly = 0;
-          cal = 0;
-
-        } else if (myMonthly === 0) {
-          // TO BE ANALYSED
-          iDataset++;
-          myMonthly = 0;
-        }
-
-        myWeekly++
-
-        if (iLabel !== 0) {
-          // tackle the information from selection of params
-          for (var j = 0; j < constLab.length; j++) {
-            if (myDaily === 0) {
-              addWeekly = 0
-            }
-
-            else if (myWeekly > 0) {
-              if (datasetsSpecialBar[j].data[iDataset] !== undefined) {
-                addWeekly = datasetsSpecialBar[j].data[iDataset]
-              }
-            }
-
-            if (constLab[j] === "Proteins") {
-              datasetsSpecialBar[j].data[iDataset] = addWeekly + this.HealthAllData.tabDailyReport[i].total.Protein;
-            } else if (constLab[j] === "Carbs") {
-              datasetsSpecialBar[j].data[iDataset] = addWeekly + this.HealthAllData.tabDailyReport[i].total.Carbs + this.HealthAllData.tabDailyReport[i].total.Sugar;
-            } else if (constLab[j] === "Total Fat") {
-              datasetsSpecialBar[j].data[iDataset] = addWeekly + this.HealthAllData.tabDailyReport[i].total.Fat.Total;
-            } else if (constLab[j] === "Cholesterol") {
-              datasetsSpecialBar[j].data[iDataset] = addWeekly + this.HealthAllData.tabDailyReport[i].total.Cholesterol;
-            } else if (constLab[j] === "Saturated Fat") {
-              datasetsSpecialBar[j].data[iDataset] = addWeekly + this.HealthAllData.tabDailyReport[i].total.Fat.Saturated;
-              if (this.refDailySaturated[iDataset] === undefined) { this.refDailySaturated[iDataset] = 0; }
-              this.refDailySaturated[iDataset] = this.refDailySaturated[iDataset] + (Number(this.HealthAllData.tabDailyReport[i].burntCalories) + this.identification.health.Calories) * this.identification.health.SaturatedFat / 9;
-            } else if (constLab[j] === "Calories burnt") {
-              datasetsSpecialBar[j].data[iDataset] = addWeekly + Number(this.HealthAllData.tabDailyReport[i].burntCalories) + this.identification.health.Calories;
-
-            } else if (constLab[j] === "Calories intake") {
-              datasetsSpecialBar[j].data[iDataset] = addWeekly + this.HealthAllData.tabDailyReport[i].total.Calories;
-            }
-          }
-        }
-        else {
-          for (var j = 0; j < this.ConfigChartHealth.barDefault.datasets.labels.length; j++) {
-            if (myDaily === 0) { addWeekly = 0 }
-            else if (myWeekly !== -1) { addWeekly = datasetsSpecialBar[j].data[iDataset] }
-
-            if (this.ConfigChartHealth.barDefault.datasets.labels[j] === "Proteins") {
-              datasetsSpecialBar[j].data[iDataset] == addWeekly + this.HealthAllData.tabDailyReport[i].total.Protein;
-            } else if (this.ConfigChartHealth.barDefault.datasets.labels[j] === "Carbs") {
-              datasetsSpecialBar[j].data[iDataset] == addWeekly + this.HealthAllData.tabDailyReport[i].total.Carbs + this.HealthAllData.tabDailyReport[i].total.Sugar;
-            } else if (this.ConfigChartHealth.barDefault.datasets.labels[j] === "Total Fat") {
-              datasetsSpecialBar[j].data[iDataset] == addWeekly + this.HealthAllData.tabDailyReport[i].total.Fat.Total;
-            } else if (this.ConfigChartHealth.barDefault.datasets.labels[j] === "Cholesterol") {
-              datasetsSpecialBar[j].data[iDataset] == addWeekly + this.HealthAllData.tabDailyReport[i].total.Cholesterol;
-            } else if (this.ConfigChartHealth.barDefault.datasets.labels[j] === "Saturated Fat") {
-              datasetsSpecialBar[j].data[iDataset] == addWeekly + this.HealthAllData.tabDailyReport[i].total.Fat.Saturated;
-              if (this.refDailySaturated[iDataset] === undefined) { this.refDailySaturated[iDataset] = 0; }
-              this.refDailySaturated[iDataset] = this.refDailySaturated[iDataset] + (Number(this.HealthAllData.tabDailyReport[i].burntCalories) + this.identification.health.Calories) * this.identification.health.SaturatedFat / 9;
-            } else if (this.ConfigChartHealth.barDefault.datasets.labels[j] === "Calories burnt") {
-              datasetsSpecialBar[j].data[iDataset] == addWeekly + Number(this.HealthAllData.tabDailyReport[i].burntCalories) + this.identification.health.Calories;
-            } else if (this.ConfigChartHealth.barDefault.datasets.labels[j] === "Calories intake") {
-              datasetsSpecialBar[j].data[iDataset] == addWeekly + this.HealthAllData.tabDailyReport[i].total.Calories;
-            }
-          }
-        }
-      }
-    }
-
-    // prepare the drawing of the horizontal
+    
+  
+    // prepare the drawing of the horizontal bars
 
     var iMax: number = 0;
     var dataValue: number = 0;
@@ -2000,19 +1805,23 @@ export class ReportHealthComponent implements OnInit {
       if (datasetsSpecialBar[i].label === 'Cholesterol') {
         dataValue = Number(this.identification.health.Cholesterol.myLimit);
         labelName = 'Chol. limit';
-        labLimit = 0;// 2
+        labLimit = 0;
+      } else if (datasetsSpecialBar[i].label === 'Saturated Fat') {
+        labelName = 'Sat. limit';
+        labLimit = 1;
+        dataValue = Number(this.identification.health.SaturatedFat);
       } else if (datasetsSpecialBar[i].label === 'Proteins') {
         dataValue = Number(this.identification.health.Protein);
         labelName = 'Prot. limit';
-        labLimit = 2;//5
+        labLimit = 2;
       } else if (datasetsSpecialBar[i].label === 'Carbs') {
         dataValue = Number(this.identification.health.Carbs);
         labelName = 'Carbs limit';
-        labLimit = 3;//6
-      } else if (datasetsSpecialBar[i].label === 'Saturated Fat') {
-        labelName = 'Sat. limit';
-        labLimit = 1;//3
-        dataValue = Number(this.identification.health.SaturatedFat);
+        labLimit = 3;
+      } else if (datasetsSpecialBar[i].label === 'Sugar') {
+        labelName = 'Sugar limit';
+        labLimit = 4;
+        dataValue = Number(this.identification.health.Sugar);
       }
       if (dataValue > 0) {
         datasetsSpecialBar.push({
@@ -2031,9 +1840,18 @@ export class ReportHealthComponent implements OnInit {
           //tension:0.2,
           pointStyle: false,
         });
+        if (datasetsSpecialBar[i].label === 'Sugar') {
+          for (var j = 0; j < datasetsSpecialBar[i].data.length; j++) {
+            datasetsSpecialBar[datasetsSpecialBar.length - 1].data[j] =refDailySugar[j];
+          }
+        } else if (datasetsSpecialBar[i].label === 'Carbs') {
+          for (var j = 0; j < datasetsSpecialBar[i].data.length; j++) {
+            datasetsSpecialBar[datasetsSpecialBar.length - 1].data[j] =refDailyCarbs[j];
+          }
+        } else
         if (datasetsSpecialBar[i].label === 'Saturated Fat') {
           for (var j = 0; j < datasetsSpecialBar[i].data.length; j++) {
-            datasetsSpecialBar[datasetsSpecialBar.length - 1].data[j] = this.refDailySaturated[j];
+            datasetsSpecialBar[datasetsSpecialBar.length - 1].data[j] =refDailySaturated[j];
           }
         } else {
           if (this.tabParamChart[nb].period === 'daily') {
@@ -2045,7 +1863,6 @@ export class ReportHealthComponent implements OnInit {
               datasetsSpecialBar[datasetsSpecialBar.length - 1].data[j] = dataValue * 7;
             }
           }
-
         }
 
         datasetsSpecialBar[datasetsSpecialBar.length - 1].borderColor[datasetsSpecialBar.length - 1] = this.tabParamChart[nb].limitLabelsColor[labLimit];
@@ -2055,544 +1872,175 @@ export class ReportHealthComponent implements OnInit {
       }
     }
 
-
-    this.specialDraw(dateLabelSpecial, datasetsSpecialBar, nb);
-    //} 
+    const newChart=specialDraw(this.tabCtx[nb],this.tabParamChart[nb], this.ConfigChartHealth, dateLabelSpecial, datasetsSpecialBar);
+    this.tabChart[nb]= newChart;
   }
 
-  refDailySaturated: Array<number> = [];
-  specialDraw(dateLabel: Array<any>, theDatasets: Array<any>, nb: number) {
 
-    Chart.defaults.font.size = 14;
+  resetBooleans() {
+    this.isTypeSelected = false;
+    this.isPeriodSelected = false;
+    this.isSelectLegendColor = false;
+    this.isSelectBoxColor = false;
+    this.isSelectCanvasColor = false;
+    this.isSelectLChartTitleColor = false;
+    this.isSelectChartTitleColor = false;
+    this.isSelectLabColor = false;
+    this.dialogLabColor[this.currentLabColor] = false;
 
-    var yStacked = false;
-    var xStacked = false;
+    this.isSliderSelected = false;
+    //this.selectedChart=0;
 
-    if (this.tabParamChart[nb].axisY.stacked === true) {
-      yStacked = true;
+    this.isFontWeight = false;
+    this.isTextAlign = false;
+    this.isTitlePosition = false;
+    this.isTitleDisplay = false;
+
+    this.isSelectXBorderColor = false;
+    this.isSelectXTicksColor = false;
+    this.isSelectYBorderColor = false;
+    this.isSelectYTicksColor = false;
+    this.isPosDivSliderTrue = false;
+  }
+
+
+  ConfirmSave(event: any) {
+    this.errorMsg = '';
+    this.resetBooleans();
+    this.theEvent.target.id = event.target.id;
+    this.theEvent.target.value = event.target.value;
+    this.theEvent.target.textContent = event.target.textContent;
+    this.theEvent.checkLock.iWait=0;
+    this.theEvent.checkLock.isDataModified=true;
+    this.theEvent.checkLock.isSaveFile=false;
+    this.theEvent.checkLock.lastInputAt=this.lastInputAt;
+    this.theEvent.fileName=this.SpecificForm.controls['FileName'].value;
+    this.onInputAction = "confirmSave";
+    this.timeOutactivity(0, true, false,"only");
+  }
+
+  cancelTheSave(){
+    this.IsSaveConfirmed = false;
+    this.isMustSaveFile = false;
+  }
+
+
+  saveFn() {
+    this.errorMsg = '';
+    this.IsSaveConfirmed = false;
+    this.fillInTabOfCharts(this.selectedChart - 1);
+    if (this.errorMsg === '') {
+      if (this.theEvent.target.id === 'save') {
+          this.fillInCharts(this.tabParamChart[this.selectedChart - 1], this.inFileParamChart.data[this.selectedChart - 1]);
+          this.buildChart(this.selectedChart - 1);
+      } else {
+          for (var i = 0; i < this.tabParamChart.length; i++) {
+            this.fillInCharts(this.tabParamChart[i], this.inFileParamChart.data[i]);
+            this.buildChart(this.selectedChart - 1);
+          }
+      }
     }
-    if (this.tabParamChart[nb].axisX.stacked === true) {
-      xStacked = true;
-    }
+    //this.isSaveFile = true;
+    this.theEvent.checkLock.iWait=5;
+    this.theEvent.iWait=5;
+    this.theEvent.checkLock.isDataModified=true;
+    this.theEvent.checkLock.isSaveFile=true;
+    this.theEvent.checkLock.iCheck=true;
+    this.theEvent.checkLock.lastInputAt=this.lastInputAt;
+    this.theEvent.checkLock.action="saveParamChart";
+    this.theEvent.fileName = this.SpecificForm.controls['FileName'].value;
+    this.onInputAction = "saveParamChart";
+    this.timeOutactivity(5, true, true,"saveParamChart");
+    this.processSave.emit(this.theEvent);
+  }
 
-
-    var charTitle = '';
-    if (this.tabParamChart[nb].chartTitle.text !== '') {
-      charTitle = this.tabParamChart[nb].chartTitle.text;
-    } else { charTitle = this.ConfigChartHealth.barChart.options.plugins.title.text };
-
-    var TitleColor = '';
-    if (this.tabParamChart[nb].chartTitle.color !== '') {
-      TitleColor = this.tabParamChart[nb].chartTitle.color;
-    } else { TitleColor = this.ConfigChartHealth.barChart.options.plugins.title.color };
-
-    var mylegendTitle = '';
-    if (this.tabParamChart[nb].legendTitle.text !== '') {
-      mylegendTitle = this.tabParamChart[nb].legendTitle.text;
-    } else { mylegendTitle = this.ConfigChartHealth.barChart.options.plugins.legend.title.text };
-
-    var legendColor = '';
-    if (this.tabParamChart[nb].legendTitle.color !== '') {
-      legendColor = this.tabParamChart[nb].legendTitle.color;
-    } else { legendColor = 'blue' };
-
-    var theRatio = 0;
-    if (this.tabParamChart[nb].ratio !== 0) {
-      theRatio = Number(this.tabParamChart[nb].ratio);
-    } else {
-      theRatio = Number(this.ConfigChartHealth.barChart.options.aspectRatio);
-    }
-
-    var theboxWidth = 0;
-    if (this.tabParamChart[nb].legendBox.boxWidth !== 0) {
-      theboxWidth = Number(this.tabParamChart[nb].legendBox.boxWidth);
-    } else if (this.ConfigChartHealth.barChart.options.plugins.legend.labels.boxWidth !== undefined) {
-      theboxWidth = Number(this.ConfigChartHealth.barChart.options.plugins.legend.labels.boxWidth);
-    } else if (this.ConfigChartHealth.barDefault.options.plugins.legend.labels.boxWidth !== undefined) {
-      theboxWidth = Number(this.ConfigChartHealth.barDefault.options.plugins.legend.labels.boxWidth);
-    }
-
-
-    var theboxHeight = 0;
-    if (this.tabParamChart[nb].legendBox.boxHeight !== 0) {
-      theboxHeight = Number(this.tabParamChart[nb].legendBox.boxHeight);
-    } else if (this.ConfigChartHealth.barChart.options.plugins.legend.labels.boxHeight !== undefined) {
-      theboxHeight = Number(this.ConfigChartHealth.barChart.options.plugins.legend.labels.boxHeight);
-    } else if (this.ConfigChartHealth.barDefault.options.plugins.legend.labels.boxHeight !== undefined) {
-      theboxHeight = Number(this.ConfigChartHealth.barDefault.options.plugins.legend.labels.boxHeight);
-    }
-
-    var theboxradius = 0;
-    if (this.tabParamChart[nb].legendBox.borderRadius !== 0) {
-      theboxradius = Number(this.tabParamChart[nb].legendBox.borderRadius);
-    } else if (this.ConfigChartHealth.barChart.options.plugins.legend.labels.borderRadius !== undefined) {
-      theboxradius = Number(this.ConfigChartHealth.barChart.options.plugins.legend.labels.borderRadius);
-    } else if (this.ConfigChartHealth.barDefault.options.plugins.legend.labels.borderRadius !== undefined) {
-      theboxradius = Number(this.ConfigChartHealth.barDefault.options.plugins.legend.labels.borderRadius);
-    }
-
-    var theboxfontSize = 0
-
-    if (this.tabParamChart[nb].legendBox.font.size !== 0) {
-      theboxfontSize = Number(this.tabParamChart[nb].legendBox.font.size);
-    } else if (this.ConfigChartHealth.barChart.options.plugins.legend.labels.font.size !== undefined) {
-      theboxfontSize = Number(this.ConfigChartHealth.barChart.options.plugins.legend.labels.font.size);
-    } else if (this.ConfigChartHealth.barDefault.options.plugins.legend.labels.font.size !== undefined) {
-      theboxfontSize = Number(this.ConfigChartHealth.barDefault.options.plugins.legend.labels.font.size);
-    }
-
-
-    var thepointStyle = '';
-    if (this.tabParamChart[nb].legendBox.pointStyle !== '') {
-      thepointStyle = this.tabParamChart[nb].legendBox.pointStyle;
-    } else if (this.ConfigChartHealth.barChart.options.plugins.legend.labels.pointStyle !== undefined) {
-      thepointStyle = this.ConfigChartHealth.barChart.options.plugins.legend.labels.pointStyle;
-    } else if (this.ConfigChartHealth.barDefault.options.plugins.legend.labels.pointStyle !== undefined) {
-      thepointStyle = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.pointStyle;
-    }
-
-    var theColorBox = '';
-    if (this.tabParamChart[nb].legendBox.color !== '') {
-      theColorBox = this.tabParamChart[nb].legendBox.color;
-    } else if (this.ConfigChartHealth.barChart.options.plugins.legend.labels.color !== undefined) {
-      theColorBox = this.ConfigChartHealth.barChart.options.plugins.legend.labels.color;
-    } else if (this.ConfigChartHealth.barDefault.options.plugins.legend.labels.color !== undefined) {
-      theColorBox = this.ConfigChartHealth.barDefault.options.plugins.legend.labels.color;
-    }
-
-    if (this.ConfigChartHealth.barDefault.options.indexAxis === 'x') {
-      Chart.defaults.indexAxis = 'x';
-    } else {
-      Chart.defaults.indexAxis = 'y'
-    }
-
-    if (this.tabParamChart[nb].chartTitle.position === 'bottom') {
-      Chart.defaults.plugins.title.position = 'bottom';
-    } else if (this.tabParamChart[nb].chartTitle.position === 'top') {
-      Chart.defaults.plugins.title.position = 'top'
-    }
-
-    if (this.tabParamChart[nb].legendTitle.position === 'bottom') {
-      Chart.defaults.plugins.legend.position = 'bottom';
-    } else if (this.tabParamChart[nb].legendTitle.position === 'top') {
-      Chart.defaults.plugins.legend.position = 'top'
-    }
-
-    Chart.defaults.plugins.title.align = 'center';
-    if (this.tabParamChart[nb].chartTitle.align === 'end') {
-      Chart.defaults.plugins.title.align = 'end';
-    } else if (this.tabParamChart[nb].chartTitle.align === 'start') {
-      Chart.defaults.plugins.title.align = 'start'
-    }
-    Chart.defaults.plugins.legend.align = 'center';
-    if (this.tabParamChart[nb].legendTitle.align === 'start') {
-      Chart.defaults.plugins.legend.align = 'end';
-    } else if (this.tabParamChart[nb].legendTitle.align === 'start') {
-      Chart.defaults.plugins.legend.align = 'start';
-    }
-    if (this.tabParamChart[nb].axisY.position === 'left') {
-      Chart.defaults.scales.category.position = 'left';
-    } else {
-      Chart.defaults.scales.category.position = 'right';
-    }
-    var displayChartTitle = false;
-    var displayLegendTitle = false;
-    if (this.tabParamChart[nb].chartTitle.display === true) {
-      displayChartTitle = true;
-    }
-    if (this.tabParamChart[nb].legendTitle.display === true) {
-      displayLegendTitle = true;
-    }
-
-
-    // modify color of legend for line limit
-    if (this.tabParamChart[nb].chartType === 'bar') {
-      this.myTabChart[nb] = new Chart(
-        this.tabCtx[nb], {
-        type: 'bar',
-
-        data: {
-          labels: dateLabel,
-          datasets: theDatasets,
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          layout: {
-            padding: {
-              left: this.ConfigChartHealth.barDefault.options.layout.padding.left,
-              top: this.ConfigChartHealth.barDefault.options.layout.padding.top
-            }
-          },
-          plugins: {
-            title: {
-              padding: {
-                top: this.tabParamChart[nb].chartTitle.padding.top,
-                bottom: this.tabParamChart[nb].chartTitle.padding.bottom,
-              },
-              //position: "bottom",
-              display: true,
-              text: charTitle,
-              //align:'center',
-              color: TitleColor,
-              font: {
-                size: this.tabParamChart[nb].chartTitle.font.size,
-                weight: Number(this.tabParamChart[nb].chartTitle.font.weight),
-                family: this.tabParamChart[nb].chartTitle.font.family,
-              }
-            },
-            legend: {
-              //align:'center',
-              //position: 'top',   // label position left/right/top/bottom
-              labels: {
-                boxWidth: theboxWidth,
-                boxHeight: theboxHeight,
-                color: theColorBox,
-                usePointStyle: true,
-                pointStyle: thepointStyle,
-                borderRadius: theboxradius,
-
-                font: {
-                  size: theboxfontSize,
-                  weight: Number(this.tabParamChart[nb].legendBox.font.weight),
-                  family: this.tabParamChart[nb].legendBox.font.family,
-                }
-
-              },
-              maxHeight: this.ConfigChartHealth.barDefault.options.plugins.legend.maxHeight,
-              maxWidth: this.ConfigChartHealth.barDefault.options.plugins.legend.maxWidth,
-              reverse: false,
-              title: {
-                display: displayLegendTitle,
-                text: mylegendTitle,
-                color: legendColor,
-                padding: {
-                  left: this.tabParamChart[nb].legendTitle.padding.left,
-                  top: this.tabParamChart[nb].legendTitle.padding.top,
-                  bottom: this.tabParamChart[nb].legendTitle.padding.bottom,
-                },
-                font: {
-                  size: this.tabParamChart[nb].legendTitle.font.size,
-                  weight: Number(this.tabParamChart[nb].legendTitle.font.weight),
-                  family: this.tabParamChart[nb].legendTitle.font.family,
-                }
-              },
-
-            },
-          },
-          elements: {
-            point: {
-              radius: 0,
-              borderWidth: 0,
-            }
-          },
-          //indexAxis: 'x',
-          scales: {
-            y: {
-              beginAtZero: true,
-              type: 'linear',
-              position: 'right',
-              stacked: yStacked,
-              border: {
-                color: this.tabParamChart[nb].axisY.border.color,
-                width: this.tabParamChart[nb].axisY.border.width
-              },
-              ticks: {
-                // stepSize:0.7,
-                color: this.tabParamChart[nb].axisY.ticks.color,
-              }
-            },
-            x: {
-              stacked: xStacked,
-              border: {
-                color: this.tabParamChart[nb].axisX.border.color,
-                width: this.tabParamChart[nb].axisX.border.width
-              },
-              ticks: {
-                color: this.tabParamChart[nb].axisX.ticks.color,
-              }
-            },
-          },
-          aspectRatio: theRatio,
-        },
-      });
-    }
-    else if (this.tabParamChart[nb].chartType === 'line') {
-      this.myTabChart[nb] = new Chart(
-        this.tabCtx[nb], {
-        type: 'line',
-
-        data: {
-          labels: dateLabel,
-          datasets: theDatasets,
-        },
-
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          elements: {
-            line: { borderWidth: 7 }
-          },
-          layout: {
-            padding: {
-              left: this.ConfigChartHealth.barDefault.options.layout.padding.left,
-              top: this.ConfigChartHealth.barDefault.options.layout.padding.top
-            }
-          },
-          plugins: {
-            subtitle: {
-              display: false,
-              text: 'Custom Chart Subtitle'
-            },
-            title: {
-              padding: {
-                top: this.tabParamChart[nb].chartTitle.padding.top,
-                bottom: this.tabParamChart[nb].chartTitle.padding.bottom,
-              },
-              //position: 'bottom',
-              fullSize: false,
-              display: displayChartTitle,
-              text: charTitle,
-              //align:'center',
-              color: TitleColor,
-              font: {
-                size: this.tabParamChart[nb].chartTitle.font.size,
-                weight: Number(this.tabParamChart[nb].chartTitle.font.weight),
-                family: this.tabParamChart[nb].chartTitle.font.family,
-              }
-            },
-            legend: {
-              //align:'center',
-              //position: 'top',   // label position left/right/top/bottom
-              labels: {
-                boxWidth: theboxWidth,
-                boxHeight: theboxHeight,
-                usePointStyle: true,
-                pointStyle: thepointStyle,
-                borderRadius: theboxradius,
-                color: theColorBox,
-                font: {
-                  size: theboxfontSize,
-                  weight: Number(this.tabParamChart[nb].legendBox.font.weight),
-                  family: this.tabParamChart[nb].legendBox.font.family,
-                }
-
-              },
-              maxHeight: this.ConfigChartHealth.barDefault.options.plugins.legend.maxHeight,
-              maxWidth: this.ConfigChartHealth.barDefault.options.plugins.legend.maxWidth,
-              reverse: false,
-              title: {
-                display: displayLegendTitle,
-                text: mylegendTitle,
-                color: legendColor,
-                padding: {
-                  left: this.tabParamChart[nb].legendTitle.padding.left,
-                  top: this.tabParamChart[nb].legendTitle.padding.top,
-                  bottom: this.tabParamChart[nb].legendTitle.padding.bottom,
-                },
-                font: {
-                  size: this.tabParamChart[nb].legendTitle.font.size,
-                  weight: Number(this.tabParamChart[nb].legendTitle.font.weight),
-                  family: this.tabParamChart[nb].legendTitle.font.family,
-                }
-              },
-
-            },
-          },
-
-          //indexAxis: 'x',
-          scales: {
-            y: {
-              beginAtZero: true,
-              type: 'linear',
-              position: 'right',
-              stacked: yStacked,
-              border: {
-                color: this.tabParamChart[nb].axisY.border.color,
-                width: this.tabParamChart[nb].axisY.border.width
-              },
-              ticks: {
-                // stepSize:0.7,
-                color: this.tabParamChart[nb].axisY.ticks.color,
-              }
-            },
-            x: {
-
-              stacked: xStacked,
-              border: {
-                color: this.tabParamChart[nb].axisX.border.color,
-                width: this.tabParamChart[nb].axisX.border.width
-              },
-              ticks: {
-                color: this.tabParamChart[nb].axisX.ticks.color,
-              }
-            },
-          },
-
-          aspectRatio: theRatio,
-        },
-      });
+  cancelFn(event: string) {
+    this.resetBooleans();
+    this.timeOutactivity(5, true, false,"only");
+     if (event === 'cancelAll') {
+      for (var i = 0; i < this.tabParamChart.length; i++) {
+        this.fillInCharts(this.inFileParamChart.data[i], this.tabParamChart[i]);
+        this.fillInFormFromTab(i);
+        this.buildChart(i);
+      }
+    } else if (event === 'cancelOne') {
+      this.fillInCharts(this.inFileParamChart.data[this.selectedChart - 1], this.tabParamChart[this.selectedChart - 1]);
+      this.fillInFormFromTab(this.selectedChart - 1);
+      this.buildChart(this.selectedChart - 1);
     }
   }
 
-  myNewTabChart: any;
-  testLineChart() {
-    const myDataset = {
-      label: "",
-      backgroundColor: [], // The line fill color.
-      data: [],
-      borderColor: [],
-      borderWidth: [],
+
+  resultAccessFile(theEvent:any){
+    //this.openFileAccess=false;
+    if (this.lockValueBeforeCheck!==this.tabLock[5].lock){
+      if (this.tabLock[5].lock===1){
+        this.enableForm();
+        this.errorMsg = "You can now update the file";
+      } else {
+        this.errorMsg = "File is locked by another user";
+        this.disableForm();
+      }
     }
-
-    this.myNewTabChart = new Chart(
-      this.newtabCtx, {
-      type: 'line',
-
-      data: {
-        labels: ['lab1', 'lab2', 'lab3', 'lab4,', 'lab5', 'lab6', 'lab7', 'lab8', 'lab9'],
-        datasets: [{
-          label: 'll1', data: [2, 3, 4, 5, 6, 2, 3, 4, 15], borderColor: ['blue', 'red', 'green', 'yellow', 'lightred', 'pink', 'orange', 'lightblue'],
-          borderWidth: 3, showLine: true, fill: false, order: 1,
-          pointRadius: 2, pointBorderColor: 'pink', pointBackgroundColor: 'blue', pointBorderWidth: 2, tension: 0.2,
-          hoverBackgroundColor: "orange", pointHoverBackgroundColor: 'lightblue'
-        },
-        {
-          label: 'object1', data: [13, 13, 13, 13, 13, 13, 13, 13, 13], borderColor: ['blue', 'red', 'green', 'yellow', 'lightred', 'pink', 'orange', 'lightblue'],
-          borderWidth: 4, showLine: true, fill: false, order: 2, pointStyle: false,
-
-        },
-        {
-          label: 'll2', data: [12, 13, 14, 15, 16, 12, 13, 14, 17], borderColor: ['blue', 'red', 'green', 'yellow', 'lightred', 'pink', 'orange', 'lightblue'],
-          borderWidth: 3, showLine: true, fill: false, order: 3,
-          pointRadius: 8, pointBorderWidth: 6, pointBorderColor: 'orange', pointBackgroundColor: 'red', pointStyle: 'rect',
-          tension: 0.5,
-          hoverBackgroundColor: "cyan", pointHoverBackgroundColor: "grey"
-        },
-        {
-          label: 'object2', data: [6, 6, 6, 6, 6, 6, 6, 6, 6], borderColor: ['blue', 'red', 'green', 'yellow', 'lightred', 'pink', 'orange', 'lightblue'],
-          borderWidth: 4, showLine: true, fill: false, order: 4,
-          pointRadius: 7, pointBorderColor: 'cyan', pointBackgroundColor: 'blue', pointBorderWidth: 8, pointStyle: 'false', tension: 0,
-          hoverBackgroundColor: "cyan", pointHoverBackgroundColor: "grey"
-        }
-        ],
-
-      },
-      options: {
-        responsive: true,
-        /****
-        plugins: {
-          title:{
-            padding: {
-              top: 10,
-              bottom:10,
-            },
-            position: 'bottom',
-            display:true,
-            text:'my title',
-            align:'center',
-            color:'blue',
-            font:{
-                size:20,
-                weight:'bold',
-                family:'Helvetica',
-              }
-          },
-        legend: {
-          align:'center',
-          position: 'top',   // label position left/right/top/bottom
-          labels: {
-              boxWidth: 60, 
-              boxHeight: 60, 
-              usePointStyle:true,
-              pointStyle:'rect',
-              borderRadius:0,
-              color:'darkblue',    
-              font:{
-                size:16,
-                weight:'bold',
-                family:'Helvetica',
-              }
-              
-            },
-          maxHeight:80,
-          maxWidth:300,
-          reverse:false,
-
-
-          },
-        },
-
-        indexAxis: 'x',
-        scales: {
-          y: {
-            beginAtZero: true,
-            //type:'linear',
-            position:'right',
-            stacked:false ,
-            ticks:{
-              // stepSize:0.7,
-              color:'darkred',
-            }
-          },
-          x: {
-            stacked:false ,
-            ticks:{
-              color:'darkblue',
-            }
-          },
-        },
-         */
-        aspectRatio: 1.5,
-      },
-    });
-
+    if (this.onInputAction === "confirmSave"){
+      this.SpecificForm.controls['FileName'].setValue(this.identification.fitness.files.myChartConfig);
+      this.IsSaveConfirmed = true;
+    }
+    console.log(theEvent);
   }
-
-  initTabLock5: number = 0;
 
   ngOnChanges(changes: SimpleChanges) {
 
-    var i = 0;
     for (const propName in changes) {
-      const j = changes[propName];
-      if (propName === 'INFileParamChart') {
-        const b = this.INFileParamChart.data;
-      } else if (propName === 'tabLock') {
-        if (changes['tabLock'].firstChange === true) {
-          console.log('report chart ==> ngOnChange firstChange===true   current value of tabLock[5]=' + changes[propName].currentValue.lock +
-            '  & previous value initTabLock5 was=' + this.initTabLock5 + '  & input() TabLock[5]=' + this.tabLock.lock);
-        } else {
-          console.log('report chart ==> ngOnChange firstChange===false   current tabLock[5]=' + changes[propName].currentValue.lock +
-            '  & previous value initTabLock5 was=' + this.initTabLock5 + '  & input() TabLock[5]=' + this.tabLock.lock);
-
-          if (this.returnEmit.saveAction.substring(0, 4) === 'save') {
-            if (this.tabLock.lock === 1 && (this.tabLock.status === 0 || this.tabLock.status === 300)) {
-              if (this.returnEmit.saveAction === 'save') {
-                this.error_msg = 'parameters for chart#' + this.selectedChart + ' have been saved';
-              } else if (this.returnEmit.saveAction === 'saveAll') {
-                this.error_msg = 'for all charts, parameters have been saved';
-                for (var i = 0; i < this.tabParamChart.length; i++) {
-                  this.buildChart(i);
-                }
-              }
-            } else {
-              this.error_msg = 'Parameters cannot be saved - error=' + this.tabLock.status;
-
-            }
-            this.returnEmit.saveAction = '';
-          } else if (this.initTabLock5 !== changes[propName].currentValue.lock) {
-            this.buildChart(this.selectedChart - 1);
+      console.log('onChange report-Health propName='+propName);
+      if (propName === 'tabLock'){
+        if (this.tabLock[5].lock===1){
+          if (changes[propName].previousValue !==undefined && changes[propName].previousValue.lock!==1){
+            this.errorMsg = "You can now update the file";
           }
-        }
-        this.initTabLock5 = changes[propName].currentValue.lock;
-        if (this.initTabLock5 === 1) {
           this.enableForm();
         } else {
+          if (changes[propName].previousValue !==undefined && changes[propName].previousValue.lock===1){
+            this.errorMsg = "File is locked by another user";
+          }
           this.disableForm();
         }
-
-      }
+      } else if (propName === 'actionParamChart' && changes[propName].firstChange === false) {
+          if ( this.onInputAction === "saveParamChart") {
+            if (this.tabLock[5].lock === 1 && (this.tabLock[5].status === 0 || this.tabLock[5].status === 300)) {
+              if (this.theEvent.target.id === 'save') {
+                this.errorMsg = 'parameters for chart#' + this.selectedChart + ' have been saved';
+              } else if (this.theEvent.target.id === 'saveAll') {
+                this.errorMsg = 'for all charts, parameters have been saved';
+              }
+            } else {
+              this.errorMsg = 'Parameters cannot be saved - error=' + this.tabLock[5].status;
+            }
+            this.onInputAction = "";
+        } 
+      } else if (propName==='returnDataFSParamChart' && changes[propName].firstChange === false) {
+        // is it needed
+        if (this.tabLock[5].lock !== 1 && this.onInputAction === "saveParamChart"){
+          this.errorMsg = "file has been locked by another user; all your updates are lost (" +  this.returnDataFSParamChart.errorMsg + ")" + " status=" + this.tabLock[5].status;
+        } 
+        if (this.tabLock[5].lock === 1) {
+            this.enableForm();
+        } else {
+            this.disableForm();
+        }
+        this.onInputAction = "";
+      } else if ( propName==='statusSaveFn' && changes[propName].firstChange === false) {  //propName === 'callSaveFunction' ||
+        this.onInputAction = "";
+        this.theEvent.checkLock.action="";
+        this.isMustSaveFile = false;
+        this.isSaveParamChart = false;
+        if (this.statusSaveFn.status===200 || this.statusSaveFn.status===0){
+          this.errorMsg='File has been successfully saved';
+          this.isDataModified = false;
+        } else {
+          this.errorMsg=this.statusSaveFn.err;
+        }
+      } 
     }
     // //this.LogMsgConsole('$$$$$ onChanges '+' to '+to+' from '+from + ' ---- JSON.stringify(j) '+ JSON.stringify(j)); 
   }

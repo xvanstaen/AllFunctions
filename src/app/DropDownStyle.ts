@@ -9,7 +9,6 @@ export class classDropDown{
     maxHeightContent:number=275;
     maxHeightOptions:number=275; 
     scrollY:string='hidden';
-
   }
 
 export function getStyleDropDownContent(height:number, width:number){
@@ -35,5 +34,3 @@ export  function getStyleDropDownBox(height:number, width:number, marginL:number
         'border':'1px lightgrey solid'
         }
   }
-
- 

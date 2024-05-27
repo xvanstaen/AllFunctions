@@ -73,7 +73,13 @@ import { BuildLoopFromPerfComponent } from './Sport/build-loop/build-loop-from-p
 import { TutorialsComponent } from './tutorials/tutorials.component';
 import { SelectServerComponent } from './select-server/select-server.component';
 import { UserFunctionsComponent } from './user-functions/user-functions.component';
-
+import { CacheConsoleComponent } from './cache-console/cache-console.component';
+import { MainHealthComponent } from './Health/main-health/main-health.component';
+import { RunningClockComponent } from './Health/running-clock/running-clock.component';
+import { MyCanvasComponent } from './my-canvas/my-canvas.component'
+import { SportChartsComponent } from './Sport/sport-charts/sport-charts.component';
+import { ManageDisplayChartsComponent } from './manage-display-charts/manage-display-charts.component'
+import { MainManageFileComponent } from './fileAccessMgt/file-access.component'
 
 @NgModule({
   declarations: [
@@ -126,11 +132,19 @@ import { UserFunctionsComponent } from './user-functions/user-functions.componen
     SportAnalysisComponent,
     SportPerfRawDataMgtComponent,
     SportPerformanceComponent,
+    SportChartsComponent,
     DisplayCircuitLoopComponent,
     BuildLoopFromPerfComponent,
     TutorialsComponent,
     SelectServerComponent,
-    UserFunctionsComponent ,
+    UserFunctionsComponent,
+    CacheConsoleComponent ,
+    MainHealthComponent,
+    RunningClockComponent,
+    MyCanvasComponent,
+        
+    ManageDisplayChartsComponent,
+    MainManageFileComponent
   ],
   imports: [
 

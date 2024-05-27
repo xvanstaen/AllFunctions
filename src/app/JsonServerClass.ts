@@ -41,6 +41,15 @@ export class BioData{
       performanceSport={
         bucket:"xmv-sport-performance",
         file:"",
+        configSport:{
+          bucket:"config-xmvit",
+          files:{
+            confChart:"configChartSport.json"
+          },
+          fileType:{
+            confChart:"configChart"
+          }
+        }
         };
       circuits={
           bucket:"xmv-sport-performance",
@@ -96,7 +105,8 @@ export class BioData{
         },
         Calories:0,
         Carbs:0,
-        Protein:0
+        Protein:0,
+        Sugar:0
       };
       recipe={
         bucket:'',
@@ -270,8 +280,13 @@ export class configServer{
       mn:0
     },
     bufferInput:{
-        hh:0,
-        mn:0
+      hh:0,
+      mn:0
+    },
+    userTimeOut:{
+      hh:0,
+      mn:0,
+      ss:0
     }
   };
   filesToCache:Array<classFilesToCache>=[];
@@ -304,4 +319,34 @@ export class   classCredentials {
 }
 
 export class classTabMetaPerso { key:string=""; value:string=""; }
+
+export class classtheEvent {
+  target={
+    id: '',
+    textContent: '',
+    value: ''
+  };
+  currentTarget={
+    id: '',
+    textContent: '',
+    value: ''
+  };
+  checkLock=new classCheckLock;
+  fileName:string='';
+  bucket:string='';
+  object:string='';
+  fileContent:any;
+  iWait:number=0;
+  saveCalls:number=0;
+  nbCalls:number=0;
+}
+export class classCheckLock{
+  iWait:number=0;
+  isDataModified:boolean=false;
+  isSaveFile:boolean=false;
+  lastInputAt:string='';
+  iCheck:boolean=false;
+  nbCalls:number=0;
+  action:string='';
+}
 

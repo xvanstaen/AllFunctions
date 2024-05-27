@@ -2,8 +2,6 @@
 .position{
     position:relative;
     border: solid 2px red;
-    margin-left:10px;
-    margin-top:20px;
     display:block;
 }
 

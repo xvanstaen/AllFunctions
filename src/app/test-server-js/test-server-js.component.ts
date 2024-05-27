@@ -60,6 +60,13 @@ export class TestServerJSComponent {
 
   @Output() serverChange=  new EventEmitter<any>();
 
+  initData={
+    getRecord:false,
+    record:[],
+    app:"",
+    nbCalls:0,
+    }
+
   newConfigServer = new configServer;
 
   retrievedConfigServer= new configServer;
@@ -136,7 +143,7 @@ export class TestServerJSComponent {
   });
 
   tabAction: Array<string> = ['cancel', 'list all buckets', 'list all objects', 'get file content', 'get list metadata for all objects', 'get metadata for one object', 'create & save metadata' , 'update metadata for one object',  'save object', 'save object with meta perso' , 'rename object', 
-  'copy object', 'move object', 'delete object','get server version', 'get cache console', 'get memory File System', 'get credentials','get cache file','get FS credentials','manage config','reset memory File System','reset memory all FS', 'reset cache console','reset cache file', 'reload cache file'];
+  'copy object', 'move object', 'delete object','get server version', 'get cache console', 'get memory File System', 'get credentials','get cache file', 'manage config','reset memory File System','reset memory all FS', 'reset cache console','reset cache file', 'reload cache file'];
   
   tabConfig:Array<string>=['find cache config', 'reset cache config','find config by criteria', 'find all config', "update config by id", "upload config", "delete config by Id", "create config"];
 
@@ -226,7 +233,9 @@ export class TestServerJSComponent {
   
   getOneServer(event:any){
     this.selectOneServer=false;
-    this.theForm.controls['serverForAction'].setValue(event.server);
+    if (event.server.trim()!=="cancel"){
+      this.theForm.controls['serverForAction'].setValue(event.server);
+    }
   }
 
   inputMetaPerso(event: any) {
@@ -536,7 +545,7 @@ storeTitle(event:any){
 
       } else if (event.target.textContent.trim() === 'get FS credentials') {
         this.isDisplayAction=false;
-        this.getFSCredentials();
+        //this.getFSCredentials();
 
       }else if (event.target.textContent.trim() === 'get server version') {
         for (var i=0; i<this.tabServers.length;i++){
@@ -1401,8 +1410,27 @@ listConfig(){
   }
 
   /* =================== CACHE CONSOLE  =============*/
-
+  gotoGetCacheConsole:boolean=false;
+  reTriggerFn:number=0;
   getCacheConsole() {
+    this.initData.getRecord=true;
+    this.initData.record=[];
+    this.initData.app="getCacheConsole";
+    this.initData.nbCalls++
+    this.reTriggerFn++
+    this.newConfigServer.googleServer=this.theForm.controls['serverForAction'].value;
+    this.gotoGetCacheConsole=true;
+  }
+
+  appReturnError(event:any){
+    if (event.app==="getCacheConsole"){
+      this.error=event.error;
+      //this.gotoGetCacheConsole=false;;
+    }
+    
+  }
+
+  getCacheConsoleBis() {
     this.initBeforeCallAPI(10);
     this.memoryCacheConsole.splice(0,this.memoryCacheConsole.length);
     this.newConfigServer.googleServer=this.theForm.controls['serverForAction'].value;
@@ -1631,13 +1659,13 @@ listConfig(){
           this.EventHTTPReceived[17]=true;
         },
         err => {
-          this.EventStopWaitHTTP[17]=true;
+            this.EventStopWaitHTTP[17]=true;
           this.manageErrorMsg(err);
           console.log('return from requestToken() with error = '+ JSON.stringify(err));
           });
   }
 
-
+/*
   getFSCredentials(){
     console.log('get File System Credentials()');
     this.credentials = new classCredentials;
@@ -1662,7 +1690,7 @@ listConfig(){
           console.log('return from requestToken() with error = '+ JSON.stringify(err));
           });
   }
-
+*/
 
 
   /* =================== CONFIRM SAVE/DELETE  =============*/
@@ -1826,5 +1854,6 @@ listConfig(){
       }
     }
   }
+
 
 }

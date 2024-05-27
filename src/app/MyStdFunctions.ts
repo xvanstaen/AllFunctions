@@ -1,5 +1,11 @@
     import { classFileSystem, classAccessFile }  from 'src/app/classFileSystem';
 
+    export function convertLongFormatDate(theDate:string) {
+      // format to return is yyyy/mm/dd hh:mn:ss ms
+      const newFormat= theDate.substring(0,4)+"/"+theDate.substring(4,6)+"/"+theDate.substring(6,8)+" "+theDate.substring(8,10)+":"+theDate.substring(10,12)+":"+theDate.substring(12,14)+" "+theDate.substring(14);
+      return (newFormat)
+    }
+
     export function convertDate(theDate:Date, theFormat:string) {
         var formattedDate:string=theFormat;
         var YY:number= theDate.getFullYear();
@@ -84,6 +90,7 @@
     
       return (strHH+":"+strMN+":"+strSEC) ;
     }
+
     export function fnAddTime(theDate:string, addHour:number, addMin:number){
         // format of theDate is YYYMMDDHHMNSS
         var stringHour='';
@@ -193,7 +200,11 @@
 
       export function strDateTime(){
         const theDate=new Date();
-        //const myDate=new Date(theDate).toUTCString();
+        const newDate = formatDateInSeconds(theDate);
+        return newDate;
+      }
+
+      export function formatDateInSeconds(theDate:Date){
         const year=theDate.getUTCFullYear();
         const month=theDate.getUTCMonth()+1;
         const day=theDate.getUTCDate();
@@ -231,7 +242,11 @@
       
       export function defineMyDate(){
         const theDate=new Date();
-        //const myDate=new Date(theDate).toUTCString();
+        const newDate = formatDateInMilliSeconds(theDate);
+        return newDate;
+      }
+
+      export function formatDateInMilliSeconds(theDate:Date){
         const year=theDate.getUTCFullYear();
         const month=theDate.getUTCMonth()+1;
         const day=theDate.getUTCDate();
@@ -272,11 +287,20 @@
           theMilliseconds=milliseconds.toString();;
         }
       
-      
         return (year.toString()+theMonth+theDay+theHour+theMinutes+theSeconds+theMilliseconds);
-      
-      
       }
+
+      export function fnCheckTimeOut(inputDate:string, timeOut:any){
+        const currentTime=defineMyDate();
+        const timeOutValue=fnAddTime(inputDate,timeOut.hh,timeOut.mn);
+                
+        if (Number(currentTime) <= Number(timeOutValue)) {
+            return false ;
+        } else {
+            return true ;
+        }
+      }
+
 
       export function fnCheckLockLimit(configServer:any,tabLock:any,iWait:any, lastInputAt:string, isRecordModified:boolean, isSaveFile:boolean){ 
         var returnValue={
@@ -292,18 +316,10 @@
             const timeOutValue=fnAddTime(tabLock[iWait].updatedAt,configServer.timeoutFileSystem.hh,configServer.timeoutFileSystem.mn);
             const bufferTimeOutValue=fnAddTime(tabLock[iWait].updatedAt,configServer.timeoutFileSystem.bufferTO.hh,configServer.timeoutFileSystem.bufferTO.mn);
             const bufferLastInput=fnAddTime(tabLock[iWait].updatedAt,configServer.timeoutFileSystem.bufferInput.hh,configServer.timeoutFileSystem.bufferInput.mn);
-            
-           // if (tabLock[iWait].lock===2){
-           //   isAllDataModified = false;
-           // }
-           
-            //console.log('===> checkLockLimit():  timeOutValue= ' + timeOutValue, '  currentTime= ' + currentTime + '  bufferLastInput=' + bufferLastInput );
-            
+              
             if (Number(currentTime) <= Number(timeOutValue) && Number(lastInputAt) >=Number(bufferTimeOutValue) 
                                     && tabLock[iWait].lock === 1 && isRecordModified === true){
-              // isMustSaveFile=true;
-              // theEvent.target.id='All'; 
-              // ConfirmSave(theEvent);
+
               if (isSaveFile===true){
                 //ProcessSaveHealth(theEvent);
                 returnValue.action="ProcessSave";
@@ -545,15 +561,7 @@ export function validateLock(fileSystem:Array<classFileSystem>, inData:classAcce
     TabOfId.splice(0,TabOfId.length);
 
     var j=-1;
-    /*
-    for (var i=0; i<theId.length; i++){
-      if (specChar.indexOf(theId.substring(i,i+1))!==-1){
-          j++;
-          TabDash[j]=i+1;
-          TabDash.push(0);
-      }
-    }
-    */
+
     TabDash.push(0);
     for (var i=0; i<theId.length; i++){
       const k=theId.substring(i).indexOf(specChar);
@@ -571,10 +579,7 @@ export function validateLock(fileSystem:Array<classFileSystem>, inData:classAcce
         i=theId.length;
       }
     }
-
-
     TabDash[j+1]=theId.length+1;
-  
     i=0;
     for (j=0; j<TabDash.length-1; j++){
       TabOfId[i]=parseInt(theId.substring(TabDash[j]+1,TabDash[j+1]));
