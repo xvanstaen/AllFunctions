@@ -219,7 +219,7 @@ export class AppComponent {
   
 
     getServerUsrId(serverType:any){
-      console.log('getCredentials()');
+      console.log('getServerUsrId()');
       
       if (serverType==='Mongo'){
           this.configServer.googleServer = this.configServer.mongoServer;
@@ -313,8 +313,9 @@ export class AppComponent {
 
   }
 
-
+isValidateId:boolean=false;
   validateIdentification(){
+    this.isValidateId=true;
     this.errorMsg="";
     if (this.theForm.controls['userId'].value !== '' && this.theForm.controls['psw'].value !== '' ){
       if (this.isCredentials===true){
@@ -384,7 +385,7 @@ isGetLogin:boolean=false;
               this.getUserAccessLevel();
               this.identification=data;
               this.isIdRetrieved=true;
-              
+              this.isValidateId=false;
               this.identification.userServerId=this.credentialsFS.userServerId;
               this.identification.credentialDate=this.credentialsFS.creationDate;
               this.identification.IpAddress=this.configServer.IpAddress;
@@ -409,6 +410,7 @@ if (this.configServer.userLogin.accessLevel==="High" || this.configServer.userLo
         err=> {
           console.log('error to checkLogin - error status=' + err.status + ' '+ err.message );
           this.errorMsg="Identification failed; update the fields";
+          this.isValidateId=false;
         })
   }
 

@@ -23,7 +23,7 @@
         <label class="label">User Id</label> <input type="text" class="theInput" formControlName="userId">
         <div style="display:inline-block; height:4px; width:100%;"></div>
         <label class="label">Password</label> <input type="password" class="theInput" formControlName="psw">
-        <div *ngIf="isConfigServerRetrieved" style="margin-top:8px;">
+        <div *ngIf="isConfigServerRetrieved && this.isValidateId===false" style="margin-top:8px;">
             <button class="sizeButtons" id="2" (click)="validateIdentification()">Submit</button> 
             <button class="sizeButtons" id="1" (click)="clearForm()">Clear</button> 
         </div>
