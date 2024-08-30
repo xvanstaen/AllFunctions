@@ -183,9 +183,11 @@ getServerNames(event:any){
     this.configServer.fileSystemServer=event.fileSystem;
     this.serverChange.emit('FS');
   }
-
+  this.selectApps=0;
   this.configServerChanges++;
 }
+
+
 fnResetServer(event:any){
   /*
   this.isCredentials=false;
