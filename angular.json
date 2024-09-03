@@ -71,10 +71,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "XMVWebSite:build:production"
+              "buildTarget": "XMVWebSite:build:production"
             },
             "development": {
-              "browserTarget": "XMVWebSite:build:development"
+              "buildTarget": "XMVWebSite:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -82,7 +82,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "XMVWebSite:build"
+            "buildTarget": "XMVWebSite:build"
           }
         },
         "test": {
@@ -108,7 +108,6 @@
       }
     }
   },
-  "defaultProject": "XMVWebSite",
   "cli": {
     "analytics": false
   }

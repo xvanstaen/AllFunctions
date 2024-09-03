@@ -5,7 +5,7 @@ import { CommonModule,  DatePipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { MatDialogModule} from '@angular/material/dialog';
-import  { NgChartsModule } from 'ng2-charts';
+
 
 
 import { AppRoutingModule } from './app-routing.module';
@@ -156,7 +156,7 @@ import { MainManageFileComponent } from './fileAccessMgt/file-access.component'
     MatDialogModule,
     ReactiveFormsModule,
     HttpClientModule,
-    NgChartsModule,
+   
     
    
   ],
