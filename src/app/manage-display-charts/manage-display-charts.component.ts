@@ -21,8 +21,6 @@ import { Observable } from 'rxjs';
 // it is stored in MongoDB and accessed via ManageMongoDBService
 
 
-import { environment } from 'src/environments/environment';
-
 import { classPosDiv, getPosDiv } from './../getPosDiv';
 
 import { manage_input } from './../manageinput';
@@ -38,9 +36,9 @@ import { mainConvItem, mainRecordConvert, mainClassUnit, mainClassConv } from '.
 import { classPosSlider } from './../JsonServerClass';
 
 import { configServer, LoginIdentif, msgConsole, classtheEvent } from './../JsonServerClass';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { AccessConfigService } from 'src/app/CloudServices/access-config.service';
+import { ManageMongoDBService } from '../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../CloudServices/access-config.service';
 
 import { classFileSystem, classAccessFile, classReturnDataFS } from './../classFileSystem';
 import { fnAddTime, addMonthDay, convertDate, strDateTime, fnCheckTimeOut, defineMyDate, formatDateInSeconds, formatDateInMilliSeconds, findIds } from './../MyStdFunctions';

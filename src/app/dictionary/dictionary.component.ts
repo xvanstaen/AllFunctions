@@ -18,11 +18,11 @@ import { Bucket_List_Info } from '../JsonServerClass';
 import { configServer, LoginIdentif} from '../JsonServerClass';
 import { msgConsole } from '../JsonServerClass';
 import {msginLogConsole} from '../consoleLog'
-import { environment } from 'src/environments/environment';
+import { environment } from '../../environments/environment';
 
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import {AccessConfigService} from 'src/app/CloudServices/access-config.service';
+import { ManageMongoDBService } from '../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../CloudServices/ManageGoogle.service';
+import {AccessConfigService} from '../CloudServices/access-config.service';
 @Component({
   selector: 'app-dictionary',
   templateUrl: './dictionary.component.html',

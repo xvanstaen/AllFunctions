@@ -8,8 +8,6 @@ import { FormGroup, FormControl, Validators, FormBuilder, FormArray} from '@angu
 import { msginLogConsole } from '../consoleLog';
 import { LoginIdentif } from '../JsonServerClass';
 
-import { environment } from 'src/environments/environment';
-
 import { BucketList } from '../JsonServerClass';
 import { Bucket_List_Info } from '../JsonServerClass';
 import { OneBucketInfo } from '../JsonServerClass';
@@ -17,8 +15,9 @@ import { msgConsole } from '../JsonServerClass';
 import { Return_Data } from '../JsonServerClass';
 import { configServer } from '../JsonServerClass';
 
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
+import { ManageMongoDBService } from '../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../CloudServices/access-config.service';
 
 @Component({
   selector: 'app-AdminUserInfo',

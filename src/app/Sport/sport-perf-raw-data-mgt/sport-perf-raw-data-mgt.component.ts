@@ -14,8 +14,10 @@ import { configServer, LoginIdentif,  OneBucketInfo,  msgConsole, classCredentia
 import {classFileSport, classPointOfRef, classNewLoop, classCircuitRec, classFilePerf,classWorkCircuit, classTabPoR, classTotalLoop, classCountryPoR, classHeaderFileSport} from '../classSport';
 import { findIds, formatHHMNSS } from '../../MyStdFunctions';
 import { fillHeaderFile, updateTabPor } from '../commonSportFunctions';
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
+
+import { ManageMongoDBService } from '../../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../../CloudServices/access-config.service';
 
 
 @Component({

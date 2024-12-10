@@ -16,7 +16,7 @@ import { BucketList, Bucket_List_Info} from '../../JsonServerClass';
 // it is stored in MongoDB and accessed via ManageMongoDBService
 import { configServer, LoginIdentif, classtheEvent} from '../../JsonServerClass';
 import {classPosDiv, getPosDiv} from '../../getPosDiv';
-import { environment } from 'src/environments/environment';
+
 import {manage_input} from '../../manageinput';
 import {eventoutput, thedateformat} from '../../apt_code_name';
 
@@ -30,9 +30,9 @@ import {mainClassConv, ClassConv, ClassUnit, ConvItem, recordConvert} from '../.
 import { classFileSystem, classAccessFile , classReturnDataFS, classHeaderReturnDataFS} from '../../classFileSystem';
 import {classConfCaloriesFat} from '../classConfHTMLTableAll';
 
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import {AccessConfigService} from 'src/app/CloudServices/access-config.service';
+import { ManageMongoDBService } from '../../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../../CloudServices/access-config.service';
 import { fnAddTime, convertDate, strDateTime, fnCheckTimeOut, defineMyDate, formatDateInSeconds, formatDateInMilliSeconds, findIds } from '../../MyStdFunctions';
 import { drawNumbers, drawHourHand, drawMinuteHand, drawSecondHand, classPosSizeClock} from '../../clockFunctions'
 

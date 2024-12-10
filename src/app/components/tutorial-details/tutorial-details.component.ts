@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { TutorialService } from 'src/app/CloudServices/tutorial.service';
+import { TutorialService } from '../../CloudServices/tutorial.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Tutorial } from 'src/app/components/TutorialClass';
+import { Tutorial } from '../../components/TutorialClass';
 
 @Component({
   selector: 'app-tutorial-details',
@@ -19,8 +19,26 @@ export class TutorialDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     this.message = '';
-    this.getTutorial(this.route.snapshot.paramMap.get('id'));
+    //this.getTutorial(this.route.snapshot.paramMap.get('id'));
   }
+
+  updateTutorial(){
+
+  }
+
+  getTutorial(id:any){
+
+  }
+
+  updatePublished(status:any){
+
+  }
+
+  deleteTutorial(){
+    
+  }
+
+  /*
   getTutorial(id:any): void {
     this.tutorialService.get(id)
       .subscribe(
@@ -70,4 +88,5 @@ export class TutorialDetailsComponent implements OnInit {
           console.log(error);
         });
   }
+*/
 }

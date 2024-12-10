@@ -8,7 +8,6 @@ import { FormGroup, FormControl, Validators, FormBuilder, FormArray} from '@angu
 import { msginLogConsole } from '../consoleLog';
 import { LoginIdentif } from '../JsonServerClass';
 
-import { environment } from 'src/environments/environment';
 import { EventAug } from '../JsonServerClass';
 import { EventCommentStructure } from '../JsonServerClass';
 import { TableOfEventLogin } from '../JsonServerClass';

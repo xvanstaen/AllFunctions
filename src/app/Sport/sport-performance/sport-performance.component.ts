@@ -16,10 +16,10 @@ import { fromGPXtoTXT } from '../convertGPXtoTXT';
 import { fromTCXtoJSON } from '../convertTCXtoTXT';
 import { findIds, formatHHMNSS } from '../../MyStdFunctions';
 
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
-import { fillHeaderFile } from '../commonSportFunctions';
 
+import { ManageMongoDBService } from '../../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../../CloudServices/access-config.service';
 
 
 @Component({

@@ -15,11 +15,11 @@ import { Observable } from 'rxjs';
 import {msginLogConsole} from '../consoleLog'
 import { configServer, LoginIdentif, classCredentials, msgConsole } from '../JsonServerClass';
 import {classPosDiv, getPosDiv} from '../getPosDiv';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import {AccessConfigService} from 'src/app/CloudServices/access-config.service';
+import { ManageMongoDBService } from '../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../CloudServices/ManageGoogle.service';
+import {AccessConfigService} from '../CloudServices/access-config.service';
 
-import { classFileSystem, classAccessFile, classReturnDataFS, classHeaderReturnDataFS, classRetrieveFile }  from 'src/app/classFileSystem';
+import { classFileSystem, classAccessFile, classReturnDataFS, classHeaderReturnDataFS, classRetrieveFile }  from '../classFileSystem';
 
 import { fnAddTime, convertDate, strDateTime, fnCheckLockLimit, checkData, validateLock, createRecord, updatedAt  } from '../MyStdFunctions';
 

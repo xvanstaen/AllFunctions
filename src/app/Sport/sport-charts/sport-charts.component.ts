@@ -19,9 +19,10 @@ import { classConfigChart, classchartHealth } from './../../Health/classConfigCh
 import { classAxis, classLegendChart, classPluginTitle, classTabFormChart, classFileParamChart, classReturnColor } from './../../Health/classChart';
 
 import { configServer, LoginIdentif, msgConsole, classtheEvent } from '../../JsonServerClass';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { AccessConfigService } from 'src/app/CloudServices/access-config.service';
+
+import { ManageMongoDBService } from '../../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../../CloudServices/access-config.service';
 
 import { classFileSystem, classAccessFile, classReturnDataFS } from '../../classFileSystem';
 

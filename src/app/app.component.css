@@ -180,3 +180,23 @@ background-color: lightgreen;
 .forHover:hover{
   background-color: rgb(34, 187, 34);
 }
+
+
+.buttons{
+  width:100px;
+  height:40px;
+  font-size:16px;
+  margin-left:10px;
+  background-color:cyan;
+  border-radius: 5px;
+  background-image: linear-gradient(cyan, lightcyan);
+  box-shadow: 2px 2px blue;
+  border: solid 1px blue;
+  display:table-cell;
+  vertical-align:middle;
+}
+
+.buttons:hover{
+  background-color:rgb(48, 89, 159);
+  background-image: linear-gradient(rgb(97, 166, 206), rgb(63, 153, 206));
+}

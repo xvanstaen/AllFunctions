@@ -5,20 +5,26 @@ import { FormGroup,UntypedFormControl, FormControl, Validators} from '@angular/f
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ActivatedRoute, Router } from "@angular/router";
 
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
+import { ManageMongoDBService } from '../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../CloudServices/access-config.service';
 import { LoginIdentif , configServer, classUserLogin } from '../JsonServerClass';
 import { EventAug, configPhoto, StructurePhotos } from '../JsonServerClass';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../environments/environment';
 import { classCredentials} from '../JsonServerClass';
 import { mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from '../ClassConverter';
 import { classAccessFile } from '../classFileSystem';
 
 import { fillConfig } from '../copyFilesFunction';
 import { fnAddTime } from '../MyStdFunctions';
-import { isArray } from 'chart.js/dist/helpers/helpers.core';
+
 import { fillCredentials } from '../copyFilesFunction';
  
+export class classTabApps{
+  apps:string="";
+  select:number=0;
+  display:boolean=false;
+}
 
 @Component({
   selector: 'app-user-functions',
@@ -47,6 +53,8 @@ export class UserFunctionsComponent {
   
     @Input() ConvToDisplay=new mainConvItem;
 
+    @Input() devMode:string="";
+
     @Output() serverChange=  new EventEmitter<any>();
 
     tabLock: Array<classAccessFile> = []; //0=unlocked; 1=locked by user; 2=locked by other user; 3=must be checked;
@@ -66,13 +74,97 @@ export class UserFunctionsComponent {
     isConfigServerRetrieved:boolean=true;
     isCredentials:boolean=true;
 
+    isInitTabLock:boolean=false;
+
+    tabApps:Array<classTabApps>=[];
+    nbAppsToDisplay:number=0;
+
+    errMsg:string="";
+
 ngOnInit(){
   //console.log('user-functions - init --- configServer.google='+this.configServer.googleServer);
   this.initTabLock();
-  
+      
+  // TO BE DELETED
+  //this.selectApps=29;
+  //this.isAppsSelected=true;
+  this.initTabApps();
+  var lastSelection:number=0;
+  if (this.identification.apps[0]==="All"){
+    for (var j=0; j<this.tabApps.length; j++){
+      this.tabApps[j].display=true;
+      lastSelection=j;
+      this.nbAppsToDisplay++;
+    }
+  } else {
+    for (var i=0; i<this.identification.apps.length; i++){
+      for (var j=0; j<this.tabApps.length && this.identification.apps[i]!==this.tabApps[j].apps ; j++){}
+      if (j<this.tabApps.length ){
+        this.tabApps[j].display=true;
+        lastSelection=j;
+        this.nbAppsToDisplay++;
+      }
+    }
+  }
+
+  if ( this.nbAppsToDisplay===1 && this.tabApps[lastSelection].select!==0){
+    this.isAppsSelected=true;
+    this.selectApps=this.tabApps[lastSelection].select;
+  } else if ( this.nbAppsToDisplay===0){
+      this.errMsg="This user cannot access any application; update the user file";
+  }
+}
+
+initTabApps(){
+  var tabFn:Array<string>=[];
+  var nbFn:Array<number>=[];
+  tabFn[0]="General";
+  nbFn[3]=0;
+  tabFn[1]="Crypto";
+  nbFn[3]=6;
+  tabFn[2]="Fitness";
+  nbFn[3]=24;
+  tabFn[3]="Health";
+  nbFn[3]=0;
+  tabFn[4]="Recipe";
+  nbFn[4]=14;
+  tabFn[5]="Dictionary";
+  nbFn[5]=15;
+  tabFn[6]="Canvas";
+  nbFn[6]=27;
+  tabFn[7]="ConvFn";
+  nbFn[7]=10;
+  tabFn[8]="UserInfo";
+  nbFn[8]=0;
+  tabFn[9]="Config";
+  nbFn[9]=0;
+  tabFn[10]="Photo";
+  nbFn[10]=25;
+  tabFn[11]="Sport";
+  nbFn[11]=0;
+  tabFn[12]="fileMgt";
+  nbFn[12]=0;
+  tabFn[13]="caloriesMgt";
+  nbFn[13]=11;
+  tabFn[14]="adminServer";
+  nbFn[14]=16;
+  tabFn[15]="tutorials";
+  nbFn[15]=17;
+  tabFn[16]="27Aug2022";
+  nbFn[16]=26;
+  tabFn[17]="manageCUSS";
+  nbFn[17]=29;
+
+  for (var i=0; i<tabFn.length; i++){
+    const tabClass=new classTabApps;
+    tabClass.display=false;
+    this.tabApps.push(tabClass);
+    this.tabApps[this.tabApps.length-1].apps=tabFn[i];
+    this.tabApps[this.tabApps.length-1].select=nbFn[i];
+  }
 
 }
-isInitTabLock:boolean=false;
+
 initTabLock(){
   if (this.tabLock.length===0){
     for (var i = 0; i <this.maxEventHTTPrequest; i++) {

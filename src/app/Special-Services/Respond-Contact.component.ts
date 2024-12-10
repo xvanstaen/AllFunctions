@@ -6,8 +6,9 @@ import { FormGroup, FormControl, Validators} from '@angular/forms';
 import { configServer, OneBucketInfo } from '../JsonServerClass';
 import { Bucket_List_Info } from '../JsonServerClass';
 
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
+import { ManageMongoDBService } from '../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../CloudServices/access-config.service';
 
 @Component({
   selector: 'app-Respond-Contact',

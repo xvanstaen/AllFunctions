@@ -22,10 +22,10 @@ import { msginLogConsole } from '../consoleLog';
 import { configServer, classFilesToCache,  UserParam, LoginIdentif, msgConsole } from '../JsonServerClass';
 
 import { classAccessFile, classFileSystem } from '../classFileSystem';
-import { ManageSecuredGoogleService } from 'src/app/CloudServices/ManageSecuredGoogle.service';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { TutorialService } from 'src/app/CloudServices/tutorial.service';
+import { ManageSecuredGoogleService } from '../CloudServices/ManageSecuredGoogle.service';
+import { ManageMongoDBService } from '../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../CloudServices/ManageGoogle.service';
+import { TutorialService } from '../CloudServices/tutorial.service';
 import { fillConfig } from '../copyFilesFunction';
 import { convertLongFormatDate } from '../MyStdFunctions';
 

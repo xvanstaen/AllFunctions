@@ -34,12 +34,12 @@ import { classConfigChart, classchartHealth } from '../Health/classConfigChart';
 import { classAxis, classLegendChart, classPluginTitle, classTabFormChart, classFileParamChart } from '../Health/classChart';
 import { classFileSystem, classAccessFile, classReturnDataFS, classHeaderReturnDataFS, classRetrieveFile } from '../classFileSystem';
 
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { AccessConfigService } from 'src/app/CloudServices/access-config.service';
+import { ManageMongoDBService } from '../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../CloudServices/access-config.service';
 
 import { fnAddTime, convertDate, strDateTime, fnCheckLockLimit, fnCheckTimeOut, defineMyDate, formatDateInSeconds, formatDateInMilliSeconds, findIds } from '../MyStdFunctions';
-import { FillHealthAllInOut } from 'src/app/copyFilesFunction';
+import { FillHealthAllInOut } from '../copyFilesFunction';
 @Component({
   selector: 'app-file-access',
   templateUrl: './file-access.component.html',

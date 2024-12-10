@@ -25,10 +25,10 @@ import { msginLogConsole } from '../consoleLog';
 import { configServer, classFilesToCache,  UserParam, LoginIdentif, msgConsole } from '../JsonServerClass';
 
 import { classAccessFile, classFileSystem } from '../classFileSystem';
-import { ManageSecuredGoogleService } from 'src/app/CloudServices/ManageSecuredGoogle.service';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { TutorialService } from 'src/app/CloudServices/tutorial.service';
+import { ManageSecuredGoogleService } from '../CloudServices/ManageSecuredGoogle.service';
+import { ManageMongoDBService } from '../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../CloudServices/ManageGoogle.service';
+import { TutorialService } from '../CloudServices/tutorial.service';
 import { fillConfig } from '../copyFilesFunction';
 @Component({
   selector: 'app-test-server-js',
@@ -142,8 +142,8 @@ export class TestServerJSComponent {
 
   });
 
-  tabAction: Array<string> = ['cancel', 'list all buckets', 'list all objects', 'get file content', 'get list metadata for all objects', 'get metadata for one object', 'create & save metadata' , 'update metadata for one object',  'save object', 'save object with meta perso' , 'rename object', 
-  'copy object', 'move object', 'delete object','get server version', 'get cache console', 'get memory File System', 'get credentials','get cache file', 'manage config','reset memory File System','reset memory all FS', 'reset cache console','enable cache console', 'disable cache console', 'reset cache file', 'reload cache file'];
+  tabAction: Array<string> = ['cancel', 'list all buckets', 'list all objects', 'get file content', 'get list metadata for all objects', 'get metadata for one object', 'create & save metadata' , 'update metadata for one object',  'save object', 'save object with meta perso' , 'save Memory', 'rename object', 
+  'copy object', 'move object', 'delete object','get server version', 'get cache console', 'get memory File System', 'get credentials','get default credentials','get cache file', 'manage config','reset memory File System','reset memory all FS', 'reset cache console','enable cache console', 'disable cache console', 'reset cache file', 'reload cache file'];
   
   tabConfig:Array<string>=['find cache config', 'reset cache config','find config by criteria', 'find all config', "update config by id", "upload config", "delete config by Id", "create config"];
 
@@ -193,6 +193,8 @@ export class TestServerJSComponent {
 
   selectOneServer:boolean=false;
 
+  initialiseBearer:boolean=false;
+
   ngOnInit() {
     
     this.reinitialise();
@@ -215,16 +217,30 @@ export class TestServerJSComponent {
       this.tabMetaPerso[i].value="";
     }
 
-    if (this.credentials.access_token !== undefined || this.credentials.access_token !== "") {
-      this.authorization = 'Bearer ' + this.credentials.access_token;
-      this.theHeadersAll = new HttpHeaders({
-        "Authorization": this.authorization,
-        "Content-Type": this.contentTypeJson,
-        "Accept": this.accept,
-      });
-    }
-    
+    // this.theForm.controls['serverForAction'].setValue(this.tabServers[0]);
+  
     this.isInitDone=true;
+    this.newConfigServer.googleServer=this.tabServers[0];
+    this.theForm.controls['serverForAction'].setValue(this.tabServers[0]);
+    this.theForm.controls['server'].setValue("HTTP");
+    this.theForm.controls['srcBucket'].setValue("xav_fitness");
+    this.theForm.controls['srcObject'].setValue("FitStat-Workouts");
+    //this.updateHeader();
+    //this.manageAuth();
+    this.requestServerAuth();
+    this.getDefaultCredentials(true);
+    
+  }
+
+  updateHeaderAll(){
+    var auth="Bearer "
+    
+    this.theHeadersAll = new HttpHeaders({
+      "Authorization": auth + this.credentials.access_token,
+      "Content-Type": this.contentTypeJson,
+      "Accept": this.accept,
+    });
+
   }
 
   searchServer(){
@@ -485,7 +501,12 @@ storeTitle(event:any){
         } else {
           this.isConfirmedDelete = true;
         }
-        
+      } else if (event.target.textContent.trim() === 'save Memory' ) {
+        if (this.theForm.controls['destBucket'].value==="" || this.theForm.controls['destObject'].value==="" || this.theForm.controls['fileContent'].value===""){
+          this.error="At least one field (destBucket/destObject/Content) is empty";
+        } else {
+          this.saveMemory(this.theForm.controls['destBucket'].value, this.theForm.controls['destObject'].value,this.theForm.controls['fileContent'].value);
+        }  
       } else if (event.target.textContent.trim() === 'save object' ) {
         if (this.theForm.controls['srcBucket'].value==="" || this.theForm.controls['srcObject'].value==="" || this.theForm.controls['fileContent'].value===""){
           this.error="At least one field (srcBucket/srcObject/Content) is empty";
@@ -546,10 +567,13 @@ storeTitle(event:any){
         this.isDisplayAction=false;
         this.manageConfig();
 
-      } else if (event.target.textContent.trim() === 'get credentials') {
+      } else if (event.target.textContent.trim() === 'get credentials') { 
         this.isDisplayAction=false;
-        //this.getDefaultCredentials();
-        this.getCredentials();
+        this.getCredentials(true);
+
+      } else if (event.target.textContent.trim() === 'get default credentials') { 
+        this.isDisplayAction=false;
+        this.getDefaultCredentials(true);
 
       } else if (event.target.textContent.trim() === 'get FS credentials') {
         this.isDisplayAction=false;
@@ -1131,9 +1155,26 @@ listConfig(){
 
   getFileContentHTTP(bucket: any, object: any) {
     this.initBeforeCallAPI(2);
+    const OAUTH_CLIENT = '';
+    const OAUTH_SECRET = '';
+    const HTTP_OPTIONSA = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/x-www-form-urlencoded'
+        , 'Authorization': 'Basic ' + btoa(OAUTH_CLIENT + ":" + OAUTH_SECRET)
+      })
+    };
     this.HTTP_Address = 'https://storage.googleapis.com/download/storage/v1/b/' + bucket + '/o/' + object + '?alt=media';
-    //this.HTTP_Address=this.Google_Bucket_Access_Root+bucket+this.GoogleObject_Option+object;
-    this.http.get(this.HTTP_Address, { headers: this.theHeadersAll })
+
+    this.HTTP_Address = 'https://storage.googleapis.com/storage/v1/b/' + bucket + '/o/' + object + '?alt=media';
+
+    const theHeadersAll = new HttpHeaders({
+      "Authorization": "Bearer " + this.credentials.access_token,
+     
+    });
+
+    //this.updateHeaderAll();
+    
+    this.http.get(this.HTTP_Address, { headers: theHeadersAll })
       .subscribe((data) => {
         //console.log(JSON.stringify(data)); 
         this.returnFileContent = JSON.stringify(data);
@@ -1142,10 +1183,17 @@ listConfig(){
       },
         err => {
           //console.log('Metaobject not retrieved ' + err.status);
-          this.manageErrorMsg(err);
-          this.EventStopWaitHTTP[2]=true;
+         if (err.error.status===200 && err.error.text!==undefined &&  err.error.text!==""){
+            this.returnFileContent=err.error.text;
+            this.EventHTTPReceived[2] = true;
+            this.EventStopWaitHTTP[2]=true;
+         } else {
+            this.manageErrorMsg(err);
+            this.EventStopWaitHTTP[2]=true;
+          }
         });
   }
+
 
   deleteObject(srcbucket: any, srcobject: any) {
     this.returnFileContent="";
@@ -1644,12 +1692,12 @@ listConfig(){
 
   /* =================== CREDENTIALS  =============*/
 
-  getDefaultCredentials(){
+  getDefaultCredentials(reset:boolean){
     this.stringCredentials="";
     this.credentials = new classCredentials;
     this.initBeforeCallAPI(17);
     this.newConfigServer.googleServer=this.theForm.controls['serverForAction'].value;
-    this.ManageGoogleService.getDefaultCredentials(this.newConfigServer)
+    this.ManageGoogleService.getDefaultCredentials(this.newConfigServer,reset)
           .subscribe(
         (data ) => {
             //this.configServer.googleServer=saveGoogleServer;
@@ -1671,12 +1719,13 @@ listConfig(){
         });
   }
 
-  getCredentials(){
+  
+  getCredentials(reset:boolean){
     console.log('getCredentials()');
     this.credentials = new classCredentials;
     this.initBeforeCallAPI(17);
     this.newConfigServer.googleServer=this.theForm.controls['serverForAction'].value;
-    this.ManageGoogleService.getCredentials(this.newConfigServer )
+    this.ManageGoogleService.getCredentials(this.newConfigServer,reset )
     .subscribe(
         (data ) => {
           this.EventStopWaitHTTP[17]=true;
@@ -1688,6 +1737,10 @@ listConfig(){
           this.credentials.creationDate=data.credentials.creationDate.substring(0,4)+'/'+data.credentials.creationDate.substring(4,6)+'/'+data.credentials.creationDate.substring(6,8)+' '+data.credentials.creationDate.substring(8,10)+':'+data.credentials.creationDate.substring(10,12)+':'+data.credentials.creationDate.substring(12,14)+' '+data.credentials.creationDate.substring(14);
           this.returnFileContent=JSON.stringify(data);
           this.EventHTTPReceived[17]=true;
+          if (this.initialiseBearer===true){
+            this.updateHeaderAll();
+            this.initialiseBearer=false;
+          }
         },
         err => {
             this.EventStopWaitHTTP[17]=true;
@@ -1696,32 +1749,7 @@ listConfig(){
           });
   }
 
-/*
-  getFSCredentials(){
-    console.log('get File System Credentials()');
-    this.credentials = new classCredentials;
-    this.initBeforeCallAPI(17);
-    this.newConfigServer.fileSystemServer=this.theForm.controls['serverForAction'].value;
-    this.ManageGoogleService.getFSCredentials(this.newConfigServer )
-    .subscribe(
-        (data ) => {
-          this.EventStopWaitHTTP[17]=true;
-          this.credentials.access_token=data.credentials.access_token;
-          this.credentials.id_token=data.credentials.id_token
-          this.credentials.refresh_token=data.credentials.refresh_token
-          this.credentials.token_type=data.credentials.token_type;
-          this.credentials.userServerId=data.credentials.userServerId;
-          this.credentials.creationDate=data.credentials.creationDate.substring(0,4)+'/'+data.credentials.creationDate.substring(4,6)+'/'+data.credentials.creationDate.substring(6,8)+' '+data.credentials.creationDate.substring(8,10)+':'+data.credentials.creationDate.substring(10,12)+':'+data.credentials.creationDate.substring(12,14)+' '+data.credentials.creationDate.substring(14);
-          this.returnFileContent=JSON.stringify(data);
-          this.EventHTTPReceived[17]=true;
-        },
-        err => {
-          this.EventStopWaitHTTP[17]=true;
-          this.manageErrorMsg(err);
-          console.log('return from requestToken() with error = '+ JSON.stringify(err));
-          });
-  }
-*/
+
 
 
   /* =================== CONFIRM SAVE/DELETE  =============*/
@@ -1749,6 +1777,23 @@ listConfig(){
     } else { 
       this.currentAction = ""; 
     }
+  }
+
+  saveMemory(srcbucket: any, srcobject: any, record: any){
+    this.initBeforeCallAPI(8);
+    this.ManageGoogleService. uploadFromMemory(this.newConfigServer, srcbucket, srcobject,record, "A","B")
+    .subscribe(data => {
+      if (data.type === 4 && data.status === 200) {
+        console.log(JSON.stringify(data));
+        this.returnFileContent = JSON.stringify(data);
+        this.EventHTTPReceived[8] = true;
+      }
+    },
+    err => {
+      this.EventStopWaitHTTP[8]=true;
+      console.log('Pb with saveMemory ' + err.status);
+      this.manageErrorMsg(err);
+    })
   }
 
   saveObject(srcbucket: any, srcobject: any, record: any) {
@@ -1820,11 +1865,13 @@ listConfig(){
     }
   }
 
-
   manageAuth() {
     const OAUTH_CLIENT = '699868766266-iimi67j8gvpnogsq45jul0fbuelecp4i.apps.googleusercontent.com';
     const OAUTH_SECRET = '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';
-    const API_URL = "https://accounts.google.com/o/oauth2/v2/auth";
+    const auth_url = "https://accounts.google.com/o/oauth2/auth";
+    const token_url="https://oauth2.googleapis.com/token";
+    //const startStr="?include_granted_scopes=true&response_type=token&access_type=offline"
+    const startStr="?response_type=code"
     const HTTP_OPTIONSA = {
       headers: new HttpHeaders({
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -1833,43 +1880,69 @@ listConfig(){
     };
     const HTTP_OPTIONSB = {
       headers: new HttpHeaders({
-        'Content-Type': 'application/x-www-form-urlencoded'
-
+        'content-type': 'application/x-www-form-urlencoded',
       })
     };
-    const theScope = "&scope=https://www.googleapis.com/auth/devstorage.read_write" // Manage your data in Google Cloud Storage
-    //const theScope="https://www.googleapis.com/auth/devstorage.full_control"    // Manage your data and permissions in Google Cloud Storage
-    //const theScope="&scope=https://storage.googleapis.com/storage/v1/b/config-xmvit"
-    //const theScope="https://www.googleapis.com/auth/cloud-platform.read-only" // View your data across Google Cloud Platform services
-    //const theScope="https://www.googleapis.com/auth/cloud-platform" // View and manage your data across Google Cloud Platform services
 
-    const reDirect = "http://localhost:4200"
     const body = new HttpParams()
-      .set('grant_type', 'client_credentials');
+    .set('grant_type', 'client_credentials');
+  
 
-    //     &redirect_uri=http://localhost:4200
+    const theScope = "&scope=https://www.googleapis.com/auth/devstorage.read_write" // Manage your data in Google Cloud Storage
+    //const theScope="&scope=https://www.googleapis.com/auth/devstorage.full_control"    // Manage your data and permissions in Google Cloud Storage
+    //const theScope="&scope=https://storage.googleapis.com/storage/v1/b/config-xmvit"
+    //const theScope="&scope=https://www.googleapis.com/auth/cloud-platform.read-only" // View your data across Google Cloud Platform services
+    //const theScope="&scope=https://www.googleapis.com/auth/cloud-platform" // View and manage your data across Google Cloud Platform services
 
-    this.http.post(API_URL + "?include_granted_scopes=true&response_type=code&access_type=offline" + theScope + "&client_id=" + OAUTH_CLIENT, HTTP_OPTIONSB)
+    const reDirect="http://localhost:4200/oauth2callback";
+    //const reDDirect = "http://localhost:4200";
+
+
+
+    this.http.post(auth_url + startStr + theScope + "&redirect_uri=" +reDirect+ "&client_id=" + OAUTH_CLIENT + "&client_secret=" + OAUTH_SECRET, HTTP_OPTIONSB)
       .subscribe(
         data => {
           console.log(JSON.stringify(data));
         },
         err => {
-          console.log(JSON.stringify(err));
+          console.log("*** HTTP_OPTIONSB FAILED *** " + JSON.stringify(err));
         });
 
 
 
-    this.http.post(API_URL, body, HTTP_OPTIONSA)
+    this.http.post(auth_url, body, HTTP_OPTIONSA)
       .subscribe(
         data => {
-          console.log("========================");
+          console.log("======= OPTION A OK =========");
           console.log(JSON.stringify(data));
         },
         err => {
-          console.log("========================");
+          console.log("====== OPTION A FAILED =========");
           console.log(JSON.stringify(err));
         })
+  }
+
+  requestServerAuth(){
+  
+    this.newConfigServer.googleServer=this.theForm.controls['serverForAction'].value;
+    this.ManageGoogleService.getContentObject(this.newConfigServer, "xmv-cryptodata", "clientsecret.json")
+      .subscribe((data) => {
+        //console.log(JSON.stringify(data));
+        this.ManageSecuredGoogleService.getTokenOAuth2(this.newConfigServer,data.web.redirect_uris[0])
+        .subscribe(
+          data => {
+            console.log(data);
+          
+          },
+          err => {
+                  console.log("error Auth2 " + err);
+          });
+      },
+        err => {
+          const error = "cannot retrieve file " + "clientsecret.json"+ "   error==> " + JSON.stringify(err);
+          console.log(error)
+        });
+      
   }
 
   ngOnChanges(changes: SimpleChanges){

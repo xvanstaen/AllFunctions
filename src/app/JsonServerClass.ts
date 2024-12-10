@@ -32,6 +32,7 @@ export class BioData{
       phone:string='';
       firstname:string='';
       surname:string='';
+      secLevel:string="";
       IpAddress:string='';
       userServerId:number=0;
       credentialDate:string='';
@@ -116,6 +117,11 @@ export class BioData{
         fileStartName:'',
       };
       dictionary={
+        bucket:'',
+        fileType:'',
+        fileName:'',
+      };
+      configCUSS={
         bucket:'',
         fileType:'',
         fileName:'',

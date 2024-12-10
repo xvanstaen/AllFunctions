@@ -34,13 +34,13 @@ import { classConfigChart, classchartHealth } from '../classConfigChart';
 import { classAxis, classLegendChart, classPluginTitle, classTabFormChart, classFileParamChart } from '../classChart';
 import { classFileSystem, classAccessFile, classReturnDataFS, classHeaderReturnDataFS, classRetrieveFile } from '../../classFileSystem';
 
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { AccessConfigService } from 'src/app/CloudServices/access-config.service';
+import { ManageMongoDBService } from '../../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../../CloudServices/access-config.service';
 
 import { fnAddTime, convertDate, strDateTime, fnCheckLockLimit, fnCheckTimeOut, defineMyDate, formatDateInSeconds, formatDateInMilliSeconds, findIds } from '../../MyStdFunctions';
-import { FillHealthAllInOut } from 'src/app/copyFilesFunction';
-import { TheMonths } from 'src/app/apt_code_name';
+import { FillHealthAllInOut } from '../../copyFilesFunction';
+import { TheMonths } from '../../apt_code_name';
 
 @Component({
   selector: 'app-main-health',

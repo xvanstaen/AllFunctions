@@ -2,10 +2,10 @@ import { Component, OnInit, ViewChild, AfterViewInit,SimpleChanges,
   Output, Input, HostListener, EventEmitter } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { Subscription, Observable } from 'rxjs';
-import { FileSaverModule } from 'ngx-filesaver';
+
 import { FormGroup,UntypedFormControl, FormControl, Validators} from '@angular/forms';
 
-import * as CryptoJS from 'crypto-js';  
+//import * as CryptoJS from 'crypto-js';  
 import { Injectable } from '@angular/core';
 import { interval, lastValueFrom } from 'rxjs';
 //import { HttpErrorHandler, HandleError } from '../http-error-handler.service';
@@ -15,8 +15,9 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 import { configServer } from '../JsonServerClass';
 
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
+import { ManageMongoDBService } from '../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../CloudServices/access-config.service';
 
 @Injectable({
     providedIn: 'root'

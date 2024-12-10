@@ -5,18 +5,19 @@ import { FormGroup,UntypedFormControl, FormControl, Validators} from '@angular/f
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ActivatedRoute, Router } from "@angular/router";
 
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from './CloudServices/ManageGoogle.service';
+import { ManageSecuredGoogleService } from './CloudServices/ManageSecuredGoogle.service';
+import { ManageMongoDBService } from './CloudServices/ManageMongoDB.service';
 import { LoginIdentif , configServer, classUserLogin } from './JsonServerClass';
 import { EventAug, configPhoto, StructurePhotos } from './JsonServerClass';
-import { environment } from 'src/environments/environment';
+import { environment } from '../environments/environment';
 import { classCredentials} from './JsonServerClass';
 import { mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from './ClassConverter';
 import { classAccessFile } from './classFileSystem';
 
 import { fillConfig } from './copyFilesFunction';
 import { fnAddTime } from './MyStdFunctions';
-import { isArray } from 'chart.js/dist/helpers/helpers.core';
+
 import { fillCredentials } from './copyFilesFunction';
 
 @Component({
@@ -24,17 +25,19 @@ import { fillCredentials } from './copyFilesFunction';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+
 export class AppComponent {
 
   
   constructor(
     private ManageGoogleService: ManageGoogleService,
+    private ManageSecuredGoogleService: ManageSecuredGoogleService,
     private ManageMongoDB: ManageMongoDBService,
     private elementRef: ElementRef,
     private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router,
-   
+    
     ) {}
 
 
@@ -56,7 +59,7 @@ export class AppComponent {
   credentialsFS = new classCredentials;
   credentialsMongo = new classCredentials;
   isCredentials:boolean=false;
-  myParams={server:"", scope:"test"};
+  myParams={server:"", scope:"test", devMode:"", auth2Code:""};
 
   theForm: FormGroup = new FormGroup({ 
     userId: new FormControl({value:'', disabled:false}, { nonNullable: true }),
@@ -75,17 +78,26 @@ export class AppComponent {
   isAppsSelected:boolean=false;
   errorMsg:string="";
   isResetServer:boolean=false;
-
+  keys: Array<string>=[];
   @Input() LoginTable_User_Data:Array<EventAug>=[];
   @Input() LoginTable_DecryptPSW:Array<string>=[];
+  @Input() id!:string;
 
   inData=new classAccessFile;
   tabServers: Array<string> = [
     'http://localhost:8080', 'https://test-server-359505.uc.r.appspot.com',
-    'https://xmv-it-consulting.uc.r.appspot.com', 'https://serverfs.ue.r.appspot.com'
+    'https://xmv-it-consulting.uc.r.appspot.com', 'https://serverfs.ue.r.appspot.com', "http://localhost:3000"
   ]
-
+  passInit:number=0;
   saveGoogleServer:string="";
+
+  nameRetrievedFile:string="";
+
+  // development Mode
+  devMode:string="";
+  currentFunction:string="";
+  theFn:string="Config";
+  errConfig:string="";
 
   ngOnInit(){
    // const snapshotParam = this.route.snapshot.paramMap.get("server");
@@ -93,28 +105,58 @@ export class AppComponent {
 
   // http://localhost:4200/?server=8080&scope=test 
    // http://localhost:4200/?server=XMV&scope=prod 
+   // devMode=local
 
-   this.initConfigServer.googleServer=this.tabServers[2];
-   this.initConfigServer.mongoServer=this.tabServers[1];
-   this.initConfigServer.fileSystemServer=this.tabServers[3];
-    this.route.queryParams
-      .subscribe(params => {
-        console.log(params); 
-        console.log(JSON.stringify(params));
-        this.myParams.server = params['server'];
-        this.myParams.scope = params['scope'];
-        this.http.get("http://api.ipify.org/?format=json").subscribe(
-          (res:any)=>{
-              this.IpAddress = res.ip;
-          }, err=> {console.log("issue to retrieve ipAddress" + err)});
+  this.initConfigServer.googleServer=this.tabServers[0];
+  this.initConfigServer.mongoServer=this.tabServers[1];
+  this.initConfigServer.fileSystemServer=this.tabServers[3];
 
-        this.RetrieveConfig();        
-      }
-    );
+
+  this.route.queryParams.subscribe(params => {
+    console.log(JSON.stringify(params));
+    if (params['server']!==undefined ){
+          this.myParams.server = params['server'];
+          if (this.myParams.server==="8080"){
+            this.initConfigServer.googleServer=this.tabServers[0];
+            this.initConfigServer.mongoServer=this.tabServers[0];
+            this.initConfigServer.fileSystemServer=this.tabServers[0];
+          }
+    }
+    if (params['devMode']!==undefined ){
+      this.myParams.devMode = params['devMode'];
+      this.devMode = this.myParams.devMode;
+    }
+    if (params['scope']!==undefined){
+            this.myParams.scope = params['scope'];
+    }
+  })
+  this.currentFunction="retrieveConfig";
+  if (this.passInit===0 && this.devMode!=="local"){ 
+      this.http.get<any>('https://jsonip.com').subscribe( 
+          (data) => {
+            console.log('ip address (jsonip) = ', data.ip);
+            this.IpAddress = data.ip
+          }, 
+          (err) => {
+              this.findIpAddress();
+          });
+          
+      this.RetrieveConfig();
+          
+      this.passInit++
+    }
   }
 
       // this is for allFunctions only so that test BackendServer is used
-
+  findIpAddress(){
+    this.http.get("http://api.ipify.org/?format=json").subscribe(
+      res=>{
+          this.IpAddress = JSON.stringify(res);
+          console.log('ip address (pi.ipify.org)'+ this.IpAddress);
+      }, 
+      err=> {console.log("issue to retrieve ipAddress" + err)}
+    )
+  }
 
   getServerNames(event:any){
     this.initConfigServer.googleServer=event.google;;
@@ -129,8 +171,7 @@ export class AppComponent {
   RetrieveConfig(){
     console.log('RetrieveConfig()');
     var test_prod='';
-        
-  
+    this.errConfig=""
     /**
     if (this.myParams.server==="8080"){
           this.initConfigServer.googleServer='http://localhost:8080';
@@ -156,6 +197,7 @@ export class AppComponent {
       
     this.initConfigServer.test_prod=test_prod; // retrieve the corresponding record test or production
     this.initConfigServer.GoogleProjectId='ConfigDB';
+    this.currentFunction="retrieveConfig";
     
     this.ManageMongoDB.findConfig(this.initConfigServer, 'configServer')
      // this.ManageMongoDB.findConfigbyURL(this.initConfigServer, 'configServer', '')
@@ -164,25 +206,7 @@ export class AppComponent {
          // test if data is an array if (Array.isArray(data)===true){}
          //     this.configServer=data[0];
        
-
-        if (Array.isArray(data) === false){
-          this.configServer = fillConfig(data);
-        } else {
-          for (let i=0; i<data.length; i++){
-              if (data[i].title==="configServer" && data[i].test_prod===test_prod){
-                  //this.configServer = data[i];
-                  this.configServer = fillConfig(data[i]);
-              } 
-            }
-        }
-        
-        this.configServer.googleServer = this.initConfigServer.googleServer;
-        this.configServer.mongoServer = this.initConfigServer.mongoServer;
-        this.configServer.fileSystemServer = this.initConfigServer.fileSystemServer;
-        this.configServer.IpAddress=this.IpAddress;
-        this.configServer.test_prod= this.initConfigServer.test_prod;
-        this.configServer.project="AllFunctions";
-        this.saveGoogleServer = this.configServer.googleServer;
+          this.onReturnConfig(data,test_prod);
         //this.configServer.project=this.initConfigServer.project;
           //this.getTokenOAuth2();
           if (this.credentials.access_token===""){
@@ -195,12 +219,81 @@ export class AppComponent {
             this.getServerUsrId('FS');
         } 
         
-        this.isConfigServerRetrieved=true;
+        
         },
         error => {
           console.log('error to retrieve the configuration file ;  error = ', error);
         });
   }
+
+  onReturnConfig(data:any,test_prod:string){
+    this.errConfig="";
+    
+    if (Array.isArray(data) === false){
+      if (this.devMode==="local"){
+        if (typeof data === "string") {
+          if (data.indexOf('\n')>-1){
+            while (data.indexOf('\n')>-1){
+              var i=data.indexOf('\n');
+              data=data.substring(0,i) + data.substring(i+1);
+          }
+          var myData=JSON.parse(data);
+          }
+        } else { myData=data;}
+      }
+    }       
+    if (Array.isArray(myData) === true){
+      if (myData[0].project!==undefined){
+          for (let i=0; i<myData.length; i++){
+            if (myData[i].title==="configServer" && myData[i].test_prod===test_prod){
+                this.configServer = fillConfig(myData[i]);
+                this.credentials.userServerId=1;
+            } 
+          } 
+      } else {
+          this.errConfig=this.nameRetrievedFile + " = wrong file retrieved; retry";
+      }
+    } else   if (typeof data === "object" && data.title!==undefined){ //it's an object
+        this.configServer = fillConfig(data);
+        this.credentials.userServerId=1;
+    } else {
+        this.errConfig=this.nameRetrievedFile + " = wrong file retrieved; retry";
+    }
+
+    if (this.errConfig===""){
+      this.configServer.googleServer = this.initConfigServer.googleServer;
+      this.configServer.mongoServer = this.initConfigServer.mongoServer;
+      this.configServer.fileSystemServer = this.initConfigServer.fileSystemServer;
+      this.configServer.IpAddress=this.IpAddress;
+      this.configServer.test_prod= this.initConfigServer.test_prod;
+      this.configServer.project="AllFunctions";
+      this.saveGoogleServer = this.configServer.googleServer;
+      this.isConfigServerRetrieved=true;
+      this.currentFunction="getLogin";
+      this.theFn="Login";
+    }
+
+  }
+
+  open(event: Event) { // used to upload file
+
+    if (event.target instanceof HTMLInputElement && event.target.files!==undefined && event.target.files!==null && event.target.files.length > 0) {
+      const reader = new FileReader();
+      this.nameRetrievedFile=event.target.files[0].name;
+      reader.onloadend = () => {
+          if (this.currentFunction==="retrieveConfig"){
+            this.onReturnConfig(reader.result as string,"test");
+            
+          } else if (this.currentFunction==="getLogin"){
+            this.onLocalGetLogin(reader.result as string);
+            
+          }
+          // reader.onabort= () => {console.log("stop");}
+          };
+        reader.readAsText(event.target.files[0]);
+        
+      }
+    }
 
 
   getCredentialsFS(){
@@ -218,16 +311,16 @@ export class AppComponent {
     }
   
 
-    getServerUsrId(serverType:any){
-      console.log('getServerUsrId()');
+  getServerUsrId(serverType:any){
+    console.log('getServerUsrId()');
       
-      if (serverType==='Mongo'){
-          this.configServer.googleServer = this.configServer.mongoServer;
-      } else if (serverType==='FS'){
-        this.configServer.googleServer = this.configServer.fileSystemServer
-      }
-      //this.ManageGoogleService.getCredentials(this.configServer  )
-      this.ManageGoogleService.getNewServerUsrId (this.configServer  )
+    if (serverType==='Mongo'){
+        this.configServer.googleServer = this.configServer.mongoServer;
+    } else if (serverType==='FS'){
+      this.configServer.googleServer = this.configServer.fileSystemServer
+    }
+    //this.ManageGoogleService.getCredentials(this.configServer  )
+    this.ManageGoogleService.getNewServerUsrId (this.configServer  )
       .subscribe(
           (data ) => {
             if (serverType==='Google'){
@@ -245,8 +338,6 @@ export class AppComponent {
             console.log('return from requestToken() with error = '+ JSON.stringify(err));
             });
     }
-
-  
   
   assignNewServerUsrId(){
     this.ManageGoogleService.getNewServerUsrId(this.configServer)
@@ -285,16 +376,6 @@ export class AppComponent {
     } 
   }
 
-  fnResetServer(){
-    /*
-    this.isCredentials=false;
-    this.isResetServer=true;
-    this.isIdRetrieved=false;
-    this.getDefaultCredentials(event);
-    this.assignNewServerUsrId();
-    */
-  }
-
   changeServerName(event:any){
     if (event==="Google"){
       this.getServerUsrId('Google');
@@ -307,19 +388,22 @@ export class AppComponent {
     } 
 }    
 
+fnResetServer(){
+}
+
   fnNewCredentials(credentials:any){
     this.isResetServer=true;
     this.credentials=credentials;
-
   }
 
-isValidateId:boolean=false;
+  isValidateId:boolean=false;
   validateIdentification(){
     this.isValidateId=true;
     this.errorMsg="";
     if (this.theForm.controls['userId'].value !== '' && this.theForm.controls['psw'].value !== '' ){
       if (this.isCredentials===true){
-        this.getLogin(this.theForm.controls['userId'].value,this.theForm.controls['psw'].value);
+        //this.getLogin(this.theForm.controls['userId'].value,this.theForm.controls['psw'].value);
+        this.checkLogin(this.theForm.controls['userId'].value,this.theForm.controls['psw'].value);
       }
       else {
           this.errorMsg="Configuration file not completely processed yet; submit again";
@@ -335,7 +419,6 @@ isValidateId:boolean=false;
   }
 
   ReceiveFiles(event:any){
-
     if (event.fileType!=='' && 
             event.fileType===this.identification.configFitness.fileType.convertUnit){ 
         this.ConvertUnit=event;
@@ -353,37 +436,40 @@ isValidateId:boolean=false;
       } 
   }
 
-
-isGetLogin:boolean=false;
-  getLogin(userId:string,psw:string){
-    this.isGetLogin=true;
-    this.errorMsg="retrieving your information .... is in progress";
-    this.ManageGoogleService.encryptAllFn(this.configServer,psw, 1, 'AES', 'Yes')
-      .subscribe((data ) => { 
-        if (data.status===undefined){
-          this.configServer.userLogin.id=userId;
-          this.configServer.userLogin.psw=data.response;
-          this.configServer.userLogin.accessLevel="";
-          this.checkLogin();
-        } else {
-          this.errorMsg = data.msg;
-        }
-        this.isGetLogin=false;
-      },
-      err => {
-        this.errorMsg = err.msg;
-        this.isGetLogin=false;
-      })
-
-
+  onLocalGetLogin(data:any){
+    this.currentFunction="";
+    this .errConfig="";
+    var myData=JSON.parse(data);
+    if (myData.UserId!==undefined){
+      this.identification=myData;
+      this.configServer.userLogin.id=this.identification.UserId;
+      this.configServer.userLogin.psw="";
+      if (this.identification.UserId==="XMV-IT Admin"){
+        this.configServer.userLogin.accessLevel="Very High";
+      } else {
+        this.configServer.userLogin.accessLevel="Low";
+      }
+      this.isIdRetrieved=true;
+      this.currentFunction="";
+    } else {
+      this .errConfig=this.nameRetrievedFile + " does not correspond to a login file; retry"
+    }
   }
 
-  checkLogin(){
+  checkLogin(userId:string,psw:string){
+    this.currentFunction="";
+    this.theFn="";
+    this.errorMsg="retrieving your information .... is in progress";
+    this.configServer.userLogin.id=userId;
+    this.configServer.userLogin.psw=psw;
+    this.configServer.userLogin.accessLevel="";
     this.ManageGoogleService.checkLogin(this.configServer)
         .subscribe((data ) => {    
             if (data.status===undefined){ 
-              this.getUserAccessLevel();
+              //this.getUserAccessLevel();
               this.identification=data;
+              this.configServer.userLogin.accessLevel=this.identification.secLevel;
+              this.identification.secLevel="";
               this.isIdRetrieved=true;
               this.isValidateId=false;
               this.identification.userServerId=this.credentialsFS.userServerId;
@@ -391,19 +477,10 @@ isGetLogin:boolean=false;
               this.identification.IpAddress=this.configServer.IpAddress;
               this.errorMsg="";
             
-
-// TO BE DELETED
-if (this.configServer.userLogin.accessLevel==="High" || this.configServer.userLogin.accessLevel==="Very High"){
-    this.selectApps=16;
-    //this.selHealthFunction=5
-    this.isAppsSelected=true;
-}
-
-
-        //
               console.log("isResetServer= "+this.isResetServer + "  isIdRetrieved=" + this.isIdRetrieved + "  isConfigServerRetrieved=" + this.isConfigServerRetrieved)
             } else {
-              this.errorMsg='invalid user-id/password';
+              this.errorMsg=data.msg;
+              this.isValidateId=false;
             }
         //
       },
@@ -413,22 +490,6 @@ if (this.configServer.userLogin.accessLevel==="High" || this.configServer.userLo
           this.isValidateId=false;
         })
   }
-
-  getUserAccessLevel(){
-    this.ManageGoogleService.getSecurityAccess(this.configServer )
-    .subscribe((data ) => {  
-          if (data.status===200){
-            this.configServer.userLogin.accessLevel = data.accessLevel;
-          } else {
-            this.errorMsg=data.msg
-          }
-      },
-      err =>{
-          console.log('getSecurityAccess  error ' + err);
-          this.errorMsg="Server problem. Lower level of access has been assigned"
-      });
-  }
-
   getFileContentHTTP(bucket:any, object:any){
 
     const theBearer = 'Bearer ' +    this.credentials.access_token;
@@ -447,7 +508,54 @@ if (this.configServer.userLogin.accessLevel==="High" || this.configServer.userLo
                     console.log('Error = ' + ' ' + err.error.error.code  + ' ' + err.error.error.message)
                 }
               });
-      }  
+  }  
+}
+
+
+  
+/*
+  isGetLogin:boolean=false;
+  getLogin(userId:string,psw:string){
+    this.isGetLogin=true;
+    this.currentFunction="";
+    this.theFn="";
+    this.errorMsg="retrieving your information .... is in progress";
+    this.ManageSecuredGoogleService.encryptFn(this.configServer,psw, 1, 'AES', 'Yes')
+      .subscribe((data ) => { 
+        if (data.status===undefined){
+          this.configServer.userLogin.id=userId;
+          this.configServer.userLogin.psw=data.response;
+          this.configServer.userLogin.accessLevel="";
+          this.checkLogin();
+        } else {
+          this.errorMsg = data.msg;
+        }
+        this.isGetLogin=false;
+      },
+      err => {
+        this.errorMsg = err.msg;
+        this.isGetLogin=false;
+      })
+  }
+*/
+
+
+/*
+  getUserAccessLevel(){
+    this.ManageGoogleService.getSecurityAccess(this.configServer )
+    .subscribe((data ) => {  
+          if (data.status===200){
+            this.configServer.userLogin.accessLevel = data.accessLevel;
+          } else {
+            this.errorMsg=data.msg
+          }
+      },
+      err =>{
+          console.log('getSecurityAccess  error ' + err);
+          this.errorMsg="Server problem. Lower level of access has been assigned"
+      });
+  }
+*/
 
       /*
       getTokenOAuth2(){
@@ -481,5 +589,5 @@ if (this.configServer.userLogin.accessLevel==="High" || this.configServer.userLo
       */ 
  
 
-}
+
 

@@ -20,7 +20,7 @@ import { msginLogConsole } from '../../consoleLog'
 import { configServer, LoginIdentif, msgConsole, classCredentials, classtheEvent } from '../../JsonServerClass';
 import { classPosDiv, getPosDiv } from '../../getPosDiv';
 
-import { environment } from 'src/environments/environment';
+
 import { manage_input } from '../../manageinput';
 import { eventoutput, thedateformat } from '../../apt_code_name';
 
@@ -38,10 +38,10 @@ import { classConfigChart, classchartHealth } from '../classConfigChart';
 import { classAxis, classLegendChart, classPluginTitle, classTabFormChart, classFileParamChart } from '../classChart';
 import { classFileSystem, classAccessFile , classReturnDataFS, classHeaderReturnDataFS , classRetrieveFile} from '../../classFileSystem';
 
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { AccessConfigService } from 'src/app/CloudServices/access-config.service';
-import { fillHealthOneDay } from 'src/app/copyFilesFunction';
+import { ManageMongoDBService } from '../../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../../CloudServices/access-config.service';
+import { fillHealthOneDay } from '../../copyFilesFunction';
 import { fnAddTime, convertDate, strDateTime, fnCheckTimeOut, defineMyDate, formatDateInSeconds, formatDateInMilliSeconds, findIds } from '../../MyStdFunctions';
 import { drawNumbers, drawHourHand, drawMinuteHand, drawSecondHand, classPosSizeClock} from '../../clockFunctions'
 

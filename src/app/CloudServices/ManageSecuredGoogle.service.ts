@@ -6,7 +6,7 @@ import { HttpClient, HttpRequest, HttpEvent,  HttpErrorResponse, HttpHeaders, Ht
 import { BioData } from '../JsonServerClass';
 import { ThisReceiver } from '@angular/compiler';
 import { configServer, LoginIdentif, classUserLogin } from '../JsonServerClass';
-import { classFileSystem, classAccessFile }  from 'src/app/classFileSystem';
+import { classFileSystem, classAccessFile }  from '../classFileSystem';
 
 
 @Injectable({
@@ -35,12 +35,20 @@ export class ManageSecuredGoogleService {
         return this.http.get<any>(http_get);                       
     }
 
-    getTokenOAuth2(config:configServer): Observable<any> {
-        const http_get=config.googleServer+'/requestTokenOAuth2/'+config.userLogin.id+'/'+encodeURIComponent(config.userLogin.psw)+'/'+config.GoogleProjectId+'/'+config.test_prod;
+    getTokenOAuth2(config:configServer,reDirect:any): Observable<any> {
+        const http_get=config.googleServer+'/requestTokenOAuth2/' + config.GoogleProjectId+'/'+config.test_prod+'/'+encodeURIComponent(reDirect);
         return this.http.get<any>(http_get);                      
     }   
+    getRefreshToken(config:configServer,reDirect:any): Observable<any> {
+        const http_get=config.googleServer+'/refreshToken/'+config.userLogin.id+'/'+config.test_prod+'/'+encodeURIComponent(reDirect);
+        return this.http.get<any>(http_get);                      
+    }   
+    getTokenOAuth2OLD(config:configServer): Observable<any> {
+        const http_get=config.googleServer+'/requestTokenOAuth2/'+config.userLogin.id+'/'+encodeURIComponent(config.userLogin.psw)+'/'+config.GoogleProjectId+'/'+config.test_prod;
+        return this.http.get<any>(http_get);                      
+    } 
     
-    getRefreshToken(config:configServer): Observable<any> {
+    getRefreshTokenOLD(config:configServer): Observable<any> {
         const http_get=config.googleServer+'/refreshToken/'+config.userLogin.id+'/'+encodeURIComponent(config.userLogin.psw)+'/'+config.GoogleProjectId+'/'+config.test_prod;
         return this.http.get<any>(http_get);                      
     }   

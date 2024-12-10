@@ -1,4 +1,4 @@
-    import { classFileSystem, classAccessFile }  from 'src/app/classFileSystem';
+    import { classFileSystem, classAccessFile }  from './classFileSystem';
 
     export function convertLongFormatDate(theDate:string) {
       // format to return is yyyy/mm/dd hh:mn:ss ms

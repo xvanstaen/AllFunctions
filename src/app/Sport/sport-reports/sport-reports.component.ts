@@ -15,8 +15,10 @@ import {classFileSport, classPointOfRef, classNewLoop, classCircuitRec, classFil
 import { fillHeaderFile , reinitTotal, copyInitPerf, copyLegInOut, copyInOut, copyLoopInOut, updateTabPor} from '../commonSportFunctions';
 import { findIds, formatHHMNSS } from '../../MyStdFunctions';
 
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
+
+import { ManageMongoDBService } from '../../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../../CloudServices/access-config.service';
 
 
 @Component({

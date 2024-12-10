@@ -18,8 +18,10 @@ import {mainClassCaloriesFat, mainDailyReport} from '../Health/ClassHealthCalori
 import {ConfigFitness} from '../Health/ClassFitness';
 import {classConfHTMLFitHealth} from '../Health/classConfHTMLTableAll';
 import { classConfigChart, classchartHealth } from '../Health/classConfigChart';
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
+
+import { ManageMongoDBService } from '../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../CloudServices/access-config.service';
 
 
 @Component({

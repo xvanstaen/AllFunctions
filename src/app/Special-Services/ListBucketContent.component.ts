@@ -13,13 +13,13 @@ import { BucketExchange } from '../JsonServerClass';
 import { msginLogConsole } from '../consoleLog';
 import { LoginIdentif } from '../JsonServerClass';
 import { BucketList } from '../JsonServerClass';
-import { environment } from 'src/environments/environment';
+
 import { msgConsole } from '../JsonServerClass';
 import { configServer } from '../JsonServerClass';
 
-
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
+import { ManageMongoDBService } from '../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../CloudServices/access-config.service';
 
 @Component({
   selector: 'app-ListBucketContent',

@@ -17,12 +17,12 @@ export class RunningClockComponent {
     
     @Input() posSizeClock= new classPosSizeClock;
 
-    @ViewChild('clockCanvas', { static: true })
+    @ViewChild('clockCanvas', { static: false })
   
     theCanvas:any;
     ctx:any;
-    clock_loop:number=0;
-    max_clock_loop:number=10000;
+    //clock_loop:number=0;
+    //max_clock_loop:number=10000;
     idAnimation:any;
 
     lenRect:number=0;  // size of the rectangle
@@ -36,31 +36,33 @@ export class RunningClockComponent {
   
     background = new Image();   
   
- ngAfterViewInit() { 
-      this.background.src = "../../../assets/clockImage.jpeg";
-      this.x=this.posSizeClock.width/2; // x axis of the center
-      this.y=this.posSizeClock.height/2; // x axis of the center
-      this.radius = this.posSizeClock.height / 2; // diameter of the circle
-      this.lenRect=this.posSizeClock.width;        
-      this.clock_loop=0;
+  ngAfterViewInit(){ 
+     
+      //this.clock_loop=0;
       if (this.posSizeClock.displayAnalog===true){
         this.theCanvas=document.getElementById('canvasElem');
-        if (!this.ctx) { //true
+        //if (!this.ctx) { //true
             this.ctx=this.theCanvas.getContext('2d');
-        } 
+        //} 
         this.theCanvas.width=this.posSizeClock.width;
         this.theCanvas.height=this.posSizeClock.height;
       } 
+      this.Clock();
   }
 
   ngOnInit(){
-    this.Clock();
+    this.background.src = "../../../assets/clockImage.jpeg";
+    this.x=this.posSizeClock.width/2; // x axis of the center
+    this.y=this.posSizeClock.height/2; // x axis of the center
+    this.radius = this.posSizeClock.height / 2; // diameter of the circle
+    this.lenRect=this.posSizeClock.width;    
   }
-  
+ 
   Clock(){
-    this.clock_loop++
+    //this.clock_loop++
     const theDate = new Date();
-    if (this.posSizeClock.displayDigital===true){
+
+    if (this.posSizeClock.displayDigital===true || this.ctx===undefined){
       this.theSeconds=theDate.getSeconds() ;
       this.theMinutes=theDate.getMinutes();
       this.theHours=theDate.getHours();
@@ -68,7 +70,7 @@ export class RunningClockComponent {
 
     //var degrees = (hours * 360 / 12) % 360; 
     //const innerRadius = radius * 0.89; 
-    if (this.posSizeClock.displayAnalog===true){
+    else if (this.posSizeClock.displayAnalog===true && this.ctx!==undefined){
       this.ctx.setTransform(1, 0, 0, 1, 0, 0); 
       this.ctx.translate(this.x, this.y); 
 
@@ -96,7 +98,7 @@ export class RunningClockComponent {
     this.ctx.clearRect(0,0,this.theCanvas.width,this.theCanvas.height);
     this.ctx.closePath();
   }
-  /*
+/*
   ngOnChanges(changes: SimpleChanges) {
       for (const propName in changes) {
         const j = changes[propName];

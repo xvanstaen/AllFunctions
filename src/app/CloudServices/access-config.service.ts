@@ -3,9 +3,9 @@ import { HttpClient,  HttpErrorResponse } from '@angular/common/http';
 // configServer is needed to use ManageGoogleService
 // it is stored in MongoDB and accessed via ManageMongoDBService
 import { configServer } from '../JsonServerClass';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../environments/environment';
 
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
+import { ManageMongoDBService } from '../CloudServices/ManageMongoDB.service';
 import { Observable } from 'rxjs';
 
 @Injectable({

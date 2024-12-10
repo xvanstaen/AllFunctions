@@ -11,13 +11,14 @@ import { FormGroup, FormControl, Validators, FormBuilder, FormArray} from '@angu
 // configServer is needed to use ManageGoogleService
 // it is stored in MongoDB and accessed via ManageMongoDBService
 import { configServer } from '../../JsonServerClass';
-import { environment } from 'src/environments/environment';
+
 import { LoginIdentif } from '../../JsonServerClass';
 
 import {eventoutput, thedateformat} from '../../apt_code_name';
 
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
+import { ManageMongoDBService } from '../../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../../CloudServices/access-config.service';
 
 import {ConfigFitness} from '../ClassFitness';
 import {ConfigSport} from '../ClassFitness';

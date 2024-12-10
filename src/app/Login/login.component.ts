@@ -7,8 +7,6 @@ import { FormGroup, FormControl, Validators} from '@angular/forms';
 
 import { XMVTestProd, configServer, LoginIdentif , classUserLogin, classCredentials, EventAug, Bucket_List_Info } from '../JsonServerClass';
 
-
-import { environment } from 'src/environments/environment';
 import {mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from '../ClassConverter';
 
 import {classConfHTMLFitHealth} from '../Health/classConfHTMLTableAll';
@@ -16,8 +14,9 @@ import {classConfHTMLFitHealth} from '../Health/classConfHTMLTableAll';
 import { classConfigChart, classchartHealth } from '../Health/classConfigChart';
 import {mainClassCaloriesFat, mainDailyReport} from '../Health/ClassHealthCalories';
 import {ConfigFitness} from '../Health/ClassFitness';
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
+import { ManageMongoDBService } from '../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../CloudServices/access-config.service';
 
 import { fillCredentials , fillConfig} from '../copyFilesFunction';
 
@@ -130,15 +129,14 @@ export class LoginComponent {
 
       this.routing_code=0;
       this.EventHTTPReceived[0]=false;
-console.log('Init login ID & PSW ' + this.configServer.userLogin.id + ' ' + this.configServer.userLogin.psw);
-console.log('this.identification.userId ' + this.identification.UserId );
+
       if (this.configServer.userLogin.id!=='') {
           this.myForm.controls['userId'].setValue(this.configServer.userLogin.id);
 
       } 
       if (this.configServer.userLogin.psw!=='') {
         if (this.identification.UserId!==""){
-          this.decryptAllPSW();
+          this.decryptAllPSW(); // should not be used 
         }
       } 
 
@@ -161,7 +159,7 @@ decryptAllPSW(){
       this.myForm.controls['password'].setValue("");
     })
 }
-
+/*
 getLogin(){
  // this.configServer.googleServer=this.tabServers[0];
  if (this.myForm.controls['userId'].value!==this.configServer.userLogin.id || this.myForm.controls['password'].value !== this.savePsw){
@@ -187,21 +185,28 @@ getLogin(){
     this.identification.IpAddress=this.configServer.IpAddress;
   }
 }
+*/
 
 checkLogin(){
     // this.ManageGoogleService.getContentObject(this.configServer, Bucket, GoogleObject )
+  if (this.myForm.controls['userId'].value!==this.configServer.userLogin.id || this.myForm.controls['password'].value !== this.savePsw){
+    this.configServer.userLogin.id=this.myForm.controls['userId'].value;
+    this.configServer.userLogin.psw=this.myForm.controls['password'].value;
+    this.configServer.userLogin.accessLevel="";
     this.ManageGoogleService.checkLogin(this.configServer )
         .subscribe((data ) => {    
             if (data.status===undefined){              
-              this.getUserAccessLevel();
+              //this.getUserAccessLevel();
               this.identification=data;
+              this.configServer.userLogin.accessLevel=this.identification.secLevel;
+              this.identification.secLevel="";
               this.routing_code=1;
               this.identification.userServerId=this.credentialsFS.userServerId;
               this.identification.credentialDate=this.credentialsFS.creationDate;
               this.identification.IpAddress=this.configServer.IpAddress;
               this.my_output2.emit(this.routing_code.toString());
             } else {
-              this.error='invalid user-id/password';
+              this.error=data.msg;
               this.isValidateData=false;
             }
       },
@@ -214,7 +219,13 @@ checkLogin(){
           }
           this.isValidateData=false;
         })
+  } else {
+    this.routing_code=1;
+    this.identification.userServerId=this.credentialsFS.userServerId;
+    this.identification.credentialDate=this.credentialsFS.creationDate;
+    this.identification.IpAddress=this.configServer.IpAddress;
   }
+}
 
   getUserAccessLevel(){
     this.ManageGoogleService.getSecurityAccess(this.configServer )
@@ -246,7 +257,8 @@ ValidateData(){
   {
     this.isValidateData=true;
     this.error='';
-    this.getLogin();
+    //this.getLogin();
+    this.checkLogin();
   }
 }
 

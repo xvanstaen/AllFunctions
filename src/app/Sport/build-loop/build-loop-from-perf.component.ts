@@ -1,3 +1,4 @@
+
 import { Component, OnInit , Input, Output, HostListener,  OnDestroy, HostBinding, ChangeDetectionStrategy, 
   SimpleChanges,EventEmitter, AfterViewInit, AfterViewChecked, AfterContentChecked, Inject} from '@angular/core';
   
@@ -16,8 +17,9 @@ import { fillHeaderFile, updateTabPor, copyInitPerf, reinitTotal } from '../comm
 
 import { findIds, formatHHMNSS } from '../../MyStdFunctions';
 
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
+import { ManageMongoDBService } from '../../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../../CloudServices/access-config.service';
 
 @Component({
   selector: 'app-build-loop-from-perf',

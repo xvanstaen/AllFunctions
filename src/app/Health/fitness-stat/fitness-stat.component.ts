@@ -16,19 +16,19 @@ import { BucketList , Bucket_List_Info, OneBucketInfo} from '../../JsonServerCla
 // it is stored in MongoDB and accessed via ManageMongoDBService
 import { configServer, LoginIdentif } from '../../JsonServerClass';
 
-import { environment } from 'src/environments/environment';
+import { environment } from '../../../environments/environment';
 import {manage_input} from '../../manageinput';
 import {eventoutput, thedateformat} from '../../apt_code_name';
 
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import {AccessConfigService} from 'src/app/CloudServices/access-config.service';
+import { ManageMongoDBService } from '../../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../../CloudServices/access-config.service';
 
 import {classPosDiv, getPosDiv} from '../../getPosDiv';
 
 import {ConfigFitness, ConfigSport, PerformanceFitness, ClassSport, ClassResult, ClassActivity, ClassExercise} from '../ClassFitness';
 import {BigData, CreturnedData, CmyEvent, Ctarget} from '../ClassFitness';
-import { findIds } from 'src/app/MyStdFunctions';
+import { findIds } from '../../MyStdFunctions';
 
 export class ClassFilesAlreadyMerged{
   name:string='A';

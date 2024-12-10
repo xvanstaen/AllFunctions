@@ -13,8 +13,9 @@ import {mainClassConv,mainConvItem, mainRecordConvert, mainClassUnit} from '../C
 import {mainClassCaloriesFat, mainDailyReport} from '../Health/ClassHealthCalories';
 import {ConfigFitness} from '../Health/ClassFitness';
 import { classConfigChart, classchartHealth } from '../Health/classConfigChart';
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
+import { ManageMongoDBService } from '../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../CloudServices/ManageGoogle.service';
+import { AccessConfigService } from '../CloudServices/access-config.service';
 import {classConfHTMLFitHealth} from '../Health/classConfHTMLTableAll';
 
 @Component({

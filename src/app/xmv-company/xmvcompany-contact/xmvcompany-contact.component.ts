@@ -3,10 +3,10 @@ import { Component, OnInit, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormGroup, FormControl, UntypedFormControl, Validators} from '@angular/forms';
 
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../../CloudServices/ManageGoogle.service';
+import { ManageMongoDBService } from '../../CloudServices/ManageMongoDB.service';
 
-import { configServer } from 'src/app/JsonServerClass';
+import { configServer } from '../../JsonServerClass';
 
 // import { SearchCountryField, CountryISO, PhoneNumberFormat } from 'ngx-intl-tel-input';
 

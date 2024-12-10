@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Tutorial } from 'src/app/components/TutorialClass';
-import { Observable } from 'rxjs';
-import { TutorialService } from 'src/app/CloudServices/tutorial.service';
+
+import { Tutorial } from '../../components/TutorialClass';
+import { TutorialService } from '../../CloudServices/tutorial.service';
+
 @Component({
   selector: 'app-add-tutorial',
   templateUrl: './add-tutorial.component.html',
@@ -24,9 +25,22 @@ export class AddTutorialComponent implements OnInit {
 
   ngOnInit(): void {
     this.HTTP_Address=this.Google_Bucket_Access_RootPOST + this.Google_Bucket_Name + "/o?name=Message"  + '.json&uploadType=media';
+    this.tutorial.description="";
+    this.tutorial.title="";
   }
 
+  saveTutorialB(){
 
+  }
+
+  saveTutorial(){
+
+  }
+
+  newTutorial(){
+
+  }
+/*
   saveTutorialB(){
   this.HTTP_Address='http://localhost:8080/api/tutorials';
   this.http.post(this.HTTP_Address, this.tutorial).subscribe(
@@ -59,11 +73,7 @@ export class AddTutorialComponent implements OnInit {
             console.log('add tutorial failed  ', error);
           }
           );
-     
-
   }
-
-
 
   newTutorial(): void {
     console.log('add tutorial: new Tutorial function')
@@ -75,18 +85,5 @@ export class AddTutorialComponent implements OnInit {
       published: false
     };
   }
-
-   /** 
-         *   .subscribe({
-        next: (res) => {
-          console.log('add tutorial is successful');
-          console.log(res);
-          this.submitted = true;
-          },
-        error: (e) => {
-          console.log('add tutorial failed ');
-          console.error(e);
-          }
-        }); 
-        **/
+*/
 }

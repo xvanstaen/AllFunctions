@@ -22,9 +22,9 @@ import { classAccessFile, classFileSystem } from '../classFileSystem';
 
 import { fillConfig } from '../copyFilesFunction'
 
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
-import { TutorialService } from 'src/app/CloudServices/tutorial.service';
+import { ManageMongoDBService } from '../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../CloudServices/ManageGoogle.service';
+import { TutorialService } from '../CloudServices/tutorial.service';
 
 export class classPSW{
   id: number=0;

@@ -9,13 +9,11 @@ import { Router} from '@angular/router';
 import { ViewportScroller } from "@angular/common";
 import { FormGroup, FormControl, Validators, FormBuilder, FormArray} from '@angular/forms';
 import { Observable } from 'rxjs';
-import { ManageMongoDBService } from 'src/app/CloudServices/ManageMongoDB.service';
-import { ManageGoogleService } from 'src/app/CloudServices/ManageGoogle.service';
+import { ManageMongoDBService } from '../CloudServices/ManageMongoDB.service';
+import { ManageGoogleService } from '../CloudServices/ManageGoogle.service';
 import { configServer, LoginIdentif, msgConsole } from '../JsonServerClass';
 import { classFileSystem, classAccessFile }  from '../classFileSystem';
-import { convertDate } from 'src/app/MyStdFunctions'
-
-
+import { convertDate } from '../MyStdFunctions'
 
 @Component({
   selector: 'app-check-file-update',

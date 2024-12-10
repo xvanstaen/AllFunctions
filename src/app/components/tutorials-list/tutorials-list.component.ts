@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { TutorialService } from 'src/app/CloudServices/tutorial.service';
-import { Tutorial } from 'src/app/components/TutorialClass';
+import { TutorialService } from '../../CloudServices/tutorial.service';
+import { Tutorial } from '../../components/TutorialClass';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
@@ -22,6 +22,14 @@ export class TutorialsListComponent implements OnInit {
   ngOnInit(): void {
    // this.retrieveTutorials();
   }
+  searchTitle(){}
+  retrieveTutorials(){}
+  refreshList(){}
+  setActiveTutorial(tutorial:any, index:any){}
+  removeAllTutorials(){}
+  editTutorial(){}
+  UpdateTutorial(){}
+/*
   retrieveTutorials(): void {
     this.tutorialService.getAll()
       .subscribe(
@@ -53,6 +61,7 @@ export class TutorialsListComponent implements OnInit {
     this.currentTutorial = tutorial;
     this.currentIndex = index;
   }
+
   removeAllTutorials(): void {
     this.tutorialService.deleteAll()
       .subscribe(
@@ -94,4 +103,5 @@ export class TutorialsListComponent implements OnInit {
           this.msg_edit = 'failure to update id ' + this.modifiedTutorial.id + '  error = ' + error.status;
         });
     }
+*/
 }

@@ -3,10 +3,9 @@ import { Inject,Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 
 import { HttpClient, HttpRequest, HttpEvent,  HttpErrorResponse, HttpHeaders, HttpContext } from '@angular/common/http';
-import { BioData } from '../JsonServerClass';
-import { ThisReceiver } from '@angular/compiler';
+
 import { configServer, classUserLogin } from '../JsonServerClass';
-import { classFileSystem, classAccessFile }  from 'src/app/classFileSystem';
+import { classFileSystem, classAccessFile }  from '../classFileSystem';
 
 @Injectable({
   providedIn: 'root',
@@ -14,9 +13,7 @@ import { classFileSystem, classAccessFile }  from 'src/app/classFileSystem';
 export class ManageGoogleService {
     
     constructor(
-        private   http: HttpClient,
-       )
-        {}
+        private   http: HttpClient, ) {}
        
 
     myHeader=new HttpHeaders({'content-type': 'application/json',
@@ -67,6 +64,13 @@ getMetaObject(config:configServer, bucket:string, object:string): Observable<any
     return this.http.get<any>(http_get);                      
 }
 
+uploadFromMemory(config:configServer, bucket:string,  object:string, fileContent: any,cacheControl:any,contentType:any): Observable<HttpEvent<any>> {
+    const http_post=config.googleServer+'/uploadFromMemory/'+config.userLogin.id+'/'+encodeURIComponent(config.userLogin.psw)+'/'+config.GoogleProjectId+'/'+object+'/'+config.test_prod+'/'+cacheControl+'/'+contentType+'?bucket='+bucket;
+    var formData: FormData = new FormData();
+    formData.append('file', fileContent);
+    const req = new HttpRequest('POST', http_post, formData);
+    return this.http.request(req);
+}
 
 uploadObject(config:configServer, bucket:string, file: File, object:string): Observable<HttpEvent<any>> {
 
@@ -82,6 +86,7 @@ uploadObject(config:configServer, bucket:string, file: File, object:string): Obs
             });
     return this.http.request(req);
 }
+
 
 uploadObjectMetaPerso(config:configServer, bucket:string, file: File, object:string, metaCache:string, metaType:string, metaPerso:any): Observable<HttpEvent<any>> {
 
@@ -148,13 +153,13 @@ getNewServerUsrId(config:configServer): Observable<any> {
     return this.http.get<any>(http_get);                      
 }  
 
-getDefaultCredentials(config:configServer): Observable<any> {
-    const http_get=config.googleServer+'/requestDefaultCredentials/'+config.GoogleProjectId+'/'+config.test_prod;
+getDefaultCredentials(config:configServer,reset:boolean): Observable<any> {
+    const http_get=config.googleServer+'/requestDefaultCredentials/'+config.GoogleProjectId+'/'+config.test_prod+'/'+reset;
     return this.http.get<any>(http_get);                      
 }  
 
-getCredentials(config:configServer): Observable<any> {
-    const http_get=config.googleServer+'/getCredentials/'+config.GoogleProjectId+'/'+config.test_prod;
+getCredentials(config:configServer,reset:boolean): Observable<any> {
+    const http_get=config.googleServer+'/getCredentials/'+config.GoogleProjectId+'/'+config.test_prod+'/'+reset;
     return this.http.get<any>(http_get);                      
 }  
 getFSCredentials(config:configServer): Observable<any> {
